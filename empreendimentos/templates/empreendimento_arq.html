@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <div class="container my-auto">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h3 class="text-center mb-4">Cadastro de Empreendimentos</h3>
+            <form role="form" method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              <!-- Informações do Objeto -->
+              <div class="col-lg-7">
+                <div class="mt-4">
+                  <p class="h3 text-danger">Codígo: {{ empreendimento.id }}</p>
+                  <p>
+                    <strong>Loteamento:</strong> {{ empreendimento.nome }}
+                  </p>                 
+                </div>
+              </div>                        
+              {% for field in form %}
+                <div class="mb-3">
+                  {{ form.as_p }}
+                </div>
+              {% endfor %}
+              <button type="submit" class="btn btn-primary w-100 mt-2">Salvar</button>
+            </form>
+            <a id="empreendimento-arq" href="{% url 'listar-quadras' empreendimento.id%}">
+              <button type="submit" class="btn btn-primary w-100 mt-2">Cancelar</button>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="text-center my-1 authentication-barrier">
+    <span>&nbsp;</span>
+  </div>
+{% endblock %}

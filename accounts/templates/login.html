@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Cadastro
+{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class=".container-fluid mt-4">
+        <div class="row align-items-center g-4">
+
+            <div class="card text-center">
+                <div class="card-header">
+                    <h4 class="mb-3">LOGIN</h4>
+
+                </div>
+                <div class="card-body mb-3">
+                    <form action="{% url 'login' %}" method="POST" class="card  p-4 shadow align-items-center">
+                        {% csrf_token %}
+
+                        {{ form.non_field_errors }}
+                        {% for field in form %}
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {{ field.errors }}
+                        {% endfor %}
+                        <br>
+                        <br>
+                        <button type="submit" class="btn btn-primary w-30 mt-3">Logar</button>
+
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

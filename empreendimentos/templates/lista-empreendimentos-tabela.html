@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Lista de Cliente
+{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h4 class="mt-4 text-center">LISTA DE EMPREENDIMENTOS</h4>
+        <hr>
+        <table class="table table-striped text-center">
+            <thead>
+            <tr>
+                <th scope="col">id</th>
+                <th scope="col">Nome</th>
+                <th scope="col"></th>
+
+            </tr>
+            </thead>
+
+            <tbody class="featurette-heading fw-normal lh-1">
+            {% for empreendimento in empreendimentos %}
+                <tr>
+                    <td>{{ empreendimento.id }}</td>
+                    <td>{{ empreendimento.nome }}</td>
+                    <td>
+                        <a href="{% url 'arquivo' empreendimento.id %}" class="btn btn-success">Arquivo</a>
+                        <a href="https://www.google.com.br/" class="btn btn-warning">Alterar</a>
+                        <a href="{% url 'deletar-empreendimento' empreendimento.id %}" class="btn btn-danger">Excluir</a>
+
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+{% endblock %}

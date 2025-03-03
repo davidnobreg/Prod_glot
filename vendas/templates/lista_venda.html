@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Lista de Vendas
+{% endblock %}
+
+{% load static %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h4 class="mt-4 text-center">LISTA DE VENDAS</h4>
+    <hr>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Cliente</th>
+          <th scope="col">Contato</th>
+          <th scope="col">Loteamento / Quadra</th>
+          <th scope="col">Lote</th>
+          <th scope="col">Corretor</th>   
+        </tr>
+      </thead>
+      
+      <tbody class="featurette-heading fw-normal lh-1">
+        {% for venda in vendas %}
+          <tr>
+            <td>{{venda.cliente}}</td>
+            <td>{{venda.cliente.phone}}</td>
+            <td>{{venda.lote.quadra}}</td>
+            <td>{{venda.lote}}</td>
+            <td>{{venda.user}}</td>
+            <td>
+              
+              <a href="{% url 'delete-venda' venda.id %}" class="btn btn-danger">Excluir Venda</a>
+            </td>
+          </tr>
+          {% endfor %}
+      </tbody>
+      
+    </table>
+  </div>
+{% endblock %}

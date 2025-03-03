@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Lista de Cliente
+{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h4 class="mt-4 text-center">LISTA DE CLIENTES</h4>
+        <hr>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">E-mail</th>
+                <th scope="col">Contato</th>
+            </tr>
+            </thead>
+
+            <tbody class="featurette-heading fw-normal lh-1">
+            {% for cliente in clientes %}
+                <tr>
+                    <td>{{ cliente.name }}</td>
+                    <td>{{ cliente.email }}</td>
+                    <td>{{ cliente.phone }}</td>
+                    <td>
+                        <button class="btn btn-warning btn-detalhes"
+                                data-id="{{ cliente.id }}"
+                                data-bs-toggle="modal"
+                                data-bs-target="#clienteAlterarModal">
+                            Alterar
+                        </button>
+                        <button class="btn btn-danger btn-detalhes"
+                                data-id="{{ cliente.id }}"
+                                data-bs-toggle="modal"
+                                data-bs-target="#clienteModal">
+                            Excluir
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+    <!-- Modal Alterar-->
+
+    <div class="modal fade" id="clienteAlterarModal" tabindex="-1" aria-labelledby="clienteAlterarModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="clienteAlterarModalLabel">Alterar Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-alterar-cliente">
+                        <input type="hidden" id="alterar-cliente-id">
+                        <div class="mb-3">
+                            <label for="alterar-cliente-name" class="form-label">Nome</label>
+                            <input type="text" class="form-control" id="alterar-cliente-nome">
+                        </div>
+                        <div class="mb-3">
+                            <label for="alterar-cliente-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="alterar-cliente-email">
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-success" id="btn-salvar-alteracoes">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Delete-->
+
+
+    <div class="modal fade" id="clienteModal" tabindex="-1" aria-labelledby="clienteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-center" id="exampleModalLabel">DELETA CLIENTE?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>ID:</strong> <span id="cliente-id"></span></p>
+                    <p><strong>Nome:</strong> <span id="cliente-name"></span></p>
+                    <p><strong>Email:</strong> <span id="cliente-email"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="btn-deletar-cliente">deletar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Canselar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

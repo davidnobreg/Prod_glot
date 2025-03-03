@@ -1,0 +1,42 @@
+deshboard{% extends 'base.html' %}
+
+{% block title %}
+  Lista de Usuarios
+{% endblock %}
+
+{% load static %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h4 class="mt-4 text-center">LISTA DE USUARIOS</h4>
+    <hr>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Creci</th>
+          <th scope="col">Nome</th>
+          <th scope="col">E-mail</th>
+          <th scope="col">Contato</th>
+          <th scope="col">Tipo usuario:</th>
+        </tr>
+      </thead>
+
+      <tbody class="featurette-heading fw-normal lh-1">
+        {% for usuario in usuarios %}
+          <tr>
+            <td>{{usuario.creci}}</td>
+            <td>{{usuario.username}}</td>
+            <td>{{usuario.email}}</td>
+            <td>{{usuario.phone}}</td>
+            <td>{{usuario.tipo_usuario}}</td>
+            <td class="text-center itemprop="actions>
+              <a href="https://www.google.com.br/" class="btn btn-warning">Alterar</a>
+              <a href="https://www.google.com.br/" class="btn btn-danger">Excluir</a>
+            </td>
+          </tr>
+          {% endfor %}
+      </tbody>
+
+    </table>
+  </div>
+{% endblock %}

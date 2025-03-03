@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Lista de Reserva
+{% endblock %}
+
+{% load static %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h4 class="mt-4 text-center">LISTA DE RESERVA</h4>
+    <hr>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Cliente</th>
+          <th scope="col">Lote</th>
+          <th scope="col">Corretor</th>
+          <th scope="col">Vencimento da Reserva</th>
+        </tr>
+      </thead>
+      
+      <tbody class="featurette-heading fw-normal lh-1">
+        {% for reserva in reservas %}
+          <tr>
+            <td>{{reserva.cliente}}</td>
+            <td>{{reserva.lote}}</td>
+            <td>{{reserva.user}}</td>
+            <td>{{reserva.dt_reserva}}</td>
+            <td>
+              <a href="{% url 'criar-venda' reserva.id %}" class="btn btn-success">Aceita Venda</a>
+              <a href="{% url 'delete-reservado' reserva.id %}" class="btn btn-danger">Excluir Reseva</a>
+            </td>
+          </tr>
+          {% endfor %}
+      </tbody>
+      
+    </table>
+  </div>
+{% endblock %}

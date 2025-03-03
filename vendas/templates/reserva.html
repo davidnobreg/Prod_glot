@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Cadastrar Reserva
+{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="row align-items-center g-4">
+
+
+        </div>
+    </div>
+    <div class="container mt-4">
+        <div class="row align-items-center g-4">
+            <hr/>
+            <div class="col-lg-6">
+                <div class="card-body">
+                    {% if lote.quadra.empr.logo %}
+                        <img src="{{ lote.quadra.empr.logo.url }}" alt="{{ lote.quadra.empr.nome }}"
+                             class="img-fluid rounded shadow"/>
+                    {% endif %}
+                    <h5 class="card-title text-center">{{ lote.quadra.empr }}</h5>
+                </div>
+                <div class="col mt-3">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item text-center"><h5 class="card-title text-center">
+                            Quadra: {{ lote.quadra.namequadra }}</h5></li>
+                        <li class="list-group-item text-center"><h5 class="card-title text-center">
+                            Lote: {{ lote.lote }}</h5></li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Formulário -->
+            <div class="col-lg-6">
+                <form action="." method="post" enctype="multipart/form-data" class="card p-4 shadow">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col mt-3">
+                            <h4 class="mb-3">Cadastrar Reserva</h4>
+                        </div>
+                        <div class="col">
+                            <a type="button" class="btn btn-primary w-100 mt-3" data-bs-toggle="modal"
+                               data-bs-target="#myModal">Add Clientes</a>
+                        </div>
+                    </div>
+
+
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                        </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Salvar</button>
+
+                    <a href="{% url 'cancelar-reservado' lote.id %}" class="btn btn-primary w-100 mt-3">Cancelar</a>
+
+
+                </form>
+            </div>
+        </div>
+
+        <hr/>
+
+        <hr/>
+    </div>
+
+    <!-- The Modal -->
+    <div class="modal" id="myModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="mb-3 text-center">Cadastrar Cliente</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form action="{% url 'criar-cliente-modal' %}?rid={{ lote.id }}" method="post" class="card p-4 shadow">
+                        {% csrf_token %}
+
+                        {% if status == '0' %}
+                            <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso</div>
+                        {% elif status == '1' %}
+                            <div class="alert alert-danger" role="alert">Preencha o nome</div>
+                        {% elif status == '2' %}
+                            <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente</div>
+                        {% elif status == '3' %}
+                            <div class="alert alert-danger" role="alert">Preencha o contato</div>
+                        {% endif %}
+
+                        <label for="">Nome:</label>
+                        <input type="text" name="name" class="form-control" placeholder="Digite o nome do cliente"/>
+                        <label for="">E-mail:</label>
+                        <input type="text" name="email" class="form-control" placeholder="Digite o e-mail do cliente"/>
+                        <label for="">Contato:</label>
+                        <input type="text" name="phone" class="form-control" placeholder="Digite o Contato do cliente"/>
+                        <hr/>
+
+                        <button type="submit" class="btn btn-primary w-100 mt-3" data-bs-dismiss="modal">Salvar</button>
+
+                        <button type="button" class="btn btn-danger w-100 mt-3" data-bs-dismiss="modal">Canselar</button>
+                    </form>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

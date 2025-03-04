@@ -1,5 +1,7 @@
 # Byte-compiled / optimized / DLL files
 .idea/
+base/media/
+static/
 Pipfile
 Pipfile.lock
 __pycache__/

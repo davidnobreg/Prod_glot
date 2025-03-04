@@ -12,7 +12,7 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 
-MEDIA_DIR = os.path.join(BASE_DIR, 'base/media')
+MEDIA_DIR = os.path.join(BASE_DIR, 'static/media')
 
 SECRET_KEY = config('SECRET_KEY')
 

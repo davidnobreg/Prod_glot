@@ -1,24 +1,33 @@
-//abri modal com os dados do cliente
-
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".btn-detalhes").forEach(button => {
         button.addEventListener("click", function () {
-            let clienteId = this.getAttribute("data-id"); // Obtém o ID do cliente
-            //console.log("Cliente ID capturado:", clienteId);  Verifica se o ID está correto
+            let clienteId = this.getAttribute("data-id");
+            console.log("Cliente ID capturado:", clienteId);
+
+            let modal = new bootstrap.Modal(document.getElementById("clienteModal"));
+            let loadingIndicator = document.getElementById("loading-indicator");
+            loadingIndicator.style.display = "block";
 
             fetch(`/clientes/select/${clienteId}/`)
                 .then(response => {
-                    console.log("Status da resposta:", response.status); // Verifica se a API responde
+                    if (!response.ok) {
+                        throw new Error(`Erro HTTP! status: ${response.status}`);
+                    }
                     return response.json();
                 })
                 .then(data => {
-                    // console.log("Dados recebidos:", data);  Mostra os dados recebidos
-
                     document.getElementById("cliente-id").textContent = data.id;
                     document.getElementById("cliente-name").textContent = data.name;
                     document.getElementById("cliente-email").textContent = data.email;
+
+                    loadingIndicator.style.display = "none";
+                    modal.show();
                 })
-                .catch(error => console.error("Erro ao buscar os detalhes:", error));
+                .catch(error => {
+                    console.error("Erro ao buscar os detalhes:", error);
+                    loadingIndicator.style.display = "none";
+                    alert("Ocorreu um erro ao buscar os detalhes do cliente.");
+                });
         });
     });
 });
@@ -33,59 +42,78 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-//abre modal de alteração
-document.addEventListener("DOMContentLoaded", function () {
-    // ... (seu código existente para buscar e exibir detalhes do cliente) ...
 
+document.addEventListener("DOMContentLoaded", function () {
+    // Função para preencher o modal com os dados do cliente
+    function preencherModalAlterar(cliente) {
+        console.log("Dados do cliente recebidos:", cliente); // Adiciona esta linha
+
+        document.getElementById("alterarClienteId").value = cliente.id;
+        document.getElementById("alterarClienteNome").value = cliente.name;
+        document.getElementById("alterarClienteEmail").value = cliente.email;
+        document.getElementById("alterarClienteTelefone").value = cliente.fone;
+    }
+
+    // Evento de clique nos botões "Alterar"
     document.querySelectorAll(".btn-alterar").forEach(button => {
         button.addEventListener("click", function () {
             let clienteId = this.getAttribute("data-id");
 
-            fetch(`/cliente/${clienteId}/`)
+            fetch(`/clientes/select/${clienteId}/`)
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById("alterar-cliente-id").value = data.id;
-                    document.getElementById("alterar-cliente-name").value = data.name;
-                    document.getElementById("alterar-cliente-email").value = data.email;
-
-
-                    let modal = new bootstrap.Modal(document.getElementById("clienteAlterarModal"));
+                    preencherModalAlterar(data);
+                    let modal = new bootstrap.Modal(document.getElementById("alterarClienteModal"));
                     modal.show();
                 })
                 .catch(error => console.error("Erro ao buscar os detalhes:", error));
         });
     });
 
+    // Evento de clique no botão "Salvar"
+    document.getElementById("salvarAlteracoes").addEventListener("click", function () {
+        let clienteId = document.getElementById("alterarClienteId").value;
+        let nome = document.getElementById("alterarClienteNome").value;
+        let email = document.getElementById("alterarClienteEmail").value;
+        let telefone = document.getElementById("alterarClienteTelefone").value;
 
-// modal update
-    document.getElementById("btn-salvar-alteracoes").addEventListener("click", function () {
-        let clienteId = document.getElementById("alterar-cliente-id").value;
-        let name = document.getElementById("alterar-cliente-name").value;
-        let email = document.getElementById("alterar-cliente-email").value;
+        // Função para obter o CSRF token do cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
 
+        const csrftoken = getCookie('csrftoken');
 
         fetch(`/clientes/update/${clienteId}/`, {
-            method: "PUT", // Ou "PATCH", dependendo da sua API
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken, // Adiciona o CSRF token aos cabeçalhos
             },
             body: JSON.stringify({
-                name: name,
+                name: nome,
                 email: email,
-
+                telefone: telefone,
             }),
         })
             .then(response => {
                 if (response.ok) {
-                    // Atualização bem-sucedida
                     alert("Cliente atualizado com sucesso!");
-                    // Feche o modal e atualize a tabela/lista de clientes
-                    let modal = bootstrap.Modal.getInstance(document.getElementById("clienteAlterarModal"));
+                    let modal = bootstrap.Modal.getInstance(document.getElementById("alterarClienteModal"));
                     modal.hide();
-                    // Recarregue a página ou atualize a tabela de clientes
                     location.reload();
                 } else {
-                    // Erro na atualização
                     alert("Erro ao atualizar o cliente.");
                 }
             })

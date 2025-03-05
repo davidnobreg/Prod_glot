@@ -7,7 +7,7 @@ class Cliente(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=100)
     email = models.EmailField(max_length=200, unique=True)
-    phone = models.CharField(max_length=15)
+    fone = models.CharField(max_length=15)
     is_ativo = models.BooleanField(default=False)
     
     def __str__(self):

@@ -3,7 +3,7 @@ from .models import Cliente
 
 ## Cadastra Cliente    
 class ClienteForm(forms.ModelForm):
-    phone = forms.CharField(max_length=15, required=True)
+
     
     class Meta:
         model = Cliente

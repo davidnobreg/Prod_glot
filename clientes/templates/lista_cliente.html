@@ -24,14 +24,12 @@
                 <tr>
                     <td>{{ cliente.name }}</td>
                     <td>{{ cliente.email }}</td>
-                    <td>{{ cliente.phone }}</td>
+                    <td>{{ cliente.fone }}</td>
                     <td>
-                        <button class="btn btn-warning btn-detalhes"
-                                data-id="{{ cliente.id }}"
-                                data-bs-toggle="modal"
-                                data-bs-target="#clienteAlterarModal">
+
+                        <a href="{% url 'altera-cliente' cliente.id%}" class="btn btn-warning">
                             Alterar
-                        </button>
+                        </a>
                         <button class="btn btn-danger btn-detalhes"
                                 data-id="{{ cliente.id }}"
                                 data-bs-toggle="modal"
@@ -48,37 +46,41 @@
 
     <!-- Modal Alterar-->
 
-    <div class="modal fade" id="clienteAlterarModal" tabindex="-1" aria-labelledby="clienteAlterarModalLabel"
+    <div class="modal fade" id="alterarClienteModal" tabindex="-1" aria-labelledby="alterarClienteModalLabel"
          aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="clienteAlterarModalLabel">Alterar Cliente</h5>
+                    <h5 class="modal-title" id="alterarClienteModalLabel">Alterar Cliente</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="form-alterar-cliente">
-                        <input type="hidden" id="alterar-cliente-id">
-                        <div class="mb-3">
-                            <label for="alterar-cliente-name" class="form-label">Nome</label>
-                            <input type="text" class="form-control" id="alterar-cliente-nome">
-                        </div>
-                        <div class="mb-3">
-                            <label for="alterar-cliente-email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="alterar-cliente-email">
-                        </div>
+                    <form id="formAlterarCliente">
 
+                        <input type="hidden" id="alterarClienteId">
+                        <div class="mb-3">
+                            <label for="alterarClienteNome" class="form-label">Nome</label>
+                            <input type="text" class="form-control" id="alterarClienteNome">
+                        </div>
+                        <div class="mb-3">
+                            <label for="alterarClienteEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="alterarClienteEmail">
+                        </div>
+                        <div class="mb-3">
+                            <label for="alterarClienteTelefone" class="form-label">Telefone</label>
+                            <input type="text" class="form-control" id="alterarClienteTelefone">
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
-                    <button type="button" class="btn btn-success" id="btn-salvar-alteracoes">Salvar Alterações</button>
+                    <button type="button" class="btn btn-primary" id="salvarAlteracoes">Salvar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Delete-->
+    <!-- Modal Delete
 
 
     <div class="modal fade" id="clienteModal" tabindex="-1" aria-labelledby="clienteModalLabel" aria-hidden="true">
@@ -89,6 +91,29 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <p><strong>ID:</strong> <span id="cliente-id"></span></p>
+                    <p><strong>Nome:</strong> <span id="cliente-name"></span></p>
+                    <p><strong>Email:</strong> <span id="cliente-email"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="btn-deletar-cliente">deletar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Canselar</button>
+                </div>
+            </div>
+        </div>
+    </div>-->
+
+    <div class="modal fade" id="clienteModal" tabindex="-1" aria-labelledby="clienteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="clienteModalLabel">Detalhes do Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="loading-indicator" style="display: none;">
+                        Carregando...
+                    </div>
                     <p><strong>ID:</strong> <span id="cliente-id"></span></p>
                     <p><strong>Nome:</strong> <span id="cliente-name"></span></p>
                     <p><strong>Email:</strong> <span id="cliente-email"></span></p>

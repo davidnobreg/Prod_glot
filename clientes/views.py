@@ -19,6 +19,7 @@ def select_cliente(request, cliente_id):
         "id": cliente.id,
         "name": cliente.name,
         "email": cliente.email,
+        "fone": cliente.fone,
     }
 
     return JsonResponse(data)
@@ -49,42 +50,30 @@ def criar_cliente_modal(request):
     return redirect('/vendas/insert_reserva/' + rid + '/')
 
 
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Cliente
+from .forms import ClienteForm
+
 def altera_cliente(request, cliente_id):
-    cliente = Cliente.objects.get(id=cliente_id)
-
-    print(cliente)
-
-    if request.method == 'GET':
-        form = ClienteForm(cliente.GET.get(cliente_id))
-        print(form)
-        context = {'form': form}
-        return render(request, 'update_cliente.html', context)
-
-    if request.method == 'PUT':
-        form = ClienteForm(request.POST.get)
-        print(form)
-        if form.is_valid():
-            form.save()
-            return redirect('lista-cliente')  # Este nome deve bater com "name" no urls.py
-
-    form = ClienteForm()
-    return render(request, 'cliente.html', {'form': form})
-
     cliente = get_object_or_404(Cliente, id=cliente_id)
 
-    print(cliente)
+    if request.method == 'GET':
+        form = ClienteForm(instance=cliente)  # Preenche o formulário com os dados do cliente
+        context = {'form': form, 'cliente': cliente} #adiciona o cliente no contexto
+        return render(request, 'update_cliente.html', context)
 
-    name = request.POST.get('name')
-    email = request.POST.get('email')
-    phone = request.POST.get('phone')
+    if request.method == 'POST':  # Use POST para formulários HTML
+        form = ClienteForm(request.POST, instance=cliente)  # Passa os dados e a instância para o formulário
 
-    cliente.name = name
-    clientes_cliente = email
-    clientes_cliente = phone
-    print(clientes_cliente)
+        if form.is_valid():
+            form.save()
+            return redirect('lista-cliente')  # Redireciona para a lista de clientes
 
-    return render(request, 'update_cliente.html')
+        context = {'form': form, 'cliente': cliente} #adiciona o cliente no contexto
+        return render(request, 'update_cliente.html', context) #retorna o form com os erros.
 
+    # Se não for GET nem POST, retorna um erro (ou redireciona, dependendo do caso)
+    return redirect('lista-cliente') #redireciona para a lista de clientes, caso o metodo não seja get nem post
 
 def delete_cliente(request, id):
     cliente = Cliente.objects.get(id=id)

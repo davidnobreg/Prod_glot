@@ -122,4 +122,4 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-// Adiciona o CSRF token aos cabeçalhos atualização
+// Adiciona o CSRF token aos cabeçalhos atualização erros nos arquivos

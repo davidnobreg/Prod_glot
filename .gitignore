@@ -1,6 +1,6 @@
 # Byte-compiled / optimized / DLL files
 .idea/
-base/static/media/
+#static/media/
 static/
 Pipfile
 Pipfile.lock

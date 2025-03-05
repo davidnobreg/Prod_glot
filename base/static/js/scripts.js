@@ -120,3 +120,6 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error("Erro ao atualizar o cliente:", error));
     });
 });
+
+
+// Adiciona o CSRF token aos cabeçalhos atualização

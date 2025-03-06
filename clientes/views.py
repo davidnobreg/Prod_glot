@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
@@ -6,6 +6,7 @@ from .forms import ClienteForm
 from .models import Cliente
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+
 
 
 def select_cliente(request, cliente_id):
@@ -46,9 +47,7 @@ def criar_cliente_modal(request):
     return redirect('/vendas/insert_reserva/' + rid + '/')
 
 
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Cliente
-from .forms import ClienteForm
+
 
 
 def altera_cliente(request, cliente_id):
@@ -82,7 +81,7 @@ def delete_cliente(request, id):
 
 ## Relatório
 
-@login_required
+
 def lista_cliente(request):
     clientes = Cliente.objects.filter(is_ativo=False)
 

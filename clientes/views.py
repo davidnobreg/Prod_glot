@@ -4,8 +4,10 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from .forms import ClienteForm
 from .models import Cliente
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def lista_cliente(request):
     clientes = Cliente.objects.filter(is_ativo=False)
     context = {'clientes': clientes}

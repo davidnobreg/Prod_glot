@@ -9,6 +9,7 @@ from .models import RegisterVenda
 from empreendimentos.models import Lote, Quadra, Empreendimento
 
 
+
 def reservado(request, id):
     reservas = RegisterVenda.objects.filter(lote_id=id).first()
     context = {'reservas': reservas}
@@ -28,19 +29,21 @@ def lista_Venda(request):
 
 
 def cancelar_Reservado(request, id):
-    get_lote = get_object_or_404(Lote, id=id)
+    get_venda = get_object_or_404(RegisterVenda, id=id)
 
     if request.method == 'GET':
-        get_lote.situacao = "DISPONIVEL"
-        get_lote.save()
-
+        get_venda.lote.situacao = "DISPONIVEL"
+        get_venda.tipo_venda = "CANCELADA"
+        get_venda.lote.save()
+        messages.success(request, "Resevado cancelada!")
     return redirect('lista-empreendimento')
 
 def criar_Reservado(request, id):
     get_lote = get_object_or_404(Lote, id=id)
 
     if request.method == 'GET':
-        get_lote.situacao = "RESEVADO"
+        # VERIFICAR STATOS DO LOTE ANTES DE FAZER O POST
+        get_lote.situacao = "RESERVADO"
         get_lote.save()
 
     if request.method == 'POST':
@@ -58,7 +61,7 @@ def criar_Reservado(request, id):
           get_lote.situacao = "RESEVADO"
           get_lote.save()
 
-          messages.success(request, "Resevado registrada com sucesso!")
+          messages.success(request, "Resevado com sucesso!")
           return redirect('lista-empreendimento')
        else:
           messages.error(request, "Erro ao registrar reserva.")
@@ -74,9 +77,13 @@ def criar_Reservado(request, id):
 
 def criar_Venda(request, id):
     venda = RegisterVenda.objects.get(id=id)
+    lote = Lote.objects.get(id=venda.lote.id)
     venda.tipo_venda = 'VENDIDO'
+    lote.situacao = 'VENDIDO'
+    lote.save()
     venda.save()
-    return redirect('lista-venda')
+    messages.success(request, "Venda criada com sucesso!")
+    return redirect('lista-reserva')
 
 
 def delete_reseva(request, id):
@@ -95,9 +102,9 @@ def delete_venda(request, id):
     venda = RegisterVenda.objects.get(id=id)
     loteSituação = Lote.objects.get(id=venda.lote.id)
     loteSituação.situacao = 'DISPONIVEL'
-    loteSituação.save()
+    venda.tipo_venda = 'CANCELADA'
     venda.is_ativo = True
-
+    loteSituação.save()
     venda.save()
     messages.success(request, "Venda deletada com sucesso!")
     return redirect('lista-venda')

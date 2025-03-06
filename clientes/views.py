@@ -5,13 +5,7 @@ from django.http import JsonResponse
 from .forms import ClienteForm
 from .models import Cliente
 from django.contrib.auth.decorators import login_required
-
-
-@login_required
-def lista_cliente(request):
-    clientes = Cliente.objects.filter(is_ativo=False)
-    context = {'clientes': clientes}
-    return render(request, 'lista_cliente.html', context)
+from django.db.models import Q
 
 
 def select_cliente(request, cliente_id):
@@ -56,12 +50,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Cliente
 from .forms import ClienteForm
 
+
 def altera_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
 
     if request.method == 'GET':
         form = ClienteForm(instance=cliente)  # Preenche o formulário com os dados do cliente
-        context = {'form': form, 'cliente': cliente} #adiciona o cliente no contexto
+        context = {'form': form, 'cliente': cliente}  # adiciona o cliente no contexto
         return render(request, 'update_cliente.html', context)
 
     if request.method == 'POST':  # Use POST para formulários HTML
@@ -71,14 +66,50 @@ def altera_cliente(request, cliente_id):
             form.save()
             return redirect('lista-cliente')  # Redireciona para a lista de clientes
 
-        context = {'form': form, 'cliente': cliente} #adiciona o cliente no contexto
-        return render(request, 'update_cliente.html', context) #retorna o form com os erros.
+        context = {'form': form, 'cliente': cliente}  # adiciona o cliente no contexto
+        return render(request, 'update_cliente.html', context)  # retorna o form com os erros.
 
     # Se não for GET nem POST, retorna um erro (ou redireciona, dependendo do caso)
-    return redirect('lista-cliente') #redireciona para a lista de clientes, caso o metodo não seja get nem post
+    return redirect('lista-cliente')  # redireciona para a lista de clientes, caso o metodo não seja get nem post
+
 
 def delete_cliente(request, id):
     cliente = Cliente.objects.get(id=id)
     cliente.is_ativo = True
     cliente.save()
     return redirect('lista-cliente')
+
+
+## Relatório
+
+@login_required
+def lista_cliente(request):
+    clientes = Cliente.objects.filter(is_ativo=False)
+
+    get_client = request.GET.get('client')
+
+    if get_client:  ## Filtra por nome, documento ou email do cliente
+        clientes = Cliente.objects.filter(
+            #Q(is_ativo__icontains='False') |
+            Q(name__icontains=get_client) |
+            Q(documento__icontains=get_client) |
+            Q(email__icontains=get_client))
+
+    context = {'clientes': clientes}
+    return render(request, 'lista_cliente.html', context)
+
+"""
+def reports(request):  ## Relatórios
+    clientes = Cliente.objects.all()#filter(is_ativo=False)
+
+    get_client = request.GET.get('client')
+
+    if get_client:## Filtra por nome, documento ou email do cliente
+        clientes = Cliente.objects.filter(
+                                    Q(name__icontains=get_client) |
+                                    Q(documento__icontains=get_client) |
+                                    Q(email__icontains=get_client))
+
+
+    context = {'clientes': clientes}
+    return render(request, 'lista_cliente.html', context)"""

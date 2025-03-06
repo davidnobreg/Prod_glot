@@ -10,4 +10,6 @@ urlpatterns = [
     path('update/<int:cliente_id>/', views.altera_cliente, name='altera-cliente'),
     path('delete_cliente/<int:id>/', views.delete_cliente, name='delete-cliente'),
     path('listar_clientes/', views.lista_cliente, name='lista-cliente'),
+
+    #path('listar_clientes_filtro/', views.reports, name='lista-cliente-filtro'),
 ]

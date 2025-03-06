@@ -1,49 +1,51 @@
 {% extends 'base.html' %}
 
 {% block title %}
-  Cadastrar Cliente
+    Cadastrar Cliente
 {% endblock %}
 
 {% load static %}
 
 {% block content %}
-  <div class="container mt-4">
-    <div class="row align-items-center g-4">
-      <hr />
-      <!-- Imagem -->
-      <div class="col-lg-6">
-        <img src="{% static 'images/client.jpg' %}" class="img-fluid rounded shadow" alt="Cliente" />
-      </div>
+    <div class="container mt-4">
+        <div class="row align-items-center g-4">
+            <hr/>
+            <!-- Imagem -->
+            <div class="col-lg-6">
+                <img src="{% static 'images/client.jpg' %}" class="img-fluid rounded shadow" alt="Cliente"/>
+            </div>
 
-      <!-- Formulário -->
-      <div class="col-lg-6">
-        <form action="{% url 'criar-cliente' %}" method="post" class="card p-4 shadow">
-          {% csrf_token %}
-          <h4 class="mb-3 text-center">Cadastrar Cliente</h4>
-          {% if status == '0' %}
-            <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso</div>
-          {% elif status == '1' %}
-            <div class="alert alert-danger" role="alert">Preencha o nome</div>
-          {% elif status == '2' %}
-            <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente</div>
-          {% elif status == '3' %}
-            <div class="alert alert-danger" role="alert">Preencha o contato</div>
-          {% endif %}
-          <hr />
-          <label for="">Nome:</label>
-          <input type="text" name="name" class="form-control" placeholder="Digite o nome do cliente" />
-          <label for="">E-mail:</label>
-          <input type="text" name="email" class="form-control" placeholder="Digite o e-mail do cliente" />
-          <label for="">Contato:</label>
-          <input type="text" name="phone" class="form-control" placeholder="Digite o Contato do cliente" />
-          <hr />
+            <!-- Formulário -->
+            <div class="col-lg-6">
+                <form action="{% url 'criar-cliente' %}" method="post" class="card p-4 shadow">
+                    {% csrf_token %}
+                    <h4 class="mb-3 text-center">Cadastrar Cliente</h4>
+                    {% if status == '0' %}
+                        <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso</div>
+                    {% elif status == '1' %}
+                        <div class="alert alert-danger" role="alert">Preencha o nome</div>
+                    {% elif status == '2' %}
+                        <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente</div>
+                    {% elif status == '3' %}
+                        <div class="alert alert-danger" role="alert">Preencha o contato</div>
+                    {% endif %}
+                    <hr/>
+                    <label for="">Nome:</label>
+                    <input type="text" name="name" class="form-control" placeholder="Digite o nome do cliente"/>
+                    <label for="">Cpf ou Cnpj:</label>
+                    <input type="text" name="email" class="form-control" placeholder="Digite o cpf ou Cnpj"/>
+                    <label for="">E-mail:</label>
+                    <input type="text" name="email" class="form-control" placeholder="Digite o e-mail do cliente"/>
+                    <label for="">Contato:</label>
+                    <input type="text" name="phone" class="form-control" placeholder="Digite o Contato do cliente"/>
+                    <hr/>
 
-          <button type="submit" class="btn btn-primary w-100 mt-3">Salvar</button>
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Salvar</button>
 
-          <button class="btn btn-primary w-100 mt-3">Canselar</button>
-        </form>
-      </div>
-      <hr />
+                    <button class="btn btn-primary w-100 mt-3">Canselar</button>
+                </form>
+            </div>
+            <hr/>
+        </div>
     </div>
-  </div>
 {% endblock %}

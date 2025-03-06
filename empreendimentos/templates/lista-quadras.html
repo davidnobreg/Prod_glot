@@ -1,63 +1,69 @@
 {% extends 'base.html' %}
 
 {% block title %}
-  Lista de Quadras
+    Lista de Quadras
 {% endblock %}
 
 {% block content %}
-  <div class="container text-center">
-    <div class="row-cols-1 g-2 py-4 text-center">
-      <h1>Lista de Quadras</h1>
-    </div>
-    
-    {% for quadra_info in quadras_info %}
-      <div class="row row-cols-1 g-2 py-2">
-        <div class="col card">
-          <div class="card-header">
-            <h5 class="card-title"><i class="fas --bs-success-border-subtle fa-2x">QUADRA {{ quadra_info.quadra.namequadra }}</i></h5>
-          </div>
-          <div>
-          {% for lote_info in quadra_info.lotes %}
-            {% if lote_info.situacao == 'DISPONIVEL' %}
-              <a href="{% url 'reserva-create' lote_info.lote.id %}">
-                <button type="button" class="btn btn-success">
-                  <i class="fas --bs-success-border-subtle fa-2x">{{ lote_info.lote.lote }}</i>
-                </button>
-              </a>
-            {% elif lote_info.situacao == 'RESEVADO' %}
-              <a href="{% url 'reservado' lote_info.lote.id %}">
-                <button type="button" class="btn btn-warning">
-                  <i class="fas --bs-warning-border-subtle fa-2x">{{ lote_info.lote.lote }}</i>
-                </button>
-              </a>
-            {% elif lote_info.situacao == 'VENDIDO' %}
-              <button type="button" class="btn btn-danger">
-                <i class="fas --bs-danger fa-2x">{{ lote_info.lote.lote }}</i>
-              </button>
-            {% endif %}
-          {% endfor %}
-          </div>
+    <div class="container text-center">
+        <div class="row-cols-1 g-2 py-4 text-center">
+            <h1>Lista de Quadras</h1>
         </div>
-      </div>
-    {% endfor %}
-    <ul class="pagination justify-content-center">
-      <li class="page-item">
-        {% if quadras_info.has_previous %}
-          <a class="btn btn-primary" href="?page={{ quadras_info.previous_page_number }}">Volta</a>
-        {% endif %}
-      </li>
 
-      {% if quadras_info.paginator.num_pages %}
-        <li class="page-item">
-          <a class="page-link" href="#"><span class="current">{{ quadras_info.number }} de {{ quadras_info.paginator.num_pages }}</span></a>
-        </li>
-      {% endif %}
+        {% for quadra_info in quadras_info %}
+            <div class="row row-cols-1 g-2 py-2">
+                <div class="col card">
+                    <div class="card-header">
+                        <h5 class="card-title"><i
+                                class="fas --bs-success-border-subtle fa-2x">QUADRA {{ quadra_info.quadra.namequadra }}</i>
+                        </h5>
+                    </div>
+                    <div>
+                        {% for lote_info in quadra_info.lotes %}
+                            {% if lote_info.situacao == 'DISPONIVEL' %}
+                                <a href="{% url 'reserva-create' lote_info.lote.id %}">
+                                    <button type="button" class="btn btn-success">
+                                        <i class="fas --bs-success-border-subtle fa-2x">{{ lote_info.lote.lote }}</i>
+                                    </button>
+                                </a>
+                            {% elif lote_info.situacao == 'RESERVADO' %}
 
-      <li class="page-item">
-        {% if quadras_info.has_next %}
-          <a class="btn btn-primary" href="?page={{ quadras_info.next_page_number }}">Avanca</a>
-        {% endif %}
-      </li>
-    </ul>
-  </div>
+                                    <button type="button" class="btn btn-warning">
+                                        <i class="fas --bs-warning-border-subtle fa-2x">{{ lote_info.lote.lote }}</i>
+                                    </button>
+
+                            {% elif lote_info.situacao == 'VENDIDO' %}
+                                <a href="{% url 'reservado' lote_info.lote.id %}">
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fas --bs-danger fa-2x">{{ lote_info.lote.lote }}</i>
+                                    </button>
+                                </a>
+
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <ul class="pagination justify-content-center">
+            <li class="page-item">
+                {% if quadras_info.has_previous %}
+                    <a class="btn btn-primary" href="?page={{ quadras_info.previous_page_number }}">Volta</a>
+                {% endif %}
+            </li>
+
+            {% if quadras_info.paginator.num_pages %}
+                <li class="page-item">
+                    <a class="page-link" href="#"><span
+                            class="current">{{ quadras_info.number }} de {{ quadras_info.paginator.num_pages }}</span></a>
+                </li>
+            {% endif %}
+
+            <li class="page-item">
+                {% if quadras_info.has_next %}
+                    <a class="btn btn-primary" href="?page={{ quadras_info.next_page_number }}">Avanca</a>
+                {% endif %}
+            </li>
+        </ul>
+    </div>
 {% endblock %}

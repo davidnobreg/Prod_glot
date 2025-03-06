@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-"""
+
 if DEBUG:
     DATABASES = {
         'default': {
@@ -86,18 +86,17 @@ if DEBUG:
             'NAME': BASE_DIR / "db.sqlite3",
         }
     }
-#else:"""
-DATABASES = {
-  'default': {
-    'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    'NAME': config('DB_NAME'),
-    'USER': config('DB_USER'),
-    'PASSWORD': config('DB_PASSWORD'),
-    'HOST': config('DB_HOST'),
-    'PORT': config('DB_PORT')
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': config('DB_NAME'),
+            'USER': config('DB_USER'),
+            'PASSWORD': config('DB_PASSWORD'),
+            'HOST': config('DB_HOST'),
+            'PORT': config('DB_PORT')
+        }
     }
-}
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -158,7 +157,6 @@ LOGIN_REDIRECT_URL = '/empreendimentos/'
 LOGOUT_URL = 'logout'
 
 AUTH_USER_MODEL = "accounts.User"
-
 
 # CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 

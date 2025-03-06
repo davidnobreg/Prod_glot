@@ -10,10 +10,37 @@
     <div class="container mt-4">
         <h4 class="mt-4 text-center">LISTA DE CLIENTES</h4>
         <hr>
+
+        <!-- Filtros -->
+        <div class="row g-3 align-items-center bg-light p-4 rounded shadow mb-4">
+
+            <!-- Pesquisar pelo cliente -->
+            <div class="col-md-3">
+                <label for="clientSearch" class="form-label">Nome do Cliente, Cpf ou E-mail</label>
+                <form class="d-flex" action="{% url 'lista-cliente' %}">
+                    <input name="client" id="clientSearch" type="search" class="form-control me-2"
+                           placeholder="Pesquisar cliente..." value="{{ request.GET.client }}">
+                    <button class="btn btn-success" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Resetar filtros -->
+            <div class="col-md-1">
+                <label for="idReset" class="form-label">Resetar</label>
+                <a class="btn btn-danger" href="{% url 'lista-cliente' %}">
+                    <i class="fas fa-window-close"></i>
+                </a>
+            </div>
+        </div>
+
+        <hr>
         <table class="table table-striped">
             <thead>
             <tr>
-                <th scope="col">Nome</th>
+                <th scope="col">Nome ou Razão Social</th>
+                <th scope="col">Cpf ou Cnpj</th>
                 <th scope="col">E-mail</th>
                 <th scope="col">Contato</th>
             </tr>
@@ -23,11 +50,12 @@
             {% for cliente in clientes %}
                 <tr>
                     <td>{{ cliente.name }}</td>
+                    <td>{{ cliente.documento }}</td>
                     <td>{{ cliente.email }}</td>
                     <td>{{ cliente.fone }}</td>
                     <td>
 
-                        <a href="{% url 'altera-cliente' cliente.id%}" class="btn btn-warning">
+                        <a href="{% url 'altera-cliente' cliente.id %}" class="btn btn-warning">
                             Alterar
                         </a>
                         <button class="btn btn-danger btn-detalhes"

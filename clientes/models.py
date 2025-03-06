@@ -5,7 +5,7 @@ from django.db import models
 class Cliente(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=100)
-    documento = models.CharField(max_length=18, unique=True, default='00000000000') #example default.2
+    documento = models.CharField(max_length=18, default='00000000000') #example default.2
     email = models.EmailField(max_length=200, unique=True)
     fone = models.CharField(max_length=15)
     is_ativo = models.BooleanField(default=False)

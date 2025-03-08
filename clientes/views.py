@@ -84,7 +84,7 @@ def delete_cliente(request, id):
 
 
 def lista_cliente(request):
-    clientes = Cliente.objects.filter(is_ativo=False)
+    clientes = Cliente.objects.filter(is_ativo=False).order_by('name')
 
     get_client = request.GET.get('client')
 

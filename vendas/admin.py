@@ -1,5 +1,8 @@
 from django.contrib import admin
-from vendas import models
+from accounts.views import register
+from .models import RegisterVenda
 
-# Register your models here.
-admin.site.register(models.RegisterVenda)
+@admin.register(RegisterVenda)
+class RegisterVendaAdmin(admin.ModelAdmin):
+    list_display = ['id', 'lote', 'cliente', 'tipo_venda', 'user', 'dt_reserva', 'dt_venda', 'create_at','is_ativo']
+

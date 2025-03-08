@@ -7,7 +7,7 @@ class QuadraInlineAdmin(admin.TabularInline):
     extra = 0
 
 class QuadraAdmin(admin.ModelAdmin):
-    readonly_fields = ["id", "tempo_reseva"]
+    readonly_fields = ["id", "nome","tempo_reseva", "logo"]
     inlines = [QuadraInlineAdmin]
  
 admin.site.register(models.Empreendimento, QuadraAdmin)

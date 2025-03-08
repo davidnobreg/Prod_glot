@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.contrib import messages
 import pandas as pd
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
@@ -147,8 +147,8 @@ class ImportarDadosView(View):
             # Iterar sobre as linhas do DataFrame e criar registros
             for _, row in df.iterrows():
                 self.criar_quadra(row, id)
-
-            return redirect('lista-empreendimento')  # Ajuste para onde quer redirecionar
+            messages.success(request, "Arquivo importado com sucesso!")
+            return redirect('lista-empreendimento-tabela')  # Ajuste para onde quer redirecionar
 
         return render(request, self.template_name, {'form': form})
 

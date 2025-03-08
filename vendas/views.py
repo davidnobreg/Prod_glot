@@ -69,7 +69,7 @@ def criar_Reservado(request, id):
           messages.success(request, "Reservado com sucesso!")
           reserva_form.save()
 
-          get_lote.situacao = "RESEVADO"
+          get_lote.situacao = "RESERVADO"
           get_lote.save()
 
           messages.success(request, "Resevado com sucesso!")

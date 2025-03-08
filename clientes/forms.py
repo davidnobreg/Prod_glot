@@ -11,6 +11,8 @@ class ClienteForm(forms.ModelForm):
         exclude = ('is_ativo','id',)
         
     def __init__(self, *args, **kwargs): # Adiciona 
-        super().__init__(*args, **kwargs)  
-        for field_name, field in self.fields.items():   
-              field.widget.attrs['class'] = 'form-control'
+        super().__init__(*args, **kwargs)
+        self.fields['documento'].widget.attrs.update({'class': 'mask-cpf'})
+        self.fields['fone'].widget.attrs.update({'class': 'mask-phone'})
+        #for field_name, field in self.fields.items():
+            #  field.widget.attrs['class'] = 'form-control'

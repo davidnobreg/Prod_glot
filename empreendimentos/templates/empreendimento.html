@@ -30,7 +30,8 @@
 
                     <div class="mb-3">
                         <label for="id_tempo_reseva" class="form-label">Tempo reseva</label>
-                        <input type="text" name="tempo_reseva" value="0" class="form-control" required="" id="id_tempo_reseva">
+                        <input type="text" name="tempo_reseva" value="0" class="form-control" required=""
+                               id="id_tempo_reseva">
                     </div>
 
                     <div class="mb-3">
@@ -39,7 +40,9 @@
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100 mt-3">Salvar</button>
-                    <button type="submit" class="btn btn-primary w-100 mt-3">Cancelar</button>
+                    <a  href="{% url 'lista-empreendimento-tabela' %}" class="btn btn-primary w-100 mt-2">
+                        Cancelar
+                    </a>
                 </form>
             </div>
             <hr/>

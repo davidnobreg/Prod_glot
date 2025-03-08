@@ -16,10 +16,10 @@ class TypeLote(models.TextChoices):
 class RegisterVenda(models.Model):
 
     id = models.BigAutoField(primary_key=True)
-    lote = models.ForeignKey(Lote, on_delete=models.CASCADE, related_name='reg_venda')
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    lote = models.OneToOneField(Lote, on_delete=models.SET_NULL, blank=True, null=True, related_name='reg_venda')
+    cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, blank=True, null=True)
     tipo_venda = models.CharField(max_length=100, choices=TypeLote.choices)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="vendas_myapp")
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="vendas")
     dt_reserva = models.DateTimeField(default=datetime.now(), blank=True)
     dt_venda = models.DateTimeField(default=datetime.now(), blank=True)
     create_at = models.DateField(default=datetime.now, blank=True)

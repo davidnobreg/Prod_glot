@@ -16,7 +16,7 @@ class Empreendimento(models.Model):
 
     def __str__(self):
         #return self.nome
-        return "{} - {} - ativo - {}".format(self.id, self.nome, self.is_ativo)
+        return "{}".format(self.nome)
     
     class Meta:
         verbose_name = 'empreendimento'
@@ -32,7 +32,7 @@ class Quadra(models.Model):
     
      
     def __str__(self):
-        return "{} - {}".format(self.empr.nome, self.namequadra)
+        return "{}".format(self.namequadra)
 
 ## Opções de Imóveis
 class TypeLote(models.TextChoices):
@@ -49,7 +49,7 @@ class Lote(models.Model):
     quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE, related_name='quadra')   
    
     def __str__(self):
-        return "{} - {}".format(self.id, self.lote)
+        return "{}".format( self.lote)
 
     class Meta:
         verbose_name = 'Lote'

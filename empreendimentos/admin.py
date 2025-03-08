@@ -1,11 +1,13 @@
 from django.contrib import admin
 from empreendimentos import models
 
+
 class QuadraInlineAdmin(admin.TabularInline):
     model = models.Quadra
     extra = 0
 
 class QuadraAdmin(admin.ModelAdmin):
+    readonly_fields = ["id", "tempo_reseva"]
     inlines = [QuadraInlineAdmin]
  
 admin.site.register(models.Empreendimento, QuadraAdmin)

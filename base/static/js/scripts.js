@@ -1,3 +1,4 @@
+//função seleciona clientes modal
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".btn-detalhes").forEach(button => {
         button.addEventListener("click", function () {
@@ -43,6 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
+//cadastra cliente model
 document.addEventListener("DOMContentLoaded", function () {
     // Função para preencher o modal com os dados do cliente
     function preencherModalAlterar(cliente) {
@@ -121,5 +123,47 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+//carrrega empreendimento
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".btn-detalhes-empreendimento").forEach(button => {
+        button.addEventListener("click", function () {
+            let clienteId = this.getAttribute("data-id");
+            console.log("Cliente ID capturado:", empreendimentoId);
 
-// Adiciona o CSRF token aos cabeçalhos atualização erros nos arquivos
+            let modal = new bootstrap.Modal(document.getElementById("empreendimentoModal"));
+            let loadingIndicator = document.getElementById("loading-indicator");
+            loadingIndicator.style.display = "block";
+
+            fetch(`/empreendimentos/select/${empreendimentoId}/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Erro HTTP! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById("empreendimento-id").textContent = data.id;
+                    document.getElementById("empreendimento-nome").textContent = data.nome;
+
+
+                    loadingIndicator.style.display = "none";
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error("Erro ao buscar os detalhes:", error);
+                    loadingIndicator.style.display = "none";
+                    alert("Ocorreu um erro ao buscar os detalhes do cliente.");
+                });
+        });
+    });
+})
+
+//deleta Empreendimento atraves do modal
+document.addEventListener("DOMContentLoaded", function () {
+    // ... (seu código existente para buscar e exibir detalhes do empreendimento) ...
+
+    document.getElementById("btn-deletar-empreendimento").addEventListener("click", function () {
+        let clienteId = document.getElementById("empreendimento-id").textContent;
+        window.location.href = `/empreendimentos/delete_empreendimento/${empreendimentoId}/`; // Redireciona para a URL de exclusão
+    });
+});

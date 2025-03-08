@@ -5,7 +5,7 @@ from django.db import models
 class Cliente(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=100)
-    documento = models.CharField(max_length=18, default='00000000000') #example default.2
+    documento = models.CharField(max_length=18, unique=True, default='00000000000') #example default.2
     email = models.EmailField(max_length=200, unique=True)
     fone = models.CharField(max_length=15)
     is_ativo = models.BooleanField(default=False)
@@ -22,10 +22,10 @@ class Cliente(models.Model):
             if not self.validar_cnpj(documento):
                 raise ValidationError({'documento': 'CNPJ inválido'})
         else:
-            raise ValidationError({'documento': 'Documento inválido'})"""
+            raise ValidationError({'documento': 'Documento inválido'})
 
     def validar_cpf(self, cpf):
-        """Valida um número de CPF."""
+        #Valida um número de CPF.
 
         # Remove caracteres não numéricos
         cpf = ''.join(filter(str.isdigit, cpf))
@@ -60,7 +60,7 @@ class Cliente(models.Model):
         ...
 
     def validar_cnpj(self, cnpj):
-        """Valida um número de CNPJ."""
+        #Valida um número de CNPJ.
         cnpj = ''.join(filter(str.isdigit, cnpj))
 
         if len(cnpj) != 14:
@@ -83,7 +83,7 @@ class Cliente(models.Model):
         resto = soma % 11
         dv2 = 0 if resto < 2 else 11 - resto
 
-        return cnpj[-2:] == str(dv1) + str(dv2)
+        return cnpj[-2:] == str(dv1) + str(dv2)"""
 
     def __str__(self):
         return self.name

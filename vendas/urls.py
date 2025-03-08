@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import criar_Venda, criar_Reservado, lista_Venda, lista_Reserva, reservado, delete_venda, delete_reseva, cancelar_Reservado
+from .views import criar_Venda, criar_Reservado, lista_Venda, lista_Reserva, reservado, delete_venda, delete_reseva, \
+    cancelar_Reservado, cancelar_Reservado_Cadastro
 
 urlpatterns = [
     # Cadastro de cliente
@@ -9,6 +10,7 @@ urlpatterns = [
     path('listar_venda/', lista_Venda, name='lista-venda'),
     path('reservado/<int:id>/', reservado, name='reservado'),
     path('reservado_cancelada/<int:id>/', cancelar_Reservado, name='cancelar-reservado'),
+    path('reservado_cancelada_cadastro/<int:id>/', cancelar_Reservado_Cadastro, name='cancelar-reservado-cadastro'),
     path('venda_delete/<int:id>/', delete_venda, name='delete-venda'),
     path('reservado_delete/<int:id>/', delete_reseva, name='delete-reservado'),
 ]

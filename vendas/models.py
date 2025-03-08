@@ -1,7 +1,7 @@
 from django.db import models
 from datetime import datetime, timedelta
 from clientes.models import Cliente
-from empreendimentos.models import Lote
+from empreendimentos.models import Lote, Empreendimento
 from accounts.models import User
 
 
@@ -14,12 +14,13 @@ class TypeLote(models.TextChoices):
 
 
 class RegisterVenda(models.Model):
+
     id = models.BigAutoField(primary_key=True)
     lote = models.ForeignKey(Lote, on_delete=models.CASCADE, related_name='reg_venda')
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     tipo_venda = models.CharField(max_length=100, choices=TypeLote.choices)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="vendas_myapp")
-    dt_reserva = models.DateField(datetime.now() + timedelta(days=5))
+    dt_reserva = models.DateField(default=datetime.now(),blank=True)
     dt_venda = models.DateTimeField(default=datetime.now(), blank=True)
     create_at = models.DateField(default=datetime.now, blank=True)
     is_ativo = models.BooleanField(default=False)

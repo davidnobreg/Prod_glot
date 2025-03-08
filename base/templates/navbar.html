@@ -37,13 +37,11 @@
 
                 {% endif %}
             </div>
+            <hr class="dropdown-divider">
             <div class="offcanvas-body">
                 <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                     {% csrf_token %}
-
-
                     <li class="nav-item dropdown">
-
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                            aria-expanded="false">
                             Listagem
@@ -78,19 +76,24 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                            aria-expanded="false">
-                            Cadastro
+                            Gerenciamento
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'criar-cliente' %}">Clientes</a></li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'criar-cliente' %}">Clientes</a>
+                                <a class="dropdown-item" href="{% url 'lista-cliente' %}">Clientes listagem</a>
+                            </li>
 
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
+
                             <li>
                                 <a class="dropdown-item" href="{% url 'criar-empreendimento' %}">
                                     Empreendimentos
-
                                 </a>
+                                <a class="dropdown-item" href="{% url 'lista-empreendimento-tabela' %}">
+                                    Empreendimentos listagem</a>
                             </li>
                             <li>
                                 <hr class="dropdown-divider">
@@ -98,15 +101,15 @@
                             <li>
                                 <a class="dropdown-item" href="{% url 'criar-cadastro' %}">
                                     Usuarios
-
+                                </a>
+                                <a class="dropdown-item" href="{% url 'lista-usuario' %}">
+                                    Usuarios Listagem
                                 </a>
                             </li>
                         </ul>
                     </li>
                 </ul>
-
             </div>
-
         </div>
     </div>
 

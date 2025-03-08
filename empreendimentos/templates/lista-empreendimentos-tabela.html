@@ -15,6 +15,7 @@
             <tr>
                 <th scope="col">id</th>
                 <th scope="col">Nome</th>
+                <th scope="col">Dias de Reserva</th>
                 <th scope="col"></th>
 
             </tr>
@@ -25,10 +26,17 @@
                 <tr>
                     <td>{{ empreendimento.id }}</td>
                     <td>{{ empreendimento.nome }}</td>
+                    <td>{{ empreendimento.tempo_reseva }}</td>
                     <td>
                         <a href="{% url 'arquivo' empreendimento.id %}" class="btn btn-success">Arquivo</a>
-                        <a href="https://www.google.com.br/" class="btn btn-warning">Alterar</a>
+                        <a href="{% url 'alterar-empreendimento' empreendimento.id %}" class="btn btn-warning">Alterar</a>
                         <a href="{% url 'deletar-empreendimento' empreendimento.id %}" class="btn btn-danger">Excluir</a>
+                        <button class="btn btn-danger btn-detalhes-empreendimento"
+                                data-id="{{ empreendimento.id }}"
+                                data-bs-toggle="modal"
+                                data-bs-target="#empreendimentoModal">
+                            Excluir
+                        </button>
 
                     </td>
                 </tr>
@@ -36,5 +44,27 @@
             </tbody>
 
         </table>
+    </div>
+
+    <div class="modal fade" id="empreendimentoModal" tabindex="-1" aria-labelledby="empreedimentoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="empreedimentoModalLabel">Detalhes do Empreendimento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="loading-indicator" style="display: none;">
+                        Carregando...
+                    </div>
+                    <p><strong>ID:</strong> <span id="empreendimento-id"></span></p>
+                    <p><strong>Nome:</strong> <span id="empreendimento-nome"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="btn-deletar-empreendimento">deletar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Canselar</button>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}

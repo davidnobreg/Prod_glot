@@ -9,6 +9,7 @@ from django.db.models import Q
 
 
 
+
 def select_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
 
@@ -92,23 +93,10 @@ def lista_cliente(request):
             #Q(is_ativo__icontains='False') |
             Q(name__icontains=get_client) |
             Q(documento__icontains=get_client) |
+            Q(fone__icontains=get_client) |
             Q(email__icontains=get_client))
 
     context = {'clientes': clientes}
     return render(request, 'lista_cliente.html', context)
 
-"""
-def reports(request):  ## Relatórios
-    clientes = Cliente.objects.all()#filter(is_ativo=False)
 
-    get_client = request.GET.get('client')
-
-    if get_client:## Filtra por nome, documento ou email do cliente
-        clientes = Cliente.objects.filter(
-                                    Q(name__icontains=get_client) |
-                                    Q(documento__icontains=get_client) |
-                                    Q(email__icontains=get_client))
-
-
-    context = {'clientes': clientes}
-    return render(request, 'lista_cliente.html', context)"""

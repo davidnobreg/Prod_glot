@@ -9,6 +9,7 @@ class Empreendimento(models.Model):
     
     id = models.BigAutoField(primary_key=True)
     nome = models.CharField(max_length=100)
+    tempo_reseva = models.IntegerField(default=0)
     logo = models.ImageField(upload_to='empreendimento', verbose_name='Logo',
         null=True, blank=True)
     is_ativo = models.BooleanField(default=False)
@@ -36,7 +37,7 @@ class Quadra(models.Model):
 ## Opções de Imóveis
 class TypeLote(models.TextChoices):
     DISPONIVEL = 'DISPONIVEL','DISPONIVEL' 
-    RESEVADO = 'RESEVADO','RESEVADO'
+    RESERVADO = 'RESERVADO','RESERVADO'
     VENDIDO = 'VENDIDO','VENDIDO' 
     
 class Lote(models.Model):
@@ -48,7 +49,7 @@ class Lote(models.Model):
     quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE, related_name='quadra')   
    
     def __str__(self):
-        return "{}".format(self.lote)
+        return "{} - {}".format(self.id, self.lote)
 
     class Meta:
         verbose_name = 'Lote'

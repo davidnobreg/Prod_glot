@@ -2,13 +2,24 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 import pandas as pd
 from django.shortcuts import get_object_or_404
-
+from django.http import JsonResponse
 
 from django.core.paginator import Paginator
 from django.views import View
 
 from .forms import EmpreendimentoForm, ArquivoForm
 from .models import Empreendimento, Quadra, Lote
+
+
+def select_empreendimento(request, empreendimento_id):
+    empreendimento = get_object_or_404(Empreendimento, id=empreendimento_id)
+
+    data = {
+        "id": empreendimento.id,
+        "nome": empreendimento.nome,
+    }
+
+    return JsonResponse(data)
 
 def criar_Empreendimento(request):
     form = EmpreendimentoForm() 
@@ -26,6 +37,28 @@ def lista_Empreendimento(request):
     empreendimentos = Empreendimento.objects.filter(is_ativo=False)
     context = {'empreendimentos': empreendimentos}
     return render(request, 'lista-empreendimentos.html', context)
+
+def altera_empreendimento(request, id):
+    empreendimento = get_object_or_404(Empreendimento, id=id)
+
+    if request.method == 'GET':
+        form = EmpreendimentoForm(instance=empreendimento)  # Preenche o formulário com os dados do empreendimento
+        context = {'form': form, 'empreendimento': empreendimento}  # adiciona o cliente no contexto
+        return render(request, 'update_empreendimento.html', context)
+
+    if request.method == 'POST':  # Use POST para formulários HTML
+        form = EmpreendimentoForm(request.POST, instance=empreendimento)  # Passa os dados e a instância para o formulário
+
+        if form.is_valid():
+            form.save()
+
+            return redirect('lista-empreendimento-tabela')  # Redireciona para a lista de clientes
+
+        context = {'form': form, 'empreendimento': empreendimento}  # adiciona o cliente no contexto
+        return render(request, 'update_empreendimento.html', context)  # retorna o form com os erros.
+
+    # Se não for GET nem POST, retorna um erro (ou redireciona, dependendo do caso)
+    return redirect('lista-empreendimento-tabela')  # redireciona para a lista de clientes, caso o metodo não seja get nem post
 
 def delete_empreendimento(request, id):
     empreendimento = Empreendimento.objects.get(id=id)

@@ -27,6 +27,14 @@ def lista_Venda(request):
     context = {'vendas': vendas}
     return render(request, 'lista_venda.html', context)
 
+def cancelar_Reservado_Cadastro(request, id):
+    get_lote = get_object_or_404(Lote, id=id)
+
+    if request.method == 'GET':
+        get_lote.situacao = "DISPONIVEL"
+        get_lote.save()
+        messages.success(request, "Resevado cancelada!")
+    return redirect('lista-empreendimento')
 
 def cancelar_Reservado(request, id):
     get_venda = get_object_or_404(RegisterVenda, id=id)
@@ -40,11 +48,14 @@ def cancelar_Reservado(request, id):
 
 def criar_Reservado(request, id):
     get_lote = get_object_or_404(Lote, id=id)
+    get_tempo = Empreendimento.objects.get(id=get_lote.quadra.empr_id)
+
 
     if request.method == 'GET':
         # VERIFICAR STATOS DO LOTE ANTES DE FAZER O POST
         get_lote.situacao = "RESERVADO"
         get_lote.save()
+
 
     if request.method == 'POST':
        form = RegisterVendaForm(request.POST)
@@ -54,7 +65,7 @@ def criar_Reservado(request, id):
           reserva_form.lote = get_lote
           reserva_form.user = request.user  # Define o usuário que está fazendo a venda
           reserva_form.tipo_venda = 'RESERVADO'
-          reserva_form.dt_reserva = datetime.now() + timedelta(days=5)
+          reserva_form.dt_reserva = datetime.now() + timedelta(days=get_tempo.tempo_reseva)
           messages.success(request, "Reservado com sucesso!")
           reserva_form.save()
 

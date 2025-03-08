@@ -1,9 +1,9 @@
 from django import forms
 from .models import Cliente
 
-## Cadastra Cliente    
-class ClienteForm(forms.ModelForm):
 
+
+class ClienteForm(forms.ModelForm):
     
     class Meta:
         model = Cliente

@@ -6,6 +6,7 @@ from .forms import ClienteForm
 from .models import Cliente
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.db import IntegrityError
 
 
 
@@ -21,7 +22,6 @@ def select_cliente(request, cliente_id):
     }
 
     return JsonResponse(data)
-
 
 def criar_cliente(request):
     if request.method == 'POST':

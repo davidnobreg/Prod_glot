@@ -3,6 +3,7 @@ from django.http import HttpResponse
 import pandas as pd
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
+from django.db.models import Q
 
 from django.core.paginator import Paginator
 from django.views import View
@@ -21,15 +22,16 @@ def select_empreendimento(request, empreendimento_id):
 
     return JsonResponse(data)
 
+
 def criar_Empreendimento(request):
-    form = EmpreendimentoForm() 
-    
+    form = EmpreendimentoForm()
+
     if request.method == 'POST':
         form = EmpreendimentoForm(request.POST, request.FILES)
         if form.is_valid():
             empr = form.save()
-            files = request.FILES.getlist('immobile') ## pega todas as imagens
-            return redirect('lista-empreendimento')
+            files = request.FILES.getlist('immobile')  ## pega todas as imagens
+            return redirect('lista-empreendimento-tabela')
     return render(request, 'empreendimento.html', {'form': form})
 
 
@@ -38,40 +40,43 @@ def lista_Empreendimento(request):
     context = {'empreendimentos': empreendimentos}
     return render(request, 'lista-empreendimentos.html', context)
 
+
 def altera_empreendimento(request, id):
     empreendimento = get_object_or_404(Empreendimento, id=id)
 
-    if request.method == 'GET':
-        form = EmpreendimentoForm(instance=empreendimento)  # Preenche o formulário com os dados do empreendimento
-        context = {'form': form, 'empreendimento': empreendimento}  # adiciona o cliente no contexto
-        return render(request, 'update_empreendimento.html', context)
-
-    if request.method == 'POST':  # Use POST para formulários HTML
-        form = EmpreendimentoForm(request.POST, instance=empreendimento)  # Passa os dados e a instância para o formulário
+    if request.method == 'POST':
+        form = EmpreendimentoForm(request.POST, request.FILES, instance=empreendimento)
 
         if form.is_valid():
             form.save()
+            return redirect('lista-empreendimento-tabela')
+        else:
+            context = {'form': form, 'empreendimento': empreendimento}
+            return render(request, 'update_empreendimento.html', context)
+    else:
+        form = EmpreendimentoForm(instance=empreendimento)
+        context = {'form': form, 'empreendimento': empreendimento}
+        return render(request, 'update_empreendimento.html', context)
 
-            return redirect('lista-empreendimento-tabela')  # Redireciona para a lista de clientes
 
-        context = {'form': form, 'empreendimento': empreendimento}  # adiciona o cliente no contexto
-        return render(request, 'update_empreendimento.html', context)  # retorna o form com os erros.
-
-    # Se não for GET nem POST, retorna um erro (ou redireciona, dependendo do caso)
-    return redirect('lista-empreendimento-tabela')  # redireciona para a lista de clientes, caso o metodo não seja get nem post
-
-def delete_empreendimento(request, id):
-    empreendimento = Empreendimento.objects.get(id=id)
-    empreendimento.is_ativo=True
+def deleteEmpreendimento(request, empreendimento_Id):
+    print(empreendimento_Id)
+    empreendimento = Empreendimento.objects.get(id=empreendimento_Id)
+    empreendimento.is_ativo = True
     empreendimento.save()
     return redirect('lista-empreendimento-tabela')
 
 
-def lista_Empreendimento_tabela(request):
+def listaEmpreendimentoTabela(request):
     empreendimentos = Empreendimento.objects.filter(is_ativo=False)
+
+    get_empreendimento = request.GET.get('empreendimento')
+
+    if get_empreendimento:
+        empreendimentos = Empreendimento.objects.filter(nome=get_empreendimento)
+
     context = {'empreendimentos': empreendimentos}
     return render(request, 'lista-empreendimentos-tabela.html', context)
-
 
 
 def lista_Quadra(request, id):
@@ -114,6 +119,7 @@ def lista_Quadra(request, id):
 
     return render(request, 'lista-quadras.html', context)
 
+
 class ImportarDadosView(View):
     template_name = 'empreendimento_arq.html'
 
@@ -127,7 +133,7 @@ class ImportarDadosView(View):
         form = ArquivoForm(request.POST, request.FILES)
         if form.is_valid():
             arquivo = request.FILES['arquivo']
-            
+
             # Lê o Excel a partir da terceira linha (pulando as duas primeiras)
             df = pd.read_excel(arquivo, skiprows=2, names=["quadra", "lote", "area", "situacao"])
 

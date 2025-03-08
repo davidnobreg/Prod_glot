@@ -17,25 +17,27 @@
 
             <!-- Formulário -->
             <div class="col-lg-6">
-                <form method="post">
-                    {% csrf_token %}
-                    <h4 class="mb-3 text-center">Cadastrar Empreendimento</h4>
-                    {% if status == '0' %}
-                        <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso</div>
-                    {% elif status == '1' %}
-                        <div class="alert alert-danger" role="alert">Preencha o nome</div>
-                    {% elif status == '2' %}
-                        <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente</div>
-                    {% elif status == '3' %}
-                        <div class="alert alert-danger" role="alert">Preencha o contato</div>
-                    {% endif %}
-                    <hr/>
-                    {{ form.as_p }}
-                    <hr/>
+                <form action="{% url 'alterar-empreendimento' empreendimento.id %}" method="post"
+                      enctype="multipart/form-data">
+                <h4 class="mb-3 text-center">Cadastrar Empreendimento</h4>
 
-                    <button type="submit" class="btn btn-primary w-100 mt-3">Salvar</button>
+                {% if status == '0' %}
+                    <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso</div>
+                {% elif status == '1' %}
+                    <div class="alert alert-danger" role="alert">Preencha o nome</div>
+                {% elif status == '2' %}
+                    <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente</div>
+                {% elif status == '3' %}
+                    <div class="alert alert-danger" role="alert">Preencha o contato</div>
+                {% endif %}
+                <hr/>
+                {% csrf_token %}
+                {{ form.as_p }}
+                <hr/>
 
-                    <button class="btn btn-primary w-100 mt-3">Canselar</button>
+                <button type="submit" class="btn btn-primary w-100 mt-3">Salvar</button>
+
+                <button class="btn btn-primary w-100 mt-3">Canselar</button>
                 </form>
             </div>
             <hr/>

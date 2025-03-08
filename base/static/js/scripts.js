@@ -127,8 +127,8 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".btn-detalhes-empreendimento").forEach(button => {
         button.addEventListener("click", function () {
-            let clienteId = this.getAttribute("data-id");
-            console.log("Cliente ID capturado:", empreendimentoId);
+            let empreendimentoId = this.getAttribute("data-id");
+           // console.log("Cliente ID capturado:", empreendimentoId);
 
             let modal = new bootstrap.Modal(document.getElementById("empreendimentoModal"));
             let loadingIndicator = document.getElementById("loading-indicator");
@@ -163,7 +163,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // ... (seu código existente para buscar e exibir detalhes do empreendimento) ...
 
     document.getElementById("btn-deletar-empreendimento").addEventListener("click", function () {
-        let clienteId = document.getElementById("empreendimento-id").textContent;
-        window.location.href = `/empreendimentos/delete_empreendimento/${empreendimentoId}/`; // Redireciona para a URL de exclusão
+        let empreendimento_Id = document.getElementById("empreendimento-id").textContent;
+        window.location.href = `/empreendimentos/deleta_empreendimento/${empreendimento_Id}/`; // Redireciona para a URL de exclusão
     });
 });

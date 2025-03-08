@@ -10,6 +10,35 @@
     <div class="container mt-4">
         <h4 class="mt-4 text-center">LISTA DE EMPREENDIMENTOS</h4>
         <hr>
+
+        <!-- Filtros -->
+        <div class="row g-3 align-items-center bg-light p-4 rounded shadow mb-4">
+            <div class="col-md-6">
+                <a href="{% url 'criar-empreendimento' %}" class="btn btn-primary md-4">
+                    Adicionar Empreendimento
+                </a>
+            </div>
+            <!-- Pesquisar pelo empreendimento -->
+            <div class="col-md-5">
+                <label for="empreendimentoSearch" class="form-label">Nome do Empreendimento</label>
+                <form class="d-flex" action="{% url 'lista-empreendimento-tabela' %}">
+                    <input name="empreendimento" id="empreendimentoSearch" type="search" class="form-control me-2"
+                           placeholder="Pesquisar Empreendimento..." value="{{ request.GET.empreendimento }}">
+                    <button class="btn btn-success" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Resetar filtros -->
+            <div class="col-md-1">
+                <label for="idReset" class="form-label">Resetar</label>
+                <a class="btn btn-danger" href="{% url 'lista-empreendimento-tabela' %}">
+                    <i class="fas fa-window-close"></i>
+                </a>
+            </div>
+        </div>
+        <hr>
         <table class="table table-striped text-center">
             <thead>
             <tr>
@@ -29,8 +58,9 @@
                     <td>{{ empreendimento.tempo_reseva }}</td>
                     <td>
                         <a href="{% url 'arquivo' empreendimento.id %}" class="btn btn-success">Arquivo</a>
-                        <a href="{% url 'alterar-empreendimento' empreendimento.id %}" class="btn btn-warning">Alterar</a>
-                        <a href="{% url 'deletar-empreendimento' empreendimento.id %}" class="btn btn-danger">Excluir</a>
+                        <a href="{% url 'alterar-empreendimento' empreendimento.id %}"
+                           class="btn btn-warning">Alterar</a>
+
                         <button class="btn btn-danger btn-detalhes-empreendimento"
                                 data-id="{{ empreendimento.id }}"
                                 data-bs-toggle="modal"
@@ -46,7 +76,8 @@
         </table>
     </div>
 
-    <div class="modal fade" id="empreendimentoModal" tabindex="-1" aria-labelledby="empreedimentoModalLabel" aria-hidden="true">
+    <div class="modal fade" id="empreendimentoModal" tabindex="-1" aria-labelledby="empreedimentoModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">

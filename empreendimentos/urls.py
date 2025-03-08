@@ -1,8 +1,8 @@
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import criar_Empreendimento, lista_Empreendimento, lista_Empreendimento_tabela, lista_Quadra, \
-    delete_empreendimento, altera_empreendimento, select_empreendimento, \
+from .views import criar_Empreendimento, lista_Empreendimento, listaEmpreendimentoTabela, lista_Quadra, \
+    deleteEmpreendimento, altera_empreendimento, select_empreendimento, \
     ImportarDadosView
 
 urlpatterns = [
@@ -13,13 +13,13 @@ urlpatterns = [
 
     path('alterar_empreendimento/<int:id>/', altera_empreendimento, name='alterar-empreendimento'),
 
-    path('deletar_empreendimento/<int:id>', delete_empreendimento, name='deletar-empreendimento'),
+    path('deleta_empreendimento/<int:empreendimento_Id>/', deleteEmpreendimento, name='deletar-empreendimento'),
 
     path('insert_arq/<int:id>/', ImportarDadosView.as_view(), name='arquivo'),
 
     path('', lista_Empreendimento, name='lista-empreendimento'),
 
-    path('listar_empreendimento/', lista_Empreendimento_tabela, name='lista-empreendimento-tabela'),
+    path('listar_empreendimento/', listaEmpreendimentoTabela, name='lista-empreendimento-tabela'),
 
     path('listar_quadras/<int:id>/', lista_Quadra, name='listar-quadras')
 

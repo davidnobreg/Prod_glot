@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='cliente',
             name='documento',
-            field=models.CharField(default='00000000000', max_length=18, unique=True),
+            field=models.CharField(default='00000000000', max_length=18),
         ),
     ]

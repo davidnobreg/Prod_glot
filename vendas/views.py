@@ -119,6 +119,7 @@ def criar_Reservado(request, id):
 def criar_Venda(request, id):
     venda = RegisterVenda.objects.get(id=id)
     lote = Lote.objects.get(id=venda.lote.id)
+    venda.dt_venda = datetime.now()
     venda.tipo_venda = 'VENDIDO'
     lote.situacao = 'VENDIDO'
     lote.save()

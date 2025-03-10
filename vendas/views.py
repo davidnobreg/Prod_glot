@@ -1,6 +1,8 @@
+from dateutil.tz import tzname_in_python2
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 
 from datetime import datetime, timedelta
 
@@ -17,9 +19,38 @@ def reservado(request, id):
 
 
 def lista_Reserva(request):
-    reservas = RegisterVenda.objects.filter(tipo_venda='RESERVADO')
+    #reservas = RegisterVenda.objects.filter(tipo_venda='RESERVADO')
+    reservas = RegisterVenda.objects.all()
+
+    get_localiza = request.GET.get('reserva')
+
+    get_tipo_venda = request.GET.get('tipo_venda')
+
+    get_data_reserva = request.GET.get('reserva')
+
+    get_data_venda = request.GET.get('venda')
+
+    if get_localiza:  ## Filtra por nome, documento ou email do cliente
+        reservas = RegisterVenda.objects.filter(
+            Q(cliente__name__icontains=get_localiza) |
+            Q(lote__quadra__empr__nome__icontains=get_localiza)|
+            Q(user__username__icontains=get_localiza))
+
+    if get_data_reserva:  ## Por data
+        reservas = RegisterVenda.objects.filter(
+            dt_reserva__icontains=get_data_reserva)
+
+    if get_data_venda:  ## Por data
+        reservas = RegisterVenda.objects.filter(
+            dt_venda__icontains=get_data_venda)
+
+    if get_tipo_venda:
+        reservas = RegisterVenda.objects.filter(tipo_venda=get_tipo_venda)
+
     context = {'reservas': reservas}
     return render(request, 'lista_reserva.html', context)
+
+
 
 
 def lista_Venda(request):
@@ -85,7 +116,6 @@ def criar_Reservado(request, id):
     context = {'form': form, 'lote': get_lote}
     return render(request, 'reserva.html', context)
 
-
 def criar_Venda(request, id):
     venda = RegisterVenda.objects.get(id=id)
     lote = Lote.objects.get(id=venda.lote.id)
@@ -94,6 +124,17 @@ def criar_Venda(request, id):
     lote.save()
     venda.save()
     messages.success(request, "Venda criada com sucesso!")
+    return redirect('lista-reserva')
+
+
+def renova_reserva(request, id):
+    get_venda = RegisterVenda.objects.get(id=id)
+    get_tempo = Empreendimento.objects.get(id=get_venda.lote.quadra.empr_id)
+
+    get_venda.dt_reserva = datetime.now() + timedelta(days=get_tempo.tempo_reseva)
+
+    get_venda.save()
+    messages.success(request, "Reserva renovada com sucesso!")
     return redirect('lista-reserva')
 
 

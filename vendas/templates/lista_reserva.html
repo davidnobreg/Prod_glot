@@ -12,13 +12,13 @@
         <hr>
 
         <!-- Filtros -->
-        <div class="row g-3 align-items-center bg-light p-4 rounded shadow mb-4">
+        <div class="row g-3 align-items-center bg-light p-2 rounded shadow mb-4">
             <!-- Pesquisar pelo empreendimento -->
-            <div class="col-md-4">
-                <label for="empreendimentoSearch" class="form-label">Nome do Cliente,Loteamento ou Corretor</label>
-                <form class="d-flex" action="{% url 'lista-empreendimento-tabela' %}">
-                    <input name="empreendimento" id="empreendimentoSearch" type="search" class="form-control me-2"
-                           placeholder="Digite sua pesquisa..." value="{{ request.GET.empreendimento }}">
+            <div class="col-md-3">
+                <label for="reservaSearch" class="form-label">Nome do Cliente ou Corretor</label>
+                <form class="d-flex" action="{% url 'lista-reserva' %}">
+                    <input name="reserva" id="reservaSearch" type="search" class="form-control me-2"
+                           placeholder="Digite sua pesquisa..." value="{{ request.GET.reserva }}">
                     <button class="btn btn-success" type="submit">
                         <i class="fas fa-search"></i>
                     </button>
@@ -26,14 +26,25 @@
             </div>
 
             <!-- Filtro de data -->
-            <div class="col-md-4">
-                <label class="form-label ">Intervalo de Datas</label>
-                <form class="d-flex align-items-end gap-2" action="">
+            <div class="col-md-3 text-center ">
+                <label class="form-label">Datas reserva</label>
+                <form class="d-flex align-items-center  justify-content-center gap-2" action="">
                     <div>
-                        <input name="dt_start" type="date" value="{{ request.GET.dt_start }}" class="form-control">
+                        <input name="reserva" type="date" value="{{ request.GET.reserva}}" class="form-control">
                     </div>
+                    <button class="btn btn-outline-dark" type="submit">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Filtro de data -->
+            <div class="col-md-3 text-center ">
+                <label class="form-label">Datas reserva</label>
+                <form class="d-flex align-items-center  justify-content-center gap-2" action="">
+
                     <div>
-                        <input name="dt_end" type="date" value="{{ request.GET.dt_end }}" class="form-control">
+                        <input name="venda" type="date" value="{{ request.GET.venda }}" class="form-control">
                     </div>
                     <button class="btn btn-outline-dark" type="submit">
                         <i class="fas fa-filter"></i>
@@ -53,18 +64,18 @@
                 </form>
             </div>-->
             <!-- Filtro de tipo -->
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label for="typeFilter" class="form-label">RESERVAS OU VENDAS</label>
                 <form action="">
-                    <select name="type_item" id="typeFilter" class="form-select" onchange="this.form.submit()">
+                    <select name="tipo_venda" id="typeFilter" class="form-select" onchange="this.form.submit()">
                         <option value="">Status</option>
-                        <option value="RESERVADO" {% if request.GET.type_item == 'RESERVADO' %}selected{% endif %}>
+                        <option value="RESERVADO" {% if request.GET.tipo_venda == 'RESERVADO' %}selected{% endif %}>
                             Reservado
                         </option>
-                        <option value="VENDIDO" {% if request.GET.type_item == 'VENDIDO' %}selected{% endif %}>
+                        <option value="VENDIDO" {% if request.GET.tipo_venda == 'VENDIDO' %}selected{% endif %}>
                             Vendido
                         </option>
-                        <option value="CANCELADA" {% if request.GET.type_item == 'CANCELADA' %}selected{% endif %}>
+                        <option value="CANCELADA" {% if request.GET.tipo_venda == 'CANCELADA' %}selected{% endif %}>
                             Cancelada
                         </option>
                     </select>
@@ -73,49 +84,53 @@
             <!-- Resetar filtros -->
             <div class="col-md-1">
                 <label for="idReset" class="form-label">Resetar</label>
-                <a class="btn btn-danger" href="{% url 'lista-empreendimento-tabela' %}">
+                <a class="btn btn-danger" href="{% url 'lista-reserva' %}">
                     <i class="fas fa-window-close"></i>
                 </a>
             </div>
         </div>
         <hr>
         <div class="row g-3 align-items-center bg-light p-4 rounded shadow mb-4">
-            <table class="table table-striped-columns table-bordered table-sm text-center">
-                <thead>
-                <tr>
-                    <th scope="col">Cliente</th>
-                    <th scope="col">Loteamento</th>
-                    <th scope="col">Quadra</th>
-                    <th scope="col">Lote</th>
-                    <th scope="col">Corretor</th>
-                    <th scope="col">Vencimento da Reserva</th>
-                    <th scope="col">Data de venda</th>
-                    <th scope="col">Comandos</th>
-                </tr>
-                </thead>
-
-                <tbody class="featurette-heading fw-normal lh-1">
-                {% for reserva in reservas %}
+            <div class="table-responsive">
+                <table class="table table-striped-columns table-bordered table-sm text-center">
+                    <thead>
                     <tr>
-                        <td>{{ reserva.cliente }}</td>
-                        <td>{{ reserva.lote.quadra.empr.nome }}</td>
-                        <td>{{ reserva.lote.quadra }}</td>
-                        <td>{{ reserva.lote }}</td>
-                        <td>{{ reserva.user }}</td>
-                        <td>{{ reserva.dt_reserva }}</td>
-                        <td>{{ reserva.dt_venda }}</td>
-                        <td>
-                            <div class="d-grid gap-4 d-md-block btn-sm">
-                                <a href="" class="btn btn-warning">Editar Reserva</a>
-                                <a href="{% url 'criar-venda' reserva.id %}" class="btn btn-success">Confirmar Venda</a>
-                                <a href="{% url 'delete-reservado' reserva.id %}" class="btn btn-danger">Excluir
-                                    Reseva</a>
-                            </div>
-                        </td>
+                        <th scope="col">Cliente</th>
+                        <th scope="col">Loteamento</th>
+                        <th scope="col">Quadra</th>
+                        <th scope="col">Lote</th>
+                        <th scope="col">Corretor</th>
+                        <th scope="col">Vencimento da Reserva</th>
+                        <th scope="col">Data de venda</th>
+                        <th scope="col">Comandos</th>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+
+                    <tbody class="featurette-heading fw-normal lh-1">
+                    {% for reserva in reservas %}
+                        <tr>
+                            <td>{{ reserva.cliente }}</td>
+                            <td>{{ reserva.lote.quadra.empr.nome }}</td>
+                            <td>{{ reserva.lote.quadra }}</td>
+                            <td>{{ reserva.lote }}</td>
+                            <td>{{ reserva.user }}</td>
+                            <td>{{ reserva.dt_reserva }}</td>
+                            <td>{{ reserva.dt_venda }}</td>
+                            <td>
+                                <div class="d-grid gap-4 d-md-block btn-sm">
+                                    <a href="{% url 'renova-reserva' reserva.id %}" class="btn btn-warning">Renova
+                                        Reserva</a>
+                                    <a href="{% url 'criar-venda' reserva.id %}" class="btn btn-success">Confirmar
+                                        Venda</a>
+                                    <a href="{% url 'delete-reservado' reserva.id %}" class="btn btn-danger">Excluir
+                                        Reseva</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 {% endblock %}

@@ -20,8 +20,8 @@ class RegisterVenda(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, blank=True, null=True)
     tipo_venda = models.CharField(max_length=100, choices=TypeLote.choices)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="vendas")
-    dt_reserva = models.DateTimeField(default=datetime.now(), blank=True)
-    dt_venda = models.DateTimeField(default=datetime.now(), blank=True)
+    dt_reserva = models. DateField(default=datetime.now(), blank=True)
+    dt_venda = models. DateField(blank=True, null=True)
     create_at = models.DateField(default=datetime.now, blank=True)
     is_ativo = models.BooleanField(default=False)
 

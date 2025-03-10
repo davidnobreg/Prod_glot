@@ -39,41 +39,43 @@
             </div>
         </div>
         <hr>
-        <table class="table table-striped text-center">
-            <thead>
-            <tr>
-                <th scope="col">id</th>
-                <th scope="col">Nome</th>
-                <th scope="col">Dias de Reserva</th>
-                <th scope="col"></th>
-
-            </tr>
-            </thead>
-
-            <tbody class="featurette-heading fw-normal lh-1">
-            {% for empreendimento in empreendimentos %}
+        <div class="table-responsive">
+            <table class="table table-striped text-center">
+                <thead>
                 <tr>
-                    <td>{{ empreendimento.id }}</td>
-                    <td>{{ empreendimento.nome }}</td>
-                    <td>{{ empreendimento.tempo_reseva }}</td>
-                    <td>
-                        <a href="{% url 'arquivo' empreendimento.id %}" class="btn btn-success">Arquivo</a>
-                        <a href="{% url 'alterar-empreendimento' empreendimento.id %}"
-                           class="btn btn-warning">Alterar</a>
+                    <th scope="col">id</th>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Dias de Reserva</th>
+                    <th scope="col"></th>
 
-                        <button class="btn btn-danger btn-detalhes-empreendimento"
-                                data-id="{{ empreendimento.id }}"
-                                data-bs-toggle="modal"
-                                data-bs-target="#empreendimentoModal">
-                            Excluir
-                        </button>
-
-                    </td>
                 </tr>
-            {% endfor %}
-            </tbody>
+                </thead>
 
-        </table>
+                <tbody class="featurette-heading fw-normal lh-1">
+                {% for empreendimento in empreendimentos %}
+                    <tr>
+                        <td>{{ empreendimento.id }}</td>
+                        <td>{{ empreendimento.nome }}</td>
+                        <td>{{ empreendimento.tempo_reseva }}</td>
+                        <td>
+                            <a href="{% url 'arquivo' empreendimento.id %}" class="btn btn-success">Arquivo</a>
+                            <a href="{% url 'alterar-empreendimento' empreendimento.id %}"
+                               class="btn btn-warning">Alterar</a>
+
+                            <button class="btn btn-danger btn-detalhes-empreendimento"
+                                    data-id="{{ empreendimento.id }}"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#empreendimentoModal">
+                                Excluir
+                            </button>
+
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
     </div>
 
     <div class="modal fade" id="empreendimentoModal" tabindex="-1" aria-labelledby="empreedimentoModalLabel"

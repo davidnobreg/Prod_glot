@@ -40,39 +40,41 @@
                 </a>
             </div>
             <div class="row col-md-12 g-3">
-                <table class="table table-striped table-group-divider table-responsive md-4">
-                    <thead>
-                    <tr>
-                        <th scope="col">Nome ou Razão Social</th>
-                        <th scope="col">Cpf ou Cnpj</th>
-                        <th scope="col">E-mail</th>
-                        <th scope="col">Contato</th>
-                    </tr>
-                    </thead>
-
-                    <tbody class="featurette-heading fw-normal lh-1 table-group-divider">
-                    {% for cliente in clientes %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-group-divider table-responsive md-4">
+                        <thead>
                         <tr>
-                            <td>{{ cliente.name }}</td>
-                            <td>{{ cliente.documento }}</td>
-                            <td>{{ cliente.email }}</td>
-                            <td>{{ cliente.fone }}</td>
-                            <td>
-
-                                <a href="{% url 'altera-cliente' cliente.id %}" class="btn btn-warning">
-                                    Alterar
-                                </a>
-                                <button class="btn btn-danger btn-detalhes"
-                                        data-id="{{ cliente.id }}"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#clienteModal">
-                                    Excluir
-                                </button>
-                            </td>
+                            <th scope="col">Nome ou Razão Social</th>
+                            <th scope="col">Cpf ou Cnpj</th>
+                            <th scope="col">E-mail</th>
+                            <th scope="col">Contato</th>
                         </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+
+                        <tbody class="featurette-heading fw-normal lh-1 table-group-divider">
+                        {% for cliente in clientes %}
+                            <tr>
+                                <td>{{ cliente.name }}</td>
+                                <td>{{ cliente.documento }}</td>
+                                <td>{{ cliente.email }}</td>
+                                <td>{{ cliente.fone }}</td>
+                                <td>
+
+                                    <a href="{% url 'altera-cliente' cliente.id %}" class="btn btn-warning">
+                                        Alterar
+                                    </a>
+                                    <button class="btn btn-danger btn-detalhes"
+                                            data-id="{{ cliente.id }}"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#clienteModal">
+                                        Excluir
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 

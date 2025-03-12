@@ -19,8 +19,8 @@ def reservado(request, id):
 
 
 def lista_Reserva(request):
-    #reservas = RegisterVenda.objects.filter(tipo_venda='RESERVADO')
-    reservas = RegisterVenda.objects.all()
+    reservas = RegisterVenda.objects.filter(tipo_venda='RESERVADO', is_ativo='False')
+    #reservas = RegisterVenda.objects.all()
 
     get_localiza = request.GET.get('reserva')
 
@@ -55,6 +55,22 @@ def lista_Reserva(request):
 
 def lista_Venda(request):
     vendas = RegisterVenda.objects.filter(tipo_venda='VENDIDO', is_ativo='False')
+
+    get_data_venda = request.GET.get('venda')
+    get_tipo_venda = request.GET.get('tipo_venda')
+
+    if get_data_venda:  ## Filtra por nome, documento ou email do cliente
+        vendas = RegisterVenda.objects.filter(
+            Q(is_ativo__icontains='False') |
+            Q(cliente__name__icontains=get_data_venda) |
+            Q(cliente__fone__icontains=get_data_venda) |
+            Q(lote__quadra__empr__nome__icontains=get_data_venda)|
+            Q(user__username__icontains=get_data_venda))
+
+    if get_tipo_venda:
+        vendas = RegisterVenda.objects.filter(tipo_venda=get_tipo_venda)
+
+
     context = {'vendas': vendas}
     return render(request, 'lista_venda.html', context)
 

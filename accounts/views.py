@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.contrib import messages
 
 from .models import User
 
@@ -19,8 +20,10 @@ def register(request):
                 username=user.username,
                 password=form.cleaned_data['password1']
             )
+            messages.success(request, "Usuario criada com sucesso!")
             login_django(request, user)
-            return redirect(settings.LOGIN_URL)
+
+            return redirect('lista-usuario')
             #return HTTPRequest('sucesso')
     else:
         form = RegisterForm()

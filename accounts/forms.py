@@ -19,4 +19,4 @@ class RegisterForm(UserCreationForm):
         return user
     class Meta:
         model = User
-        fields = ['email', 'creci', 'phone','username']
+        fields = ['email', 'creci', 'phone','username','tipo_usuario']

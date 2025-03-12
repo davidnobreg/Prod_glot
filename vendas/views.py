@@ -54,7 +54,10 @@ def lista_Reserva(request):
 
 
 def lista_Venda(request):
-    vendas = RegisterVenda.objects.filter(tipo_venda='VENDIDO', is_ativo='False')
+    vendas = RegisterVenda.objects.filter(
+        Q(is_ativo__icontains='False') |
+        Q(tipo_venda__icontains='VENDIDO') |
+        Q(tipo_venda__icontains='CANCELADA'))
 
     get_data_venda = request.GET.get('venda')
     get_tipo_venda = request.GET.get('tipo_venda')

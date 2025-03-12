@@ -56,6 +56,7 @@
                 <th scope="col">Quadra</th>
                 <th scope="col">Lote</th>
                 <th scope="col">Corretor</th>
+                <th scope="col">Status</th>
             </tr>
             </thead>
 
@@ -68,6 +69,7 @@
                     <td>{{ venda.lote.quadra }}</td>
                     <td>{{ venda.lote }}</td>
                     <td>{{ venda.user }}</td>
+                    <td>{{ venda.tipo_venda }}</td>
                     <td>
                         <a href="{% url 'reservado' venda.id %}" class="btn btn-primary">Detalhe Venda</a>
                         <a href="{% url 'delete-venda' venda.id %}" class="btn btn-danger">Excluir Venda</a>

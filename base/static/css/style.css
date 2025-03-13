@@ -40,3 +40,9 @@ body[data-bs-theme="dark"] {
 .seletor-para-algum-widget {
   box-sizing: border-box;
 }
+
+.btn-warning {
+
+      background-color: #dc3545 !important;
+
+}

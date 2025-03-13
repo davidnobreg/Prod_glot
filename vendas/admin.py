@@ -1,5 +1,5 @@
 from django.contrib import admin
-from accounts.views import register
+from accounts.views import criar_usuario
 from .models import RegisterVenda
 
 @admin.register(RegisterVenda)

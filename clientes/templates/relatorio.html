@@ -7,7 +7,7 @@
 {% load static %}
 
 {% block content %}
-    <div class="container-fluid">
+    <div class="ccontainer-fluid">
         <div class="row g-3 align-items-center bg-light p-2 rounded shadow mb-4">
             <h4 class="mt-4 text-center">LISTA DE CLIENTES</h4>
             <hr>
@@ -58,50 +58,10 @@
                                 <td>{{ cliente.documento }}</td>
                                 <td>{{ cliente.email }}</td>
                                 <td>{{ cliente.fone }}</td>
-                                <td>
-
-                                    <a href="{% url 'altera-cliente' cliente.id %}" class="btn btn-warning">
-                                        Alterar
-                                    </a>
-                                    <button class="btn btn-danger btn-detalhes"
-                                            data-id="{{ cliente.id }}"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#clienteModal">
-                                        Excluir
-                                    </button>
-                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-
-    <div class="modal fade" id="clienteModal" tabindex="-1" aria-labelledby="clienteModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="clienteModalLabel">Detalhes do Cliente</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="loading-indicator" style="display: none;">
-                        Carregando...
-                    </div>
-                    <p><strong>ID:</strong> <span id="cliente-id"></span></p>
-                    <p><strong>Nome:</strong> <span id="cliente-name"></span></p>
-                    <p><strong>Email:</strong> <span id="cliente-email"></span></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" id="btn-deletar-cliente">deletar</button>
-                    <button type="button" href="{% url 'lista-cliente' %}" class="btn btn-secondary"
-                            data-bs-dismiss="modal">Canselar
-                    </button>
                 </div>
             </div>
         </div>

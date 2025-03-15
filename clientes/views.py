@@ -5,15 +5,14 @@ from django.http import JsonResponse
 from .forms import ClienteForm
 from .models import Cliente
 from django.db.models import Q
+from rolepermissions.decorators import has_role_decorator
 
 from django.contrib.auth.decorators import login_required
 
 from django.db import IntegrityError
 
-
-
-
-def select_cliente(request, cliente_id):
+@has_role_decorator('selectCliente')
+def selectCliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
 
     data = {
@@ -25,7 +24,8 @@ def select_cliente(request, cliente_id):
 
     return JsonResponse(data)
 
-def criar_cliente(request):
+@has_role_decorator('criarCliente')
+def criarCliente(request):
     if request.method == 'POST':
         form = ClienteForm(request.POST)
         if form.is_valid():
@@ -35,8 +35,8 @@ def criar_cliente(request):
     form = ClienteForm()
     return render(request, 'cliente.html', {'form': form})
 
-
-def criar_cliente_modal(request):
+@has_role_decorator('criarClienteModal')
+def criarClienteModal(request):
     if request.method == 'POST':
 
         rid = request.GET.get('rid')
@@ -49,11 +49,8 @@ def criar_cliente_modal(request):
     form = ClienteForm()
     return redirect('/vendas/insert_reserva/' + rid + '/')
 
-
-
-
-
-def altera_cliente(request, cliente_id):
+@has_role_decorator('alterarCliente')
+def alteraCliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
 
     if request.method == 'GET':
@@ -74,18 +71,17 @@ def altera_cliente(request, cliente_id):
     # Se não for GET nem POST, retorna um erro (ou redireciona, dependendo do caso)
     return redirect('lista-cliente')  # redireciona para a lista de clientes, caso o metodo não seja get nem post
 
-
-def delete_cliente(request, id):
+@has_role_decorator('deletarCliente')
+def deleteCliente(request, id):
     cliente = Cliente.objects.get(id=id)
     cliente.is_ativo = True
     cliente.save()
     return redirect('lista-cliente')
 
-
 ## Relatório
 
-
-def lista_cliente(request):
+@has_role_decorator('relatorioCliente')
+def listaCliente(request):
     clientes = Cliente.objects.filter(is_ativo=False).order_by('name')
 
     get_client = request.GET.get('client')

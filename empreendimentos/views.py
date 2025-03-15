@@ -3,7 +3,9 @@ from django.contrib import messages
 import pandas as pd
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
-from django.db.models import Q
+from requests import request
+
+from rolepermissions.decorators import has_role_decorator
 
 from django.core.paginator import Paginator
 from django.views import View
@@ -12,7 +14,8 @@ from .forms import EmpreendimentoForm, ArquivoForm
 from .models import Empreendimento, Quadra, Lote
 
 
-def select_empreendimento(request, empreendimento_id):
+@has_role_decorator('selectEmpreendimento')
+def selectEmpreendimento(request, empreendimento_id):
     empreendimento = get_object_or_404(Empreendimento, id=empreendimento_id)
 
     data = {
@@ -23,7 +26,8 @@ def select_empreendimento(request, empreendimento_id):
     return JsonResponse(data)
 
 
-def criar_Empreendimento(request):
+@has_role_decorator('criarEmpreendimento')
+def criarEmpreendimento(request):
     form = EmpreendimentoForm()
 
     if request.method == 'POST':
@@ -35,13 +39,15 @@ def criar_Empreendimento(request):
     return render(request, 'empreendimento.html', {'form': form})
 
 
-def lista_Empreendimento(request):
+@has_role_decorator('criarEmpreendimento')
+def listaEmpreendimento(request):
     empreendimentos = Empreendimento.objects.filter(is_ativo=False)
     context = {'empreendimentos': empreendimentos}
     return render(request, 'lista-empreendimentos.html', context)
 
 
-def altera_empreendimento(request, id):
+@has_role_decorator('alterarEmpreendimento')
+def alteraEmpreendimento(request, id):
     empreendimento = get_object_or_404(Empreendimento, id=id)
 
     if request.method == 'POST':
@@ -59,6 +65,7 @@ def altera_empreendimento(request, id):
         return render(request, 'update_empreendimento.html', context)
 
 
+@has_role_decorator('deletarEmpreendimento')
 def deleteEmpreendimento(request, empreendimento_Id):
     print(empreendimento_Id)
     empreendimento = Empreendimento.objects.get(id=empreendimento_Id)
@@ -67,6 +74,7 @@ def deleteEmpreendimento(request, empreendimento_Id):
     return redirect('lista-empreendimento-tabela')
 
 
+@has_role_decorator('listaEmpreendimentoTabela')
 def listaEmpreendimentoTabela(request):
     empreendimentos = Empreendimento.objects.filter(is_ativo=False)
 
@@ -79,7 +87,8 @@ def listaEmpreendimentoTabela(request):
     return render(request, 'lista-empreendimentos-tabela.html', context)
 
 
-def lista_Quadra(request, id):
+@has_role_decorator('listaQuadra')
+def listaQuadra(request, id):
     empreendimento = get_object_or_404(Empreendimento, id=id)
     quadras = Quadra.objects.filter(empr=empreendimento).order_by('id')
 
@@ -120,10 +129,11 @@ def lista_Quadra(request, id):
     return render(request, 'lista-quadras.html', context)
 
 
-class ImportarDadosView(View):
+
+class importarDados(View):
     template_name = 'empreendimento_arq.html'
 
-    def get(self, request, id):
+    def get(self, request, id, *args, **kwargs):
         empreendimento = Empreendimento.objects.get(id=id)
         form = ArquivoForm()
         context = {'form': form, 'empreendimento': empreendimento}

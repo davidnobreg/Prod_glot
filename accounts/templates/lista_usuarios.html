@@ -68,8 +68,8 @@
                             <td>{{ usuario.creci }}</td>
                             <td>{{ usuario.username }}</td>
                             <td>{{ usuario.email }}</td>
-                            <td>{{ usuario.phone }}</td>
-                            <td>{{ usuario.tipo_usuario }}</td>
+                            <td>{{ usuario.contato }}</td>
+                            <td class="field-tipo_usuario">{{ usuario.tipo_usuario }}</td>
                             <td class="text-center itemprop=" actions>
                                 <a href="{% url 'update-usuario' usuario.id %}" class="btn btn-warning">Alterar</a>
                                 <a href="{% url 'delete-usuario' usuario.id %}" class="btn btn-danger">Excluir</a>

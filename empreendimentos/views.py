@@ -133,11 +133,13 @@ def listaQuadra(request, id):
 class importarDados(View):
     template_name = 'empreendimento_arq.html'
 
+
     def get(self, request, id, *args, **kwargs):
         empreendimento = Empreendimento.objects.get(id=id)
         form = ArquivoForm()
         context = {'form': form, 'empreendimento': empreendimento}
         return render(request, self.template_name, context)
+
 
     def post(self, request, id):
         form = ArquivoForm(request.POST, request.FILES)

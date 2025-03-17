@@ -11,9 +11,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 
-STATIC_DIR = os.path.join(BASE_DIR, 'base/static')
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
 
-MEDIA_DIR = os.path.join(BASE_DIR, 'static/media')
+MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
 SECRET_KEY = config('SECRET_KEY')
 

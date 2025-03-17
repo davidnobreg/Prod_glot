@@ -33,4 +33,6 @@ six==1.16.0
 sqlparse==0.5.1
 tzdata==2024.2
 urllib3==2.2.3
+pacote_remoto==1.1
+outro_pacote_remoto==2.1
 

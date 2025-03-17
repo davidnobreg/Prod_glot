@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     document.getElementById("cliente-id").textContent = data.id;
                     document.getElementById("cliente-name").textContent = data.name;
+                    document.getElementById("cliente-documento").textContent = data.documento;
                     document.getElementById("cliente-email").textContent = data.email;
                 })
                 .catch(error => console.error("Erro ao buscar os detalhes:", error));

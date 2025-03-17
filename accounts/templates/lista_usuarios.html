@@ -1,42 +1,90 @@
 {% extends 'base.html' %}
 
 {% block title %}
-  Lista de Usuarios
+    Lista de Usuarios
 {% endblock %}
 
 {% load static %}
 
 {% block content %}
-  <div class="container mt-4">
-    <h4 class="mt-4 text-center">LISTA DE USUARIOS</h4>
-    <hr>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th scope="col">Creci</th>
-          <th scope="col">Nome</th>
-          <th scope="col">E-mail</th>
-          <th scope="col">Contato</th>
-          <th scope="col">Tipo usuario:</th>
-        </tr>
-      </thead>
+    <div class="container-fluid">
+        <div class="row g-3 align-items-center bg-light p-2 rounded shadow mb-4">
+            <h4 class="mt-4 text-center">LISTA DE USUARIOS</h4>
+            <hr>
+            <div class="col-md-2">
+                <a href="{% url 'criar-cadastro' %}" class="btn btn-primary">
+                    Adicionar Usuario
+                </a>
+            </div>
+            <!-- Pesquisar pelo cliente -->
+            <div class="col-md-6">
+                <label for="userSearch" class="form-label">Nome do Usuario, Creci, Contato ou E-mail</label>
+                <form class="d-flex" action="{% url 'lista-usuario' %}">
+                    <input name="user" id="userSearch" type="search" class="form-control me-2"
+                           placeholder="Digite sua pesquisar..." value="{{ request.GET.user }}">
+                    <button class="btn btn-success" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
 
-      <tbody class="featurette-heading fw-normal lh-1">
-        {% for usuario in usuarios %}
-          <tr>
-            <td>{{usuario.creci}}</td>
-            <td>{{usuario.username}}</td>
-            <td>{{usuario.email}}</td>
-            <td>{{usuario.phone}}</td>
-            <td>{{usuario.tipo_usuario}}</td>
-            <td class="text-center itemprop="actions>
-              <a href="https://www.google.com.br/" class="btn btn-warning">Alterar</a>
-              <a href="https://www.google.com.br/" class="btn btn-danger">Excluir</a>
-            </td>
-          </tr>
-          {% endfor %}
-      </tbody>
+            <!-- Filtro de tipo-->
+            <div class="col-md-3">
+                <label for="typeFilter" class="form-label">Grupo de Usuario</label>
+                <form action="">
+                    <select name="tipo_user" id="typeFilter" class="form-select" onchange="this.form.submit()">
+                        <option value="">Status</option>
+                        <option value="ADMINISTRADOR"
+                                {% if request.GET.tipo_user == 'ADMINISTRADOR' %}selected{% endif %}>
+                            Administrador
+                        </option>
+                        <option value="CORRETOR" {% if request.GET.tipo_user == 'CORRETOR' %}selected{% endif %}>
+                            Corretor
+                        </option>
+                        <option value="PROPIETARIO" {% if request.GET.tipo_user == 'PROPIETARIO' %}selected{% endif %}>
+                            Propietario
+                        </option>
+                    </select>
+                </form>
+            </div>
 
-    </table>
-  </div>
+            <!-- Resetar filtros -->
+            <div class="col-md-1">
+                <label for="idReset" class="form-label">Resetar</label>
+                <a class="btn btn-danger" href="{% url 'lista-usuario' %}">
+                    <i class="fas fa-window-close"></i>
+                </a>
+            </div>
+            <hr>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">Creci</th>
+                        <th scope="col">Nome</th>
+                        <th scope="col">E-mail</th>
+                        <th scope="col">Contato</th>
+                        <th scope="col">Tipo usuario:</th>
+                    </tr>
+                    </thead>
+
+                    <tbody class="featurette-heading fw-normal lh-1">
+                    {% for usuario in usuarios %}
+                        <tr>
+                            <td>{{ usuario.creci }}</td>
+                            <td>{{ usuario.username }}</td>
+                            <td>{{ usuario.email }}</td>
+                            <td>{{ usuario.contato }}</td>
+                            <td class="field-tipo_usuario">{{ usuario.tipo_usuario }}</td>
+                            <td class="text-center itemprop=" actions>
+                                <a href="{% url 'update-usuario' usuario.id %}" class="btn btn-warning">Alterar</a>
+                                <a href="{% url 'delete-usuario' usuario.id %}" class="btn btn-danger">Excluir</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 {% endblock %}

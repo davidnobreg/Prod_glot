@@ -1,8 +1,10 @@
 
 from django.db import models
-from datetime import datetime
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from PIL import Image
+
 
 ## Cadastro de empreendimento
 class Empreendimento(models.Model):
@@ -13,6 +15,9 @@ class Empreendimento(models.Model):
     logo = models.ImageField(upload_to='empreendimento', verbose_name='Logo',
         null=True, blank=True)
     is_ativo = models.BooleanField(default=False)
+
+
+
 
     def __str__(self):
         #return self.nome

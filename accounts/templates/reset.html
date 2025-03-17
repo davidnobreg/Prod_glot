@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Cadastro
+{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class=".container-fluid mt-4">
+        <div class="row align-items-center g-4">
+
+            <div class="card text-center">
+                <div class="card-header">
+                    <h4 class="mb-3">RESET CONTA</h4>
+
+                </div>
+                <div class="card-body mb-3">
+                    <form action="{% url 'login' %}" method="POST" class="card  p-4 shadow align-items-center">
+                        {% csrf_token %}
+
+                        {{ form.non_field_errors }}
+                        {{ field.errors }}
+                        {% if form.email.errors %}
+                            {{ form.email.errors }}
+                        {% endif %}
+                        <p>{{ form.email }}</p>
+
+                        <br>
+                        <br>
+                        <button type="submit" class="btn btn-primary w-30 mt-3">Reset password</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

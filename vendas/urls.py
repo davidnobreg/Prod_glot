@@ -1,17 +1,17 @@
 from django.urls import path
-from .views import criar_Venda, criar_Reservado, lista_Venda, lista_Reserva, reservado, delete_venda, delete_reseva, \
-    cancelar_Reservado, cancelar_Reservado_Cadastro, renova_reserva
+from . import views
 
 urlpatterns = [
     # Cadastro de cliente
-    path('insert_venda/<int:id>/', criar_Venda, name='criar-venda'),
-    path('insert_reserva/<int:id>/', criar_Reservado, name='reserva-create'),
-    path('listar_reserva/', lista_Reserva, name='lista-reserva'),
-    path('listar_venda/', lista_Venda, name='lista-venda'),
-    path('reservado/<int:id>/', reservado, name='reservado'),
-    path('reservado_cancelada/<int:id>/', cancelar_Reservado, name='cancelar-reservado'),
-    path('reservado_cancelada_cadastro/<int:id>/', cancelar_Reservado_Cadastro, name='cancelar-reservado-cadastro'),
-    path('venda_delete/<int:id>/', delete_venda, name='delete-venda'),
-    path('reservado_delete/<int:id>/', delete_reseva, name='delete-reservado'),
-    path('renova_reserva/<int:id>/', renova_reserva, name='renova-reserva'),
+    path('insert_venda/<int:id>/', views.criarVenda, name='criar-venda'),
+    path('insert_reserva/<int:id>/', views.criarReservado, name='reserva-create'),
+    path('listar_reserva/', views.listaReserva, name='lista-reserva'),
+    path('listar_venda/', views.listaVenda, name='lista-venda'),
+    path('listar_venda_relatorio/', views.listaVendaRelatorio, name='lista-venda-relatorio'),
+    path('reservado/<int:id>/', views.reservado, name='reservado'),
+    path('reservado_cancelada/<int:id>/', views.cancelarReservado, name='cancelar-reservado'),
+    path('reservado_cancelada_cadastro/<int:id>/', views.cancelarReservadoCadastro, name='cancelar-reservado-cadastro'),
+    path('venda_delete/<int:id>/', views.deleteVenda, name='delete-venda'),
+    path('reservado_delete/<int:id>/', views.deleteReseva, name='delete-reservado'),
+    path('renova_reserva/<int:id>/', views.renovaReserva, name='renova-reserva'),
 ]

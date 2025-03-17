@@ -1,9 +1,8 @@
 from django.db import models
-from datetime import datetime, timedelta
+from datetime import datetime
 from clientes.models import Cliente
 from empreendimentos.models import Lote, Empreendimento
 from accounts.models import User
-
 
 class TypeLote(models.TextChoices):
     CANCELADA = 'CANCELADA', 'CANCELADA'
@@ -12,7 +11,6 @@ class TypeLote(models.TextChoices):
 
 ## Registrar Venda
 
-
 class RegisterVenda(models.Model):
 
     id = models.BigAutoField(primary_key=True)
@@ -20,8 +18,8 @@ class RegisterVenda(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, blank=True, null=True)
     tipo_venda = models.CharField(max_length=100, choices=TypeLote.choices)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="vendas")
-    dt_reserva = models. DateField(default=datetime.now(), blank=True)
-    dt_venda = models. DateField(blank=True, null=True)
+    dt_reserva = models.DateField(default=datetime.now, blank=True)
+    dt_venda = models.DateField(blank=True, null=True)
     create_at = models.DateField(default=datetime.now, blank=True)
     is_ativo = models.BooleanField(default=False)
 

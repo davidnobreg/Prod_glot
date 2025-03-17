@@ -17,20 +17,57 @@
 
             <!-- Formulário -->
             <div class="col-lg-6">
-                <form action="{% url 'criar-cadastro' %}" method="POST" class="card  p-4 shadow align-items-center">
+                <div class="container">
+                    <form action="{% url 'criar-cadastro' %}" method="POST" class="card  p-4 shadow align-items-center">
                         {% csrf_token %}
+                        <div class="form-floating mb-3">
+                            <input type="email" name="email" class="form-control" id="id_email"
+                                   placeholder="name@example.com">
+                            <label for="floatingInput">Digite seu email</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="password" name="senha" class="form-control" id="id_senha"
+                                   placeholder="Password">
+                            <label for="floatingPassword">Digite sua senha</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" name="creci" class="form-control" id="id_creci"
+                                   placeholder="Password">
+                            <label for="floatingPassword">Digite seu creci</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="tel" name="contato" class="form-control" id="id_contato"
+                                   placeholder="Password">
+                            <label for="floatingPassword">Digite seu contato</label>
+                        </div>
+                        <div class="form-floating">
+                            <select class="form-select" name="tipo_usuario" id="id_tipo_usuario"
+                                    aria-label="Floating label select example">
+                                <option selected>Tipo de Usuario</option>
+                                <option value="A">ADMINISTRADOR</option>
+                                <option value="C">CORRETOR</option>
+                                <option value="P">PROPIETARIO</option>
+                            </select>
+                            <label for="floatingSelect">Informe o grupo</label>
+                        </div>
+
+
                         {{ form.non_field_errors }}
-                        {% for field in form %}
-                            {{ field.label_tag }}
-                            {{ field }}
-                            {{ field.errors }}
-                        {% endfor %}
+
+                        {{ field.label_tag }}
+
+                        {{ field.errors }}
+
                         <br>
                         <br>
                         <button type="submit" class="btn btn-primary w-50 mt-3">Salvar</button>
-                        <button type="submit" class="btn btn-primary w-50 mt-3">Cadastrar</button>
+                        <a href="{% url 'lista-usuario' %}" class="btn btn-primary w-50 mt-2">
+                            Cancelar
+                        </a>
 
-                </form>
+                    </form>
+                </div>
+
 
             </div>
         </div>

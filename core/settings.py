@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from datetime import timedelta
 
 from prettyconf import Configuration
 from decouple import config
@@ -28,11 +29,14 @@ DEFAULT_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles'
+    'django.contrib.staticfiles',
+
+    'django_celery_beat',
 ]
 
 THIRD_APPS = [
     'base',
+    'rolepermissions',
 ]
 
 PROJECT_APPS = [
@@ -82,10 +86,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 if DEBUG:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / "db.sqlite3",
+           'ENGINE': 'django.db.backends.sqlite3',
+          'NAME': BASE_DIR / "db.sqlite3",
         }
     }
+
 else:
     DATABASES = {
         'default': {
@@ -125,6 +130,8 @@ TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
 
+USE_L10N = True
+
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
@@ -158,6 +165,38 @@ LOGOUT_URL = 'logout'
 
 AUTH_USER_MODEL = "accounts.User"
 
+# Role permissions
+ROLEPERMISSIONS_MODULE = 'core.roles'
+
 # CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
 # CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER',
+                              f'amqp://{config('RABBITMQ_USER')}:{config('RABBITMQ_PASSWD')}@rabbitmq:5672/')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_BACKEND', 'rpc://')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        'app': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}

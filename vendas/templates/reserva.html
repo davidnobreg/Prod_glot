@@ -8,8 +8,6 @@
 
 {% block content %}
     <div class="container mt-4">
-
-
         <div class="row align-items-center g-4">
             <hr/>
             <div class="col-lg-6">
@@ -34,15 +32,22 @@
                 <form action="." method="post" enctype="multipart/form-data" class="card p-4 shadow">
                     {% csrf_token %}
                     <div class="row">
+                        {% if messages %}
+                            <div class="messages">
+                                {% for message in messages %}
+                                    <div {% if message.tags %} class="alert {{ message.tags }}"{% endif %}
+                                                               role="alert">{{ message }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                         <div class="col mt-3">
                             <h4 class="mb-3">Cadastrar Reserva</h4>
                         </div>
                         <div class="col">
-                            <a type="button" class="btn btn-primary w-100 mt-3" data-bs-toggle="modal"
-                               data-bs-target="#myModal">Add Clientes</a>
+                            <a type="button" class="btn btn-primary w-100 mt-3" id="abrirModal"
+                               data-bs-target="#clienteModalFormAbri">Add Clientes</a>
                         </div>
                     </div>
-
 
                     {% for field in form %}
                         <div class="mb-3">
@@ -54,33 +59,26 @@
                     <button type="submit" class="btn btn-primary w-100 mt-3">Salvar</button>
 
                     <a href="{% url 'cancelar-reservado-cadastro' lote.id %}" class="btn btn-primary w-100 mt-3">Cancelar</a>
-
-
                 </form>
             </div>
         </div>
-
         <hr/>
-
         <hr/>
     </div>
 
     <!-- The Modal -->
-    <div class="modal" id="myModal">
+    <div class="modal" id="clienteModalFormAbri">
         <div class="modal-dialog">
             <div class="modal-content">
-
                 <!-- Modal Header -->
                 <div class="modal-header">
                     <h4 class="mb-3 text-center">Cadastrar Cliente</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close fechar" data-bs-dismiss="modal"></button>
                 </div>
-
                 <!-- Modal body -->
                 <div class="modal-body">
-                    <form action="{% url 'criar-cliente-modal' %}?rid={{ lote.id }}" method="post" class="card p-4 shadow">
+                    <form id="clienteModalForm" class="card p-4 shadow">
                         {% csrf_token %}
-
                         {% if status == '0' %}
                             <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso</div>
                         {% elif status == '1' %}
@@ -93,23 +91,29 @@
 
                         <label for="">Nome:</label>
                         <input type="text" name="name" class="form-control" placeholder="Digite o nome do cliente"/>
+                        <label for="">Documento:</label>
+                        <input type="text" name="documento" class="form-control mask-cpf"
+                               placeholder="Digite o cpf do cliente"/>
                         <label for="">E-mail:</label>
-                        <input type="text" name="email" class="form-control" placeholder="Digite o e-mail do cliente"/>
+                        <input type="email" name="email" class="form-control "
+                               placeholder="Digite o e-mail do cliente"/>
                         <label for="">Contato:</label>
-                        <input type="text" name="phone" class="form-control" placeholder="Digite o Contato do cliente"/>
+                        <input type="tel" name="fone" class="form-control mask-phone"
+                               placeholder="Digite o Contato do cliente"/>
+                        <input type="hidden" name="lote_id" value="{{ lote.id }}">
                         <hr/>
 
-                        <button type="submit" class="btn btn-primary w-100 mt-3" data-bs-dismiss="modal">Salvar</button>
-
-                        <button type="button" class="btn btn-danger w-100 mt-3" data-bs-dismiss="modal">Canselar</button>
+                        <button type="submit" class="btn btn-primary w-100 mt-3">Salvar</button>
+                        <span class="fechar">
+                            <button type="button" class="btn btn-danger w-100 mt-3">Canselar
+                            </button>
+                        </span>
                     </form>
                 </div>
-
                 <!-- Modal footer -->
                 <div class="modal-footer">
 
                 </div>
-
             </div>
         </div>
     </div>

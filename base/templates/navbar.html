@@ -48,30 +48,14 @@
                             Listagem
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'lista-cliente' %}">Clientes</a></li>
+                            <li><a class="dropdown-item" href="{% url 'lista-cliente-relatorio' %}">Clientes</a></li>
+
 
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
 
-                            <li><a class="dropdown-item"
-                                   href="{% url 'lista-empreendimento-tabela' %}">Empreendimentos</a></li>
-
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-
-                            <li><a class="dropdown-item" href="{% url 'lista-reserva' %}">Reservas</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-
-                            <li><a class="dropdown-item" href="{% url 'lista-usuario' %}">Usuarios</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-
-                            <li><a class="dropdown-item" href="{% url 'lista-venda' %}">Vendas</a></li>
+                            <li><a class="dropdown-item" href="{% url 'lista-venda-relatorio' %}">Vendas</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -81,8 +65,7 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li>
-                                <a class="dropdown-item" href="{% url 'criar-cliente' %}">Clientes</a>
-                                <a class="dropdown-item" href="{% url 'lista-cliente' %}">Clientes listagem</a>
+                                <a class="dropdown-item" href="{% url 'lista-cliente' %}">Gerenciar Clientes</a>
                             </li>
 
                             <li>
@@ -90,11 +73,8 @@
                             </li>
 
                             <li>
-                                <a class="dropdown-item" href="{% url 'criar-empreendimento' %}">
-                                    Empreendimentos
-                                </a>
                                 <a class="dropdown-item" href="{% url 'lista-empreendimento-tabela' %}">
-                                    Empreendimentos listagem</a>
+                                    Gerenciar Empreendimentos</a>
                             </li>
                             <li>
                                 <hr class="dropdown-divider">
@@ -111,11 +91,8 @@
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <a class="dropdown-item" href="{% url 'criar-cadastro' %}">
-                                    Usuarios
-                                </a>
                                 <a class="dropdown-item" href="{% url 'lista-usuario' %}">
-                                    Usuarios Listagem
+                                    Gerenciar Usuarios
                                 </a>
                             </li>
                         </ul>

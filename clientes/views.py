@@ -1,9 +1,13 @@
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
-from .forms import ClienteForm
+from .forms import ClienteForm, ClienteModalForm
+from vendas.forms import RegisterVendaForm
+
 from .models import Cliente
+from empreendimentos.models import Lote
 from django.db.models import Q
 from rolepermissions.decorators import has_role_decorator
 
@@ -18,6 +22,7 @@ def selectCliente(request, cliente_id):
     data = {
         "id": cliente.id,
         "name": cliente.name,
+        "documento": cliente.documento,
         "email": cliente.email,
         "fone": cliente.fone,
     }
@@ -35,19 +40,25 @@ def criarCliente(request):
     form = ClienteForm()
     return render(request, 'cliente.html', {'form': form})
 
+
 @has_role_decorator('criarClienteModal')
 def criarClienteModal(request):
-    if request.method == 'POST':
 
-        rid = request.GET.get('rid')
+    if request.method == "POST":
+        form = ClienteModalForm(request.POST)  # Usa o formulário para validação
 
-        form = ClienteForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('/vendas/insert_reserva/' + rid + '/')  # Este nome deve bater com "name" no urls.py
+            form.save()  # Salva um novo cliente
+            messages.success(request, "Cliente Cadastrado com sucesso!")
+            return redirect('/vendas/insert_reserva/' + request.POST.get('lote_id') + '/')  # Este nome deve bater com "name" no urls.py
+
 
     form = ClienteForm()
-    return redirect('/vendas/insert_reserva/' + rid + '/')
+    return redirect('/vendas/insert_reserva/' + request.POST.get('lote_id') + '/')
+
+
+
+
 
 @has_role_decorator('alterarCliente')
 def alteraCliente(request, cliente_id):
@@ -97,4 +108,18 @@ def listaCliente(request):
     context = {'clientes': clientes}
     return render(request, 'lista_cliente.html', context)
 
+def listaClienteRelatorio(request):
+    clientes = Cliente.objects.filter(is_ativo=False).order_by('name')
 
+    get_client = request.GET.get('client')
+
+    if get_client:  ## Filtra por nome, documento ou email do cliente
+        clientes = Cliente.objects.filter(
+            #Q(is_ativo__icontains='False') |
+            Q(name__icontains=get_client) |
+            Q(documento__icontains=get_client) |
+            Q(fone__icontains=get_client) |
+            Q(email__icontains=get_client))
+
+    context = {'clientes': clientes}
+    return render(request, 'lista_cliente_relatorio.html', context)

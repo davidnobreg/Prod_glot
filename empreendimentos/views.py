@@ -3,13 +3,16 @@ from django.contrib import messages
 import pandas as pd
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
-from requests import request
+from PIL import Image  # Importe a biblioteca Pillow (PIL) para manipulação de imagens
+from io import BytesIO
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from rolepermissions.decorators import has_role_decorator
 
 from django.core.paginator import Paginator
 from django.views import View
 
+from clientes.forms import ClienteForm
 from .forms import EmpreendimentoForm, ArquivoForm
 from .models import Empreendimento, Quadra, Lote
 
@@ -33,9 +36,34 @@ def criarEmpreendimento(request):
     if request.method == 'POST':
         form = EmpreendimentoForm(request.POST, request.FILES)
         if form.is_valid():
-            empr = form.save()
-            files = request.FILES.getlist('immobile')  ## pega todas as imagens
+            empreendimento = form.save(commit=False)
+
+            if 'logo' in request.FILES:
+                logo = request.FILES['logo']
+                img = Image.open(logo)
+
+                # Convert CMYK to RGB if necessary
+                if img.mode == 'CMYK':
+                    img = img.convert('RGB')
+
+                img = img.resize((200, 200), Image.LANCZOS)
+
+                output = BytesIO()
+                img.save(output, format='PNG')
+                output.seek(0)
+
+                empreendimento.logo = InMemoryUploadedFile(
+                    output,
+                    'ImageField',
+                    f"{logo.name.split('.')[0]}_resized.png",
+                    'image/png',
+                    output.getbuffer().nbytes,
+                    None
+                )
+
+            empreendimento.save()
             return redirect('lista-empreendimento-tabela')
+
     return render(request, 'empreendimento.html', {'form': form})
 
 

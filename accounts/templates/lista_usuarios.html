@@ -11,6 +11,11 @@
         <div class="row g-3 align-items-center bg-light p-2 rounded shadow mb-4">
             <h4 class="mt-4 text-center">LISTA DE USUARIOS</h4>
             <hr>
+            <div class="col-md-2">
+                <a href="{% url 'criar-cadastro' %}" class="btn btn-primary">
+                    Adicionar Usuario
+                </a>
+            </div>
             <!-- Pesquisar pelo cliente -->
             <div class="col-md-6">
                 <label for="userSearch" class="form-label">Nome do Usuario, Creci, Contato ou E-mail</label>
@@ -24,12 +29,13 @@
             </div>
 
             <!-- Filtro de tipo-->
-            <div class="col-md-5">
+            <div class="col-md-3">
                 <label for="typeFilter" class="form-label">Grupo de Usuario</label>
                 <form action="">
                     <select name="tipo_user" id="typeFilter" class="form-select" onchange="this.form.submit()">
                         <option value="">Status</option>
-                        <option value="ADMINISTRADOR" {% if request.GET.tipo_user == 'ADMINISTRADOR' %}selected{% endif %}>
+                        <option value="ADMINISTRADOR"
+                                {% if request.GET.tipo_user == 'ADMINISTRADOR' %}selected{% endif %}>
                             Administrador
                         </option>
                         <option value="CORRETOR" {% if request.GET.tipo_user == 'CORRETOR' %}selected{% endif %}>

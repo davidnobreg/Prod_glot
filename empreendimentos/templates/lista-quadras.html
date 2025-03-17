@@ -18,7 +18,7 @@
                                 class="fas --bs-success-border-subtle fa-2x">QUADRA {{ quadra_info.quadra.namequadra }}</i>
                         </h5>
                     </div>
-                    <div>
+                    <div class="container text-center">
                         {% for lote_info in quadra_info.lotes %}
                             {% if lote_info.situacao == 'DISPONIVEL' %}
                                 <a href="{% url 'reserva-create' lote_info.lote.id %}">

@@ -75,6 +75,30 @@ def listaVenda(request):
     context = {'vendas': vendas}
     return render(request, 'lista_venda.html', context)
 
+def listaVendaRelatorio(request):
+    vendas = RegisterVenda.objects.filter(
+        Q(is_ativo__icontains='False') |
+        Q(tipo_venda__icontains='VENDIDO') |
+        Q(tipo_venda__icontains='CANCELADA'))
+
+    get_data_venda = request.GET.get('venda')
+    get_tipo_venda = request.GET.get('tipo_venda')
+
+    if get_data_venda:  ## Filtra por nome, documento ou email do cliente
+        vendas = RegisterVenda.objects.filter(
+            Q(is_ativo__icontains='False') |
+            Q(cliente__name__icontains=get_data_venda) |
+            Q(cliente__fone__icontains=get_data_venda) |
+            Q(lote__quadra__empr__nome__icontains=get_data_venda)|
+            Q(user__username__icontains=get_data_venda))
+
+    if get_tipo_venda:
+        vendas = RegisterVenda.objects.filter(tipo_venda=get_tipo_venda)
+
+
+    context = {'vendas': vendas}
+    return render(request, 'lista_venda_relatorio.html', context)
+
 @has_role_decorator('cancelarReservado')
 def cancelarReservadoCadastro(request, id):
     get_lote = get_object_or_404(Lote, id=id)
@@ -103,6 +127,8 @@ def criarReservado(request, id):
 
     if request.method == 'GET':
         # VERIFICAR STATOS DO LOTE ANTES DE FAZER O POST
+        RegisterVendaForm()
+        print(RegisterVendaForm)
         get_lote.situacao = "RESERVADO"
         get_lote.save()
 

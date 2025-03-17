@@ -7,6 +7,7 @@ urlpatterns = [
     path('insert_reserva/<int:id>/', views.criarReservado, name='reserva-create'),
     path('listar_reserva/', views.listaReserva, name='lista-reserva'),
     path('listar_venda/', views.listaVenda, name='lista-venda'),
+    path('listar_venda_relatorio/', views.listaVendaRelatorio, name='lista-venda-relatorio'),
     path('reservado/<int:id>/', views.reservado, name='reservado'),
     path('reservado_cancelada/<int:id>/', views.cancelarReservado, name='cancelar-reservado'),
     path('reservado_cancelada_cadastro/<int:id>/', views.cancelarReservadoCadastro, name='cancelar-reservado-cadastro'),

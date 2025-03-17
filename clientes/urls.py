@@ -10,6 +10,7 @@ urlpatterns = [
     path('update/<int:cliente_id>/', views.alteraCliente, name='altera-cliente'),
     path('delete_cliente/<int:id>/', views.deleteCliente, name='delete-cliente'),
     path('listar_clientes/', views.listaCliente, name='lista-cliente'),
+    path('listar_clientes_relatorio/', views.listaClienteRelatorio, name='lista-cliente-relatorio'),
 
-    #path('listar_clientes_filtro/', views.reports, name='lista-cliente-filtro'),
+    # path('listar_clientes_filtro/', views.reports, name='lista-cliente-filtro'),
 ]

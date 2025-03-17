@@ -1,9 +1,77 @@
+document.addEventListener("DOMContentLoaded", function () {
+
+    const modal = document.getElementById("clienteModalFormAbri"); // Corrigido para myModal
+    const form = document.getElementById("clienteModalForm");
+
+    document.getElementById("abrirModal").onclick = () => modal.style.display = "block";
+    document.getElementsByClassName("fechar")[0].onclick = () => modal.style.display = "none";
+    window.onclick = (event) => {
+        if (event.target === modal) modal.style.display = "none";
+    };
+
+
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(form); // Usa o form diretamente
+
+
+        fetch("/clientes/insert_cliente_modal/", { // Remove o ID da URL
+            method: "POST",
+            body: formData,
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+        })
+            .then((response) => {
+                if (response.ok) {
+                    modal.style.display = "none";
+                    // Adicione aqui qualquer ação adicional após o sucesso
+                } else {
+                    console.error("Erro ao enviar o formulário");
+                }
+            })
+            .catch((error) => console.error("Erro de rede:", error));
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+
+// Função para obter o token CSRF dos cookies
+function getCookie(name) {
+  var cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    var cookies = document.cookie.split(';');
+    for (var i = 0; i < cookies.length; i++) {
+      var cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+
+
 //função seleciona clientes modal
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".btn-detalhes").forEach(button => {
         button.addEventListener("click", function () {
             let clienteId = this.getAttribute("data-id");
-            console.log("Cliente ID capturado:", clienteId);
+            //console.log("Cliente ID capturado:", clienteId);
 
             let modal = new bootstrap.Modal(document.getElementById("clienteModal"));
             let loadingIndicator = document.getElementById("loading-indicator");
@@ -19,6 +87,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(data => {
                     document.getElementById("cliente-id").textContent = data.id;
                     document.getElementById("cliente-name").textContent = data.name;
+                    document.getElementById("cliente-documento").textContent = data.documento;
                     document.getElementById("cliente-email").textContent = data.email;
 
                     loadingIndicator.style.display = "none";
@@ -48,10 +117,11 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("DOMContentLoaded", function () {
     // Função para preencher o modal com os dados do cliente
     function preencherModalAlterar(cliente) {
-        console.log("Dados do cliente recebidos:", cliente); // Adiciona esta linha
+        //console.log("Dados do cliente recebidos:", cliente); // Adiciona esta linha
 
         document.getElementById("alterarClienteId").value = cliente.id;
         document.getElementById("alterarClienteNome").value = cliente.name;
+        document.getElementById("alterarClienteDocumento").value = cliente.documento;
         document.getElementById("alterarClienteEmail").value = cliente.email;
         document.getElementById("alterarClienteTelefone").value = cliente.fone;
     }
@@ -76,6 +146,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("salvarAlteracoes").addEventListener("click", function () {
         let clienteId = document.getElementById("alterarClienteId").value;
         let nome = document.getElementById("alterarClienteNome").value;
+        let documento = document.getElementById("alterarClienteDocumento").value;
         let email = document.getElementById("alterarClienteEmail").value;
         let telefone = document.getElementById("alterarClienteTelefone").value;
 
@@ -105,6 +176,7 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             body: JSON.stringify({
                 name: nome,
+                documento: documento,
                 email: email,
                 telefone: telefone,
             }),
@@ -167,3 +239,4 @@ document.addEventListener("DOMContentLoaded", function () {
         window.location.href = `/empreendimentos/deleta_empreendimento/${empreendimento_Id}/`; // Redireciona para a URL de exclusão
     });
 });
+

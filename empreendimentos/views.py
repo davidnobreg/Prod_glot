@@ -36,6 +36,18 @@ def criarEmpreendimento(request):
     if request.method == 'POST':
         form = EmpreendimentoForm(request.POST, request.FILES)
         if form.is_valid():
+            empr = form.save()
+            files = request.FILES.getlist('immobile')  ## pega todas as imagens
+            return redirect('/')
+    return render(request, 'empreendimento.html', {'form': form})
+
+"""
+def criarEmpreendimento(request):
+    form = EmpreendimentoForm()
+
+    if request.method == 'POST':
+        form = EmpreendimentoForm(request.POST, request.FILES)
+        if form.is_valid():
             empreendimento = form.save(commit=False)
 
             if 'logo' in request.FILES:
@@ -64,7 +76,7 @@ def criarEmpreendimento(request):
             empreendimento.save()
             return redirect('lista-empreendimento-tabela')
 
-    return render(request, 'empreendimento.html', {'form': form})
+    return render(request, 'empreendimento.html', {'form': form})"""
 
 
 @has_role_decorator('criarEmpreendimento')

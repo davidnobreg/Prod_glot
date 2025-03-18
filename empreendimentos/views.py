@@ -41,44 +41,6 @@ def criarEmpreendimento(request):
             return redirect('/')
     return render(request, 'empreendimento.html', {'form': form})
 
-"""
-def criarEmpreendimento(request):
-    form = EmpreendimentoForm()
-
-    if request.method == 'POST':
-        form = EmpreendimentoForm(request.POST, request.FILES)
-        if form.is_valid():
-            empreendimento = form.save(commit=False)
-
-            if 'logo' in request.FILES:
-                logo = request.FILES['logo']
-                img = Image.open(logo)
-
-                # Convert CMYK to RGB if necessary
-                if img.mode == 'CMYK':
-                    img = img.convert('RGB')
-
-                img = img.resize((200, 200), Image.LANCZOS)
-
-                output = BytesIO()
-                img.save(output, format='PNG')
-                output.seek(0)
-
-                empreendimento.logo = InMemoryUploadedFile(
-                    output,
-                    'ImageField',
-                    f"{logo.name.split('.')[0]}_resized.png",
-                    'image/png',
-                    output.getbuffer().nbytes,
-                    None
-                )
-
-            empreendimento.save()
-            return redirect('lista-empreendimento-tabela')
-
-    return render(request, 'empreendimento.html', {'form': form})"""
-
-
 @has_role_decorator('criarEmpreendimento')
 def listaEmpreendimento(request):
     empreendimentos = Empreendimento.objects.filter(is_ativo=False)

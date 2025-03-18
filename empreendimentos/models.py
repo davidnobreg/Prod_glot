@@ -12,7 +12,7 @@ class Empreendimento(models.Model):
     id = models.BigAutoField(primary_key=True)
     nome = models.CharField(max_length=100)
     tempo_reseva = models.IntegerField(default=0)
-    logo = models.ImageField(upload_to='empreendimento', verbose_name='Logo',
+    logo = models.ImageField(verbose_name='Logo',
         null=True, blank=True)
     is_ativo = models.BooleanField(default=False)
 

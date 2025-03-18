@@ -1,5 +1,6 @@
-import os
 from pathlib import Path
+import os
+
 from datetime import timedelta
 
 from prettyconf import Configuration
@@ -11,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 
-STATIC_DIR = os.path.join(BASE_DIR, 'static')
+STATIC_DIR = os.path.join(BASE_DIR, 'base/static')
 
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
@@ -83,6 +84,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
+
 if DEBUG:
     DATABASES = {
         'default': {
@@ -137,13 +139,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
 STATIC_URL = 'base/static/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'base/static/media')
+STATIC_ROOT = os.path.join(BASE_DIR, 'base/static/')
 
-MEDIA_URL = 'static/media/'
+MEDIA_URL = 'base/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'base/media/')
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

@@ -12,8 +12,6 @@ urlpatterns = [
 
     path('', include('accounts.urls'), name='accounts'),
 ]
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler404 = 'base.views.not_found'
 handler403 = 'base.views.handler403'

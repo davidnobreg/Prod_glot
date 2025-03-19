@@ -41,12 +41,6 @@ body[data-bs-theme="dark"] {
   box-sizing: border-box;
 }
 
-/*.btn-warning {
-
-      background-color: #dc3545 !important;
-
-}*/
-
 .modal {
   display: none;
   position: fixed;

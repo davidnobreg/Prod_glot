@@ -18,6 +18,7 @@ def reservado(request, id):
     context = {'reservas': reservas}
     return render(request, 'reservado.html', context)
 
+
 @has_role_decorator('relatorioReserva')
 def listaReserva(request):
     reservas = RegisterVenda.objects.filter(tipo_venda='RESERVADO', is_ativo='False')
@@ -33,7 +34,7 @@ def listaReserva(request):
     if get_localiza:  ## Filtra por nome, documento ou email do cliente
         reservas = RegisterVenda.objects.filter(
             Q(cliente__name__icontains=get_localiza) |
-            Q(lote__quadra__empr__nome__icontains=get_localiza)|
+            Q(lote__quadra__empr__nome__icontains=get_localiza) |
             Q(user__username__icontains=get_localiza))
 
     if get_data_reserva:  ## Por data
@@ -50,6 +51,7 @@ def listaReserva(request):
     context = {'reservas': reservas}
     return render(request, 'lista_reserva.html', context)
 
+
 @has_role_decorator('relatorioVenda')
 def listaVenda(request):
     vendas = RegisterVenda.objects.filter(
@@ -65,15 +67,15 @@ def listaVenda(request):
             Q(is_ativo__icontains='False') |
             Q(cliente__name__icontains=get_data_venda) |
             Q(cliente__fone__icontains=get_data_venda) |
-            Q(lote__quadra__empr__nome__icontains=get_data_venda)|
+            Q(lote__quadra__empr__nome__icontains=get_data_venda) |
             Q(user__username__icontains=get_data_venda))
 
     if get_tipo_venda:
         vendas = RegisterVenda.objects.filter(tipo_venda=get_tipo_venda)
 
-
     context = {'vendas': vendas}
     return render(request, 'lista_venda.html', context)
+
 
 def listaVendaRelatorio(request):
     vendas = RegisterVenda.objects.filter(
@@ -89,15 +91,15 @@ def listaVendaRelatorio(request):
             Q(is_ativo__icontains='False') |
             Q(cliente__name__icontains=get_data_venda) |
             Q(cliente__fone__icontains=get_data_venda) |
-            Q(lote__quadra__empr__nome__icontains=get_data_venda)|
+            Q(lote__quadra__empr__nome__icontains=get_data_venda) |
             Q(user__username__icontains=get_data_venda))
 
     if get_tipo_venda:
         vendas = RegisterVenda.objects.filter(tipo_venda=get_tipo_venda)
 
-
     context = {'vendas': vendas}
     return render(request, 'lista_venda_relatorio.html', context)
+
 
 @has_role_decorator('cancelarReservado')
 def cancelarReservadoCadastro(request, id):
@@ -108,6 +110,7 @@ def cancelarReservadoCadastro(request, id):
         get_lote.save()
         messages.success(request, "Resevado cancelada!")
     return redirect('lista-empreendimento')
+
 
 @has_role_decorator('cancelarReservado')
 def cancelarReservado(request, id):
@@ -120,45 +123,71 @@ def cancelarReservado(request, id):
         messages.success(request, "Resevado cancelada!")
     return redirect('lista-empreendimento')
 
+
 @has_role_decorator('cancelarReservado')
 def criarReservado(request, id):
     get_lote = get_object_or_404(Lote, id=id)
+    status = get_object_or_404(RegisterVenda, lote=id)
     get_tempo = Empreendimento.objects.get(id=get_lote.quadra.empr_id)
 
     if request.method == 'GET':
-        # VERIFICAR STATOS DO LOTE ANTES DE FAZER O POST
-        RegisterVendaForm()
-        print(RegisterVendaForm)
         get_lote.situacao = "RESERVADO"
         get_lote.save()
 
     if request.method == 'POST':
-       form = RegisterVendaForm(request.POST)
+        if status.tipo_venda == 'RESERVADO':
 
-       if form.is_valid():
-          reserva_form = form.save(commit=False)
-          reserva_form.lote = get_lote
-          reserva_form.user = request.user  # Define o usuário que está fazendo a venda
-          reserva_form.tipo_venda = 'RESERVADO'
-          reserva_form.dt_reserva = datetime.now() + timedelta(days=get_tempo.tempo_reseva)
-          messages.success(request, "Reservado com sucesso!")
-          reserva_form.save()
+            form = RegisterVendaForm(request.POST)
 
-          get_lote.situacao = "RESERVADO"
-          get_lote.save()
+            if form.is_valid():
+                reserva_form = form.save(commit=False)
+                reserva_form.lote = get_lote
+                reserva_form.user = request.user  # Define o usuário que está fazendo a venda
+                reserva_form.tipo_venda = 'RESERVADO'
+                reserva_form.dt_reserva = datetime.now() + timedelta(days=get_tempo.tempo_reseva)
+                messages.success(request, "Reservado com sucesso!")
+                reserva_form.save()
 
-          messages.success(request, "Resevado com sucesso!")
-          return redirect('lista-empreendimento')
-       else:
-          messages.error(request, "Erro ao registrar reserva.")
-          get_lote.situacao = "DISPONIVEL"
-          get_lote.save()
+                get_lote.situacao = "RESERVADO"
+                get_lote.save()
+
+                messages.success(request, "Lote resevado com sucesso!")
+                return redirect('lista-empreendimento')
+
+            else:
+                messages.error(request, "Erro ao registrar reserva.")
+                get_lote.situacao = "DISPONIVEL"
+                get_lote.save()
+
+        elif status.tipo_venda == 'CANCELADA':
+            form = RegisterVendaForm(request.POST, instance=status)
+
+            if form.is_valid():
+                reserva_form = form.save(commit=False)
+                reserva_form.lote = get_lote
+                reserva_form.user = request.user  # Define o usuário que está fazendo a venda
+                reserva_form.tipo_venda = 'RESERVADO'
+                reserva_form.is_ativo = False
+                reserva_form.dt_reserva = datetime.now() + timedelta(days=get_tempo.tempo_reseva)
+                messages.success(request, "Reservado com sucesso!")
+                reserva_form.save()
+
+                get_lote.situacao = "RESERVADO"
+                get_lote.save()
+
+                messages.success(request, "Lote resevado com sucesso!")
+                return redirect('lista-empreendimento')
+
+
+
+            print('statos venda cancelada')
 
     else:
         form = RegisterVendaForm()
 
-    context = {'form': form, 'lote': get_lote}
-    return render(request, 'reserva.html', context)
+        context = {'form': form, 'lote': get_lote}
+        return render(request, 'reserva.html', context)
+
 
 @has_role_decorator('cancelarReservado')
 def criarVenda(request, id):
@@ -172,6 +201,7 @@ def criarVenda(request, id):
     messages.success(request, "Venda criada com sucesso!")
     return redirect('lista-reserva')
 
+
 @has_role_decorator('renovarReserva')
 def renovaReserva(request, id):
     get_venda = RegisterVenda.objects.get(id=id)
@@ -182,6 +212,7 @@ def renovaReserva(request, id):
     get_venda.save()
     messages.success(request, "Reserva renovada com sucesso!")
     return redirect('lista-reserva')
+
 
 @has_role_decorator('cancelarReservado')
 def deleteReseva(request, id):
@@ -194,6 +225,7 @@ def deleteReseva(request, id):
     venda.save()
     messages.success(request, "Reserva deletada com sucesso!")
     return redirect('lista-reserva')
+
 
 @has_role_decorator('cancelarReservado')
 def deleteVenda(request, id):

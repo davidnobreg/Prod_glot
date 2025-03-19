@@ -38,7 +38,7 @@ def criarEmpreendimento(request):
         if form.is_valid():
             empr = form.save()
             files = request.FILES.getlist('immobile')  ## pega todas as imagens
-            return redirect('/')
+            return redirect('lista-empreendimento-tabela')
     return render(request, 'empreendimento.html', {'form': form})
 
 @has_role_decorator('criarEmpreendimento')
@@ -119,7 +119,7 @@ def listaQuadra(request, id):
             'lotes': lotes_info  # Lista de lotes dessa quadra
         })
 
-    paginator = Paginator(quadras_info, 5)  # Paginação para as quadras
+    paginator = Paginator(quadras_info, 12)  # Paginação para as quadras
     page = request.GET.get('page')
     quadras_info = paginator.get_page(page)
 

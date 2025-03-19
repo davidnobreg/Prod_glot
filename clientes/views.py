@@ -9,13 +9,10 @@ from vendas.forms import RegisterVendaForm
 from .models import Cliente
 from empreendimentos.models import Lote
 from django.db.models import Q
-from rolepermissions.decorators import has_role_decorator
+from rolepermissions.decorators import has_permission_decorator
 
-from django.contrib.auth.decorators import login_required
 
-from django.db import IntegrityError
-
-@has_role_decorator('selectCliente')
+@has_permission_decorator('selectCliente')
 def selectCliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
 
@@ -29,7 +26,7 @@ def selectCliente(request, cliente_id):
 
     return JsonResponse(data)
 
-@has_role_decorator('criarCliente')
+@has_permission_decorator('criarCliente')
 def criarCliente(request):
     if request.method == 'POST':
         form = ClienteForm(request.POST)
@@ -41,7 +38,7 @@ def criarCliente(request):
     return render(request, 'cliente.html', {'form': form})
 
 
-@has_role_decorator('criarClienteModal')
+@has_permission_decorator('criarClienteModal')
 def criarClienteModal(request):
 
     if request.method == "POST":
@@ -60,7 +57,7 @@ def criarClienteModal(request):
 
 
 
-@has_role_decorator('alterarCliente')
+@has_permission_decorator('alterarCliente')
 def alteraCliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
 
@@ -82,7 +79,7 @@ def alteraCliente(request, cliente_id):
     # Se não for GET nem POST, retorna um erro (ou redireciona, dependendo do caso)
     return redirect('lista-cliente')  # redireciona para a lista de clientes, caso o metodo não seja get nem post
 
-@has_role_decorator('deletarCliente')
+@has_permission_decorator('deletarCliente')
 def deleteCliente(request, id):
     cliente = Cliente.objects.get(id=id)
     cliente.is_ativo = True
@@ -91,7 +88,7 @@ def deleteCliente(request, id):
 
 ## Relatório
 
-@has_role_decorator('relatorioCliente')
+@has_permission_decorator('relatorioCliente')
 def listaCliente(request):
     clientes = Cliente.objects.filter(is_ativo=False).order_by('name')
 
@@ -108,6 +105,7 @@ def listaCliente(request):
     context = {'clientes': clientes}
     return render(request, 'lista_cliente.html', context)
 
+@has_permission_decorator('relatorioClienteRelatorio')
 def listaClienteRelatorio(request):
     clientes = Cliente.objects.filter(is_ativo=False).order_by('name')
 

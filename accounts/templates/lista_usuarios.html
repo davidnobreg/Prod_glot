@@ -34,14 +34,14 @@
                 <form action="">
                     <select name="tipo_user" id="typeFilter" class="form-select" onchange="this.form.submit()">
                         <option value="">Status</option>
-                        <option value="ADMINISTRADOR"
+                        <option value="A"
                                 {% if request.GET.tipo_user == 'ADMINISTRADOR' %}selected{% endif %}>
                             Administrador
                         </option>
-                        <option value="CORRETOR" {% if request.GET.tipo_user == 'CORRETOR' %}selected{% endif %}>
+                        <option value="C" {% if request.GET.tipo_user == 'CORRETOR' %}selected{% endif %}>
                             Corretor
                         </option>
-                        <option value="PROPIETARIO" {% if request.GET.tipo_user == 'PROPIETARIO' %}selected{% endif %}>
+                        <option value="P" {% if request.GET.tipo_user == 'PROPIETARIO' %}selected{% endif %}>
                             Propietario
                         </option>
                     </select>
@@ -75,7 +75,7 @@
                             <td>{{ usuario.username }}</td>
                             <td>{{ usuario.email }}</td>
                             <td>{{ usuario.contato }}</td>
-                            <td class="field-tipo_usuario">{{ usuario.tipo_usuario }}</td>
+                            <td class="field-tipo_usuario">{{ usuario.tipo_usuario_display }}</td>
                             <td class="text-center itemprop=" actions>
                                 <a href="{% url 'update-usuario' usuario.id %}" class="btn btn-warning">Alterar</a>
                                 <a href="{% url 'delete-usuario' usuario.id %}" class="btn btn-danger">Excluir</a>

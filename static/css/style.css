@@ -74,3 +74,19 @@ body[data-bs-theme="dark"] {
   text-decoration: none;
   cursor: pointer;
 }
+
+.image-container {
+    width: 100%;
+    height: 200px; /* Mantém todas as imagens com a mesma altura */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa; /* Fundo cinza claro para imagens ausentes */
+}
+
+.image-container img {
+    width: 200px; /* Define uma largura fixa */
+    height: 200px; /* Define uma altura fixa */
+    object-fit: cover; /* Mantém a proporção e preenche o espaço */
+    border-radius: 8px; /* Suaviza as bordas das imagens */
+}

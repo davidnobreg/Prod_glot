@@ -1,106 +1,72 @@
 {% load static %}
-<nav class="navbar p-3" style="background-color: rgb(3, 107, 145);">
+<nav class="navbar navbar-expand-lg navbar-light p-3" style="background-color: rgb(3, 107, 145);">
     <div class="container-fluid">
+        <!-- Logo -->
         <a href="/empreendimentos/" class="navbar-brand">
             <img src="{% static 'images/logo_carlos_e_celso.png' %}" alt="logo_carlos_e_celso"
-                 style="width: 100px; height: 55px;">
+                 class="img-fluid" style="width: 100px; height: 55px;">
         </a>
 
-
-        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
-                aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+        <!-- Toggler Button para Responsividade -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar"
-             aria-labelledby="offcanvasNavbarLabel">
 
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasNavbarLabel">{{ user.username }}</h5>
-
-
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="btn-group" role="group">
+        <!-- Navegação -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <!-- Exibir nome do usuário se logado -->
                 {% if user.is_authenticated %}
-
-                    <form class="dropdown-item" action="{% url 'logout' %}" method="GET">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger w-100 mt-3">SAIR</button>
-
-                    </form>
-
+                    <li class="nav-item">
+                        <span class="navbar-text text-white me-3">
+                            Bem-vindo, {{ user.username }}
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <form action="{% url 'logout' %}" method="GET">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger px-4 py-2 rounded-pill" style="border: 2px solid rgb(3, 107, 145); transition: all 0.3s ease;">
+                               <strong>Sair</strong>
+                            </button>
+                        </form>
+                    </li>
                 {% else %}
-                    <form class="dropdown-item" action="{% url 'login' %}" method="GET">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-primary w-100 mt-3">Entrar</button>
-                    </form>
-
-
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">
+                            <button class="btn btn-light px-4 py-2 rounded-pill" style="border: 2px solid rgb(3, 107, 145); transition: all 0.3s ease;">
+                                <strong>Entrar</strong>
+                            </button>
+                        </a>
+                    </li>
                 {% endif %}
-            </div>
-            <hr class="dropdown-divider">
-            <div class="offcanvas-body">
-                <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-                    {% csrf_token %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                           aria-expanded="false">
-                            Listagem
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'lista-cliente-relatorio' %}">Clientes</a></li>
 
+                <!-- Menu de Navegação -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        Listagem
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'lista-cliente-relatorio' %}">Clientes</a></li>
+                        <li><a class="dropdown-item" href="{% url 'lista-venda-relatorio' %}">Vendas</a></li>
+                    </ul>
+                </li>
 
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-
-                            <li><a class="dropdown-item" href="{% url 'lista-venda-relatorio' %}">Vendas</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                           aria-expanded="false">
-                            Gerenciamento
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a class="dropdown-item" href="{% url 'lista-cliente' %}">Gerenciar Clientes</a>
-                            </li>
-
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-
-                            <li>
-                                <a class="dropdown-item" href="{% url 'lista-empreendimento-tabela' %}">
-                                    Gerenciar Empreendimentos</a>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'lista-reserva' %}">
-                                    Gerenciar Reserva
-                                </a>
-                                <a class="dropdown-item" href="{% url 'lista-venda' %}">
-                                    Gerenciar Venda
-                                </a>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'lista-usuario' %}">
-                                    Gerenciar Usuarios
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        Gerenciamento
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'lista-cliente' %}">Gerenciar Clientes</a></li>
+                        <li><a class="dropdown-item" href="{% url 'lista-empreendimento-tabela' %}">Gerenciar Empreendimentos</a></li>
+                        <li><a class="dropdown-item" href="{% url 'lista-reserva' %}">Gerenciar Reserva</a></li>
+                        <li><a class="dropdown-item" href="{% url 'lista-venda' %}">Gerenciar Venda</a></li>
+                        <li><a class="dropdown-item" href="{% url 'lista-usuario' %}">Gerenciar Usuários</a></li>
+                    </ul>
+                </li>
+            </ul>
         </div>
     </div>
-
-
 </nav>

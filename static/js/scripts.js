@@ -239,4 +239,3 @@ document.addEventListener("DOMContentLoaded", function () {
         window.location.href = `/empreendimentos/deleta_empreendimento/${empreendimento_Id}/`; // Redireciona para a URL de exclusão
     });
 });
-

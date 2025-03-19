@@ -7,7 +7,9 @@ from PIL import Image  # Importe a biblioteca Pillow (PIL) para manipulação de
 from io import BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
-from rolepermissions.decorators import has_role_decorator
+from rolepermissions.decorators import has_permission_decorator
+
+
 
 from django.core.paginator import Paginator
 from django.views import View
@@ -17,7 +19,7 @@ from .forms import EmpreendimentoForm, ArquivoForm
 from .models import Empreendimento, Quadra, Lote
 
 
-@has_role_decorator('selectEmpreendimento')
+@has_permission_decorator('selectEmpreendimento')
 def selectEmpreendimento(request, empreendimento_id):
     empreendimento = get_object_or_404(Empreendimento, id=empreendimento_id)
 
@@ -29,7 +31,7 @@ def selectEmpreendimento(request, empreendimento_id):
     return JsonResponse(data)
 
 
-@has_role_decorator('criarEmpreendimento')
+@has_permission_decorator('criarEmpreendimento')
 def criarEmpreendimento(request):
     form = EmpreendimentoForm()
 
@@ -41,14 +43,14 @@ def criarEmpreendimento(request):
             return redirect('lista-empreendimento-tabela')
     return render(request, 'empreendimento.html', {'form': form})
 
-@has_role_decorator('criarEmpreendimento')
+@has_permission_decorator('listaEmpreendimento')
 def listaEmpreendimento(request):
     empreendimentos = Empreendimento.objects.filter(is_ativo=False)
     context = {'empreendimentos': empreendimentos}
     return render(request, 'lista-empreendimentos.html', context)
 
 
-@has_role_decorator('alterarEmpreendimento')
+@has_permission_decorator('alterarEmpreendimento')
 def alteraEmpreendimento(request, id):
     empreendimento = get_object_or_404(Empreendimento, id=id)
 
@@ -67,7 +69,7 @@ def alteraEmpreendimento(request, id):
         return render(request, 'update_empreendimento.html', context)
 
 
-@has_role_decorator('deletarEmpreendimento')
+@has_permission_decorator('deletarEmpreendimento')
 def deleteEmpreendimento(request, empreendimento_Id):
     print(empreendimento_Id)
     empreendimento = Empreendimento.objects.get(id=empreendimento_Id)
@@ -76,7 +78,7 @@ def deleteEmpreendimento(request, empreendimento_Id):
     return redirect('lista-empreendimento-tabela')
 
 
-@has_role_decorator('listaEmpreendimentoTabela')
+@has_permission_decorator('listaEmpreendimentoTabela')
 def listaEmpreendimentoTabela(request):
     empreendimentos = Empreendimento.objects.filter(is_ativo=False)
 
@@ -89,7 +91,7 @@ def listaEmpreendimentoTabela(request):
     return render(request, 'lista-empreendimentos-tabela.html', context)
 
 
-@has_role_decorator('listaQuadra')
+@has_permission_decorator('listaQuadra')
 def listaQuadra(request, id):
     empreendimento = get_object_or_404(Empreendimento, id=id)
     quadras = Quadra.objects.filter(empr=empreendimento).order_by('id')

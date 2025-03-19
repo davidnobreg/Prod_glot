@@ -10,7 +10,7 @@ from .forms import UserCreationForm, UserChangeForm
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as login_django
 from django.db.models import Q
-from rolepermissions.decorators import has_role_decorator
+from rolepermissions.decorators import has_permission_decorator
 
 
 def login(request):
@@ -40,9 +40,16 @@ def logout(request):
     return redirect(reverse('login'))
 
 
-@has_role_decorator('listarUsuario')
+@has_permission_decorator('listarUsuario')
 def listarUsuario(request):
     usuarios = User.objects.filter(is_active=True).order_by('username')
+
+    # Mapeamento dos tipos de usuário
+    tipo_usuario_map = {
+        'A': 'Administrador',
+        'C': 'Corretor',
+        'P': 'Proprietário'
+    }
 
     get_user = request.GET.get('user')
 
@@ -60,11 +67,15 @@ def listarUsuario(request):
             Q(is_active__icontains=True) |
             Q(tipo_usuario__icontains=get_tipo_user))
 
+        # Passando o mapeamento para o template
+        for usuario in usuarios:
+            usuario.tipo_usuario_display = tipo_usuario_map.get(usuario.tipo_usuario, usuario.tipo_usuario)
+
     context = {'usuarios': usuarios}
     return render(request, 'lista_usuarios.html', context)
 
 
-@has_role_decorator('criarUsuario')
+@has_permission_decorator('criarUsuario')
 def criarUsuario(request):
     template_name = 'cadastro.html'
 
@@ -97,7 +108,7 @@ def criarUsuario(request):
     return render(request, template_name, context)
 
 
-@has_role_decorator('alterarUsuario')
+@has_permission_decorator('alterarUsuario')
 def alteraUsuario(request, id):
     usuario = get_object_or_404(User, id=id)
     template_name = 'update_usuario.html'
@@ -121,7 +132,7 @@ def alteraUsuario(request, id):
     return redirect('lista-cliente')  # redireciona para a lista de usuarios, caso o metodo não seja get nem post
 
 
-@has_role_decorator('deletarUsuario')
+@has_permission_decorator('deletarUsuario')
 def deleteUsuario(request, id):
     usuario = User.objects.get(id=id)
     usuario.is_active = False

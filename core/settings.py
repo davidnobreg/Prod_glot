@@ -182,6 +182,8 @@ AUTH_USER_MODEL = "accounts.User"
 # Role permissions
 ROLEPERMISSIONS_MODULE = 'core.roles'
 
+
+
 # CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
 # CRISPY_TEMPLATE_PACK = "bootstrap5"

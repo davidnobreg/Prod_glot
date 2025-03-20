@@ -75,7 +75,18 @@
                             <td>{{ usuario.username }}</td>
                             <td>{{ usuario.email }}</td>
                             <td>{{ usuario.contato }}</td>
-                            <td class="field-tipo_usuario">{{ usuario.tipo_usuario_display }}</td>
+                            <td class="field-tipo_usuario">
+                                {% if usuario.tipo_usuario == 'A' %}
+                                    Administrador
+                                {% elif usuario.tipo_usuario == 'C' %}
+                                    Corretor
+                                {% elif usuario.tipo_usuario == 'P' %}
+                                    Proprietário
+                                {% else %}
+                                    {{ usuario.tipo_usuario }}
+                                    <!-- Caso não corresponda aos tipos mapeados, exibe o valor original -->
+                                {% endif %}
+                            </td>
                             <td class="text-center itemprop=" actions>
                                 <a href="{% url 'update-usuario' usuario.id %}" class="btn btn-warning">Alterar</a>
                                 <a href="{% url 'delete-usuario' usuario.id %}" class="btn btn-danger">Excluir</a>

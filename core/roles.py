@@ -32,6 +32,7 @@ class Administrador(AbstractUserRole):
 
         # MODULO VENDA
         'reservado': True,
+        'reservadoDetalhe': True,
         'relatorioReserva': True,
         'relatorioVenda': True,
         'listaVendaRelatorio': True,
@@ -77,6 +78,7 @@ class Corretor(AbstractUserRole):
 
         # MODULO VENDA
         'reservado': True,
+        'reservadoDetalhe': True,
         'relatorioReserva': True,
         'relatorioVenda': True,
         'listaVendaRelatorio': True,
@@ -122,6 +124,7 @@ class Proprietario(AbstractUserRole):
 
         # MODULO VENDA
         'reservado': True,
+        'reservadoDetalhe': True,
         'relatorioReserva': True,
         'relatorioVenda': True,
         'listaVendaRelatorio': True,
@@ -132,4 +135,5 @@ class Proprietario(AbstractUserRole):
         'renovarReserva': True,
         'cancelarReservado': True,
         'cancelarVenda': True,
+
     }

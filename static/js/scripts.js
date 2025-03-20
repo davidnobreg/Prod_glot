@@ -1,3 +1,27 @@
+document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("clienteModal");
+    const btnAbrir = document.getElementById("abrirModal");
+    const btnFechar = document.getElementsByClassName("fechar")[0];
+
+    // Exibir o modal ao clicar no botão de abrir
+    btnAbrir.onclick = () => {
+        modal.style.display = "block";
+    };
+
+    // Fechar o modal ao clicar no botão de fechar (X)
+    btnFechar.onclick = () => {
+        modal.style.display = "none";
+    };
+
+    // Fechar o modal ao clicar fora da área do conteúdo
+    window.onclick = (event) => {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    };
+});
+
+
 document.addEventListener("DOMContentLoaded", function () {
 
     const modal = document.getElementById("clienteModalFormAbri"); // Corrigido para myModal

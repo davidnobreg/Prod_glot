@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Cadastrar Reserva
+{% endblock %}
+
+{% load static %}
+
+{% block content %}
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card shadow-lg">
+          <div class="card-header text-white text-center" style="background-color: #007bff;">  <!-- Usando o tom de azul da navbar -->
+            <h3 class="mb-0 display-4">Detalhes da Reserva</h3> <!-- Fonte maior -->
+          </div>
+          <div class="card-body">
+            <!-- Informações do Empreendimento e Quadra -->
+            <div class="row mb-3 text-center">
+              <div class="col-md-6">
+                <p class="fw-bold text-primary fs-4">Empreendimento:</p> <!-- Fonte maior -->
+                <p class="fs-5">{{ reservas.lote.quadra.empr }}</p> <!-- Fonte maior -->
+              </div>
+              <div class="col-md-6">
+                <p class="fw-bold text-primary fs-4">Quadra:</p> <!-- Fonte maior -->
+                <p class="fs-5">{{ reservas.lote.quadra.namequadra }}</p> <!-- Fonte maior -->
+              </div>
+            </div>
+            <hr />
+            <!-- Informações do Lote -->
+            <div class="row mb-3 text-center">
+              <div class="col-md-6">
+                <p class="fw-bold text-primary fs-4">Lote:</p> <!-- Fonte maior -->
+                <p class="fs-5">{{ reservas.lote }}</p> <!-- Fonte maior -->
+              </div>
+            </div>
+            <hr />
+            <!-- Informações do Corretor Responsável -->
+            <div class="row text-center">
+              <div class="col-md-12">
+                <p class="fw-bold text-primary fs-4">Corretor Responsável:</p> <!-- Fonte maior -->
+                <p class="fs-5">{{ reservas.user }}</p> <!-- Fonte maior -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

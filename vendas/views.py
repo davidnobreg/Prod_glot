@@ -18,6 +18,11 @@ def reservado(request, id):
     context = {'reservas': reservas}
     return render(request, 'reservado.html', context)
 
+@has_permission_decorator('reservadoDetalhe')
+def reservadoDetalhe(request, id):
+    reservas = RegisterVenda.objects.filter(lote_id=id).first()
+    context = {'reservas': reservas}
+    return render(request, 'reservado_detalhe.html', context)
 
 @has_permission_decorator('relatorioReserva')
 def listaReserva(request):
@@ -135,7 +140,7 @@ def criarReservado(request, id):
 
     if request.method == 'GET':
         get_lote.situacao = "RESERVADO"
-        get_lote.save()
+        #get_lote.save()
 
     if request.method == 'POST':
         if reserva_existente:

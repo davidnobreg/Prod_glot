@@ -9,8 +9,6 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from rolepermissions.decorators import has_permission_decorator
 
-
-
 from django.core.paginator import Paginator
 from django.views import View
 
@@ -42,6 +40,7 @@ def criarEmpreendimento(request):
             files = request.FILES.getlist('immobile')  ## pega todas as imagens
             return redirect('lista-empreendimento-tabela')
     return render(request, 'empreendimento.html', {'form': form})
+
 
 @has_permission_decorator('listaEmpreendimento')
 def listaEmpreendimento(request):
@@ -121,6 +120,14 @@ def listaQuadra(request, id):
             'lotes': lotes_info  # Lista de lotes dessa quadra
         })
 
+        # Filtro por situação do lote
+        get_lote_situacao = request.GET.get('situacao')
+        if get_lote_situacao:
+            for quadra_info in quadras_info:
+                quadra_info['lotes'] = [
+                    lote for lote in quadra_info['lotes'] if lote['situacao'] == get_lote_situacao
+                ]
+
     paginator = Paginator(quadras_info, 12)  # Paginação para as quadras
     page = request.GET.get('page')
     quadras_info = paginator.get_page(page)
@@ -133,17 +140,14 @@ def listaQuadra(request, id):
     return render(request, 'lista-quadras.html', context)
 
 
-
 class importarDados(View):
     template_name = 'empreendimento_arq.html'
-
 
     def get(self, request, id, *args, **kwargs):
         empreendimento = Empreendimento.objects.get(id=id)
         form = ArquivoForm()
         context = {'form': form, 'empreendimento': empreendimento}
         return render(request, self.template_name, context)
-
 
     def post(self, request, id):
         form = ArquivoForm(request.POST, request.FILES)

@@ -49,6 +49,12 @@
                                             <i class="fa-solid fa-2x"></i> {{ lote_info.lote.lote }}
                                         </button>
                                     </a>
+                                {% elif lote_info.situacao == 'EM_RESERVA' %}
+
+                                        <button type="button" class="btn btn-dark">
+                                            <i class="fa-solid fa-2x"></i> {{ lote_info.lote.lote }}
+                                        </button>
+
                                 {% elif lote_info.situacao == 'RESERVADO' %}
                                     <a href="{% url 'reservadoDetalhes' lote_info.lote.id %}">
                                         <button type="button" class="btn btn-warning">

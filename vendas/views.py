@@ -1,4 +1,6 @@
 from dateutil.tz import tzname_in_python2
+from django.urls import reverse
+from django.db import transaction
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
@@ -6,6 +8,7 @@ from django.db.models import Q
 from rolepermissions.decorators import has_permission_decorator
 
 from datetime import datetime, timedelta
+from django.utils import timezone
 
 from .forms import RegisterVendaForm
 from .models import RegisterVenda
@@ -130,50 +133,57 @@ def cancelarReservado(request, id):
     return redirect('lista-empreendimento')
 
 
-@has_permission_decorator('cancelarReservado')
+@has_permission_decorator('criarReservado')
+@transaction.atomic
 def criarReservado(request, id):
     get_lote = get_object_or_404(Lote, id=id)
     get_tempo = Empreendimento.objects.get(id=get_lote.quadra.empr_id)
-
-    # Tenta pegar um registro existente para esse lote
     reserva_existente = RegisterVenda.objects.filter(lote=get_lote).first()
 
+    print(f"Lote ID: {id}, Situação Inicial: {get_lote.situacao}")
+
+    # 🔥 Libera automaticamente um lote travado em "EM_RESERVA" se não tiver reserva válida
+    if get_lote.situacao == "EM_RESERVA" and not reserva_existente:
+        get_lote.situacao = "DISPONIVEL"
+        get_lote.save()
+        print("Liberando lote bloqueado sem reserva válida.")
+
     if request.method == 'GET':
-        get_lote.situacao = "RESERVADO"
-        #get_lote.save()
+        if not reserva_existente:
+            get_lote.situacao = "EM_RESERVA"
+            get_lote.save()
+            print("Lote definido como EM_RESERVA.")
 
     if request.method == 'POST':
-        if reserva_existente:
-            form = RegisterVendaForm(request.POST, instance=reserva_existente)
-            print("Editando reserva existente...")
-        else:
-            form = RegisterVendaForm(request.POST)
+        form = RegisterVendaForm(request.POST, instance=reserva_existente) if reserva_existente else RegisterVendaForm(
+            request.POST)
 
         if form.is_valid():
+            cliente = form.cleaned_data.get('cliente')
+            if not cliente:
+                messages.error(request, "Cliente inválido. Informe um cliente válido.")
+                return redirect('criar-reservado', id=id)
+
             reserva_form = form.save(commit=False)
             reserva_form.lote = get_lote
             reserva_form.user = request.user
             reserva_form.tipo_venda = 'RESERVADO'
             reserva_form.is_ativo = False
-            reserva_form.dt_reserva = datetime.now() + timedelta(days=get_tempo.tempo_reseva)
+            reserva_form.dt_reserva = timezone.now() + timedelta(days=get_tempo.tempo_reseva)
             reserva_form.save()
 
             get_lote.situacao = "RESERVADO"
             get_lote.save()
-
             messages.success(request, "Lote reservado com sucesso!")
             return redirect('lista-empreendimento')
-
         else:
             messages.error(request, "Erro ao registrar reserva.")
             get_lote.situacao = "DISPONIVEL"
             get_lote.save()
 
-    else:
-        form = RegisterVendaForm()
-
     context = {'form': form, 'lote': get_lote}
     return render(request, 'reserva.html', context)
+
 @has_permission_decorator('criarVenda')
 def criarVenda(request, id):
     venda = RegisterVenda.objects.get(id=id)

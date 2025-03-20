@@ -1,10 +1,12 @@
 from django.urls import path
 from . import views
+from vendas.views import criarReservado
 
 urlpatterns = [
     # Cadastro de cliente
     path('insert_venda/<int:id>/', views.criarVenda, name='criar-venda'),
     path('insert_reserva/<int:id>/', views.criarReservado, name='reserva-create'),
+    path('reserva/<int:id>/', criarReservado, name='fazer-reserva'),
     path('listar_reserva/', views.listaReserva, name='lista-reserva'),
     path('listar_venda/', views.listaVenda, name='lista-venda'),
     path('listar_venda_relatorio/', views.listaVendaRelatorio, name='lista-venda-relatorio'),

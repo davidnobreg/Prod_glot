@@ -32,7 +32,7 @@ DEFAULT_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    #'django_celery_beat',
+    'django_celery_results',
 ]
 
 THIRD_APPS = [
@@ -188,31 +188,24 @@ ROLEPERMISSIONS_MODULE = 'core.roles'
 
 # CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER',
-                              f'amqp://{config('RABBITMQ_USER')}:{config('RABBITMQ_PASSWD')}@rabbitmq:5672/')
-CELERY_RESULT_BACKEND = os.getenv('CELERY_BACKEND', 'rpc://')
+# Celery Configuration
+CELERY_BROKER_URL = 'redis://redis:6379/0'  # Quando o Celery e o Redis estão em containers separados
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_SERIALIZER = 'json'  # Onde os resultados serão armazenados
+CELERY_TIMEZONE = 'UTC'  # Defina sua timezone preferida, por exemplo, 'America/Sao_Paulo'
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'INFO',
-        },
-        'app': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': True,
-        },
+CELERY_BEAT_SCHEDULE = {
+    'liberar_lotes_expirados': {
+        'task': 'vendas.tasks.liberar_lotes_reservados_expirados',
+        'schedule': 60.0,  # A cada 60 segundos
     },
 }
+
+"""
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'"""
+

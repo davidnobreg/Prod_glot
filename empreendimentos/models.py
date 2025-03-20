@@ -1,4 +1,4 @@
-
+from datetime import datetime
 from django.db import models
 
 from django.contrib.auth import get_user_model
@@ -12,11 +12,10 @@ class Empreendimento(models.Model):
     id = models.BigAutoField(primary_key=True)
     nome = models.CharField(max_length=100)
     tempo_reseva = models.IntegerField(default=0)
+    tempo_reservando = models.DateTimeField(default=datetime.now)
     logo = models.ImageField(verbose_name='Logo',
         null=True, blank=True)
     is_ativo = models.BooleanField(default=False)
-
-
 
 
     def __str__(self):
@@ -41,7 +40,8 @@ class Quadra(models.Model):
 
 ## Opções de Imóveis
 class TypeLote(models.TextChoices):
-    DISPONIVEL = 'DISPONIVEL','DISPONIVEL' 
+    DISPONIVEL = 'DISPONIVEL','DISPONIVEL'
+    EM_RESERVA = 'EM_RESERVA', 'EM_RESERVA'
     RESERVADO = 'RESERVADO','RESERVADO'
     VENDIDO = 'VENDIDO','VENDIDO' 
     

@@ -1,9 +1,10 @@
-from datetime import datetime
+from django.utils import timezone
+from datetime import timedelta
 from django.db import models
 
-from django.contrib.auth import get_user_model
+
 from django.contrib.auth.models import User
-from PIL import Image
+
 
 
 ## Cadastro de empreendimento
@@ -11,8 +12,7 @@ class Empreendimento(models.Model):
     
     id = models.BigAutoField(primary_key=True)
     nome = models.CharField(max_length=100)
-    tempo_reseva = models.IntegerField(default=0)
-    tempo_reservando = models.DateTimeField(default=datetime.now)
+    tempo_reserva = models.IntegerField(default=0)
     logo = models.ImageField(verbose_name='Logo',
         null=True, blank=True)
     is_ativo = models.BooleanField(default=False)
@@ -51,8 +51,13 @@ class Lote(models.Model):
     lote = models.CharField('Nome do Lote', max_length=50)
     area = models.CharField('ÁREA', max_length=50)
     situacao = models.CharField(max_length=100, choices=TypeLote.choices)
-    quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE, related_name='quadra')   
-   
+    tempo_reservado = models.TimeField(default=timezone.now)
+    quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE, related_name='quadra')
+
+    def save(self, *args, **kwargs):
+        self.tempo_reservado = timezone.localtime(timezone.now()) + timedelta(minutes=1)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return "{}".format( self.lote)
 

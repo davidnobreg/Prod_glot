@@ -36,9 +36,22 @@ def criarEmpreendimento(request):
     if request.method == 'POST':
         form = EmpreendimentoForm(request.POST, request.FILES)
         if form.is_valid():
-            empr = form.save()
-            files = request.FILES.getlist('immobile')  ## pega todas as imagens
-            return redirect('lista-empreendimento-tabela')
+            try:
+                empreendimento = form.save()
+                files = request.FILES.getlist('immobile')
+
+                for file in files:
+                    # Validação de arquivo (exemplo)
+                    if file.content_type.startswith('image/'):
+                        ImagemEmpreendimento.objects.create(empreendimento=empreendimento, imagem=file)
+                    else:
+                        messages.error(request, f"O arquivo {file.name} não é uma imagem.")
+
+                messages.success(request, "Empreendimento criado com sucesso!")
+                return redirect('lista-empreendimento-tabela')
+            except Exception as e:
+                messages.error(request, f"Ocorreu um erro ao criar o empreendimento: {e}")
+
     return render(request, 'empreendimento.html', {'form': form})
 
 

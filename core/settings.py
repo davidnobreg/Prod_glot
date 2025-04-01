@@ -31,16 +31,19 @@ DEFAULT_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    'django_celery_results',
 ]
 
 THIRD_APPS = [
-    'base',
     'rolepermissions',
+    'django_crontab',
+    # 'django_q',
+    # 'django_celery_results',
+    #'django_celery_beat',
+
 ]
 
 PROJECT_APPS = [
+    'base',
     'clientes',
     'empreendimentos',
     'vendas',
@@ -86,21 +89,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-"""
-DATABASES = {
-        'default': {
-           'ENGINE': 'django.db.backends.sqlite3',
-          'NAME': BASE_DIR / "db.sqlite3",
-        }
-    }
-
-"""
-
 if DEBUG:
     DATABASES = {
         'default': {
-           'ENGINE': 'django.db.backends.sqlite3',
-          'NAME': BASE_DIR / "db.sqlite3",
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / "db.sqlite3",
         }
     }
 
@@ -139,13 +132,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'pt-br'
 
-TIME_ZONE = 'America/Sao_Paulo'
+TIME_ZONE = 'America/Sao_Paulo'  # Ajuste conforme necessário
+
+USE_TZ = True  # Habilita o uso de fuso horário
 
 USE_I18N = True
 
 USE_L10N = True
-
-USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
@@ -158,9 +151,10 @@ MEDIA_URL = 'media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # --- Messages --- #
 from django.contrib.messages import constants
@@ -182,30 +176,6 @@ AUTH_USER_MODEL = "accounts.User"
 # Role permissions
 ROLEPERMISSIONS_MODULE = 'core.roles'
 
-
-
 # CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
 # CRISPY_TEMPLATE_PACK = "bootstrap5"
-
-# Celery Configuration
-CELERY_BROKER_URL = 'redis://redis:6379/0'  # Quando o Celery e o Redis estão em containers separados
-CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'  # Onde os resultados serão armazenados
-CELERY_TIMEZONE = 'UTC'  # Defina sua timezone preferida, por exemplo, 'America/Sao_Paulo'
-
-CELERY_BEAT_SCHEDULE = {
-    'liberar_lotes_expirados': {
-        'task': 'vendas.tasks.liberar_lotes_reservados_expirados',
-        'schedule': 60.0,  # A cada 60 segundos
-    },
-}
-
-"""
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TASK_SERIALIZER = 'json'"""
-

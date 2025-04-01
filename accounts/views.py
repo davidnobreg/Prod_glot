@@ -83,6 +83,8 @@ def criarUsuario(request):
         return render(request, template_name)
 
     if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
         email = request.POST.get('email')
         senha = request.POST.get('senha')
         contato = request.POST.get('contato')
@@ -95,7 +97,7 @@ def criarUsuario(request):
             # TODO: Utilizar messages do Django
             return HttpResponse('Email já existe! Tente novamente.')
 
-        user = User.objects.create_user(username=email, email=email, password=senha, contato=contato, creci=creci,
+        user = User.objects.create_user(first_name=first_name, last_name=last_name ,username=email, email=email, password=senha, contato=contato, creci=creci,
                                         tipo_usuario=tipo_usuario)
 
         messages.success(request, "Usuario criada com sucesso!")

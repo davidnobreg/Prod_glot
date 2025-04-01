@@ -62,6 +62,7 @@
                     <tr>
                         <th scope="col">Creci</th>
                         <th scope="col">Nome</th>
+                        <th scope="col">Nome Usual</th>
                         <th scope="col">E-mail</th>
                         <th scope="col">Contato</th>
                         <th scope="col">Tipo usuario:</th>
@@ -72,7 +73,8 @@
                     {% for usuario in usuarios %}
                         <tr>
                             <td>{{ usuario.creci }}</td>
-                            <td>{{ usuario.username }}</td>
+                            <td>{{ usuario.first_name }}</td>
+                            <td>{{ usuario.last_name }}</td>
                             <td>{{ usuario.email }}</td>
                             <td>{{ usuario.contato }}</td>
                             <td class="field-tipo_usuario">

@@ -64,12 +64,15 @@
                                     <a href="{% url 'altera-cliente' cliente.id %}" class="btn btn-warning">
                                         Alterar
                                     </a>
+
                                     <button class="btn btn-danger btn-detalhes"
-                                            data-id="{{ cliente.id }}"
+                                            name="cliente"
+                                            data-cliente-id="{{ cliente.id }}"
                                             data-bs-toggle="modal"
-                                            data-bs-target="#clienteModal">
+                                            data-bs-target="#clienteModalDelete">
                                         Excluir
                                     </button>
+
                                 </td>
                             </tr>
                         {% endfor %}
@@ -83,30 +86,38 @@
 
 
 
-    <div class="modal fade" id="clienteModal" tabindex="-1" aria-labelledby="clienteModalLabel" aria-hidden="true">
+    <div class="modal fade" id="clienteModalDelete" tabindex="-1" aria-labelledby="clienteModalDeleteLabel"
+         aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="clienteModalLabel">Detalhes do Cliente</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div id="loading-indicator" style="display: none;">
-                        Carregando...
+                <form id="clienteModalDelete" method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div id="loading-indicator" style="display: none;">
+                            Carregando...
+                        </div>
+
+                        <input type="hidden" name="id" id="cliente-id">
+                        <p><strong>ID:</strong> <span id="cliente-id-display"></span></p>
+                        <p><strong>Cliente:</strong> <span id="cliente-name"></span></p>
+                        <p><strong>Documento:</strong> <span id="cliente-documento"></span></p>
+                        <p><strong>Email:</strong> <span id="cliente-email"></span></p>
                     </div>
-                    <p><strong>ID:</strong> <span id="cliente-id"></span></p>
-                    <p><strong>Cliente:</strong> <span id="cliente-name"></span></p>
-                    <p><strong>Documento:</strong> <span id="cliente-documento"></span></p>
-                    <p><strong>Email:</strong> <span id="cliente-email"></span></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" id="btn-deletar-cliente">deletar</button>
-                    <button type="button" href="{% url 'lista-cliente' %}" class="btn btn-secondary"
-                            data-bs-dismiss="modal">Canselar
-                    </button>
-                </div>
+                    <div class="modal-footer">
+                        <button type="submit" id="btn-deletar-cliente" class="btn btn-danger">deletar</button>
+                        <button type="button" href="{% url 'lista-cliente' %}" class="btn btn-secondary"
+                                data-bs-dismiss="modal">Canselar
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+
+
 
 {% endblock %}

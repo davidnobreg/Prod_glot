@@ -1,5 +1,4 @@
 from dateutil.tz import tzname_in_python2
-from django.urls import reverse
 from django.db import transaction
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -140,23 +139,24 @@ def criarReservado(request, id):
     get_tempo = Empreendimento.objects.get(id=get_lote.quadra.empr_id)
     reserva_existente = RegisterVenda.objects.filter(lote=get_lote).first()
 
-    print(f"Lote ID: {id}, Situação Inicial: {get_lote.situacao}")
+    #print(f"Lote ID: {id}, Situação Inicial: {get_lote.situacao}")
 
-    # 🔥 Libera automaticamente um lote travado em "EM_RESERVA" se não tiver reserva válida
+    #  Libera automaticamente um lote travado em "EM_RESERVA" se não tiver reserva válida
     if get_lote.situacao == "EM_RESERVA" and not reserva_existente:
         get_lote.situacao = "DISPONIVEL"
         get_lote.save()
-        print("Liberando lote bloqueado sem reserva válida.")
+        #print("Liberando lote bloqueado sem reserva válida.")
 
     if request.method == 'GET':
         if not reserva_existente:
             get_lote.situacao = "EM_RESERVA"
+            get_lote.tempo_reservado = timezone.now().time()
             get_lote.save()
-            print("Lote definido como EM_RESERVA.")
+            #print("Lote definido como EM_RESERVA.")
+        form = RegisterVendaForm() #inicializa form caso não seja post.
 
     if request.method == 'POST':
-        form = RegisterVendaForm(request.POST, instance=reserva_existente) if reserva_existente else RegisterVendaForm(
-            request.POST)
+        form = RegisterVendaForm(request.POST, instance=reserva_existente) if reserva_existente else RegisterVendaForm(request.POST)
 
         if form.is_valid():
             cliente = form.cleaned_data.get('cliente')
@@ -169,7 +169,7 @@ def criarReservado(request, id):
             reserva_form.user = request.user
             reserva_form.tipo_venda = 'RESERVADO'
             reserva_form.is_ativo = False
-            reserva_form.dt_reserva = timezone.now() + timedelta(days=get_tempo.tempo_reseva)
+            reserva_form.dt_reserva = timezone.now() + timedelta(days=get_tempo.tempo_reserva)
             reserva_form.save()
 
             get_lote.situacao = "RESERVADO"
@@ -181,9 +181,8 @@ def criarReservado(request, id):
             get_lote.situacao = "DISPONIVEL"
             get_lote.save()
 
-    context = {'form': form, 'lote': get_lote}
+    context = {'form': form , 'lote': get_lote}
     return render(request, 'reserva.html', context)
-
 @has_permission_decorator('criarVenda')
 def criarVenda(request, id):
     venda = RegisterVenda.objects.get(id=id)

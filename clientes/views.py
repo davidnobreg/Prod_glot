@@ -79,12 +79,7 @@ def alteraCliente(request, cliente_id):
     # Se não for GET nem POST, retorna um erro (ou redireciona, dependendo do caso)
     return redirect('lista-cliente')  # redireciona para a lista de clientes, caso o metodo não seja get nem post
 
-@has_permission_decorator('deletarCliente')
-def deleteCliente(request, id):
-    cliente = Cliente.objects.get(id=id)
-    cliente.is_ativo = True
-    cliente.save()
-    return redirect('lista-cliente')
+
 
 ## Relatório
 
@@ -121,3 +116,11 @@ def listaClienteRelatorio(request):
 
     context = {'clientes': clientes}
     return render(request, 'lista_cliente_relatorio.html', context)
+
+
+@has_permission_decorator('deletarCliente')
+def deleteCliente(request, id):
+    cliente = Cliente.objects.get(id=id)
+    cliente.is_ativo = True
+    cliente.save()
+    return redirect('lista-cliente')

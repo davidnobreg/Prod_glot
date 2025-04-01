@@ -35,7 +35,7 @@ DEFAULT_APPS = [
 
 THIRD_APPS = [
     'rolepermissions',
-    'django_crontab',
+    #'django_crontab',
     # 'django_q',
     # 'django_celery_results',
     #'django_celery_beat',

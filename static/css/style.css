@@ -9,10 +9,30 @@ body[data-bs-theme="dark"] {
     color: #ffffff;
 }
 
+.botao-acessar {
+  background: linear-gradient(to bottom, rgb(255, 255, 255), rgb(3, 107, 145));
+  border-color: transparent;
+}
+
+.botao-quadra-reservada {
+  background: rgb(255, 152, 0);
+  border-color: transparent;
+}
+
+.botao-quadra-vendida {
+  background: rgb(3, 107, 145);
+  border-color: transparent;
+}
+
+.card-header.bg-primary.pt-5.pb-5 {
+  background: linear-gradient(to top, rgb(255, 255, 255), rgb(3, 107, 145));
+}
+
 .card_servico {
+    background: linear-gradient(to top, rgb(255, 255, 255), rgb(3, 107, 145));
     padding: 10px;
     border-radius: 10px;
-    box-shadow: 8px 8px 10px rgb(2, 88, 187) ;
+    box-shadow: 8px 8px 10px rgb(3, 107, 145) ;
 }
 
 .gradient-custom {
@@ -30,5 +50,7 @@ body[data-bs-theme="dark"] {
 }
 
 .navbar {
-    background-color: rgb(3, 107, 145);
+    background: linear-gradient(to right, rgb(255, 255, 255), rgb(3, 107, 145));
+   /* background: linear-gradient(45deg, #ffd42b, #772cd6);
+    background-color: rgb(3, 107, 145);*/
 }

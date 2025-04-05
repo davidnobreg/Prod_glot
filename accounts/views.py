@@ -42,7 +42,7 @@ def logout(request):
 
 @has_permission_decorator('listarUsuario')
 def listarUsuario(request):
-    usuarios = User.objects.filter(is_active=True).order_by('username')
+    usuarios = User.objects.filter(is_active=True)#.order_by('last_name')
 
     # Mapeamento dos tipos de usuário
     tipo_usuario_map = {

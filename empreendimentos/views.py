@@ -4,6 +4,7 @@ import pandas as pd
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError
+from django.views.decorators.http import require_POST
 from PIL import Image  # Importe a biblioteca Pillow (PIL) para manipulação de imagens
 from io import BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -97,6 +98,7 @@ def alteraEmpreendimento(request, id):
 
 
 @has_permission_decorator('deletarEmpreendimento')
+@require_POST
 def deleteEmpreendimento(request, empreendimento_Id):
     print(empreendimento_Id)
     empreendimento = Empreendimento.objects.get(id=empreendimento_Id)

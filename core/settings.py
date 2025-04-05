@@ -180,8 +180,18 @@ ROLEPERMISSIONS_MODULE = 'core.roles'
 
 # CRISPY_TEMPLATE_PACK = "bootstrap5"
 
+user = config('RABBITMQ_USER')
+password = config('RABBITMQ_PASSWD')
+host = config('RABBITMQ_HOST')
+port = config('RABBITMQ_PORT')
+
+CELERY_BROKER_URL = os.getenv(
+    'CELERY_BROKER',
+    f'amqp://{user}:{password}@{host}:{port}/'
+)
+
 # Celery Configuration Options
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER', f'amqp://{config('RABBITMQ_USER')}:{config('RABBITMQ_PASSWD')}@{config('RABBITMQ_HOST')}:{config('RABBITMQ_PORT')}/')
+#CELERY_BROKER_URL = os.getenv('CELERY_BROKER', f'amqp://{config('RABBITMQ_USER')}:{config('RABBITMQ_PASSWD')}@{config('RABBITMQ_HOST')}:{config('RABBITMQ_PORT')}/')
 CELERY_RESULT_BACKEND = 'django-db' #os.getenv('CELERY_BACKEND', 'rpc://')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'

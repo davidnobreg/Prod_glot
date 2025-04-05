@@ -79,29 +79,26 @@
         </div>
     </div>
 
-    <div class="modal fade" id="empreendimentoModal" tabindex="-1" aria-labelledby="empreedimentoModalLabel"
+    <!-- Modal ÚNICO de Deleção de Empreendimento -->
+    <div class="modal fade" id="empreendimentoModal" tabindex="-1" aria-labelledby="empreendimentoModalLabel"
          aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="empreedimentoModalLabel">Detalhes do Empreendimento</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="btn-deletar-empreendimento" method="post">
+                <form id="form-deletar-empreendimento" method="post">
                     {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="empreendimentoModalLabel">Deletar Empreendimento</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
                     <div class="modal-body">
-                        <div id="loading-indicator" style="display: none;">
-                            Carregando...
-                        </div>
-                        <input type="hidden" name="id" id="empreendimento-id">
+                        <input type="hidden" id="empreendimento-id" name="id">
                         <p><strong>ID:</strong> <span id="empreendimento-id-display"></span></p>
                         <p><strong>Nome:</strong> <span id="empreendimento-nome"></span></p>
+                        <p class="text-danger">Tem certeza que deseja excluir este empreendimento?</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" id="btn-deletar-empreendimento" class="btn btn-danger">deletar</button>
-                        <button type="button" href="{% url 'lista-empreendimento-tabela' %}" class="btn btn-secondary"
-                                data-bs-dismiss="modal">Canselar
-                        </button>
+                        <button type="submit" class="btn btn-danger">Deletar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     </div>
                 </form>
             </div>

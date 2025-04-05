@@ -3,6 +3,7 @@ from django.contrib import messages
 import pandas as pd
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
+from django.core.exceptions import ValidationError
 from PIL import Image  # Importe a biblioteca Pillow (PIL) para manipulação de imagens
 from io import BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -35,25 +36,39 @@ def criarEmpreendimento(request):
 
     if request.method == 'POST':
         form = EmpreendimentoForm(request.POST, request.FILES)
+
         if form.is_valid():
             try:
                 empreendimento = form.save()
                 files = request.FILES.getlist('immobile')
 
-                for file in files:
-                    # Validação de arquivo (exemplo)
-                    if file.content_type.startswith('image/'):
-                        ImagemEmpreendimento.objects.create(empreendimento=empreendimento, imagem=file)
-                    else:
-                        messages.error(request, f"O arquivo {file.name} não é uma imagem.")
+                imagens_criadas = []
+                erros = []
 
-                messages.success(request, "Empreendimento criado com sucesso!")
+                for file in files:
+                    if file.content_type.startswith('image/'):
+                        img = ImagemEmpreendimento(empreendimento=empreendimento, imagem=file)
+                        try:
+                            img.full_clean()  # Validações do Django
+                            img.save()
+                            imagens_criadas.append(file.name)
+                        except ValidationError as e:
+                            erros.append(f"Erro ao salvar {file.name}: {e}")
+                    else:
+                        erros.append(f"O arquivo {file.name} não é uma imagem válida.")
+
+                # Exibir mensagens apropriadas
+                if imagens_criadas:
+                    messages.success(request, f"Empreendimento criado com sucesso! Imagens adicionadas: {', '.join(imagens_criadas)}")
+                if erros:
+                    messages.warning(request, "Algumas imagens não foram salvas:\n" + "\n".join(erros))
+
                 return redirect('lista-empreendimento-tabela')
+
             except Exception as e:
                 messages.error(request, f"Ocorreu um erro ao criar o empreendimento: {e}")
 
     return render(request, 'empreendimento.html', {'form': form})
-
 
 @has_permission_decorator('listaEmpreendimento')
 def listaEmpreendimento(request):

@@ -37,8 +37,8 @@ THIRD_APPS = [
     'rolepermissions',
     #'django_crontab',
     # 'django_q',
-    # 'django_celery_results',
-    #'django_celery_beat',
+    'django_celery_results',
+    'django_celery_beat',
 
 ]
 
@@ -179,3 +179,46 @@ ROLEPERMISSIONS_MODULE = 'core.roles'
 # CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
 # CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+# Celery Configuration Options
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER', f'amqp://{config('RABBITMQ_USER')}:{config('RABBITMQ_PASSWD')}@{config('RABBITMQ_HOST')}:{config('RABBITMQ_PORT')}/')
+CELERY_RESULT_BACKEND = 'django-db' #os.getenv('CELERY_BACKEND', 'rpc://')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'America/Sao_Paulo'
+CELERYBEAT_SCHEDULE_FILENAME = "/var/tmp/celerybeat-schedule"
+
+
+
+# pick which cache from the CACHES setting.
+CELERY_CACHE_BACKEND = 'default'
+
+# django setting.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'my_cache_table',
+    }
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        'app': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}

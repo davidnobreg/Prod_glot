@@ -54,7 +54,8 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        document.getElementById('empreendimento-id').textContent = empreendimentoId;
+        document.getElementById('empreendimento-id').textContent = data.id;
+        document.getElementById('empreendimento-id-display').textContent = data.id;
         document.getElementById('empreendimento-nome').textContent = data.nome || 'Nome não encontrado';
     }
 
@@ -84,6 +85,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function adicionarListenerDeletarEmpreendimento() {
         const btnDeletarEmpreendimento = document.getElementById("btn-deletar-empreendimento");
+
+        console.log(btnDeletarEmpreendimento)
 
         if (btnDeletarEmpreendimento) {
             btnDeletarEmpreendimento.addEventListener("click", function () {

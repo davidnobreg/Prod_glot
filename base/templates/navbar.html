@@ -20,52 +20,56 @@
                 {% if user.is_authenticated %}
                     <li class="nav-item">
                         <span class="navbar-text text-black me-3">
-                            Bem-vindo, {{ user.username }}
+                            Bem-vindo, {{ user.first_name }}
                         </span>
                     </li>
                     <li class="nav-item">
                         <form action="{% url 'logout' %}" method="GET">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-danger px-4 py-2 rounded-pill" style="border: 2px solid rgb(3, 107, 145); transition: all 0.3s ease;">
-                               <strong>Sair</strong>
+                            <button type="submit" class="btn btn-danger px-4 py-2 rounded-pill"
+                                    style="border: 2px solid rgb(3, 107, 145); transition: all 0.3s ease;">
+                                <strong>Sair</strong>
                             </button>
                         </form>
                     </li>
                 {% else %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'login' %}">
-                            <button class="btn btn-light px-4 py-2 rounded-pill" style="border: 2px solid rgb(3, 107, 145); transition: all 0.3s ease;">
+                            <button class="btn btn-light px-4 py-2 rounded-pill"
+                                    style="border: 2px solid rgb(3, 107, 145); transition: all 0.3s ease;">
                                 <strong>Entrar</strong>
                             </button>
                         </a>
                     </li>
                 {% endif %}
+                {% if user.is_authenticated %}
+                    <!-- Menu de Navegação -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-black" href="#" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            Listagem
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'lista-cliente-relatorio' %}">Clientes</a></li>
+                            <li><a class="dropdown-item" href="{% url 'lista-venda-relatorio' %}">Vendas</a></li>
+                        </ul>
+                    </li>
 
-                <!-- Menu de Navegação -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle text-black" href="#" role="button" data-bs-toggle="dropdown"
-                       aria-expanded="false">
-                        Listagem
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'lista-cliente-relatorio' %}">Clientes</a></li>
-                        <li><a class="dropdown-item" href="{% url 'lista-venda-relatorio' %}">Vendas</a></li>
-                    </ul>
-                </li>
-
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle text-black" href="#" role="button" data-bs-toggle="dropdown"
-                       aria-expanded="false">
-                        Gerenciamento
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'lista-cliente' %}">Gerenciar Clientes</a></li>
-                        <li><a class="dropdown-item" href="{% url 'lista-empreendimento-tabela' %}">Gerenciar Empreendimentos</a></li>
-                        <li><a class="dropdown-item" href="{% url 'lista-reserva' %}">Gerenciar Reserva</a></li>
-                        <li><a class="dropdown-item" href="{% url 'lista-venda' %}">Gerenciar Venda</a></li>
-                        <li><a class="dropdown-item" href="{% url 'lista-usuario' %}">Gerenciar Usuários</a></li>
-                    </ul>
-                </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-black" href="#" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            Gerenciamento
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'lista-cliente' %}">Gerenciar Clientes</a></li>
+                            <li><a class="dropdown-item" href="{% url 'lista-empreendimento-tabela' %}">Gerenciar
+                                Empreendimentos</a></li>
+                            <li><a class="dropdown-item" href="{% url 'lista-reserva' %}">Gerenciar Reserva</a></li>
+                            <li><a class="dropdown-item" href="{% url 'lista-venda' %}">Gerenciar Venda</a></li>
+                            <li><a class="dropdown-item" href="{% url 'lista-usuario' %}">Gerenciar Usuários</a></li>
+                        </ul>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </div>

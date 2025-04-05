@@ -13,8 +13,10 @@
 
             <!-- Imagem -->
             <div class="col-lg-6">
-                <img src="{% static 'images/imovel.png' %}" width="100%" height="100%" class="img-fluid rounded shadow"/>
+                <img src="{% static 'images/imovel.png' %}" width="100%" height="100%"
+                     class="img-fluid rounded shadow"/>
             </div>
+
 
             <!-- Formulário -->
             <div class="col-lg-6">
@@ -30,15 +32,10 @@
 
                     <div class="mb-3">
                         <label for="id_tempo_reseva" class="form-label">Tempo reseva</label>
-                        <input type="text" name="tempo_reseva" value="0" class="form-control" required=""
+                        <input type="text" name="tempo_reserva" value="0" class="form-control" required=""
                                id="id_tempo_reseva">
                     </div>
 
-                    <div class="mb-3">
-                        <label for="id_tempo_reservando" class="form-label">Tempo reservando</label>
-                        <input type="text" name="tempo_reservando" value="0" class="form-control" required=""
-                               id="id_tempo_reservando">
-                    </div>
 
                     <div class="mb-3">
                         <label for="id_logo" class="form-label">Logo</label>
@@ -46,7 +43,7 @@
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100 mt-3">Salvar</button>
-                    <a  href="{% url 'lista-empreendimento-tabela' %}" class="btn btn-primary w-100 mt-2">
+                    <a href="{% url 'lista-empreendimento-tabela' %}" class="btn btn-primary w-100 mt-2">
                         Cancelar
                     </a>
                 </form>

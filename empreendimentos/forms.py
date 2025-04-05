@@ -1,5 +1,5 @@
 from django import forms
-from .models import Empreendimento, Quadra, Lote
+from .models import Empreendimento
 
 # Doc: https://docs.djangoproject.com/en/5.1/topics/http/file-uploads/
 

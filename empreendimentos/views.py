@@ -185,7 +185,7 @@ class importarDados(View):
             arquivo = request.FILES['arquivo']
 
             # Lê o Excel a partir da terceira linha (pulando as duas primeiras)
-            df = pd.read_excel(arquivo, skiprows=2, names=["quadra", "lote", "area", "situacao"])
+            df = pd.read_excel(arquivo, skiprows=1, names=["quadra", "lote", "area", "situacao"])
 
             # Remover linhas vazias
             df = df.dropna(subset=["quadra", "lote", "area"])

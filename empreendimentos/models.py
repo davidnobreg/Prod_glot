@@ -40,8 +40,10 @@ class Quadra(models.Model):
 
 ## Opções de Imóveis
 class TypeLote(models.TextChoices):
+    CONSTRUTORA = 'CONSTRUTORA','CONSTRUTORA',
     DISPONIVEL = 'DISPONIVEL','DISPONIVEL'
     EM_RESERVA = 'EM_RESERVA', 'EM_RESERVA'
+    INDISPONIVEL = 'INDISPONIVEL', 'INDISPONIVEL',
     RESERVADO = 'RESERVADO','RESERVADO'
     VENDIDO = 'VENDIDO','VENDIDO' 
     

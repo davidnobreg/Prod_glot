@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Lista de Tarefas{% endblock %}
+
+{% block content %}
+
+    <div class="container dashboard">
+        <div class="col-2 dashboard-box" id="dashboard-lastdays">
+            <h4>Total de lotes</h4>
+            <span>{{ total }}</span>
+        </div>
+        <div class="col-2 dashboard-box" id="dashboard-done">
+            <h4>Lotes Disponicel</h4>
+            <span>{{ livre }}</span>
+        </div>
+        <div class="col-2 dashboard-box" id="dashboard-doing">
+            <h4>Lotes Reservado</h4>
+            <span>{{ reservas }}</span>
+        </div>
+        <div class="col-2 dashboard-box" id="dashboard-doing">
+            <h4>Lotes Vendidos</h4>
+            <span>{{ vendidos }}</span>
+        </div>
+
+    </div>
+
+{% endblock %}

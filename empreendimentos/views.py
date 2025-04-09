@@ -17,6 +17,7 @@ from django.views import View
 from clientes.forms import ClienteForm
 from .forms import EmpreendimentoForm, ArquivoForm
 from .models import Empreendimento, Quadra, Lote
+from vendas.models import RegisterVenda
 
 
 @has_permission_decorator('selectEmpreendimento')
@@ -60,7 +61,8 @@ def criarEmpreendimento(request):
 
                 # Exibir mensagens apropriadas
                 if imagens_criadas:
-                    messages.success(request, f"Empreendimento criado com sucesso! Imagens adicionadas: {', '.join(imagens_criadas)}")
+                    messages.success(request,
+                                     f"Empreendimento criado com sucesso! Imagens adicionadas: {', '.join(imagens_criadas)}")
                 if erros:
                     messages.warning(request, "Algumas imagens não foram salvas:\n" + "\n".join(erros))
 
@@ -70,6 +72,7 @@ def criarEmpreendimento(request):
                 messages.error(request, f"Ocorreu um erro ao criar o empreendimento: {e}")
 
     return render(request, 'empreendimento.html', {'form': form})
+
 
 @has_permission_decorator('listaEmpreendimento')
 def listaEmpreendimento(request):
@@ -109,6 +112,11 @@ def deleteEmpreendimento(request, empreendimento_Id):
 
 @has_permission_decorator('listaEmpreendimentoTabela')
 def listaEmpreendimentoTabela(request):
+    total = Lote.objects.all().count()
+    livre = Lote.objects.filter(situacao='DISPONIVEL').count()
+    reservas = RegisterVenda.objects.filter(tipo_venda='RESERVADO').count()
+    vendidos = RegisterVenda.objects.filter(tipo_venda='VENDIDO').count()
+
     empreendimentos = Empreendimento.objects.filter(is_ativo=False)
 
     get_empreendimento = request.GET.get('empreendimento')
@@ -116,7 +124,13 @@ def listaEmpreendimentoTabela(request):
     if get_empreendimento:
         empreendimentos = Empreendimento.objects.filter(nome=get_empreendimento)
 
-    context = {'empreendimentos': empreendimentos}
+    context = {
+        'empreendimentos': empreendimentos,
+        'total': total,
+        'livre': livre,
+        'reservas': reservas,
+        'vendidos': vendidos,
+    }
     return render(request, 'lista-empreendimentos-tabela.html', context)
 
 

@@ -48,6 +48,7 @@ PROJECT_APPS = [
     'empreendimentos',
     'vendas',
     'accounts',
+    'dashboard',
 
 ]
 

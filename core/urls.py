@@ -9,6 +9,7 @@ urlpatterns = [
     path('clientes/', include('clientes.urls'), name='clientes'),
     path('empreendimentos/', include('empreendimentos.urls'), name='empreendimentos'),
     path('vendas/', include('vendas.urls'), name='vendas'),
+    path('dashboard/', include('dashboard.urls'), name='dashboard'),
 
     path('', include('accounts.urls'), name='accounts'),
 ]

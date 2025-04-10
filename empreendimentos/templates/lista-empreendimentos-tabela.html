@@ -49,6 +49,7 @@
                     <th scope="col">Lotes Disponível</th>
                     <th scope="col">Lotes Reservados</th>
                     <th scope="col">Lotes Vendidos</th>
+                    <th scope="col">Outras Situações</th>
                     <th scope="col">Total de Lotes</th>
                     <th scope="col"></th>
 
@@ -64,6 +65,7 @@
                         <td>{{ livre }}</td>
                         <td>{{ reservas }}</td>
                         <td>{{ vendidos }}</td>
+                        <td>{{ outras }}</td>
                         <td>{{ total }}</td>
                         <td>
                             <a href="{% url 'arquivo' empreendimento.id %}" class="btn btn-success">Arquivo</a>

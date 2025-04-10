@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError
 from django.views.decorators.http import require_POST
+from django.db.models import Q
 from PIL import Image  # Importe a biblioteca Pillow (PIL) para manipulação de imagens
 from io import BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -114,8 +115,13 @@ def deleteEmpreendimento(request, empreendimento_Id):
 def listaEmpreendimentoTabela(request):
     total = Lote.objects.all().count()
     livre = Lote.objects.filter(situacao='DISPONIVEL').count()
-    reservas = RegisterVenda.objects.filter(tipo_venda='RESERVADO').count()
-    vendidos = RegisterVenda.objects.filter(tipo_venda='VENDIDO').count()
+    outras = Lote.objects.filter(
+        Q(situacao = 'EM_RESERVA') |
+        Q(situacao = 'CONSTRUTORA') |
+        Q(situacao = 'INDISPONIVEL') ).count()
+
+    reservas = Lote.objects.filter(situacao='RESERVADO').count()
+    vendidos = Lote.objects.filter(situacao='VENDIDO').count()
 
     empreendimentos = Empreendimento.objects.filter(is_ativo=False)
 
@@ -128,6 +134,7 @@ def listaEmpreendimentoTabela(request):
         'empreendimentos': empreendimentos,
         'total': total,
         'livre': livre,
+        'outras': outras,
         'reservas': reservas,
         'vendidos': vendidos,
     }

@@ -27,7 +27,7 @@ def login(request):
 
         if not user:
             # TODO: Redirecionar com mensagem de erro
-            messages.success(request, "Usuário inválido! Tente novamente.")
+            messages.error(request, "Usuário inválido! Tente novamente.")
             return redirect(reverse('login'))
 
         login_django(request, user)

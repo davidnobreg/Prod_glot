@@ -9,6 +9,8 @@ class Administrador(AbstractUserRole):
         'criarUsuario': True,
         'alterarUsuario': True,
         'deletarUsuario': True,
+        'criarUsuarioEmpreendimento': True,
+        'deleteUsuarioEmpreendimento': True,
 
         # MODULO CLIENTE
 

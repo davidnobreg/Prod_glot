@@ -6,34 +6,49 @@
 
 {% block content %}
     <div class="container text-center mt-4">
-        <h1 class="mb-4">Lista de Quadras</h1>
+        <h1 class="mb-4 fw-bold">{{ empreendimento }}</h1>
 
         <!-- Filtros -->
         <div class="row g-3 align-items-center bg-light p-2 rounded shadow mb-4">
-            <div class="col-md-4"></div>
-            <div class="col-md-4">
-                <form action="">
-                    <label for="typeFilter" class="form-label">SITUAÇÃO DE LOTES</label>
-                    <select name="situacao" id="typeFilter" class="form-select" onchange="this.form.submit()">
-                        <option value="">Status</option>
-                        <option value="CONSTRUTORA" {% if request.GET.situacao == 'CONSTRUTORA' %}selected{% endif %}>
-                            Construtora
-                        </option>
-                        <option value="DISPONIVEL" {% if request.GET.situacao == 'DISPONIVEL' %}selected{% endif %}>
-                            Disponível
-                        </option>
-                        <option value="INDISPONIVEL" {% if request.GET.situacao == 'INDISPONIVEL' %}selected{% endif %}>
-                            Indisponível
-                        </option>
-                        <option value="RESERVADO" {% if request.GET.situacao == 'RESERVADO' %}selected{% endif %}>
-                            Reservado
-                        </option>
-                        <option value="VENDIDO" {% if request.GET.situacao == 'VENDIDO' %}selected{% endif %}>
-                            Vendido
-                        </option>
-                    </select>
-                </form>
+            <div class="col-md-12">
+
+                <div class="row g-3"> <!-- espaçamento aplicado aqui -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold d-block">Lotes Livres</label>
+                        <a href="?situacao=DISPONIVEL" class="btn btn-success text-center py-3 w-100">
+                            <p class="mb-0">{{ livre }}</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold d-block">Lotes Reservados</label>
+                        <a href="?situacao=RESERVADO"
+                           class="btn btn-warning text-center py-3 w-100 botao-quadra-reservada">
+                            <p class="mb-0">{{ reserva }}</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold d-block">Lotes Vendidos</label>
+                        <a href="?situacao=VENDIDO" class="btn btn-primary text-center py-3 w-100 botao-quadra-vendida">
+                            <p class="mb-0">{{ vendido }}</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold d-block">Outros Lotes</label>
+                        <a href="?situacao=OUTROS" class="btn btn-secondary text-center py-3 w-100">
+                            <p class="mb-0">{{ outros }}</p>
+                        </a>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold d-block">Total de Lotes</label>
+                        <a href="?situacao=TODOS" class="btn btn-dark text-center py-3 w-100">
+                            <p class="mb-0">{{ total }}</p>
+                        </a>
+                    </div>
+                </div>
+
             </div>
+
         </div>
 
         <!-- Quadras e Lotes -->
@@ -91,32 +106,34 @@
         </div>
 
         <!-- Paginação com manutenção dos filtros -->
-        {% with request.GET.urlencode as querystring %}
-            <ul class="pagination justify-content-center mt-4">
-                <li class="page-item">
-                    {% if quadras_info.has_previous %}
-                        <a class="btn btn-primary" href="?page={{ quadras_info.previous_page_number }}&{{ querystring }}">
-                            Voltar
-                        </a>
-                    {% endif %}
-                </li>
+        <ul class="pagination justify-content-center mt-4">
+            <li class="page-item">
+                {% if quadras_info.has_previous %}
+                    <a class="btn btn-primary"
+                       href="?page=
 
-                {% if quadras_info.paginator.num_pages %}
-                    <li class="page-item">
-                        <span class="page-link">
-                            {{ quadras_info.number }} de {{ quadras_info.paginator.num_pages }}
-                        </span>
-                    </li>
+                               {{ quadras_info.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}">
+                        Voltar
+                    </a>
                 {% endif %}
+            </li>
 
-                <li class="page-item">
-                    {% if quadras_info.has_next %}
-                        <a class="btn btn-primary" href="?page={{ quadras_info.next_page_number }}&{{ querystring }}">
-                            Avançar
-                        </a>
-                    {% endif %}
-                </li>
-            </ul>
-        {% endwith %}
+            <li class="page-item">
+        <span class="page-link">
+            Página {{ quadras_info.number }} de {{ quadras_info.paginator.num_pages }}
+        </span>
+            </li>
+
+            <li class="page-item">
+                {% if quadras_info.has_next %}
+                    <a class="btn btn-primary"
+                       href="?page=
+                               {{ quadras_info.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}">
+                        Avançar
+                    </a>
+                {% endif %}
+            </li>
+        </ul>
+
     </div>
 {% endblock %}

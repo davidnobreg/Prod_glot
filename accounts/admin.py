@@ -3,9 +3,6 @@ from .models import User
 from django.contrib.auth import admin as auth_admin
 from .forms import UserCreationForm, UserChangeForm
 
-
-# Register your models here.
-
 @admin.register(User)
 class UserAdmin(auth_admin.UserAdmin):
     form = UserChangeForm
@@ -15,5 +12,6 @@ class UserAdmin(auth_admin.UserAdmin):
         ('Novos campos', {'fields': ('tipo_usuario','creci','contato')}),
     )
     list_display = ['id', 'username', 'email', 'contato', 'tipo_usuario', 'is_active', 'is_superuser']
+
 
 

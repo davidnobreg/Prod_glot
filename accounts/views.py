@@ -1,10 +1,10 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.models import User
 from django.contrib import messages
 from django.urls import reverse
 
-from .models import User
+from .models import User, UsuarioEmpreendimento
+from empreendimentos.models import Empreendimento
 
 from .forms import UserCreationForm, UserChangeForm
 from django.contrib.auth import authenticate
@@ -140,3 +140,34 @@ def deleteUsuario(request, id):
     usuario.is_active = False
     usuario.save()
     return redirect('lista-usuario')
+
+@has_permission_decorator('criarUsuarioEmpreendimento')
+def criarUsuarioEmpreendimento(request):
+    get_user = request.GET.get('user')
+    get_empreendimento = request.GET.get('empreendimento')
+
+    # Buscar os objetos
+    usuario = User.objects.get(id=get_user)
+    empreendimento = Empreendimento.objects.get(id=get_empreendimento)
+
+    # Criar ou ativar o relacionamento
+    usuario_empreendimento, created = UsuarioEmpreendimento.objects.get_or_create(
+        usuario=usuario,
+        empreendimento=empreendimento,
+        defaults={'ativo': True}
+    )
+
+    if not created:
+        # Se já existe, reativa (caso tenha sido desativado)
+        usuario_empreendimento.ativo = True
+        usuario_empreendimento.save()
+
+    return redirect('detalhe-empreendimento', id=empreendimento.id)
+
+
+@has_permission_decorator('deleteUsuarioEmpreendimento')
+def deleteUsuarioEmpreendimento(request, id):
+    usuario = UsuarioEmpreendimento.objects.get(id=id)
+    usuario.ativo = False
+    usuario.save()
+    return redirect('detalhe-empreendimento', id=usuario.empreendimento.id)

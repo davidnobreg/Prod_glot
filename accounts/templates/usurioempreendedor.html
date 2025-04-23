@@ -1,14 +1,16 @@
 {% extends 'base.html' %}
 
+
 {% block title %}
-    Lista de Empreendimentos
+    Cadastro
 {% endblock %}
 
 {% load static %}
 
 {% block content %}
+    <h1>Teste usuario em preendedor</h1>
     <div class="container mt-4">
-        <h4 class="mt-4 text-center">LISTA DE EMPREENDIMENTOS</h4>
+        <h4 class="mt-4 text-center">CADASTRAR USUARIOS EM EMPREENDIMENTOS</h4>
         <hr>
 
         <!-- Filtros -->
@@ -52,6 +54,7 @@
                     <th scope="col">Outras Situações</th>
                     <th scope="col">Total de Lotes</th>
                     <th scope="col"></th>
+
                 </tr>
                 </thead>
 
@@ -59,13 +62,13 @@
                 {% for empreendimento in empreendimentos %}
                     <tr>
                         <td>{{ empreendimento.id }}</td>
-                        <td><a href="{% url 'detalhe-empreendimento' empreendimento.id %}" >{{ empreendimento.nome }}</a></td>
+                        <td>{{ empreendimento.nome }}</td>
                         <td>{{ empreendimento.tempo_reserva }}</td>
-                        <td>{{ empreendimento.livre }}</td>
-                        <td>{{ empreendimento.reservas }}</td>
-                        <td>{{ empreendimento.vendidos }}</td>
-                        <td>{{ empreendimento.outras }}</td>
-                        <td>{{ empreendimento.total }}</td>
+                        <td>{{ livre }}</td>
+                        <td>{{ reservas }}</td>
+                        <td>{{ vendidos }}</td>
+                        <td>{{ outras }}</td>
+                        <td>{{ total }}</td>
                         <td>
                             <a href="{% url 'arquivo' empreendimento.id %}" class="btn btn-success">Arquivo</a>
                             <a href="{% url 'alterar-empreendimento' empreendimento.id %}"
@@ -78,37 +81,13 @@
                                     data-bs-target="#empreendimentoModal">
                                 Excluir
                             </button>
+
                         </td>
                     </tr>
                 {% endfor %}
                 </tbody>
-            </table>
-        </div>
-    </div>
 
-    <!-- Modal ÚNICO de Deleção de Empreendimento -->
-    <div class="modal fade" id="empreendimentoModal" tabindex="-1" aria-labelledby="empreendimentoModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="form-deletar-empreendimento" method="post">
-                    {% csrf_token %}
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="empreendimentoModalLabel">Deletar Empreendimento</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" id="empreendimento-id" name="id">
-                        <p><strong>ID:</strong> <span id="empreendimento-id-display"></span></p>
-                        <p><strong>Nome:</strong> <span id="empreendimento-nome"></span></p>
-                        <p class="text-danger">Tem certeza que deseja excluir este empreendimento?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-danger">Deletar</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    </div>
-                </form>
-            </div>
+            </table>
         </div>
     </div>
 {% endblock %}

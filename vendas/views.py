@@ -139,6 +139,17 @@ def criarReservado(request, id):
     get_tempo = Empreendimento.objects.get(id=get_lote.quadra.empr_id)
     reserva_existente = RegisterVenda.objects.filter(lote=get_lote).first()
 
+    try:
+        area = float(get_lote.area)
+        valor_metro = float(get_lote.valor_metro_quadrado)
+        valor = area * valor_metro
+    except (TypeError, ValueError):
+        valor = 0
+
+    # Formatação para moeda brasileira
+    valor_formatado = f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+
     #print(f"Lote ID: {id}, Situação Inicial: {get_lote.situacao}")
 
     #  Libera automaticamente um lote travado em "EM_RESERVA" se não tiver reserva válida
@@ -181,7 +192,7 @@ def criarReservado(request, id):
             get_lote.situacao = "DISPONIVEL"
             get_lote.save()
 
-    context = {'form': form , 'lote': get_lote}
+    context = {'form': form , 'lote': get_lote, 'valor_formatado': valor_formatado}
     return render(request, 'reserva.html', context)
 @has_permission_decorator('criarVenda')
 def criarVenda(request, id):

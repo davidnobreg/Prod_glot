@@ -13,6 +13,7 @@ class Empreendimento(models.Model):
     id = models.BigAutoField(primary_key=True)
     nome = models.CharField(max_length=100)
     tempo_reserva = models.IntegerField(default=0)
+    quantidade_parcela = models.IntegerField(default=0)
     logo = models.ImageField(verbose_name='Logo',
         null=True, blank=True)
     is_ativo = models.BooleanField(default=False)

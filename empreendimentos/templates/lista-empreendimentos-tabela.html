@@ -46,6 +46,7 @@
                     <th scope="col">id</th>
                     <th scope="col">Nome</th>
                     <th scope="col">Dias de Reserva</th>
+                    <th scope="col">Quantidade de Parcelas</th>
                     <th scope="col">Lotes Disponível</th>
                     <th scope="col">Lotes Reservados</th>
                     <th scope="col">Lotes Vendidos</th>
@@ -61,6 +62,7 @@
                         <td>{{ empreendimento.id }}</td>
                         <td><a href="{% url 'detalhe-empreendimento' empreendimento.id %}" >{{ empreendimento.nome }}</a></td>
                         <td>{{ empreendimento.tempo_reserva }}</td>
+                        <td>{{ empreendimento.quantidade_parcela }}</td>
                         <td>{{ empreendimento.livre }}</td>
                         <td>{{ empreendimento.reservas }}</td>
                         <td>{{ empreendimento.vendidos }}</td>

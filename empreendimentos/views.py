@@ -41,7 +41,7 @@ def criarEmpreendimento(request):
         if form.is_valid():
             try:
                 empreendimento = form.save()
-                files = request.FILES.getlist('immobile')
+                files = request.FILES.getlist('Empreendimento')
 
                 imagens_criadas = []
                 erros = []
@@ -146,6 +146,7 @@ def listaEmpreendimentoTabela(request):
             'id': empreendimento.id,
             'nome': empreendimento.nome,
             'tempo_reserva': empreendimento.tempo_reserva,
+            'quantidade_parcela': empreendimento.quantidade_parcela,
             'total': total,
             'livre': livre,
             'reservas': reservas,

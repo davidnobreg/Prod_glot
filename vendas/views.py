@@ -149,7 +149,25 @@ def criarReservado(request, id):
     # Formatação para moeda brasileira
     valor_formatado = f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
+    # Pegando a quantidade de parcelas (ajuste o nome conforme seu modelo)
+    try:
+        total_parcelas = int(get_tempo.quantidade_parcela)
+    except (TypeError, ValueError, AttributeError):
+        total_parcelas = 0
 
+    # Cálculo do valor da parcela
+    if total_parcelas > 0:
+        valor_parcela = valor / total_parcelas
+    else:
+        valor_parcela = 0
+
+    # Formatação do valor da parcela
+    valor_parcela_formatado = f"R$ {valor_parcela:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+    # Exibir os valores formatados
+    #print(f"Valor total: {valor}")
+    #print(f"Valor total: {valor_formatado}")
+    #print(f"Valor da parcela: {valor_parcela_formatado}")
     #print(f"Lote ID: {id}, Situação Inicial: {get_lote.situacao}")
 
     #  Libera automaticamente um lote travado em "EM_RESERVA" se não tiver reserva válida
@@ -192,7 +210,11 @@ def criarReservado(request, id):
             get_lote.situacao = "DISPONIVEL"
             get_lote.save()
 
-    context = {'form': form , 'lote': get_lote, 'valor_formatado': valor_formatado}
+    context = { 'form': form ,
+                'lote': get_lote,
+                'valor_formatado': valor_formatado,
+                'valor_parcela_formatado': valor_parcela_formatado,
+                'total_parcelas':total_parcelas }
     return render(request, 'reserva.html', context)
 @has_permission_decorator('criarVenda')
 def criarVenda(request, id):

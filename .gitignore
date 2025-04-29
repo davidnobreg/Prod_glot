@@ -1,6 +1,6 @@
 # Byte-compiled / optimized / DLL files
 .idea/
-static/media/
+#static/media/
 media/
 #static/
 Pipfile

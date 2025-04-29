@@ -1,7 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Código para Clientes
-    const clienteModalDelete = document.getElementById('clienteModalDelete');
 
+    // -----------------------------
+    // Função para preencher modal de cliente
+    // -----------------------------
     function preencherModalCliente(clienteId, data) {
         if (!data || typeof data !== 'object') {
             console.error('Dados do cliente inválidos:', data);
@@ -15,6 +16,10 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('cliente-email').textContent = data.email || 'Email não encontrado';
     }
 
+    // -----------------------------
+    // Modal de Deleção de Cliente
+    // -----------------------------
+    const clienteModalDelete = document.getElementById('clienteModalDelete');
     if (clienteModalDelete) {
         clienteModalDelete.addEventListener('show.bs.modal', event => {
             const button = event.relatedTarget;
@@ -22,92 +27,70 @@ document.addEventListener("DOMContentLoaded", function () {
 
             fetch(`/clientes/select/${clienteId}/`)
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Erro na requisição: ${response.status}`);
-                    }
+                    if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
                     return response.json();
                 })
                 .then(data => preencherModalCliente(clienteId, data))
                 .catch(error => {
                     console.error('Erro ao buscar dados do cliente:', error);
-                    // Adicione aqui uma lógica para exibir uma mensagem de erro ao usuário
                 });
         });
 
         const btnDeletarCliente = document.getElementById("btn-deletar-cliente");
         if (btnDeletarCliente) {
-            btnDeletarCliente.addEventListener("click", function () {
-                let clienteId = document.getElementById("cliente-id").textContent;
-                window.location.href = `/clientes/delete_cliente/${clienteId}/`; // Redireciona para a URL de exclusão
+            btnDeletarCliente.addEventListener("click", () => {
+                const clienteId = document.getElementById("cliente-id").textContent;
+                window.location.href = `/clientes/delete_cliente/${clienteId}/`;
             });
         }
     } else {
-        console.error("Modal clienteModalDelete não encontrado.");
+        console.warn("Modal clienteModalDelete não encontrado.");
     }
 
-    // Código para Empreendimentos
-    const empreendimentoModal = document.getElementById('empreendimentoModal');
-
+    // -----------------------------
+    // Função para preencher modal de empreendimento
+    // -----------------------------
     function preencherModalEmpreendimento(empreendimentoId, data) {
         if (!data || typeof data !== 'object') {
             console.error('Dados do empreendimento inválidos:', data);
             return;
         }
 
-        document.getElementById('empreendimento-id').textContent = empreendimentoId;
+        document.getElementById('empreendimento-id').value = empreendimentoId;
+        document.getElementById('empreendimento-id-display').textContent = data.id;
         document.getElementById('empreendimento-nome').textContent = data.nome || 'Nome não encontrado';
     }
 
-    if (document.querySelectorAll(".btn-detalhes-empreendimento")) {
-        document.querySelectorAll(".btn-detalhes-empreendimento").forEach(button => {
-            button.addEventListener("click", function () {
-                const empreendimentoId = this.getAttribute("data-id");
-
-                fetch(`/empreendimentos/select/${empreendimentoId}/`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`Erro na requisição: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        preencherModalEmpreendimento(empreendimentoId, data);
-                        new bootstrap.Modal(empreendimentoModal).show();
-                    })
-                    .catch(error => {
-                        console.error("Erro ao buscar detalhes do empreendimento:", error);
-                        alert("Ocorreu um erro ao buscar os detalhes do empreendimento.");
-                    });
-            });
-        });
-    }
-
-    function adicionarListenerDeletarEmpreendimento() {
-        const btnDeletarEmpreendimento = document.getElementById("btn-deletar-empreendimento");
-
-        if (btnDeletarEmpreendimento) {
-            btnDeletarEmpreendimento.addEventListener("click", function () {
-                const empreendimentoId = document.getElementById("empreendimento-id").textContent;
-                window.location.href = `/empreendimentos/deleta_empreendimento/${empreendimentoId}/`;
-            });
-        } else {
-            console.error("Elemento btn-deletar-empreendimento não encontrado dentro do modal.");
-        }
-    }
-
-    // Garante que o listener seja adicionado após o modal ser exibido e o elemento estar no DOM
-    const observer = new MutationObserver(function (mutations) {
-        if (document.getElementById("btn-deletar-empreendimento")) {
-            adicionarListenerDeletarEmpreendimento();
-            observer.disconnect(); // Desconecta o observador após encontrar o elemento
-        }
-    });
+    // -----------------------------
+    // Modal de Deleção de Empreendimento
+    // -----------------------------
+    const empreendimentoModal = document.getElementById('empreendimentoModal');
+    const formDeletarEmpreendimento = document.getElementById("form-deletar-empreendimento");
 
     if (empreendimentoModal) {
-        empreendimentoModal.addEventListener('shown.bs.modal', function () {
-            observer.observe(empreendimentoModal, { childList: true, subtree: true });
+        empreendimentoModal.addEventListener('show.bs.modal', event => {
+            const button = event.relatedTarget;
+            const empreendimentoId = button.getAttribute('data-id');
+
+            fetch(`/empreendimentos/select/${empreendimentoId}/`)
+                .then(response => {
+                    if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    preencherModalEmpreendimento(empreendimentoId, data);
+
+                    if (formDeletarEmpreendimento) {
+                        formDeletarEmpreendimento.setAttribute("action", `/empreendimentos/deleta_empreendimento/${data.id}/`);
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro ao buscar detalhes do empreendimento:", error);
+                    alert("Erro ao buscar detalhes do empreendimento.");
+                });
         });
     } else {
-        //console.error("Modal empreendimentoModal não encontrado.");
+        console.warn("Modal empreendimentoModal não encontrado.");
     }
+
 });

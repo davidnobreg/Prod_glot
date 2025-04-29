@@ -160,7 +160,6 @@ def listaEmpreendimentoTabela(request):
     return render(request, 'lista-empreendimentos-tabela.html', context)
 
 
-
 """def listaQuadra(request, id):
     empreendimento = get_object_or_404(Empreendimento, id=id)
     situacao_filtro = request.GET.get('situacao')
@@ -238,6 +237,7 @@ def listaEmpreendimentoTabela(request):
     }
 
     return render(request, 'lista-quadras.html', context)"""
+
 
 @has_permission_decorator('listaQuadra')
 def listaQuadra(request, id):
@@ -320,7 +320,6 @@ def listaQuadra(request, id):
     }
 
     return render(request, 'lista-quadras.html', context)
-
 
 
 class importarDados(View):
@@ -406,22 +405,25 @@ def detalheEmpreendimento(request, id):
 
     return render(request, template_name, context)
 
+
 from collections import OrderedDict
 import math
+
 
 def relatorioFinanceiro(request, id):
     template_name = 'relatorio-financeiro.html'
 
     empreendimento = Empreendimento.objects.get(id=id)
 
-    lotes = Lote.objects.filter(quadra__empr_id=empreendimento.id)
+    lotes = Lote.objects.filter(quadra__empr_id=empreendimento.id).filter(Q(situacao='DISPONIVEL') | Q(situacao='RESERVADO') | Q(situacao='VENDIDO'))
+    lotes_disponiveis = Lote.objects.filter(quadra__empr_id=empreendimento.id).filter(Q(situacao='DISPONIVEL') | Q(situacao='RESERVADO')
+    )
+    lotes_vendidos = Lote.objects.filter(quadra__empr_id=id, situacao='VENDIDO')
 
     quantidade_lotes = Lote.objects.filter(quadra__empr_id=id).count()
-    quantidade_lotes_disponivel = Lote.objects.filter(quadra__empr_id=id, situacao='DISPONIVEL').count()
+    quantidade_lotes_disponivel = Lote.objects.filter(quadra__empr_id=id).filter(Q(situacao='DISPONIVEL') | Q(situacao='RESERVADO')).count()
     quantidade_lotes_vendidos = Lote.objects.filter(quadra__empr_id=id, situacao='VENDIDO').count()
-    quantidade_lotes_indisponivel = Lote.objects.filter(quadra__empr_id=id, situacao='INDISPONIVEL').count()
-    quantidade_lotes_construtora = Lote.objects.filter(quadra__empr_id=id, situacao='CONSTRUTORA').count()
-
+    quantidade_lotes_indisponivel = Lote.objects.filter(quadra__empr_id=id).filter(Q(situacao='CONSTRUTORA') | Q(situacao='INDISPONIVEL')).count()
 
 
     data_atual = timezone.now()
@@ -438,19 +440,56 @@ def relatorioFinanceiro(request, id):
 
         valor_total += valor_lote
 
-
-
-    parcelas_total = valor_total/empreendimento.quantidade_parcela
+    parcelas_total = valor_total / empreendimento.quantidade_parcela
 
     # Formatar o valor total para moeda brasileira
     valor_total_formatado = f"R$ {valor_total:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
     parcelas_total_formatado = f"R$ {parcelas_total:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
-    print(parcelas_total_formatado)
+    valor_total_disponivel = 0
+
+    for lote in lotes_disponiveis:
+        try:
+            area = float(lote.area)
+            valor_metro = float(lote.valor_metro_quadrado)
+            valor_lote = area * valor_metro
+        except (TypeError, ValueError, AttributeError):
+            valor_lote = 0
+
+        valor_total_disponivel += valor_lote
+
+    parcelas_total_disponivel = valor_total_disponivel / empreendimento.quantidade_parcela
+
+    valor_total_disponivel_formatado = f"R$ {valor_total_disponivel:,.2f}".replace(",", "X").replace(".", ",").replace(
+        "X", ".")
+
+    parcelas_total_disponivel_formatado = f"R$ {parcelas_total_disponivel :,.2f}".replace(",", "X").replace(".",
+                                                                                                            ",").replace(
+        "X", ".")
+
+    valor_total_vendidos = 0
+
+    for lote in lotes_vendidos:
+        try:
+            area = float(lote.area)
+            valor_metro = float(lote.valor_metro_quadrado)
+            valor_lote = area * valor_metro
+        except (TypeError, ValueError, AttributeError):
+            valor_lote = 0
+
+        valor_total_vendidos += valor_lote
+
+    parcelas_total_vendidos = valor_total_vendidos / empreendimento.quantidade_parcela
+
+    valor_total_vendidos_formatado = f"R$ {valor_total_vendidos:,.2f}".replace(",", "X").replace(".", ",").replace(
+        "X", ".")
+
+    parcelas_total_vendidos_formatado = f"R$ {parcelas_total_vendidos :,.2f}".replace(",", "X").replace(".",
+                                                                                                            ",").replace(
+        "X", ".")
 
     # Exemplo de retorno ou envio para o template
-
 
     context = {
         'data_atual': data_atual,
@@ -459,10 +498,14 @@ def relatorioFinanceiro(request, id):
         'quantidade_lotes_disponivel': quantidade_lotes_disponivel,
         'quantidade_lotes_vendidos': quantidade_lotes_vendidos,
         'quantidade_lotes_indisponivel': quantidade_lotes_indisponivel,
-        'quantidade_lotes_construtora': quantidade_lotes_construtora,
         'valor_total_formatado': valor_total_formatado,
         'parcelas_total_formatado': parcelas_total_formatado,
+        'valor_total_disponivel_formatado': valor_total_disponivel_formatado,
+        'parcelas_total_disponivel_formatado': parcelas_total_disponivel_formatado,
+        'valor_total_vendidos_formatado': valor_total_vendidos_formatado,
+        'parcelas_total_vendidos_formatado': parcelas_total_vendidos_formatado
 
-        }
+
+    }
 
     return render(request, template_name, context)

@@ -55,7 +55,7 @@ class Lote(models.Model):
     area = models.CharField('ÁREA', max_length=50)
     situacao = models.CharField(max_length=100, choices=TypeLote.choices)
     tempo_reservado = models.TimeField(default=timezone.now)
-    quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE, related_name='quadra')
+    quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE, related_name='lotes')
     valor_metro_quadrado = models.CharField('Valor Metro Quadrado', max_length=50, default=00.00)
 
     def save(self, *args, **kwargs):

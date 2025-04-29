@@ -60,7 +60,8 @@
                 {% for empreendimento in empreendimentos %}
                     <tr>
                         <td>{{ empreendimento.id }}</td>
-                        <td><a href="{% url 'detalhe-empreendimento' empreendimento.id %}" >{{ empreendimento.nome }}</a></td>
+                        <td><a href="{% url 'detalhe-empreendimento' empreendimento.id %}">{{ empreendimento.nome }}</a>
+                        </td>
                         <td>{{ empreendimento.tempo_reserva }}</td>
                         <td>{{ empreendimento.quantidade_parcela }}</td>
                         <td>{{ empreendimento.livre }}</td>
@@ -69,17 +70,36 @@
                         <td>{{ empreendimento.outras }}</td>
                         <td>{{ empreendimento.total }}</td>
                         <td>
-                            <a href="{% url 'arquivo' empreendimento.id %}" class="btn btn-success">Arquivo</a>
-                            <a href="{% url 'alterar-empreendimento' empreendimento.id %}"
-                               class="btn btn-warning">Alterar</a>
+                            <div class="row g-2">
+                                <div class="col-6 col-md-3">
+                                    <a href="{% url 'arquivo' empreendimento.id %}"
+                                       class="btn btn-success w-100 h-auto text-wrap text-center">
+                                        <i class="bi bi-box-arrow-in-up"></i>
+                                    </a>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <a href="{% url 'relatorio-financeiro' empreendimento.id %}"
+                                       class="btn btn-primary w-100 h-auto text-wrap text-center">
+                                        <i class="bi bi-bar-chart"></i>
+                                    </a>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <a href="{% url 'alterar-empreendimento' empreendimento.id %}"
+                                       class="btn btn-warning w-100 h-auto text-wrap text-center">
+                                        <i class="bi bi-clipboard-check"></i>
+                                    </a>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <button class="btn btn-danger w-100 h-auto text-wrap text-center btn-detalhes-empreendimento"
+                                            name="empreendimento"
+                                            data-id="{{ empreendimento.id }}"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#empreendimentoModal">
+                                        <i class="fas fa-window-close"></i>
+                                    </button>
+                                </div>
+                            </div>
 
-                            <button class="btn btn-danger btn-detalhes-empreendimento"
-                                    name="empreendimento"
-                                    data-id="{{ empreendimento.id }}"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#empreendimentoModal">
-                                Excluir
-                            </button>
                         </td>
                     </tr>
                 {% endfor %}

@@ -11,44 +11,46 @@
         <!-- Filtros -->
         <div class="row g-3 align-items-center bg-light p-2 rounded shadow mb-4">
             <div class="col-md-12">
-
                 <div class="row g-3"> <!-- espaçamento aplicado aqui -->
                     <div class="col-md-2">
                         <label class="form-label fw-bold d-block">Lotes Livres</label>
-                        <a href="?situacao=DISPONIVEL" class="btn btn-success text-center py-3 w-100">
+                        <a href="?situacao=DISPONIVEL" class="btn btn-success text-center py-3 w-100"
+                           aria-label="Exibir lotes disponíveis">
                             <p class="mb-0">{{ livre }}</p>
                         </a>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label fw-bold d-block">Lotes Reservados</label>
                         <a href="?situacao=RESERVADO"
-                           class="btn btn-warning text-center py-3 w-100 botao-quadra-reservada">
+                           class="btn btn-warning text-center py-3 w-100 botao-quadra-reservada"
+                           aria-label="Exibir lotes reservados">
                             <p class="mb-0">{{ reserva }}</p>
                         </a>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label fw-bold d-block">Lotes Vendidos</label>
-                        <a href="?situacao=VENDIDO" class="btn btn-primary text-center py-3 w-100 botao-quadra-vendida">
+                        <a href="?situacao=VENDIDO" class="btn btn-primary text-center py-3 w-100 botao-quadra-vendida"
+                           aria-label="Exibir lotes vendidos">
                             <p class="mb-0">{{ vendido }}</p>
                         </a>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label fw-bold d-block">Outros Lotes</label>
-                        <a href="?situacao=OUTROS" class="btn btn-secondary text-center py-3 w-100">
+                        <a href="?situacao=OUTROS" class="btn btn-secondary text-center py-3 w-100"
+                           aria-label="Exibir outros lotes">
                             <p class="mb-0">{{ outros }}</p>
                         </a>
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label fw-bold d-block">Total de Lotes</label>
-                        <a href="?situacao=TODOS" class="btn btn-dark text-center py-3 w-100">
+                        <a href="?situacao=TODOS" class="btn btn-dark text-center py-3 w-100"
+                           aria-label="Exibir todos os lotes">
                             <p class="mb-0">{{ total }}</p>
                         </a>
                     </div>
                 </div>
-
             </div>
-
         </div>
 
         <!-- Quadras e Lotes -->
@@ -64,35 +66,41 @@
                         <div class="card-body d-flex flex-wrap gap-2 justify-content-center">
                             {% for lote_info in quadra_info.lotes %}
                                 {% if lote_info.situacao == 'DISPONIVEL' %}
-                                    <a href="{% url 'reserva-create' lote_info.lote.id %}">
+                                    <a href="{% url 'reserva-create' lote_info.lote.id %}"
+                                       aria-label="Reservar lote {{ lote_info.lote.lote }}">
                                         <button type="button" class="btn btn-success">
                                             {{ lote_info.lote.lote }}
                                         </button>
                                     </a>
                                 {% elif lote_info.situacao == 'EM_RESERVA' %}
-                                    <button type="button" class="btn btn-dark">
+                                    <button type="button" class="btn btn-dark"
+                                            aria-label="Lote em reserva {{ lote_info.lote.lote }}">
                                         {{ lote_info.lote.lote }}
                                     </button>
                                 {% elif lote_info.situacao == 'RESERVADO' %}
-                                    <a href="{% url 'reservadoDetalhes' lote_info.lote.id %}">
+                                    <a href="{% url 'reservadoDetalhes' lote_info.lote.id %}"
+                                       aria-label="Ver detalhes do lote reservado {{ lote_info.lote.lote }}">
                                         <button type="button" class="btn btn-warning botao-quadra-reservada">
                                             {{ lote_info.lote.lote }}
                                         </button>
                                     </a>
                                 {% elif lote_info.situacao == 'VENDIDO' %}
-                                    <a href="{% url 'reservado' lote_info.lote.id %}">
+                                    <a href="{% url 'reservado' lote_info.lote.id %}"
+                                       aria-label="Ver detalhes do lote vendido {{ lote_info.lote.lote }}">
                                         <button type="button" class="btn btn-primary botao-quadra-vendida">
                                             {{ lote_info.lote.lote }}
                                         </button>
                                     </a>
                                 {% elif lote_info.situacao == 'CONSTRUTORA' %}
-                                    <a href="{% url 'reservado' lote_info.lote.id %}">
+                                    <a href="{% url 'reservado' lote_info.lote.id %}"
+                                       aria-label="Lote da construtora {{ lote_info.lote.lote }}">
                                         <button type="button" class="btn btn-info">
                                             {{ lote_info.lote.lote }}
                                         </button>
                                     </a>
                                 {% elif lote_info.situacao == 'INDISPONIVEL' %}
-                                    <a href="{% url 'reservado' lote_info.lote.id %}">
+                                    <a href="{% url 'reservado' lote_info.lote.id %}"
+                                       aria-label="Lote indisponível {{ lote_info.lote.lote }}">
                                         <button type="button" class="btn btn-secondary">
                                             {{ lote_info.lote.lote }}
                                         </button>
@@ -105,30 +113,28 @@
             {% endfor %}
         </div>
 
-        <!-- Paginação com manutenção dos filtros -->
         <ul class="pagination justify-content-center mt-4">
             <li class="page-item">
                 {% if quadras_info.has_previous %}
-                    <a class="btn btn-primary"
-                       href="?page=
-
-                               {{ quadras_info.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}">
+                    <a class="btn btn-primary" href="?page=
+                            {{ quadras_info.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}"
+                       aria-label="Página anterior">
                         Voltar
                     </a>
                 {% endif %}
             </li>
 
             <li class="page-item">
-        <span class="page-link">
-            Página {{ quadras_info.number }} de {{ quadras_info.paginator.num_pages }}
-        </span>
+                <span class="page-link">
+                    Página {{ quadras_info.number }} de {{ quadras_info.paginator.num_pages }}
+                </span>
             </li>
 
             <li class="page-item">
                 {% if quadras_info.has_next %}
                     <a class="btn btn-primary"
-                       href="?page=
-                               {{ quadras_info.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}">
+                       href="?page={{ quadras_info.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}"
+                       aria-label="Próxima página">
                         Avançar
                     </a>
                 {% endif %}

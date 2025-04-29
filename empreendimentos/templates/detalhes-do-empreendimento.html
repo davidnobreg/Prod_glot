@@ -99,31 +99,33 @@
                         </div>
                         <hr/>
                         <div class="row">
-                            <table class="table table-striped text-center">
-                                <thead>
-                                <tr>
-                                    <th scope="col">Nome</th>
-                                    <th scope="col">Usuario ou E-mail</th>
-                                    <th scope="col">Contato</th>
-                                    <th scope="col"></th>
-                                </tr>
-                                </thead>
-                                <tbody class="featurette-heading fw-normal lh-1">
-                                {% for corretore in corretores %}
+                            <div class="table-responsive">
+                                <table class="table table-striped text-center table-group-divider table-responsive md-4">
+                                    <thead>
                                     <tr>
-                                        <td>{{ corretore.usuario.first_name }}</td>
-                                        <td>{{ corretore.usuario.email }}</td>
-                                        <td>{{ corretore.usuario.contato }}</td>
-                                        <td>
-                                            <a class="btn btn-danger"
-                                               href="{% url 'delete-usuario-empreendimento' corretore.id %}">
-                                                <i class="fas fa-window-close" aria-hidden="true"></i>
-                                            </a>
-                                        </td>
+                                        <th scope="col">Nome</th>
+                                        <th scope="col">Usuario ou E-mail</th>
+                                        <th scope="col">Contato</th>
+                                        <th scope="col"></th>
                                     </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody class="featurette-heading fw-normal lh-1">
+                                    {% for corretore in corretores %}
+                                        <tr>
+                                            <td>{{ corretore.usuario.first_name }}</td>
+                                            <td>{{ corretore.usuario.email }}</td>
+                                            <td>{{ corretore.usuario.contato }}</td>
+                                            <td>
+                                                <a class="btn btn-danger"
+                                                   href="{% url 'delete-usuario-empreendimento' corretore.id %}">
+                                                    <i class="fas fa-window-close" aria-hidden="true"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                             <hr/>
                             <a href="{% url 'lista-empreendimento-tabela' %}"
                                class="btn mx-auto btn-primary w-50 mt-2">

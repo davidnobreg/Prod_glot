@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import criarEmpreendimento, listaEmpreendimento, listaEmpreendimentoTabela, listaQuadra, \
-    deleteEmpreendimento, alteraEmpreendimento, selectEmpreendimento,detalheEmpreendimento, \
+    deleteEmpreendimento, alteraEmpreendimento, selectEmpreendimento, detalheEmpreendimento, relatorioFinanceiro, \
     importarDados
 
 urlpatterns = [
@@ -20,6 +20,7 @@ urlpatterns = [
     path('listar_empreendimento/', listaEmpreendimentoTabela, name='lista-empreendimento-tabela'),
 
     path('listar_quadras/<int:id>/', listaQuadra, name='listar-quadras'),
-    path('detalhe_empreendimento/<int:id>/', detalheEmpreendimento, name='detalhe-empreendimento')
+    path('detalhe_empreendimento/<int:id>/', detalheEmpreendimento, name='detalhe-empreendimento'),
+    path('relatorio_financeiro/<int:id>/', relatorioFinanceiro, name='relatorio-financeiro')
 
 ]

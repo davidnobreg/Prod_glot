@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Detalhe do Empreendimento
+{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container py-5">
+        <div class="card shadow p-4">
+
+            {% if empreendimento.logo %}
+                <div class="text-center mb-4">
+                    <img src="{{ empreendimento.logo.url }}" alt="{{ empreendimento.nome }}" class="img-fluid"
+                         style="max-height: 150px;">
+                </div>
+            {% endif %}
+
+            <h1 class="text-center text-success">RESUMO DE VENDAS E FINANCEIRO</h1>
+            <h2 class="text-center mb-4">{{ empreendimento.nome }}</h2>
+            <p class="text-center">CNPJ: {{ empreendimento.cnpj }}</p>
+            <p class="text-center">Endereço: {{ empreendimento.endereco }}</p>
+            <p class="text-center">Telefone: {{ empreendimento.telefone }}</p>
+            <p class="text-center">Data: {{ data_atual|date:"d/m/Y" }}</p>
+
+            <hr>
+            <div class="row mb-3">
+                <div class="col-md-6 d-flex align-items-center">
+                    <h5 class="mb-0 me-2">Quantidade de Lotes a Venda:</h5>
+                    <span>{{ quantidade_lotes }}</span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12 d-flex align-items-center">
+                    <h5 class="mb-0 me-2">Quantidade de Lotes Vendidos:</h5>
+                    <p class="mb-0">{{ quantidade_lotes_vendidos }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12 d-flex align-items-center">
+                    <h5 class="mb-0 me-2">Valor Geral de Recebimentos por Mês (VGM):</h5>
+                    <p class="mb-0">R$ {{ parcelas_por_mes }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12 d-flex align-items-center">
+                    <h5 class="mb-0 me-2">Valor Geral de Recebimentos de Lotes Vendidos (VGV):</h5>
+                    <p class="mb-0">R$ {{ empreendimento.vgv|floatformat:2 }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12 d-flex align-items-center">
+                    <h5 class="mb-0 me-2">Quantidade de Lotes Disponíveis:</h5>
+                    <p class="mb-0">{{ quantidade_lotes_disponivel }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12 d-flex align-items-center">
+                    <h5 class="mb-0 me-2">Quantidade de Lotes Retirados pela Construtora:</h5>
+                    <p class="mb-0">{{ quantidade_lotes_construtora }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12 d-flex align-items-center">
+                    <h5 class="mb-0 me-2">Quantidade de Lotes Indisponíveis:</h5>
+                    <p class="mb-0">{{ quantidade_lotes_indisponivel }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12 d-flex align-items-center">
+                    <h5 class="mb-0 me-2">Valor Geral a Receber Mensal dos Lotes Disponíveis:</h5>
+                    <p class="mb-0"> {{ parcelas_total_formatado }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12 d-flex align-items-center">
+                    <h5 class="mb-0 me-2">Valor Geral a Vender:</h5>
+                    <p class="mb-0"> {{ valor_total_formatado }}</p>
+                </div>
+            </div>
+
+
+            <hr>
+
+            <div class="card-footer bg-white border-0 text-center">
+                <img src="{% static 'images/rodape_relatorio.png' %}" class="img-fluid rounded shadow" alt="Rodapé">
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

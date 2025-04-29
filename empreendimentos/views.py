@@ -13,7 +13,7 @@ from rolepermissions.decorators import has_permission_decorator
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views import View
 
-from clientes.forms import ClienteForm
+from django.utils import timezone
 from .forms import EmpreendimentoForm, ArquivoForm
 from .models import Empreendimento, Quadra, Lote
 from accounts.models import User, UsuarioEmpreendimento
@@ -160,41 +160,25 @@ def listaEmpreendimentoTabela(request):
     return render(request, 'lista-empreendimentos-tabela.html', context)
 
 
-"""def listaEmpreendimentoTabela(request):
-    total = Lote.objects.all().count()
-    livre = Lote.objects.filter(situacao='DISPONIVEL').count()
-    outras = Lote.objects.filter(
-        Q(situacao='EM_RESERVA') |
-        Q(situacao='CONSTRUTORA') |
-        Q(situacao='INDISPONIVEL')).count()
 
-    reservas = Lote.objects.filter(situacao='RESERVADO').count()
-    vendidos = Lote.objects.filter(situacao='VENDIDO').count()
-
-    empreendimentos = Empreendimento.objects.filter(is_ativo=False)
-
-    get_empreendimento = request.GET.get('empreendimento')
-
-    if get_empreendimento:
-        empreendimentos = Empreendimento.objects.filter(nome=get_empreendimento)
-
-    context = {
-        'empreendimentos': empreendimentos,
-        'total': total,
-        'livre': livre,
-        'outras': outras,
-        'reservas': reservas,
-        'vendidos': vendidos,
-    }
-    return render(request, 'lista-empreendimentos-tabela.html', context)"""
-
-
-@has_permission_decorator('listaQuadra')
-def listaQuadra(request, id):
+"""def listaQuadra(request, id):
     empreendimento = get_object_or_404(Empreendimento, id=id)
     situacao_filtro = request.GET.get('situacao')
 
+    # Filtra as quadras do empreendimento
     quadras = Quadra.objects.filter(empr=empreendimento).order_by('id')
+
+    # Aplica o filtro de situação se houver
+    if situacao_filtro and situacao_filtro != 'TODOS':
+        if situacao_filtro == 'OUTROS':
+            quadras = quadras.filter(
+                Q(situacao='CONSTRUTORA') |
+                Q(situacao='EM_RESERVA') |
+                Q(situacao='INDISPONIVEL')
+            )
+        else:
+            quadras = quadras.filter(situacao=situacao_filtro)
+
     quadras_info_list = []
 
     for quadra in quadras:
@@ -206,20 +190,6 @@ def listaQuadra(request, id):
             Q(situacao='EM_RESERVA') |
             Q(situacao='INDISPONIVEL')
         ).count()
-
-        # Aplica o filtro de situação se houver
-        if situacao_filtro and situacao_filtro != 'TODOS':
-            if situacao_filtro == 'OUTROS':
-                lotes = lotes.filter(
-                    Q(situacao='CONSTRUTORA') |
-                    Q(situacao='EM_RESERVA') |
-                    Q(situacao='INDISPONIVEL')
-                )
-            else:
-                lotes = lotes.filter(situacao=situacao_filtro)
-
-        if not lotes.exists():
-            continue  # pula quadras sem lotes na situação filtrada
 
         lotes_info = [
             {'lote': lote, 'situacao': lote.situacao} for lote in lotes
@@ -262,12 +232,95 @@ def listaQuadra(request, id):
             Q(situacao='CONSTRUTORA') |
             Q(situacao='EM_RESERVA') |
             Q(situacao='INDISPONIVEL')
-            ).count(),
+        ).count(),
         'situacao_filtro': situacao_filtro,
         'querystring': urlencode(querydict)
     }
 
+    return render(request, 'lista-quadras.html', context)"""
+
+@has_permission_decorator('listaQuadra')
+def listaQuadra(request, id):
+    empreendimento = get_object_or_404(Empreendimento, id=id)
+    situacao_filtro = request.GET.get('situacao')
+
+    # Inicializa a consulta de quadras
+    quadras = Quadra.objects.filter(empr=empreendimento).order_by('id')
+
+    quadras_info_list = []
+
+    for quadra in quadras:
+        # Filtra os lotes diretamente aqui, com base na situação, se existir
+        lotes = quadra.lotes.all()
+
+        if situacao_filtro and situacao_filtro != 'TODOS':
+            if situacao_filtro == 'OUTROS':
+                lotes = lotes.filter(
+                    Q(situacao='CONSTRUTORA') |
+                    Q(situacao='EM_RESERVA') |
+                    Q(situacao='INDISPONIVEL')
+                )
+            else:
+                lotes = lotes.filter(situacao=situacao_filtro)
+
+        # Se não houver lotes após o filtro, pula para a próxima quadra
+        if not lotes.exists():
+            continue
+
+        total_livres = lotes.filter(situacao="DISPONIVEL").count()
+        total_vendidos = lotes.filter(situacao="VENDIDO").count()
+        outros = lotes.filter(
+            Q(situacao='CONSTRUTORA') |
+            Q(situacao='EM_RESERVA') |
+            Q(situacao='INDISPONIVEL')
+        ).count()
+
+        lotes_info = [{'lote': lote, 'situacao': lote.situacao} for lote in lotes]
+
+        quadras_info_list.append({
+            'quadra': quadra,
+            'total_livres': total_livres,
+            'total_vendidos': total_vendidos,
+            'lotes': lotes_info,
+            'outros': outros
+        })
+
+    # Paginação
+    paginator = Paginator(quadras_info_list, 12)
+    page = request.GET.get('page')
+
+    try:
+        quadras_info_page = paginator.page(page)
+    except PageNotAnInteger:
+        quadras_info_page = paginator.page(1)
+    except EmptyPage:
+        quadras_info_page = paginator.page(paginator.num_pages)
+
+    # Estatísticas gerais
+    all_lotes = Lote.objects.filter(quadra__empr=empreendimento)
+
+    querydict = request.GET.copy()  # Torna o QueryDict mutável
+
+    if 'page' in querydict:
+        querydict.pop('page')  # Remove o parâmetro 'page'
+
+    context = {
+        'quadras_info': quadras_info_page,
+        'empreendimento': empreendimento,
+        'total': all_lotes.count(),
+        'livre': all_lotes.filter(situacao='DISPONIVEL').count(),
+        'reserva': all_lotes.filter(situacao='EM_RESERVA').count(),
+        'vendido': all_lotes.filter(situacao='VENDIDO').count(),
+        'outros': all_lotes.filter(
+            Q(situacao='CONSTRUTORA') |
+            Q(situacao='INDISPONIVEL')
+        ).count(),
+        'situacao_filtro': situacao_filtro,
+        'querystring': querydict.urlencode()
+    }
+
     return render(request, 'lista-quadras.html', context)
+
 
 
 class importarDados(View):
@@ -285,7 +338,8 @@ class importarDados(View):
             arquivo = request.FILES['arquivo']
 
             # Lê o Excel a partir da terceira linha (pulando as duas primeiras)
-            df = pd.read_excel(arquivo, skiprows=1, names=["quadra", "lote", "area", "valor_metro_quadrado", "situacao"])
+            df = pd.read_excel(arquivo, skiprows=1,
+                               names=["quadra", "lote", "area", "valor_metro_quadrado", "situacao"])
 
             # Remover linhas vazias
             df = df.dropna(subset=["quadra", "lote", "area", "valor_metro_quadrado"])
@@ -349,5 +403,66 @@ def detalheEmpreendimento(request, id):
         'vendido': vendido,
         'outros': outros
     }
+
+    return render(request, template_name, context)
+
+from collections import OrderedDict
+import math
+
+def relatorioFinanceiro(request, id):
+    template_name = 'relatorio-financeiro.html'
+
+    empreendimento = Empreendimento.objects.get(id=id)
+
+    lotes = Lote.objects.filter(quadra__empr_id=empreendimento.id)
+
+    quantidade_lotes = Lote.objects.filter(quadra__empr_id=id).count()
+    quantidade_lotes_disponivel = Lote.objects.filter(quadra__empr_id=id, situacao='DISPONIVEL').count()
+    quantidade_lotes_vendidos = Lote.objects.filter(quadra__empr_id=id, situacao='VENDIDO').count()
+    quantidade_lotes_indisponivel = Lote.objects.filter(quadra__empr_id=id, situacao='INDISPONIVEL').count()
+    quantidade_lotes_construtora = Lote.objects.filter(quadra__empr_id=id, situacao='CONSTRUTORA').count()
+
+
+
+    data_atual = timezone.now()
+
+    valor_total = 0
+
+    for lote in lotes:
+        try:
+            area = float(lote.area)
+            valor_metro = float(lote.valor_metro_quadrado)
+            valor_lote = area * valor_metro
+        except (TypeError, ValueError, AttributeError):
+            valor_lote = 0
+
+        valor_total += valor_lote
+
+
+
+    parcelas_total = valor_total/empreendimento.quantidade_parcela
+
+    # Formatar o valor total para moeda brasileira
+    valor_total_formatado = f"R$ {valor_total:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+    parcelas_total_formatado = f"R$ {parcelas_total:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+    print(parcelas_total_formatado)
+
+    # Exemplo de retorno ou envio para o template
+
+
+    context = {
+        'data_atual': data_atual,
+        'empreendimento': empreendimento,
+        'quantidade_lotes': quantidade_lotes,
+        'quantidade_lotes_disponivel': quantidade_lotes_disponivel,
+        'quantidade_lotes_vendidos': quantidade_lotes_vendidos,
+        'quantidade_lotes_indisponivel': quantidade_lotes_indisponivel,
+        'quantidade_lotes_construtora': quantidade_lotes_construtora,
+        'valor_total_formatado': valor_total_formatado,
+        'parcelas_total_formatado': parcelas_total_formatado,
+
+        }
 
     return render(request, template_name, context)

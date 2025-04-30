@@ -21,7 +21,7 @@ def liberar_lotes_reservados_expirados():
     total_processados = 0
 
     for venda in vendas_reservadas:
-        breakpoint()  # <- Vai abrir o modo interativo
+        #breakpoint()  # <- Vai abrir o modo interativo
         try:
             lote = venda.lote
             prazo_reserva = lote.quadra.empr.tempo_reserva

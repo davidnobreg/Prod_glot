@@ -234,7 +234,7 @@ def renovaReserva(request, id):
     get_venda = RegisterVenda.objects.get(id=id)
     get_tempo = Empreendimento.objects.get(id=get_venda.lote.quadra.empr_id)
 
-    get_venda.dt_reserva = datetime.now() + timedelta(days=get_tempo.tempo_reseva)
+    get_venda.dt_reserva = datetime.now() + timedelta(days=get_tempo.tempo_reserva)
 
     get_venda.save()
     messages.success(request, "Reserva renovada com sucesso!")

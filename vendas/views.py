@@ -20,43 +20,55 @@ def reservado(request, id):
     context = {'reservas': reservas}
     return render(request, 'reservado.html', context)
 
+
 @has_permission_decorator('reservadoDetalhe')
 def reservadoDetalhe(request, id):
     reservas = RegisterVenda.objects.filter(lote_id=id).first()
     context = {'reservas': reservas}
     return render(request, 'reservado_detalhe.html', context)
 
+
 @has_permission_decorator('relatorioReserva')
 def listaReserva(request):
-    reservas = RegisterVenda.objects.filter(tipo_venda='RESERVADO', is_ativo='False')
+    empreendimentos = Empreendimento.objects.filter(is_ativo=False).order_by('id')
+    reservas = RegisterVenda.objects.filter(tipo_venda='RESERVADO', is_ativo=False)
 
+    get_id_empreendimento = request.GET.get('tipo_empreendimento')
     get_localiza = request.GET.get('reserva')
-
     get_tipo_venda = request.GET.get('tipo_venda')
-
     get_data_reserva = request.GET.get('reserva')
-
     get_data_venda = request.GET.get('venda')
 
-    if get_localiza:  ## Filtra por nome, documento ou email do cliente
-        reservas = RegisterVenda.objects.filter(
+    if get_id_empreendimento:
+        reservas = reservas.filter(lote__quadra__empr__id=int(get_id_empreendimento))
+
+    if get_localiza:
+        reservas = reservas.filter(
             Q(cliente__name__icontains=get_localiza) |
             Q(lote__quadra__empr__nome__icontains=get_localiza) |
-            Q(user__username__icontains=get_localiza))
+            Q(user__username__icontains=get_localiza)
+        )
 
-    if get_data_reserva:  ## Por data
-        reservas = RegisterVenda.objects.filter(
-            dt_reserva__icontains=get_data_reserva)
+    if get_data_reserva:
+        try:
+            data = datetime.strptime(get_data_reserva, "%Y-%m-%d").date()
+            reservas = reservas.filter(dt_reserva=data)
+        except ValueError:
+            pass  # Ignora caso a data esteja mal formatada
 
-    if get_data_venda:  ## Por data
-        reservas = RegisterVenda.objects.filter(
-            dt_venda__icontains=get_data_venda)
+    if get_data_venda:
+        try:
+            data = datetime.strptime(get_data_venda, "%Y-%m-%d").date()
+            reservas = reservas.filter(dt_venda=data)
+        except ValueError:
+            pass
 
     if get_tipo_venda:
-        reservas = RegisterVenda.objects.filter(tipo_venda=get_tipo_venda)
+        reservas = reservas.filter(tipo_venda=get_tipo_venda)
 
-    context = {'reservas': reservas}
+    context = {'reservas': reservas, 'empreendimentos': empreendimentos}
     return render(request, 'lista_reserva.html', context)
+
 
 
 @has_permission_decorator('relatorioVenda')
@@ -165,27 +177,28 @@ def criarReservado(request, id):
     valor_parcela_formatado = f"R$ {valor_parcela:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
     # Exibir os valores formatados
-    #print(f"Valor total: {valor}")
-    #print(f"Valor total: {valor_formatado}")
-    #print(f"Valor da parcela: {valor_parcela_formatado}")
-    #print(f"Lote ID: {id}, Situação Inicial: {get_lote.situacao}")
+    # print(f"Valor total: {valor}")
+    # print(f"Valor total: {valor_formatado}")
+    # print(f"Valor da parcela: {valor_parcela_formatado}")
+    # print(f"Lote ID: {id}, Situação Inicial: {get_lote.situacao}")
 
     #  Libera automaticamente um lote travado em "EM_RESERVA" se não tiver reserva válida
     if get_lote.situacao == "EM_RESERVA" and not reserva_existente:
         get_lote.situacao = "DISPONIVEL"
         get_lote.save()
-        #print("Liberando lote bloqueado sem reserva válida.")
+        # print("Liberando lote bloqueado sem reserva válida.")
 
     if request.method == 'GET':
         if not reserva_existente:
             get_lote.situacao = "EM_RESERVA"
             get_lote.tempo_reservado = timezone.now().time()
             get_lote.save()
-            #print("Lote definido como EM_RESERVA.")
-        form = RegisterVendaForm() #inicializa form caso não seja post.
+            # print("Lote definido como EM_RESERVA.")
+        form = RegisterVendaForm()  # inicializa form caso não seja post.
 
     if request.method == 'POST':
-        form = RegisterVendaForm(request.POST, instance=reserva_existente) if reserva_existente else RegisterVendaForm(request.POST)
+        form = RegisterVendaForm(request.POST, instance=reserva_existente) if reserva_existente else RegisterVendaForm(
+            request.POST)
 
         if form.is_valid():
             cliente = form.cleaned_data.get('cliente')
@@ -210,12 +223,14 @@ def criarReservado(request, id):
             get_lote.situacao = "DISPONIVEL"
             get_lote.save()
 
-    context = { 'form': form ,
-                'lote': get_lote,
-                'valor_formatado': valor_formatado,
-                'valor_parcela_formatado': valor_parcela_formatado,
-                'total_parcelas':total_parcelas }
+    context = {'form': form,
+               'lote': get_lote,
+               'valor_formatado': valor_formatado,
+               'valor_parcela_formatado': valor_parcela_formatado,
+               'total_parcelas': total_parcelas}
     return render(request, 'reserva.html', context)
+
+
 @has_permission_decorator('criarVenda')
 def criarVenda(request, id):
     venda = RegisterVenda.objects.get(id=id)

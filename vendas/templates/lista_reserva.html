@@ -14,7 +14,7 @@
         <!-- Filtros -->
         <div class="row g-3 align-items-center bg-light p-2 rounded shadow mb-4">
             <!-- Pesquisar pelo empreendimento -->
-            <div class="col-md-5">
+            <div class="col-md-3">
                 <label for="reservaSearch" class="form-label">Nome do Cliente ou Corretor</label>
                 <form class="d-flex" action="{% url 'lista-reserva' %}">
                     <input name="reserva" id="reservaSearch" type="search" class="form-control me-2"
@@ -28,6 +28,21 @@
 
             <!-- Filtro de tipo-->
             <div class="col-md-3">
+                <label for="typeFilter" class="form-label">Empreendimento</label>
+                <form action="">
+                    <select name="tipo_empreendimento" id="typeFilter" class="form-select" onchange="this.form.submit()">
+                        <option value="">Status</option>
+                    {% for empreendimento in empreendimentos %}
+                        <option value={{ empreendimento.id }} {% if request.tipo_empreendimento == '{{ empreendimento.id }}' %}selected{% endif %}>
+                            {{ empreendimento.nome }}
+                        </option>
+                    {% endfor %}
+                    </select>
+                </form>
+            </div>
+
+            <!-- Filtro de tipo-->
+            <div class="col-md-2">
                 <label for="typeFilter" class="form-label">RESERVAS OU VENDAS</label>
                 <form action="">
                     <select name="tipo_venda" id="typeFilter" class="form-select" onchange="this.form.submit()">
@@ -45,7 +60,7 @@
                 </form>
             </div>
 
-            <!-- Filtro de data -->
+            <!-- Filtro de data
             <div class="col-md-3 text-center ">
                 <label class="form-label">Datas reserva</label>
 
@@ -60,7 +75,7 @@
             </div>
 
 
-            <!-- Filtro de data
+            Filtro de data
             <div class="col-md-3 text-center ">
                 <label class="form-label">Datas reserva</label>
                 <form class="d-flex align-items-center  justify-content-center gap-2" action="">

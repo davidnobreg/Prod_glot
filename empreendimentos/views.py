@@ -309,7 +309,7 @@ def listaQuadra(request, id):
         'empreendimento': empreendimento,
         'total': all_lotes.count(),
         'livre': all_lotes.filter(situacao='DISPONIVEL').count(),
-        'reserva': all_lotes.filter(situacao='EM_RESERVA').count(),
+        'reservado': all_lotes.filter(situacao='RESERVADO').count(),
         'vendido': all_lotes.filter(situacao='VENDIDO').count(),
         'outros': all_lotes.filter(
             Q(situacao='CONSTRUTORA') |

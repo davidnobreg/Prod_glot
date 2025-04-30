@@ -7,7 +7,7 @@
 {% load static %}
 
 {% block content %}
-    <div class="container py-5">
+    <div class="container py-5" id="conteudo">
         <div class="card shadow p-4">
 
             {% if empreendimento.logo %}
@@ -98,9 +98,12 @@
             <hr>
 
             <div class="card-footer bg-white border-0 text-center">
-                <img src="{% static 'images/rodape_relatorio.png' %}" class="img-fluid rounded shadow mb-0 me-2" alt="Rodapé">
+                <img src="{% static 'images/rodape_relatorio.png' %}" class="img-fluid rounded shadow mb-0 me-2"
+                     alt="Rodapé">
             </div>
-
+            <button id="btn-imprimir" onclick="window.print()">Imprimir Página</button>
         </div>
+        
     </div>
+
 {% endblock %}

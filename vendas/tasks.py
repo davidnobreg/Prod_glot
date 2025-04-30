@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 @shared_task
 def liberar_lotes_reservados_expirados():
+    breakpoint()  # <- Vai abrir o modo interativo
     """
     Libera lotes com reserva vencida, alterando os campos conforme necessário.
     Adicionado modo DEBUG para entender o motivo de não processar algum item.
@@ -20,6 +21,7 @@ def liberar_lotes_reservados_expirados():
     total_processados = 0
 
     for venda in vendas_reservadas:
+        breakpoint()  # <- Vai abrir o modo interativo
         try:
             lote = venda.lote
             prazo_reserva = lote.quadra.empr.tempo_reserva

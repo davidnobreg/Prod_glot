@@ -35,7 +35,7 @@ DEFAULT_APPS = [
 
 THIRD_APPS = [
     'rolepermissions',
-    #'django_crontab',
+    # 'django_crontab',
     # 'django_q',
     'django_celery_results',
     'django_celery_beat',
@@ -192,15 +192,13 @@ CELERY_BROKER_URL = os.getenv(
 )
 
 # Celery Configuration Options
-#CELERY_BROKER_URL = os.getenv('CELERY_BROKER', f'amqp://{config('RABBITMQ_USER')}:{config('RABBITMQ_PASSWD')}@{config('RABBITMQ_HOST')}:{config('RABBITMQ_PORT')}/')
-CELERY_RESULT_BACKEND = 'django-db' #os.getenv('CELERY_BACKEND', 'rpc://')
+# CELERY_BROKER_URL = os.getenv('CELERY_BROKER', f'amqp://{config('RABBITMQ_USER')}:{config('RABBITMQ_PASSWD')}@{config('RABBITMQ_HOST')}:{config('RABBITMQ_PORT')}/')
+CELERY_RESULT_BACKEND = 'django-db'  # os.getenv('CELERY_BACKEND', 'rpc://')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'America/Sao_Paulo'
 CELERYBEAT_SCHEDULE_FILENAME = "/var/tmp/celerybeat-schedule"
-
-
 
 # pick which cache from the CACHES setting.
 CELERY_CACHE_BACKEND = 'default'
@@ -232,4 +230,16 @@ LOGGING = {
             'propagate': True,
         },
     },
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
 }
+

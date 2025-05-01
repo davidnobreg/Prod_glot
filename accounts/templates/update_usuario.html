@@ -12,7 +12,7 @@
             <hr/>
             <!-- Imagem -->
             <div class="col-lg-6">
-                <img src="{% static 'images/client.jpg' %}" class="img-fluid rounded shadow" alt="Cliente"/>
+                <img src="{% static 'images/carlos.jpg' %}" class="img-fluid rounded shadow" alt="Cliente"/>
             </div>
 
             <!-- Formulário -->
@@ -30,7 +30,7 @@
                         <div class="alert alert-danger" role="alert">Preencha o contato</div>
                     {% endif %}
                     <hr/>
-                    {{ form.as_p }}
+                    {{ form.as_ul }}
                     <hr/>
 
                     <button type="submit" class="btn btn-primary w-100 mt-3">Salvar</button>

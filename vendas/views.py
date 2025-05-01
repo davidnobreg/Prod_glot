@@ -73,27 +73,36 @@ def listaReserva(request):
 
 @has_permission_decorator('relatorioVenda')
 def listaVenda(request):
-    vendas = RegisterVenda.objects.filter(
-        Q(is_ativo__icontains='False') |
-        Q(tipo_venda__icontains='VENDIDO') |
-        Q(tipo_venda__icontains='CANCELADA'))
+    empreendimentos = Empreendimento.objects.filter(is_ativo=False).order_by('id')
+
+    # Filtro inicial sem "RESERVADO"
+    vendas = RegisterVenda.objects.exclude(tipo_venda='RESERVADO').filter(
+        Q(is_ativo=False) |
+        Q(tipo_venda__in=['VENDIDO', 'CANCELADA'])
+    )
 
     get_data_venda = request.GET.get('venda')
     get_tipo_venda = request.GET.get('tipo_venda')
+    get_id_empreendimento = request.GET.get('tipo_empreendimento')
 
-    if get_data_venda:  ## Filtra por nome, documento ou email do cliente
-        vendas = RegisterVenda.objects.filter(
-            Q(is_ativo__icontains='False') |
+    if get_id_empreendimento:
+        vendas = vendas.filter(lote__quadra__empr__id=int(get_id_empreendimento))
+
+    if get_data_venda:
+        vendas = vendas.filter(
             Q(cliente__name__icontains=get_data_venda) |
             Q(cliente__fone__icontains=get_data_venda) |
             Q(lote__quadra__empr__nome__icontains=get_data_venda) |
-            Q(user__username__icontains=get_data_venda))
+            Q(user__username__icontains=get_data_venda)
+        )
 
     if get_tipo_venda:
-        vendas = RegisterVenda.objects.filter(tipo_venda=get_tipo_venda)
+        # Garante que "RESERVADO" ainda será excluído mesmo se for selecionado por tipo
+        vendas = vendas.filter(tipo_venda=get_tipo_venda).exclude(tipo_venda='RESERVADO')
 
-    context = {'vendas': vendas}
+    context = {'vendas': vendas, 'empreendimentos': empreendimentos}
     return render(request, 'lista_venda.html', context)
+
 
 
 @has_permission_decorator('listaVendaRelatorio')

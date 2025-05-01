@@ -7,38 +7,40 @@
 {% load static %}
 
 {% block content %}
-    <div class="container-fluid">
+    <div class="container mt-4">
         <div class="row g-3 align-items-center bg-light p-2 rounded shadow mb-4">
             <h4 class="mt-4 text-center">LISTA DE CLIENTES</h4>
             <hr>
 
             <!-- Filtros -->
+            <div class="row g-3 align-items-center bg-light p-4 rounded shadow mb-4">
+                <div class="col-md-6">
+                    <a href="{% url 'criar-cliente' %}" class="btn btn-primary">
+                        Adicionar Cliente
+                    </a>
+                </div>
+                <!-- Pesquisar pelo cliente -->
+                <div class="col-md-5">
 
-            <div class="col-md-6">
-                <a href="{% url 'criar-cliente' %}" class="btn btn-primary">
-                    Adicionar Cliente
-                </a>
-            </div>
-            <!-- Pesquisar pelo cliente -->
-            <div class="col-md-5">
+                    <label for="clientSearch" class="form-label">Nome do Cliente, Cpf ou E-mail</label>
+                    <form class="d-flex" action="{% url 'lista-cliente' %}">
+                        <input name="client" id="clientSearch" type="search" class="form-control me-2"
+                               placeholder="Pesquisar cliente..." value="{{ request.GET.client }}">
+                        <button class="btn btn-success" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
 
-                <label for="clientSearch" class="form-label">Nome do Cliente, Cpf ou E-mail</label>
-                <form class="d-flex" action="{% url 'lista-cliente' %}">
-                    <input name="client" id="clientSearch" type="search" class="form-control me-2"
-                           placeholder="Pesquisar cliente..." value="{{ request.GET.client }}">
-                    <button class="btn btn-success" type="submit">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </form>
+                <!-- Resetar filtros -->
+                <div class="col-md-1">
+                    <label for="idReset" class="form-label">Resetar</label>
+                    <a class="btn btn-danger" href="{% url 'lista-cliente' %}">
+                        <i class="fas fa-window-close"></i>
+                    </a>
+                </div>
             </div>
-
-            <!-- Resetar filtros -->
-            <div class="col-md-1">
-                <label for="idReset" class="form-label">Resetar</label>
-                <a class="btn btn-danger" href="{% url 'lista-cliente' %}">
-                    <i class="fas fa-window-close"></i>
-                </a>
-            </div>
+            <hr>
             <div class="row col-md-12 g-3">
                 <div class="table-responsive">
                     <table class="table table-striped table-group-divider table-responsive md-4">
@@ -60,19 +62,28 @@
                                 <td>{{ cliente.email }}</td>
                                 <td>{{ cliente.fone }}</td>
                                 <td>
-
-                                    <a href="{% url 'altera-cliente' cliente.id %}" class="btn btn-warning">
-                                        Alterar
-                                    </a>
-
-                                    <button class="btn btn-danger btn-detalhes"
-                                            name="cliente"
-                                            data-cliente-id="{{ cliente.id }}"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#clienteModalDelete">
-                                        Excluir
-                                    </button>
-
+                                    <div class="row g-2">
+                                        <div class="col-6 col-md-3">
+                                            <a href="{% url 'altera-cliente' cliente.id %}"
+                                               class="btn btn-warning w-auto h-auto text-wrap text-center"
+                                               title="Editar Cliente" data-bs-toggle="tooltip"
+                                               aria-label="Editar Cliente">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                        <div class="col-3 col-md-3">
+                                            <button class="btn btn-danger w-auto h-auto text-wrap text-center btn-detalhes-empreendimento"
+                                                    name="cliente"
+                                                    data-cliente-id="{{ cliente.id }}"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#clienteModalDelete"
+                                                    data-bs-toggle="tooltip"
+                                                    title="Excluir Cliente"
+                                                    aria-label="Excluir Cliente">
+                                                <span> <i class="fas fa-window-close"></i></span>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         {% endfor %}

@@ -30,13 +30,14 @@
             <div class="col-md-3">
                 <label for="typeFilter" class="form-label">Empreendimento</label>
                 <form action="">
-                    <select name="tipo_empreendimento" id="typeFilter" class="form-select" onchange="this.form.submit()">
+                    <select name="tipo_empreendimento" id="typeFilter" class="form-select"
+                            onchange="this.form.submit()">
                         <option value="">Status</option>
-                    {% for empreendimento in empreendimentos %}
-                        <option value={{ empreendimento.id }} {% if request.tipo_empreendimento == '{{ empreendimento.id }}' %}selected{% endif %}>
-                            {{ empreendimento.nome }}
-                        </option>
-                    {% endfor %}
+                        {% for empreendimento in empreendimentos %}
+                            <option value={{ empreendimento.id }} {% if request.tipo_empreendimento == '{{ empreendimento.id }}' %}selected{% endif %}>
+                                {{ empreendimento.nome }}
+                            </option>
+                        {% endfor %}
                     </select>
                 </form>
             </div>
@@ -48,19 +49,16 @@
                     <select name="tipo_venda" id="typeFilter" class="form-select" onchange="this.form.submit()">
                         <option value="">Status</option>
                         <option value="RESERVADO" {% if request.GET.tipo_venda == 'RESERVADO' %}selected{% endif %}>
-                            Reservado
-                        </option>
-                        <option value="VENDIDO" {% if request.GET.tipo_venda == 'VENDIDO' %}selected{% endif %}>
-                            Vendido
+                            Reservados
                         </option>
                         <option value="CANCELADA" {% if request.GET.tipo_venda == 'CANCELADA' %}selected{% endif %}>
-                            Cancelada
+                            Reservas Canceladas
                         </option>
                     </select>
                 </form>
             </div>
 
-            <!-- Filtro de data
+            <!-- Filtro de datapython
             <div class="col-md-3 text-center ">
                 <label class="form-label">Datas reserva</label>
 
@@ -120,6 +118,7 @@
                         <th scope="col">Quadra</th>
                         <th scope="col">Lote</th>
                         <th scope="col">Corretor</th>
+                        <th scope="col">Status</th>
                         <th scope="col">Vencimento da Reserva</th>
 
                         <th scope="col">Comandos</th>
@@ -134,16 +133,37 @@
                             <td>{{ reserva.lote.quadra }}</td>
                             <td>{{ reserva.lote }}</td>
                             <td>{{ reserva.user }}</td>
+                            <td>{{ reserva.tipo_venda }}</td>
                             <td>{{ reserva.dt_reserva }}</td>
 
                             <td>
-                                <div class="d-grid gap-4 d-md-block btn-sm">
-                                    <a href="{% url 'renova-reserva' reserva.id %}" class="btn btn-warning">Renova
-                                        Reserva</a>
-                                    <a href="{% url 'criar-venda' reserva.id %}" class="btn btn-success">Confirmar
-                                        Venda</a>
-                                    <a href="{% url 'delete-reservado' reserva.id %}" class="btn btn-danger">Excluir
-                                        Reseva</a>
+                                <div class="row g-2">
+                                    <div class="col-6 col-md-3">
+                                        <a href="{% url 'renova-reserva' reserva.id %}"
+                                           class=" btn btn-warning w-auto h-auto text-wrap text-center"
+                                        title="Renova
+                                        Reserva" data-bs-toggle="tooltip"
+                                        aria-label="Renova
+                                        Reserva">
+                                        <i class="fa fa-refresh"></i>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <a href="{% url 'criar-venda' reserva.id %}"
+                                           class=" btn btn-success w-auto h-auto text-wrap text-center"
+                                        title="Confirmar Venda" data-bs-toggle="tooltip"
+                                        aria-label="Confirmar Venda">
+                                        <i class="fa fa-check"></i>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <a href="{% url 'delete-reservado' reserva.id %}"
+                                           class=" btn btn-danger w-auto h-auto text-wrap text-center"
+                                        title="Excluir Reserva" data-bs-toggle="tooltip"
+                                        aria-label="Excluir Reserva">
+                                        <i class="fas fa-window-close"></i>
+                                        </a>
+                                    </div>
                                 </div>
                             </td>
                         </tr>

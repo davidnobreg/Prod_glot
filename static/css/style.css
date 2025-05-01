@@ -103,19 +103,51 @@ body[data-bs-theme="dark"] {
     background-color: #db1e47;
 }
 
-.whatsapp-button {
-    display: flex;
-    align-items: center;
+@media print {
+    @page {
+        size: A4;
+        margin: 20mm;
+    }
+
+    body * {
+        visibility: hidden;
+    }
+
+    #conteudo, #conteudo * {
+        visibility: visible;
+    }
+
+    #conteudo {
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+
+    #btn-imprimir {
+        display: none;
+    }
+}
+
+#btn-imprimir {
+    margin-bottom: 20px;
     padding: 10px 20px;
-    background-color: #25D366;
+    background-color: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
-    font-size: 16px;
     cursor: pointer;
-    text-decoration: none;
 }
 
-.whatsapp-button i {
-    margin-right: 8px;
+#btn-imprimir:hover {
+    background-color: #0056b3;
+}
+
+.container .icon{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: relative; z-index: 2;
+    margin: 0 20px;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }

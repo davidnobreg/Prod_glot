@@ -111,7 +111,7 @@
                                                class="btn btn-danger w-auto h-auto text-wrap text-center"
                                                title="Excluir Usuario" data-bs-toggle="tooltip"
                                                aria-label="Excluir Usuario">
-                                            <i class="fas fa-window-close"></i>
+                                                <i class="fas fa-window-close"></i>
                                             </a>
                                         </div>
                                     </div>
@@ -120,6 +120,40 @@
                         {% endfor %}
                         </tbody>
                     </table>
+                    <div>
+                        <ul class="pagination justify-content-center mt-4">
+                            <li class="page-item">
+
+                                {% if page_obj.has_previous %}
+                                    <a class="btn btn-primary"
+                                      href="?page={{ page_obj.previous_page_number }}{% if request.GET.user %}&user={{ request.GET.user }}
+                                            {% endif %}{% if request.GET.tipo_user %}&tipo_user={{ request.GET.tipo_user }}{% endif %}"
+                                       aria-label="Página anterior">
+                                        Voltar
+                                    </a>
+                                {% endif %}
+                            </li>
+
+                            <li class="page-item">
+                                 <span class="page-link">
+                                      Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                                 </span>
+                            </li>
+
+                            <li class="page-item">
+                                {% if page_obj.has_next %}
+                                    <a class="btn btn-primary"
+                                       href="?page=
+                                               {{ page_obj.next_page_number }}{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}
+                                                {% if request.GET.tipo_user %}&tipo_user={{ request.GET.tipo_user }}{% endif %}"
+                                       aria-label="Próxima página">
+                                        Avançar
+                                    </a>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </div>
+
                 </div>
             </div>
         </div>

@@ -10,6 +10,7 @@ from .forms import UserCreationForm, UserChangeForm
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as login_django
 from django.db.models import Q
+from django.core.paginator import Paginator
 from rolepermissions.decorators import has_permission_decorator
 
 
@@ -42,7 +43,7 @@ def logout(request):
 
 @has_permission_decorator('listarUsuario')
 def listarUsuario(request):
-    usuarios = User.objects.filter(is_active=True)#.order_by('last_name')
+    usuarios = User.objects.filter(is_active=True)
 
     # Mapeamento dos tipos de usuário
     tipo_usuario_map = {
@@ -52,26 +53,32 @@ def listarUsuario(request):
     }
 
     get_user = request.GET.get('user')
-
     get_tipo_user = request.GET.get('tipo_user')
 
-    if get_user:  ## Filtra por nome, documento ou email do cliente
-        usuarios = User.objects.filter(
-            Q(is_active__icontains=True) |
+    if get_user:
+        usuarios = usuarios.filter(
             Q(username__icontains=get_user) |
             Q(phone__icontains=get_user) |
-            Q(email__icontains=get_user))
+            Q(email__icontains=get_user)
+        )
 
     if get_tipo_user:
-        usuarios = User.objects.filter(
-            Q(is_active__icontains=True) |
-            Q(tipo_usuario__icontains=get_tipo_user))
+        usuarios = usuarios.filter(tipo_usuario__icontains=get_tipo_user)
 
-        # Passando o mapeamento para o template
-        for usuario in usuarios:
-            usuario.tipo_usuario_display = tipo_usuario_map.get(usuario.tipo_usuario, usuario.tipo_usuario)
+    # Adicionando o display para tipo_usuario
+    for usuario in usuarios:
+        usuario.tipo_usuario_display = tipo_usuario_map.get(usuario.tipo_usuario, usuario.tipo_usuario)
 
-    context = {'usuarios': usuarios}
+    # Paginação
+    paginator = Paginator(usuarios, 10)  # 10 usuários por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'usuarios': page_obj.object_list,
+    }
+
     return render(request, 'lista_usuarios.html', context)
 
 

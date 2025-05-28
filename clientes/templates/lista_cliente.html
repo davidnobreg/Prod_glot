@@ -89,6 +89,35 @@
                         {% endfor %}
                         </tbody>
                     </table>
+                    <div>
+                        <ul class="pagination justify-content-center mt-4">
+                            <li class="page-item">
+                                {% if page_obj.has_previous %}
+                                    <a class="btn btn-primary"
+                                       href="?page={{ page_obj.previous_page_number }}&client={{ request.GET.client }}"
+                                       aria-label="Página anterior">
+                                        Voltar
+                                    </a>
+                                {% endif %}
+                            </li>
+
+                            <li class="page-item">
+                                 <span class="page-link">
+                                      Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                                 </span>
+                            </li>
+
+                            <li class="page-item">
+                                {% if page_obj.has_next %}
+                                    <a class="btn btn-primary"
+                                      href="?page={{ page_obj.next_page_number }}&client={{ request.GET.client }}"
+                                       aria-label="Próxima página">
+                                        Avançar
+                                    </a>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>

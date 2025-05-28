@@ -7,7 +7,7 @@ from .forms import ClienteForm, ClienteModalForm
 from vendas.forms import RegisterVendaForm
 
 from .models import Cliente
-from empreendimentos.models import Lote
+from django.core.paginator import Paginator
 from django.db.models import Q
 from rolepermissions.decorators import has_permission_decorator
 
@@ -26,6 +26,7 @@ def selectCliente(request, cliente_id):
 
     return JsonResponse(data)
 
+
 @has_permission_decorator('criarCliente')
 def criarCliente(request):
     if request.method == 'POST':
@@ -40,21 +41,17 @@ def criarCliente(request):
 
 @has_permission_decorator('criarClienteModal')
 def criarClienteModal(request):
-
     if request.method == "POST":
         form = ClienteModalForm(request.POST)  # Usa o formulário para validação
 
         if form.is_valid():
             form.save()  # Salva um novo cliente
             messages.success(request, "Cliente Cadastrado com sucesso!")
-            return redirect('/vendas/insert_reserva/' + request.POST.get('lote_id') + '/')  # Este nome deve bater com "name" no urls.py
-
+            return redirect('/vendas/insert_reserva/' + request.POST.get(
+                'lote_id') + '/')  # Este nome deve bater com "name" no urls.py
 
     form = ClienteForm()
     return redirect('/vendas/insert_reserva/' + request.POST.get('lote_id') + '/')
-
-
-
 
 
 @has_permission_decorator('alterarCliente')
@@ -80,7 +77,6 @@ def alteraCliente(request, cliente_id):
     return redirect('lista-cliente')  # redireciona para a lista de clientes, caso o metodo não seja get nem post
 
 
-
 ## Relatório
 
 @has_permission_decorator('relatorioCliente')
@@ -89,16 +85,25 @@ def listaCliente(request):
 
     get_client = request.GET.get('client')
 
-    if get_client:  ## Filtra por nome, documento ou email do cliente
-        clientes = Cliente.objects.filter(
-            #Q(is_ativo__icontains='False') |
+    if get_client:
+        clientes = clientes.filter(  # mantém filtro original e ordenação
             Q(name__icontains=get_client) |
             Q(documento__icontains=get_client) |
             Q(fone__icontains=get_client) |
-            Q(email__icontains=get_client))
+            Q(email__icontains=get_client)
+        )
 
-    context = {'clientes': clientes}
+    paginator = Paginator(clientes, 10)  # 10 clientes por página (ajuste conforme quiser)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'clientes': page_obj.object_list,  # só os da página atual
+    }
+
     return render(request, 'lista_cliente.html', context)
+
 
 @has_permission_decorator('relatorioClienteRelatorio')
 def listaClienteRelatorio(request):
@@ -108,13 +113,20 @@ def listaClienteRelatorio(request):
 
     if get_client:  ## Filtra por nome, documento ou email do cliente
         clientes = Cliente.objects.filter(
-            #Q(is_ativo__icontains='False') |
+            # Q(is_ativo__icontains='False') |
             Q(name__icontains=get_client) |
             Q(documento__icontains=get_client) |
             Q(fone__icontains=get_client) |
             Q(email__icontains=get_client))
 
-    context = {'clientes': clientes}
+    # Paginação
+
+    paginator = Paginator(clientes, 1)  # 10 usuários por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {'clientes': clientes,
+               'page_obj': page_obj}
     return render(request, 'lista_cliente_relatorio.html', context)
 
 

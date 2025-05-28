@@ -16,7 +16,7 @@ from empreendimentos.models import Lote, Empreendimento
 
 @has_permission_decorator('reservado')
 def reservado(request, id):
-    reservas = RegisterVenda.objects.filter(lote_id=id).first()
+    reservas = RegisterVenda.objects.filter(lote=id).first()
     context = {'reservas': reservas}
     return render(request, 'reservado.html', context)
 
@@ -70,7 +70,6 @@ def listaReserva(request):
     return render(request, 'lista_reserva.html', context)
 
 
-
 @has_permission_decorator('relatorioVenda')
 def listaVenda(request):
     empreendimentos = Empreendimento.objects.filter(is_ativo=False).order_by('id')
@@ -104,7 +103,6 @@ def listaVenda(request):
     return render(request, 'lista_venda.html', context)
 
 
-
 @has_permission_decorator('listaVendaRelatorio')
 def listaVendaRelatorio(request):
     vendas = RegisterVenda.objects.filter(
@@ -135,7 +133,7 @@ def cancelarReservadoCadastro(request, id):
     get_lote = get_object_or_404(Lote, id=id)
 
     if request.method == 'GET':
-        get_lote.situacao = "DISPONIVEL"
+        get_lote.situacao = "PRE-RESERVA"
         get_lote.save()
         messages.success(request, "Resevado cancelada!")
     return redirect('lista-empreendimento')
@@ -149,7 +147,7 @@ def cancelarReservado(request, id):
         get_venda.lote.situacao = "DISPONIVEL"
         get_venda.tipo_venda = "CANCELADA"
         get_venda.lote.save()
-        messages.success(request, "Resevado cancelada!")
+        messages.error(request, "Pre-Resevado Cancelada!")
     return redirect('lista-empreendimento')
 
 
@@ -193,7 +191,7 @@ def criarReservado(request, id):
 
     #  Libera automaticamente um lote travado em "EM_RESERVA" se não tiver reserva válida
     if get_lote.situacao == "EM_RESERVA" and not reserva_existente:
-        get_lote.situacao = "DISPONIVEL"
+        get_lote.situacao = "PRE-RESERVA"
         get_lote.save()
         # print("Liberando lote bloqueado sem reserva válida.")
 
@@ -225,11 +223,11 @@ def criarReservado(request, id):
 
             get_lote.situacao = "RESERVADO"
             get_lote.save()
-            messages.success(request, "Lote reservado com sucesso!")
-            return redirect('lista-empreendimento')
+            messages.success(request, "Reservado com sucesso!")
+            return redirect('listar-quadras', id=get_lote.quadra.empr_id)
         else:
             messages.error(request, "Erro ao registrar reserva.")
-            get_lote.situacao = "DISPONIVEL"
+            get_lote.situacao = "PRE-RESERVA"
             get_lote.save()
 
     context = {'form': form,
@@ -249,8 +247,8 @@ def criarVenda(request, id):
     lote.situacao = 'VENDIDO'
     lote.save()
     venda.save()
-    messages.success(request, "Venda criada com sucesso!")
-    return redirect('lista-reserva')
+    messages.success(request, "Venda realizada com sucesso!")
+    return redirect('listar-quadras', id=lote.quadra.empr_id)
 
 
 @has_permission_decorator('renovarReserva')
@@ -262,7 +260,7 @@ def renovaReserva(request, id):
 
     get_venda.save()
     messages.success(request, "Reserva renovada com sucesso!")
-    return redirect('lista-reserva')
+    return redirect('listar-quadras', id=get_venda.lote.quadra.empr_id)
 
 
 @has_permission_decorator('cancelarReservado')
@@ -274,13 +272,13 @@ def deleteReseva(request, id):
     venda.is_ativo = False
     venda.tipo_venda = 'CANCELADA'
     venda.save()
-    messages.success(request, "Reserva deletada com sucesso!")
-    return redirect('lista-reserva')
+    messages.error(request, "Reserva Cancelada com sucesso!")
+    return redirect('listar-quadras', id=loteSituação.quadra.empr_id)
 
 
 @has_permission_decorator('cancelarVenda')
 def deleteVenda(request, id):
-    venda = RegisterVenda.objects.get(id=id)
+    venda = RegisterVenda.objects.get(lote=id)
     loteSituação = Lote.objects.get(id=venda.lote.id)
     loteSituação.situacao = 'DISPONIVEL'
     venda.tipo_venda = 'CANCELADA'
@@ -288,4 +286,5 @@ def deleteVenda(request, id):
     loteSituação.save()
     venda.save()
     messages.success(request, "Venda deletada com sucesso!")
-    return redirect('lista-venda')
+    return redirect('listar-quadras', id=venda.lote.quadra.empr_id)
+    #return redirect('lista-venda')

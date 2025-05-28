@@ -1,5 +1,5 @@
 from django import forms
-from .models import Empreendimento
+from .models import Empreendimento, Lote
 
 # Doc: https://docs.djangoproject.com/en/5.1/topics/http/file-uploads/
 
@@ -38,4 +38,21 @@ class EmpreendimentoForm(forms.ModelForm):
     
 ## Formulario para cadastro atraves de arquivo
 class ArquivoForm(forms.Form):
-    arquivo = forms.FileField(label="Arquivo", required=True)            
+    arquivo = forms.FileField(label="Arquivo", required=True)
+
+## Formulario para cadastro de reserva temporario
+class LoteForm(forms.ModelForm):
+    class Meta:
+        model = Lote
+        fields = ('cliente_reserva','telefone')
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Aplicando classes para controle geral
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({'class': 'form-control mb-3'})
+
+        # Aplicando classes específicas para os campos com máscaras
+        self.fields['telefone'].widget.attrs.update({'class': 'form-control mb-3 mask-phone'})

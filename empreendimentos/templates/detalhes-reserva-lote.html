@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Detalhe de Venda
+    Cadastrar Reserva
 {% endblock %}
 
 {% load static %}
@@ -12,17 +12,17 @@
             <div class="col-lg-8">
                 <div class="card shadow-lg">
                     <div class="card-header text-white text-center" style="background-color: rgb(3, 107, 145);">
-                        <h3 class="mb-0 display-5 ">Detalhes da Venda</h3> <!-- Fonte grande e proporcional -->
+                        <h3 class="mb-0 display-5 ">Detalhes da Pre-Reserva</h3> <!-- Fonte grande e proporcional -->
                     </div>
                     <div class="card-body">
                         <!-- Informações do Empreendimento e Quadra -->
                         <div class="row mb-4 d-flex align-items-center justify-content-center text-center"
                              style="min-height: 200px;">
                             <div class="col-md-6 d-flex justify-content-center align-items-center">
-                                {% if reservas.lote.quadra.empr.logo %}
+                                {% if lote.quadra.empr.logo %}
                                     <div class="image-container">
-                                        <img src="{{ reservas.lote.quadra.empr.logo.url }}"
-                                             alt="Logo de {{ reservas.lote.quadra.empr }}"
+                                        <img src="{{ lote.quadra.empr.logo.url }}"
+                                             alt="Logo de {{ lote.quadra.empr }}"
                                              class="img-fluid"
                                              style="max-height: 150px;">
                                     </div>
@@ -30,7 +30,7 @@
                             </div>
                             <div class="col-md-6 d-flex flex-column justify-content-center align-items-center">
                                 <p class="fw-bold text-primary fs-4 mb-1">Empreendimento:</p>
-                                <p class="fs-5 mb-0">{{ reservas.lote.quadra.empr }}</p>
+                                <p class="fs-5 mb-0">{{ lote.quadra.empr.nome }}</p>
                             </div>
                         </div>
 
@@ -40,15 +40,15 @@
                         <div class="row mb-4 text-center">
                             <div class="col-md-4">
                                 <p class="fw-bold text-primary fs-4 mb-1">Quadra:</p>
-                                <p class="fs-5 mb-0">{{ reservas.lote.quadra.namequadra }}</p>
+                                <p class="fs-5 mb-0">{{ lote.quadra.namequadra }}</p>
                             </div>
                             <div class="col-md-4">
                                 <p class="fw-bold text-primary fs-4 mb-1">Lote:</p>
-                                <p class="fs-5 mb-0">{{ reservas.lote.lote }}</p>
+                                <p class="fs-5 mb-0">{{ lote.lote }}</p>
                             </div>
                             <div class="col-md-4">
                                 <p class="fw-bold text-primary fs-4 mb-1">Vencimento:</p>
-                                <p class="fs-5 mb-0">{{ reservas.lote.data_termina_reserva }}</p>
+                                <p class="fs-5 mb-0">{{ lote.data_termina_reserva }}</p>
                             </div>
                         </div>
 
@@ -58,48 +58,55 @@
                         <div class="row text-center">
                             <div class="col-md-6">
                                 <p class="fw-bold text-primary fs-4 mb-1">Corretor:</p>
-                                <p class="fs-5 mb-0">{{ reservas.user.first_name }}</p>
+                                <p class="fs-5 mb-0">{{ lote.user }}</p>
                             </div>
                             <div class="col-md-6">
                                 <p class="fw-bold text-primary fs-4 mb-1">Contato:</p>
-                                <p class="fs-5 mb-0">{{ reservas.user.contato }}</p>
+                                <p class="fs-5 mb-0">{{ lote.telefone_user }}</p>
                             </div>
                         </div>
 
                         <hr class="my-4"/>
 
                         <div class="row text-center">
-                            <div class="col-md-4">
-                                <a href="{% url 'listar-quadras' reservas.lote.quadra.empr.id %}"
-                                   class="btn btn-primary text-center py-3 w-50"
+                            <div class="col-md-3">
+                                <a href="{% url 'listar-quadras' lote.quadra.empr_id %}"
+                                   class="btn btn-primary text-center text-black py-3 w-50"
                                    aria-label="Exibir todos os lotes">
-                                    <label class="form-label fw-bold d-block">Quadras</label>
-                                    <p class="mb-0">{{ total }}</p>
-                                </a>
-                            </div>
-                            <div class="col-md-4">
-                                <a href="{% url 'lista-venda' %}"
-                                   class="btn btn-warning text-center py-3 w-50"
-                                   aria-label="Exibir todos os lotes">
-                                    <label class="form-label fw-bold d-block">Listagem</label>
+                                    <label class="form-label fw-bold d-block">Voltar</label>
                                     <p class="mb-0">{{ total }}</p>
                                 </a>
                             </div>
                             {% if user.is_authenticated and user.tipo_usuario == "A" %}
-                                <div class="col-md-4">
-                                    <a href="{% url 'delete-venda' reservas.lote.id %}"
-                                       class="btn btn-danger text-center py-3 w-50"
+                                <div class="col-md-3">
+                                    <a href="{% url 'cancela-lote-pre-reserva' lote.id %}"
+                                       class="btn btn-danger text-center text-black py-3 w-50"
                                        aria-label="Exibir todos os lotes">
                                         <label class="form-label fw-bold d-block">Cancelar</label>
                                         <p class="mb-0">{{ total }}</p>
                                     </a>
                                 </div>
+                                <div class="col-md-3">
+                                    <a href="{% url 'renova-lote-pre-reserva' lote.id %}"
+                                       class="btn btn-warning text-center text-black py-3 w-50"
+                                       aria-label="Exibir todos os lotes">
+                                        <label class="form-label fw-bold d-block">Renovar</label>
+                                        <p class="mb-0">{{ total }}</p>
+                                    </a>
+                                </div>
                             {% endif %}
+                            <div class="col-md-3">
+                                <a href="{% url 'reserva-create' lote.id %}"
+                                   class="btn btn-success text-center text-black py-3 w-50"
+                                   aria-label="Exibir todos os lotes">
+                                    <label class="form-label fw-bold d-block">Reservar</label>
+                                    <p class="mb-0">{{ total }}</p>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
 {% endblock %}

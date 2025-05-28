@@ -11,7 +11,12 @@ class UserAdmin(auth_admin.UserAdmin):
     fieldsets = auth_admin.UserAdmin.fieldsets + (
         ('Novos campos', {'fields': ('tipo_usuario','creci','contato')}),
     )
-    list_display = ['id', 'username', 'email', 'contato', 'tipo_usuario', 'is_active', 'is_superuser']
+    list_display = ['id', 'username', 'email', 'contato', 'tipo_usuario', 'is_active', 'is_superuser', 'has_password']
+
+    def has_password(self, obj):
+        return obj.has_usable_password()
+    has_password.boolean = True
+    has_password.short_description = 'Senha utilizável?'
 
 
 

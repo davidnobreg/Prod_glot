@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.core.exceptions import ValidationError
 from django.views.decorators.http import require_POST
 from django.db.models import Q
-from django.utils.http import urlencode
+
 
 from rolepermissions.decorators import has_permission_decorator
 
@@ -14,7 +14,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views import View
 
 from django.utils import timezone
-from .forms import EmpreendimentoForm, ArquivoForm
+from datetime import datetime, timedelta
+from .forms import EmpreendimentoForm, ArquivoForm, LoteForm
 from .models import Empreendimento, Quadra, Lote
 from accounts.models import User, UsuarioEmpreendimento
 
@@ -309,6 +310,7 @@ def listaQuadra(request, id):
         'empreendimento': empreendimento,
         'total': all_lotes.count(),
         'livre': all_lotes.filter(situacao='DISPONIVEL').count(),
+        'prereserva': all_lotes.filter(situacao='PRE-RESERVA').count(),
         'reservado': all_lotes.filter(situacao='RESERVADO').count(),
         'vendido': all_lotes.filter(situacao='VENDIDO').count(),
         'outros': all_lotes.filter(
@@ -415,16 +417,19 @@ def relatorioFinanceiro(request, id):
 
     empreendimento = Empreendimento.objects.get(id=id)
 
-    lotes = Lote.objects.filter(quadra__empr_id=empreendimento.id).filter(Q(situacao='DISPONIVEL') | Q(situacao='RESERVADO') | Q(situacao='VENDIDO'))
-    lotes_disponiveis = Lote.objects.filter(quadra__empr_id=empreendimento.id).filter(Q(situacao='DISPONIVEL') | Q(situacao='RESERVADO')
-    )
+    lotes = Lote.objects.filter(quadra__empr_id=empreendimento.id).filter(
+        Q(situacao='DISPONIVEL') | Q(situacao='RESERVADO') | Q(situacao='VENDIDO'))
+    lotes_disponiveis = Lote.objects.filter(quadra__empr_id=empreendimento.id).filter(
+        Q(situacao='DISPONIVEL') | Q(situacao='RESERVADO')
+        )
     lotes_vendidos = Lote.objects.filter(quadra__empr_id=id, situacao='VENDIDO')
 
     quantidade_lotes = Lote.objects.filter(quadra__empr_id=id).count()
-    quantidade_lotes_disponivel = Lote.objects.filter(quadra__empr_id=id).filter(Q(situacao='DISPONIVEL') | Q(situacao='RESERVADO')).count()
+    quantidade_lotes_disponivel = Lote.objects.filter(quadra__empr_id=id).filter(
+        Q(situacao='DISPONIVEL') | Q(situacao='RESERVADO')).count()
     quantidade_lotes_vendidos = Lote.objects.filter(quadra__empr_id=id, situacao='VENDIDO').count()
-    quantidade_lotes_indisponivel = Lote.objects.filter(quadra__empr_id=id).filter(Q(situacao='CONSTRUTORA') | Q(situacao='INDISPONIVEL')).count()
-
+    quantidade_lotes_indisponivel = Lote.objects.filter(quadra__empr_id=id).filter(
+        Q(situacao='CONSTRUTORA') | Q(situacao='INDISPONIVEL')).count()
 
     data_atual = timezone.now()
 
@@ -486,7 +491,7 @@ def relatorioFinanceiro(request, id):
         "X", ".")
 
     parcelas_total_vendidos_formatado = f"R$ {parcelas_total_vendidos :,.2f}".replace(",", "X").replace(".",
-                                                                                                            ",").replace(
+                                                                                                        ",").replace(
         "X", ".")
 
     # Exemplo de retorno ou envio para o template
@@ -503,9 +508,122 @@ def relatorioFinanceiro(request, id):
         'valor_total_disponivel_formatado': valor_total_disponivel_formatado,
         'parcelas_total_disponivel_formatado': parcelas_total_disponivel_formatado,
         'valor_total_vendidos_formatado': valor_total_vendidos_formatado,
-        'parcelas_total_vendidos_formatado': parcelas_total_vendidos_formatado
-
-
+        'parcelas_total_vendidos_formatado': parcelas_total_vendidos_formatado,
     }
 
     return render(request, template_name, context)
+
+
+@has_permission_decorator('reservarLote')
+def alteraLote(request, id):
+    lote = get_object_or_404(Lote, id=id)
+    get_tempo = Empreendimento.objects.get(id=lote.quadra.empr_id)
+
+    #print(get_tempo.quantidade_parcela)
+
+    try:
+        area = float(lote.area)
+        valor_metro = float(lote.valor_metro_quadrado)
+        valor = area * valor_metro
+    except (TypeError, ValueError):
+        valor = 0
+
+    # Formatação para moeda brasileira
+    valor_formatado = f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+    # Pegando a quantidade de parcelas (ajuste o nome conforme seu modelo)
+    try:
+        total_parcelas = int(get_tempo.quantidade_parcela)
+    except (TypeError, ValueError, AttributeError):
+        total_parcelas = 0
+
+    # Cálculo do valor da parcela
+    if total_parcelas > 0:
+        valor_parcela = valor / total_parcelas
+    else:
+        valor_parcela = 0
+
+    # Formatação do valor da parcela
+    valor_parcela_formatado = f"R$ {valor_parcela:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+    # Caso especial: liberar lote se estiver em reserva mas sem lógica de uso (defensivo)
+    if lote.situacao == "EM_RESERVA" and not lote.user:
+        lote.situacao = "DISPONIVEL"
+        lote.save()
+        messages.error(request, "Pre-Reservado Cancelada!")
+        # print("Liberando lote bloqueado sem reserva válida.")
+
+    if request.method == 'GET':
+        # Ao acessar, define como EM_RESERVA
+        if lote.situacao == "DISPONIVEL":
+            lote.situacao = "EM_RESERVA"
+            lote.tempo_reservado = timezone.now().time()
+            lote.save()
+            #print("Lote definido como EM_RESERVA.")
+        form = LoteForm(instance=lote)
+        context = {'form': form,
+                   'lote': lote,
+                   'valor_formatado': valor_formatado,
+                   'valor_parcela_formatado': valor_parcela_formatado,
+                   'total_parcelas': total_parcelas}
+        return render(request, 'reserva-temporaria.html', context)
+
+    elif request.method == 'POST':
+        form = LoteForm(request.POST, request.FILES, instance=lote)
+        if form.is_valid():
+            lote = form.save(commit=False)
+            lote.situacao = 'PRE-RESERVA'
+            lote.data_termina_reserva = timezone.now() + timedelta(days=lote.quadra.empr.tempo_reserva)
+            lote.user = request.user.first_name
+            lote.telefone_user = request.user.contato
+            lote.save()
+            messages.success(request, "Pre-Reservado Salva Com Sucesso!")
+            return redirect('listar-quadras', id=lote.quadra.empr_id)
+            #print("Lote salvo como PRE-RESERVA.")
+        else:
+            context = {'form': form,
+                       'lote': lote,
+                       'valor_formatado': valor_formatado,
+                       'valor_parcela_formatado': valor_parcela_formatado,
+                       'total_parcelas': total_parcelas}
+            return render(request, 'reserva-temporaria.html', context)
+
+
+@has_permission_decorator('reservadoDetalheEmpreendimento')
+def reservadoDetalheEmpreendimento(request, id):
+    lote = Lote.objects.filter(id=id).first()
+
+    context = {'lote': lote}
+    return render(request, 'detalhes-reserva-lote.html', context)
+
+
+@has_permission_decorator('listaReservasTemporaria')
+def listaReservasTemporaria(request):
+    # Filtrando os Lotes que estão Reservados
+    lotes = Lote.objects.filter(situacao='PRE-RESERVA')
+
+    context = {'lotes': lotes, }
+
+    return render(request, 'relatorio_de_reservas_temporario.html', context)
+
+
+@has_permission_decorator('cancelarReservadoTemporaria')
+def cancelarReservadoTemporaria(request, id):
+    get_lote = get_object_or_404(Lote, id=id)
+
+    if request.method == 'GET':
+        get_lote.situacao = "DISPONIVEL"
+        get_lote.save()
+        messages.error(request, "Pre-Resevado Cancelada!")
+    return redirect('listar-quadras', id=get_lote.quadra.empr_id)
+
+
+@has_permission_decorator('renovarReservaTemporaria')
+def renovaReserva(request, id):
+    get_lote = Lote.objects.get(id=id)
+
+    get_lote.data_termina_reserva = datetime.now() + timedelta(days=get_lote.quadra.empr.tempo_reserva)
+
+    get_lote.save()
+    messages.success(request, "Reserva renovada com sucesso!")
+    return redirect('lista-pre-reserva')

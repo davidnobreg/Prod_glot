@@ -22,6 +22,14 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label fw-bold d-block">Lotes Reservados</label>
+                        <a href="?situacao=PRE-RESERVA"
+                           class="btn btn-warning text-center py-3 w-100"
+                           aria-label="Exibir lotes reservados">
+                            <p class="mb-0">{{ prereserva }}</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold d-block">Lotes Reservados</label>
                         <a href="?situacao=RESERVADO"
                            class="btn btn-warning text-center py-3 w-100 botao-quadra-reservada"
                            aria-label="Exibir lotes reservados">
@@ -42,8 +50,7 @@
                             <p class="mb-0">{{ outros }}</p>
                         </a>
                     </div>
-
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <label class="form-label fw-bold d-block">Total de Lotes</label>
                         <a href="?situacao=TODOS" class="btn btn-dark text-center py-3 w-100"
                            aria-label="Exibir todos os lotes">
@@ -67,7 +74,7 @@
                         <div class="card-body d-flex flex-wrap gap-2 justify-content-center">
                             {% for lote_info in quadra_info.lotes %}
                                 {% if lote_info.situacao == 'DISPONIVEL' %}
-                                    <a href="{% url 'reserva-create' lote_info.lote.id %}"
+                                    <a href="{% url 'alterar-lote' lote_info.lote.id %}"
                                        aria-label="Reservar lote {{ lote_info.lote.lote }}">
                                         <button type="button" class="btn btn-success">
                                             {{ lote_info.lote.lote }}
@@ -78,6 +85,13 @@
                                             aria-label="Lote em reserva {{ lote_info.lote.lote }}">
                                         {{ lote_info.lote.lote }}
                                     </button>
+                                {% elif lote_info.situacao == 'PRE-RESERVA' %}
+                                    <a href="{% url 'reservado-detalhes-pre-reserva-lote' lote_info.lote.id %}"
+                                       aria-label="Ver detalhes do lote reservado {{ lote_info.lote.lote }}">
+                                        <button type="button" class="btn btn-warning">
+                                            {{ lote_info.lote.lote }}
+                                        </button>
+                                    </a>
                                 {% elif lote_info.situacao == 'RESERVADO' %}
                                     <a href="{% url 'reservadoDetalhes' lote_info.lote.id %}"
                                        aria-label="Ver detalhes do lote reservado {{ lote_info.lote.lote }}">

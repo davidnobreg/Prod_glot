@@ -1,10 +1,6 @@
 from django.utils import timezone
-from datetime import timedelta
+from datetime import datetime, timedelta
 from django.db import models
-
-
-from django.contrib.auth.models import User
-
 
 
 ## Cadastro de empreendimento
@@ -44,7 +40,8 @@ class TypeLote(models.TextChoices):
     CONSTRUTORA = 'CONSTRUTORA','CONSTRUTORA',
     DISPONIVEL = 'DISPONIVEL','DISPONIVEL'
     EM_RESERVA = 'EM_RESERVA', 'EM_RESERVA'
-    INDISPONIVEL = 'INDISPONIVEL', 'INDISPONIVEL',
+    INDISPONIVEL = 'INDISPONIVEL', 'INDISPONIVEL'
+    PRE_RESERVA = 'PRE-RESERVA','PRE-RESERVA'
     RESERVADO = 'RESERVADO','RESERVADO'
     VENDIDO = 'VENDIDO','VENDIDO' 
     
@@ -57,6 +54,11 @@ class Lote(models.Model):
     tempo_reservado = models.TimeField(default=timezone.now)
     quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE, related_name='lotes')
     valor_metro_quadrado = models.CharField('Valor Metro Quadrado', max_length=50, default=00.00)
+    cliente_reserva = models.CharField(max_length=100, default=0)
+    telefone = models.CharField(max_length=15, default=0)
+    user = models.CharField(max_length=100, default=0)
+    telefone_user = models.CharField(max_length=15, default=0)
+    data_termina_reserva = models.DateField(default=datetime.now, blank=True)
 
     def save(self, *args, **kwargs):
         self.tempo_reservado = timezone.localtime(timezone.now()) + timedelta(minutes=1)

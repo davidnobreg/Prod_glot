@@ -89,7 +89,7 @@
                         <div class="row g-3">
                             {% if venda.tipo_venda == 'VENDIDO' %}
                                 <div class="col-3 col-md-3">
-                                    <a href="{% url 'reservado' venda.id %}"
+                                    <a href="{% url 'reservado' venda.lote.id %}"
                                        class="btn btn-primary w-auto h-auto text-wrap text-center"
                                        title="Detalhe Venda" data-bs-toggle="tooltip"
                                        aria-label="Detalhe Venda">
@@ -97,14 +97,14 @@
                                     </a>
                                 </div>
 
-                                <div class="col-3 col-md-3">
+                                <!--<div class="col-3 col-md-3">
                                     <a href="{% url 'delete-venda' venda.id %}"
                                        class="btn btn-danger w-auto h-auto text-wrap text-center"
                                        title="Excluir Venda" data-bs-toggle="tooltip"
                                        aria-label="Excluir Venda">
                                         <i class="fas fa-window-close"></i>
                                     </a>
-                                </div>
+                                </div>-->
                             {% endif %}
                         </div>
                     </td>

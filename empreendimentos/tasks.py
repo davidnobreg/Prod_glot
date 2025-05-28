@@ -4,6 +4,7 @@ import logging
 from celery import shared_task
 from django.utils import timezone
 from .models import Lote
+from django.db import transaction
 
 # Configuração de logging
 logger = logging.getLogger(__name__)
@@ -27,3 +28,34 @@ def liberar_lotes_reservados_expirados():
         logger.info(f"Lote {lote.id} alterado para DISPONIVEL após expiração.")
 
 
+
+@shared_task
+def liberar_lotes_expirados():
+    """
+    Atualiza lotes cuja data_termina_reserva já passou.
+    Altera apenas o campo 'situacao' do lote para 'DISPONIVEL' se estiver 'RESERVADO'.
+    """
+
+    # Filtra apenas os lotes com situação 'RESERVADO' e data_termina_reserva preenchida
+    lotes_reservados = Lote.objects.filter(situacao="PRE-RESERVA")#.exclude(data_termina_reserva=None)
+
+    print(lotes_reservados.id)
+
+    total_processados = 0
+    hoje = timezone.now().date()
+
+    for lote in lotes_reservados:
+        try:
+            if lote.data_termina_reserva <= hoje:
+                with transaction.atomic():
+                    lote.situacao = "DISPONIVEL"
+                    lote.save()
+                    total_processados += 1
+                    logger.info(f"[OK] Lote {lote.id} liberado (reserva expirada em {lote.data_termina_reserva}).")
+            else:
+                logger.debug(f"[IGNORADO] Lote {lote.id} ainda no prazo (termina em {lote.data_termina_reserva}).")
+        except Exception as e:
+            logger.error(f"[ERRO] Lote {lote.id} - {str(e)}")
+
+    logger.info(f"[FIM] Total de lotes liberados: {total_processados}")
+    return f"Processo concluído. Total de lotes liberados: {total_processados}"

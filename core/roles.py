@@ -31,6 +31,8 @@ class Administrador(AbstractUserRole):
         'deletarEmpreendimento': True,
         'listaEmpreendimentoTabela': True,
         'listaQuadra': True,
+        'alterarLote': True,
+        'reservadoDetalheEmpreendimento':True,
 
         # MODULO VENDA
         'reservado': True,
@@ -39,7 +41,6 @@ class Administrador(AbstractUserRole):
         'relatorioVenda': True,
         'listaVendaRelatorio': True,
         'cancelarReservadoCadastro': True,
-        'cancelarReservado': True,
         'criarReservado': True,
         'criarVenda': True,
         'renovarReserva': True,
@@ -64,8 +65,17 @@ class Corretor(AbstractUserRole):
         'selectEmpreendimento': True,
         'listaEmpreendimento': True,
         'listaQuadra': True,
+        'alterarEmpreendimento': True,
+        'reservarLote': True,
+        'alterarLote': True,
+        'reservadoDetalheEmpreendimento':True,
+        'cancelarReservadoTemporaria':True,
+        'renovarReservaTemporaria':True,
+        
+
 
         # MODULO VENDA
+
         'reservado': True,
         'reservadoDetalhe': True,
         'listaVendaRelatorio': True,
@@ -73,6 +83,8 @@ class Corretor(AbstractUserRole):
         'criarVenda': True,
         'renovarReserva': True,
         'cancelarReservado': True,
+
+
 
     }
 

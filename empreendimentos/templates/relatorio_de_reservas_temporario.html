@@ -8,7 +8,7 @@
 
 {% block content %}
     <div class="container mt-4">
-        <h4 class="mt-4 text-center">GERENCIAMENTO DE RESERVAS</h4>
+        <h4 class="mt-4 text-center">GERENCIAMENTO DE PRE-RESERVAS</h4>
         <hr>
 
         <!-- Filtros -->
@@ -33,7 +33,7 @@
                     <select name="tipo_empreendimento" id="typeFilter" class="form-select"
                             onchange="this.form.submit()">
                         <option value="">Status</option>
-                        {% for empreendimento in empreendimentos %}
+                        {% for lote in lotes %}
                             <option value={{ empreendimento.id }} {% if request.tipo_empreendimento == '{{ empreendimento.id }}' %}selected{% endif %}>
                                 {{ empreendimento.nome }}
                             </option>
@@ -48,7 +48,7 @@
                 <form action="">
                     <select name="tipo_venda" id="typeFilter" class="form-select" onchange="this.form.submit()">
                         <option value="">Status</option>
-                        <option value="RESERVADO" {% if request.GET.tipo_venda == 'RESERVADO' %}selected{% endif %}>
+                        <option value="PRE-RESERVADO" {% if request.GET.tipo_venda == 'PRE-RESERVADO' %}selected{% endif %}>
                             Reservados
                         </option>
                         <option value="CANCELADA" {% if request.GET.tipo_venda == 'CANCELADA' %}selected{% endif %}>
@@ -113,33 +113,28 @@
                 <table class="table table-striped-columns table-bordered table-sm text-center">
                     <thead>
                     <tr>
-                        <th scope="col">Cliente</th>
                         <th scope="col">Loteamento</th>
                         <th scope="col">Quadra</th>
                         <th scope="col">Lote</th>
                         <th scope="col">Corretor</th>
-                        <th scope="col">Status</th>
                         <th scope="col">Vencimento da Reserva</th>
-
                         <th scope="col">Comandos</th>
                     </tr>
                     </thead>
 
                     <tbody class="featurette-heading fw-normal lh-1">
-                    {% for reserva in reservas %}
+                    {% for lote in lotes %}
                         <tr>
-                            <td>{{ reserva.cliente }}</td>
-                            <td>{{ reserva.lote.quadra.empr.nome }}</td>
-                            <td>{{ reserva.lote.quadra }}</td>
-                            <td>{{ reserva.lote }}</td>
-                            <td>{{ reserva.user }}</td>
-                            <td>{{ reserva.tipo_venda }}</td>
-                            <td>{{ reserva.dt_reserva }}</td>
+                            <td>{{ lote.quadra.empr.nome }}</td>
+                            <td>{{ lote.quadra }}</td>
+                            <td>{{ lote }}</td>
+                            <td>{{ lote.user }}</td>
+                            <td>{{ lote.data_termina_reserva }}</td>
 
                             <td>
                                 <div class="row g-2">
                                     <div class="col-6 col-md-3">
-                                        <a href="{% url 'renova-reserva' reserva.id %}"
+                                        <a href="{% url 'renova-lote-pre-reserva' lote.id %}"
                                            class=" btn btn-warning w-auto h-auto text-wrap text-center"
                                         title="Renova
                                         Reserva" data-bs-toggle="tooltip"
@@ -149,7 +144,7 @@
                                         </a>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <a href="{% url 'criar-venda' reserva.id %}"
+                                        <a href="{% url 'fazer-reserva' lote.id %}"
                                            class=" btn btn-success w-auto h-auto text-wrap text-center"
                                         title="Confirmar Venda" data-bs-toggle="tooltip"
                                         aria-label="Confirmar Venda">
@@ -157,7 +152,7 @@
                                         </a>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <a href="{% url 'delete-reservado' reserva.id %}"
+                                        <a href="{% url 'cancela-lote-pre-reserva' lote.id %}"
                                            class=" btn btn-danger w-auto h-auto text-wrap text-center"
                                         title="Excluir Reserva" data-bs-toggle="tooltip"
                                         aria-label="Excluir Reserva">

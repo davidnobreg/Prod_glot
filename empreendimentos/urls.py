@@ -1,7 +1,9 @@
 from django.urls import path
-from .views import criarEmpreendimento, listaEmpreendimento, listaEmpreendimentoTabela, listaQuadra, \
-    deleteEmpreendimento, alteraEmpreendimento, selectEmpreendimento, detalheEmpreendimento, relatorioFinanceiro, \
-    importarDados
+from .views import (criarEmpreendimento, listaEmpreendimento, listaEmpreendimentoTabela, listaQuadra, \
+                    deleteEmpreendimento, alteraEmpreendimento, selectEmpreendimento, detalheEmpreendimento,
+                    relatorioFinanceiro, reservadoDetalheEmpreendimento, listaReservasTemporaria, cancelarReservadoTemporaria, \
+                    alteraLote, renovaReserva, \
+                    importarDados)
 
 urlpatterns = [
     # Cadastro de cliente
@@ -20,7 +22,17 @@ urlpatterns = [
     path('listar_empreendimento/', listaEmpreendimentoTabela, name='lista-empreendimento-tabela'),
 
     path('listar_quadras/<int:id>/', listaQuadra, name='listar-quadras'),
+
     path('detalhe_empreendimento/<int:id>/', detalheEmpreendimento, name='detalhe-empreendimento'),
-    path('relatorio_financeiro/<int:id>/', relatorioFinanceiro, name='relatorio-financeiro')
+
+    path('relatorio_financeiro/<int:id>/', relatorioFinanceiro, name='relatorio-financeiro'),
+
+    path('reserva_temporario/<int:id>/', alteraLote, name='alterar-lote'),
+
+    path('reservado_detalhes_pre_reserva_lote/<int:id>/', reservadoDetalheEmpreendimento,
+         name='reservado-detalhes-pre-reserva-lote'),
+    path('listar_pre_reserva/', listaReservasTemporaria, name='lista-pre-reserva'),
+    path('cancela_reserva_lote/<int:id>/', cancelarReservadoTemporaria, name='cancela-lote-pre-reserva'),
+    path('renova_reserva_lote/<int:id>/', renovaReserva, name='renova-lote-pre-reserva'),
 
 ]

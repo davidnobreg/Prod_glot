@@ -599,10 +599,17 @@ def reservadoDetalheEmpreendimento(request, id):
 
 @has_permission_decorator('listaReservasTemporaria')
 def listaReservasTemporaria(request):
-    # Filtrando os Lotes que estão Reservados
+    # Filtra os Lotes com situação 'PRE-RESERVA'
     lotes = Lote.objects.filter(situacao='PRE-RESERVA')
 
-    context = {'lotes': lotes, }
+    paginator = Paginator(lotes, 10)  # 10 lotes por página (ajuste conforme necessário)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+
+    }
 
     return render(request, 'relatorio_de_reservas_temporario.html', context)
 

@@ -48,7 +48,8 @@
                 <form action="">
                     <select name="tipo_venda" id="typeFilter" class="form-select" onchange="this.form.submit()">
                         <option value="">Status</option>
-                        <option value="PRE-RESERVADO" {% if request.GET.tipo_venda == 'PRE-RESERVADO' %}selected{% endif %}>
+                        <option value="PRE-RESERVADO"
+                                {% if request.GET.tipo_venda == 'PRE-RESERVADO' %}selected{% endif %}>
                             Reservados
                         </option>
                         <option value="CANCELADA" {% if request.GET.tipo_venda == 'CANCELADA' %}selected{% endif %}>
@@ -123,7 +124,7 @@
                     </thead>
 
                     <tbody class="featurette-heading fw-normal lh-1">
-                    {% for lote in lotes %}
+                    {% for lote in page_obj %}
                         <tr>
                             <td>{{ lote.quadra.empr.nome }}</td>
                             <td>{{ lote.quadra }}</td>
@@ -136,27 +137,27 @@
                                     <div class="col-6 col-md-3">
                                         <a href="{% url 'renova-lote-pre-reserva' lote.id %}"
                                            class=" btn btn-warning w-auto h-auto text-wrap text-center"
-                                        title="Renova
+                                           title="Renova
                                         Reserva" data-bs-toggle="tooltip"
-                                        aria-label="Renova
+                                           aria-label="Renova
                                         Reserva">
-                                        <i class="fa fa-refresh"></i>
+                                            <i class="fa fa-refresh"></i>
                                         </a>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <a href="{% url 'fazer-reserva' lote.id %}"
+                                        <a href="{% url 'reserva-create' lote.id %}"
                                            class=" btn btn-success w-auto h-auto text-wrap text-center"
-                                        title="Confirmar Venda" data-bs-toggle="tooltip"
-                                        aria-label="Confirmar Venda">
-                                        <i class="fa fa-check"></i>
+                                           title="Confirmar Venda" data-bs-toggle="tooltip"
+                                           aria-label="Confirmar Venda">
+                                            <i class="fa fa-check"></i>
                                         </a>
                                     </div>
                                     <div class="col-6 col-md-3">
                                         <a href="{% url 'cancela-lote-pre-reserva' lote.id %}"
                                            class=" btn btn-danger w-auto h-auto text-wrap text-center"
-                                        title="Excluir Reserva" data-bs-toggle="tooltip"
-                                        aria-label="Excluir Reserva">
-                                        <i class="fas fa-window-close"></i>
+                                           title="Excluir Reserva" data-bs-toggle="tooltip"
+                                           aria-label="Excluir Reserva">
+                                            <i class="fas fa-window-close"></i>
                                         </a>
                                     </div>
                                 </div>
@@ -165,6 +166,35 @@
                     {% endfor %}
                     </tbody>
                 </table>
+                <div>
+                    <ul class="pagination justify-content-center mt-4">
+                        <li class="page-item">
+                            {% if page_obj.has_previous %}
+                                <a class="btn btn-primary"
+                                   href="?page={{ page_obj.previous_page_number }}"
+                                   aria-label="Página anterior">
+                                    Voltar
+                                </a>
+                            {% endif %}
+                        </li>
+
+                        <li class="page-item">
+                                 <span class="page-link">
+                                      Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                                 </span>
+                        </li>
+
+                        <li class="page-item">
+                            {% if page_obj.has_next %}
+                                <a class="btn btn-primary"
+                                   href="?page={{ page_obj.next_page_number }}"
+                                   aria-label="Próxima página">
+                                    Avançar
+                                </a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

@@ -119,14 +119,14 @@ def listaClienteRelatorio(request):
             Q(fone__icontains=get_client) |
             Q(email__icontains=get_client))
 
-    # Paginação
-
-    paginator = Paginator(clientes, 1)  # 10 usuários por página
+    paginator = Paginator(clientes, 10)  # 10 clientes por página (ajuste conforme quiser)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    context = {'clientes': clientes,
-               'page_obj': page_obj}
+    context = {
+        'page_obj': page_obj,
+        'clientes': page_obj.object_list,  # só os da página atual
+    }
     return render(request, 'lista_cliente_relatorio.html', context)
 
 

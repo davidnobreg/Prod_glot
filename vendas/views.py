@@ -8,6 +8,7 @@ from rolepermissions.decorators import has_permission_decorator
 
 from datetime import datetime, timedelta
 from django.utils import timezone
+from django.core.paginator import Paginator
 
 from .forms import RegisterVendaForm
 from .models import RegisterVenda
@@ -33,41 +34,52 @@ def listaReserva(request):
     empreendimentos = Empreendimento.objects.filter(is_ativo=False).order_by('id')
     reservas = RegisterVenda.objects.filter(tipo_venda='RESERVADO', is_ativo=False)
 
-    get_id_empreendimento = request.GET.get('tipo_empreendimento')
-    get_localiza = request.GET.get('reserva')
-    get_tipo_venda = request.GET.get('tipo_venda')
-    get_data_reserva = request.GET.get('reserva')
-    get_data_venda = request.GET.get('venda')
+    # Pegando filtros
+    filtro_empreendimento = request.GET.get('tipo_empreendimento')
+    filtro_nome = request.GET.get('search_nome')
+    filtro_tipo_venda = request.GET.get('tipo_venda')
+    filtro_data_reserva = request.GET.get('data_reserva')
+    filtro_data_venda = request.GET.get('data_venda')
 
-    if get_id_empreendimento:
-        reservas = reservas.filter(lote__quadra__empr__id=int(get_id_empreendimento))
+    # Aplicando filtros
+    if filtro_empreendimento and filtro_empreendimento.isdigit():
+        reservas = reservas.filter(lote__quadra__empr__id=int(filtro_empreendimento))
 
-    if get_localiza:
+    if filtro_nome:
         reservas = reservas.filter(
-            Q(cliente__name__icontains=get_localiza) |
-            Q(lote__quadra__empr__nome__icontains=get_localiza) |
-            Q(user__username__icontains=get_localiza)
+            Q(cliente__name__icontains=filtro_nome) |
+            Q(lote__quadra__empr__nome__icontains=filtro_nome) |
+            Q(user__username__icontains=filtro_nome)
         )
 
-    if get_data_reserva:
+    if filtro_data_reserva:
         try:
-            data = datetime.strptime(get_data_reserva, "%Y-%m-%d").date()
+            data = datetime.strptime(filtro_data_reserva, "%Y-%m-%d").date()
             reservas = reservas.filter(dt_reserva=data)
         except ValueError:
-            pass  # Ignora caso a data esteja mal formatada
+            pass
 
-    if get_data_venda:
+    if filtro_data_venda:
         try:
-            data = datetime.strptime(get_data_venda, "%Y-%m-%d").date()
+            data = datetime.strptime(filtro_data_venda, "%Y-%m-%d").date()
             reservas = reservas.filter(dt_venda=data)
         except ValueError:
             pass
 
-    if get_tipo_venda:
-        reservas = reservas.filter(tipo_venda=get_tipo_venda)
+    if filtro_tipo_venda:
+        reservas = reservas.filter(tipo_venda=filtro_tipo_venda)
 
-    context = {'reservas': reservas, 'empreendimentos': empreendimentos}
+    # Paginação
+    paginator = Paginator(reservas, 10)  # Exibe 10 por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'reservas': page_obj,
+        'empreendimentos': empreendimentos,
+    }
     return render(request, 'lista_reserva.html', context)
+
 
 
 @has_permission_decorator('relatorioVenda')
@@ -99,7 +111,12 @@ def listaVenda(request):
         # Garante que "RESERVADO" ainda será excluído mesmo se for selecionado por tipo
         vendas = vendas.filter(tipo_venda=get_tipo_venda).exclude(tipo_venda='RESERVADO')
 
-    context = {'vendas': vendas, 'empreendimentos': empreendimentos}
+    # Paginação
+    paginator = Paginator(vendas, 10)  # Exibe 10 por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {'vendas':  page_obj, 'empreendimentos': empreendimentos}
     return render(request, 'lista_venda.html', context)
 
 

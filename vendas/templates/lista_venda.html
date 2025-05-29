@@ -111,7 +111,34 @@
                 </tr>
             {% endfor %}
             </tbody>
-
         </table>
+        <!-- Paginação -->
+        <ul class="pagination justify-content-center mt-4">
+            {% if vendas.has_previous %}
+                <li class="page-item">
+                    <a class="btn btn-primary"
+                       href="?
+                               {% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ vendas.previous_page_number }}">
+                        Voltar
+                    </a>
+                </li>
+            {% endif %}
+
+            <li class="page-item">
+                        <span class="page-link">
+                            Página {{ vendas.number }} de {{ vendas.paginator.num_pages }}
+                        </span>
+            </li>
+
+            {% if vendas.has_next %}
+                <li class="page-item">
+                    <a class="btn btn-primary"
+                       href="?
+                               {% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ vendas.next_page_number }}">
+                        Avançar
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
     </div>
 {% endblock %}

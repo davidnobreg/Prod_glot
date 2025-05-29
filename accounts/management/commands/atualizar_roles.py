@@ -12,7 +12,6 @@ class Command(BaseCommand):
 
         for user in User.objects.all():
             total += 1
-            # Limpa roles atuais
             clear_roles(user)
 
             if user.tipo_usuario == 'A':

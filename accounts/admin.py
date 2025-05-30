@@ -11,6 +11,14 @@ class UserAdmin(auth_admin.UserAdmin):
     fieldsets = auth_admin.UserAdmin.fieldsets + (
         ('Novos campos', {'fields': ('tipo_usuario','creci','contato')}),
     )
+
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('username', 'email', 'contato', 'tipo_usuario', 'is_active', 'is_superuser', 'password1', 'password2'),
+        }),
+    )
+
     list_display = ['id', 'username', 'email', 'contato', 'tipo_usuario', 'is_active', 'is_superuser', 'has_password']
 
     def has_password(self, obj):

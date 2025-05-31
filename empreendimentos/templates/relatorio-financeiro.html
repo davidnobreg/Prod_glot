@@ -76,15 +76,17 @@
 
             <div class="row mb-3">
                 <div class="col-md-12 d-flex align-items-center">
-                    <h5 class="mb-0 me-2">Valor Geral De Recebimentos De Lotes Vendidos (V.G.V.):</h5>
+                    <h5 class="mb-0 me-2 titulo-vgm">Valor Geral De Recebimentos De Lotes Vendidos (V.G.V.):</h5>
                     <p class="mb-0"> {{ valor_total_vendidos_formatado }}</p>
                 </div>
             </div>
 
             <div class="row mb-3">
                 <div class="col-md-12 d-flex align-items-center d-inline p-2 text-bg-success">
-                    <h5 class="mb-0 me-2">Valor Geral De Recebimentos Por Mês Lotes Vendidos (V.G.M.):</h5>
-                    <p class="mb-0"> {{ parcelas_total_vendidos_formatado }}</p>
+                    <h5 class="mb-0 me-2 titulo-vgm">
+                        Valor Geral De Recebimentos Por Mês Lotes Vendidos (V.G.M.):
+                    </h5>
+                    <p class="mb-0">{{ parcelas_total_vendidos_formatado }}</p>
                 </div>
             </div>
 
@@ -103,7 +105,7 @@
             </div>
             <button id="btn-imprimir" onclick="window.print()">Imprimir Página</button>
         </div>
-        
+
     </div>
 
 {% endblock %}

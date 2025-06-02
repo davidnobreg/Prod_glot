@@ -99,3 +99,4 @@ var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggl
 tooltipTriggerList.forEach(function (tooltipTriggerEl) {
   new bootstrap.Tooltip(tooltipTriggerEl)
 })
+

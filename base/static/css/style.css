@@ -266,3 +266,9 @@ body[data-bs-theme="dark"] {
         text-overflow: ellipsis; /* se não couber, coloca reticências */
     }
 }
+
+@media print {
+    .btn-voltar {
+        display: none !important;
+    }
+}

@@ -33,21 +33,7 @@
             </div>
 
             <div class="row mb-3">
-                <div class="col-md-12 d-flex align-items-center">
-                    <h5 class="mb-0 me-2">Valor Geral a Vender:</h5>
-                    <p class="mb-0">{{ valor_total_formatado }}</p>
-                </div>
-            </div>
-
-            <div class="row mb-3">
                 <div class="col-md-12 d-flex align-items-center d-inline p-2 text-bg-success">
-                    <h5 class="mb-0 me-2">Valor Geral de Recebimentos por Mês a Vender:</h5>
-                    <p class="mb-0">R$ {{ parcelas_total_formatado }}</p>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-12 d-flex align-items-center">
                     <h5 class="mb-0 me-2">Quantidade de Lotes Disponíveis:</h5>
                     <p class="mb-0">{{ quantidade_lotes_disponivel }}</p>
                 </div>
@@ -55,6 +41,35 @@
 
             <div class="row mb-3">
                 <div class="col-md-12 d-flex align-items-center d-inline p-2 text-bg-success">
+                    <h5 class="mb-0 me-2">Quantidade de Lotes Vendidos:</h5>
+                    <p class="mb-0">{{ quantidade_lotes_vendidos }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12 d-flex align-items-center d-inline p-2 text-bg-success">
+                    <h5 class="mb-0 me-2">Quantidade de Lotes Indisponiveis:</h5>
+                    <p class="mb-0"> {{ quantidade_lotes_indisponivel }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12 d-flex align-items-center">
+                    <h5 class="mb-0 me-2">Valor Geral a Vender:</h5>
+                    <p class="mb-0">{{ valor_total_formatado }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12 d-flex align-items-center">
+                    <h5 class="mb-0 me-2">Valor Geral de Recebimentos por Mês a Vender:</h5>
+                    <p class="mb-0">R$ {{ parcelas_total_formatado }}</p>
+                </div>
+            </div>
+
+
+            <div class="row mb-3">
+                <div class="col-md-12 d-flex align-items-center">
                     <h5 class="mb-0 me-2">Valor Geral dos Lotes Disponíveis:</h5>
                     <p class="mb-0">{{ valor_total_disponivel_formatado }}</p>
                 </div>
@@ -67,12 +82,6 @@
                 </div>
             </div>
 
-            <div class="row mb-3">
-                <div class="col-md-12 d-flex align-items-center d-inline p-2 text-bg-success">
-                    <h5 class="mb-0 me-2">Quantidade de Lotes Vendidos:</h5>
-                    <p class="mb-0">{{ quantidade_lotes_vendidos }}</p>
-                </div>
-            </div>
 
             <div class="row mb-3">
                 <div class="col-md-12 d-flex align-items-center">
@@ -82,7 +91,7 @@
             </div>
 
             <div class="row mb-3">
-                <div class="col-md-12 d-flex align-items-center d-inline p-2 text-bg-success">
+                <div class="col-md-12 d-flex align-items-center">
                     <h5 class="mb-0 me-2 titulo-vgm">
                         Valor Geral De Recebimentos Por Mês Lotes Vendidos (V.G.M.):
                     </h5>
@@ -90,12 +99,6 @@
                 </div>
             </div>
 
-            <div class="row mb-3">
-                <div class="col-md-12 d-flex align-items-center">
-                    <h5 class="mb-0 me-2">Quantidade de Lotes Indisponiveis:</h5>
-                    <p class="mb-0"> {{ quantidade_lotes_indisponivel }}</p>
-                </div>
-            </div>
 
             <hr>
 
@@ -103,7 +106,16 @@
                 <img src="{% static 'images/rodape_relatorio.png' %}" class="img-fluid rounded shadow mb-0 me-2"
                      alt="Rodapé">
             </div>
-            <button id="btn-imprimir" onclick="window.print()">Imprimir Página</button>
+            <div class="row mb-3">
+                <div class="col-6 d-flex justify-content-start align-items-center">
+                    <a class="btn btn-warning btn-voltar" href="{% url 'lista-empreendimento-tabela' %}">Voltar</a>
+                </div>
+                <div class="col-6 d-flex justify-content-end align-items-center">
+                    <button id="btn-imprimir" class="btn btn-primary" onclick="window.print()">Imprimir Página</button>
+                </div>
+            </div>
+
+
         </div>
 
     </div>

@@ -30,6 +30,7 @@ class Administrador(AbstractUserRole):
         'alterarEmpreendimento': True,
         'deletarEmpreendimento': True,
         'listaEmpreendimentoTabela': True,
+        'listaReservasTemporaria': True,
         'listaQuadra': True,
         'reservarLote': True,
         'alterarLote': True,

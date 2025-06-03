@@ -33,9 +33,10 @@ class Administrador(AbstractUserRole):
         'listaQuadra': True,
         'reservarLote': True,
         'alterarLote': True,
-        'reservadoDetalheEmpreendimento':True,
+        'reservadoDetalheEmpreendimento': True,
         'cancelarReservadoTemporaria':True,
         'renovarReservaTemporaria':True,
+
 
         # MODULO VENDA
         'reservado': True,

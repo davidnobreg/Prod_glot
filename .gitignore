@@ -2,7 +2,7 @@
 .idea/
 #static/media/
 media/
-#static/
+static/
 Pipfile
 Pipfile.lock
 __pycache__/

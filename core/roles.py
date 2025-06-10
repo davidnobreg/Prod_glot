@@ -36,6 +36,7 @@ class Administrador(AbstractUserRole):
         'alterarLote': True,
         'reservadoDetalheEmpreendimento': True,
         'cancelarReservadoTemporaria':True,
+        'cancelarReservadoTemporariaLista':True,
         'renovarReservaTemporaria':True,
 
 
@@ -75,6 +76,7 @@ class Corretor(AbstractUserRole):
         'alterarLote': True,
         'reservadoDetalheEmpreendimento':True,
         'cancelarReservadoTemporaria':True,
+        'cancelarReservadoTemporariaLista': True,
         'renovarReservaTemporaria':True,
         
 

@@ -624,6 +624,16 @@ def cancelarReservadoTemporaria(request, id):
         messages.error(request, "Pre-Resevado Cancelada!")
     return redirect('listar-quadras', id=get_lote.quadra.empr_id)
 
+@has_permission_decorator('cancelarReservadoTemporariaLista')
+def cancelarReservadoTemporariaLista(request, id):
+    get_lote = get_object_or_404(Lote, id=id)
+
+    if request.method == 'GET':
+        get_lote.situacao = "DISPONIVEL"
+        get_lote.save()
+        messages.error(request, "Pre-Resevado Cancelada!")
+    return redirect('lista-pre-reserva')
+
 
 @has_permission_decorator('renovarReservaTemporaria')
 def renovaReserva(request, id):

@@ -58,48 +58,6 @@
                     </select>
                 </form>
             </div>
-
-            <!-- Filtro de datapython
-            <div class="col-md-3 text-center ">
-                <label class="form-label">Datas reserva</label>
-
-                <form class="d-flex align-items-center  justify-content-center gap-2" action="">
-                    <div>
-                        <input name="reserva" type="date" value="{{ request.GET.reserva }}" class="form-control">
-                    </div>
-                    <button class="btn btn-outline-dark" type="submit">
-                        <i class="fas fa-filter"></i>
-                    </button>
-                </form>
-            </div>
-
-
-            Filtro de data
-            <div class="col-md-3 text-center ">
-                <label class="form-label">Datas reserva</label>
-                <form class="d-flex align-items-center  justify-content-center gap-2" action="">
-
-                    <div>
-                        <input name="venda" type="date" value="{{ request.GET.venda }}" class="form-control">
-                    </div>
-                    <button class="btn btn-outline-dark" type="submit">
-                        <i class="fas fa-filter"></i>
-                    </button>
-                </form>
-            </div>
-            <!-- Filtro de status
-            <div class="col-md-2">
-                <label for="statusFilter" class="form-label">Status Locação</label>
-                <form action="">
-                    <select name="is_locate" id="statusFilter" class="form-select" onchange="this.form.submit()">
-                        <option value="">Todos</option>
-                        <option value="True" {% if request.GET.is_locate == 'True' %}selected{% endif %}>Locado</option>
-                        <option value="False" {% if request.GET.is_locate == 'False' %}selected{% endif %}>Não Locado
-                        </option>
-                    </select>
-                </form>
-            </div>-->
-
             <!-- Resetar filtros -->
             <div class="col-md-1">
                 <label for="idReset" class="form-label">Resetar</label>
@@ -153,12 +111,15 @@
                                         </a>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <a href="{% url 'cancela-lote-pre-reserva' lote.id %}"
-                                           class=" btn btn-danger w-auto h-auto text-wrap text-center"
-                                           title="Excluir Reserva" data-bs-toggle="tooltip"
-                                           aria-label="Excluir Reserva">
+                                        <button class="btn btn-danger w-auto h-auto text-wrap text-center"
+                                                name="pre-reserva"
+                                                data-cliente-id="{{ lote.id }}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#preReservaModalDelete"
+                                                title="Excluir Reserva"
+                                                aria-label="Detalhes da Reserva">
                                             <i class="fas fa-window-close"></i>
-                                        </a>
+                                        </button>
                                     </div>
                                 </div>
                             </td>
@@ -198,4 +159,53 @@
             </div>
         </div>
     </div>
+    {% for lote in page_obj %}
+        <div class="modal fade" id="preReservaModalDelete" tabindex="-1" aria-labelledby="preReservaModalDelete"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="clienteModalLabel">Detalhes da Reserva</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <strong>Empreendimento:</strong>
+                                <span>{{ lote.quadra.empr.nome }}</span>
+                            </div>
+                        </div>
+                        </br>
+                        <div class="row">
+                            <div class="col-6">
+                                <strong>Quadra:</strong>
+                                <span>{{ lote.quadra }}</span>
+                            </div>
+                            <div class="col-6">
+                                <strong>Lote:</strong>
+                                <span>{{ lote }}</span>
+                            </div>
+                        </div>
+                        </br>
+                        <p>
+                            <strong>Corretor:</strong>
+                            <span>{{ lote.user }}</span>
+                        </p>
+                        <p>
+                            <strong>Vencimento da Reserva:</strong>
+                            <span>{{ lote.data_termina_reserva }}</span>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+
+                        <a href="{% url 'cancela-lote-pre-reserva-lista' lote.id %}" class="btn btn-danger">deletar</a>
+                        <button type="button" href="{% url 'lista-pre-reserva' %}" class="btn btn-secondary"
+                                data-bs-dismiss="modal">Canselar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
 {% endblock %}

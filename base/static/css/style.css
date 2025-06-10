@@ -59,15 +59,18 @@ body[data-bs-theme="dark"] {
     background: linear-gradient(to right, rgb(255, 255, 255), rgb(3, 107, 145));
 }
 
-/* Dashboard */
+/* Dashboard atualizado para flexbox e altura automática */
 .dashboard {
     padding: 0;
     width: 100%;
-    display: block;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5%;
 }
 
 .dashboard h4 {
     font-size: 20px;
+    width: 100%;
 }
 
 .dashboard span {
@@ -77,19 +80,15 @@ body[data-bs-theme="dark"] {
 }
 
 .dashboard-box {
-    float: left;
     background-color: #dfdfdf;
     color: #fff;
-    padding: 20px;
+    padding: 15px;
     box-sizing: border-box;
-    height: 130px;
+    height: auto; /* removido height fixo */
     width: 32%;
     text-align: center;
-}
-
-.dashboard-box:nth-child(2) {
-    margin-left: 1.5%;
-    margin-right: 1.5%;
+    page-break-inside: avoid;
+    border-radius: 6px;
 }
 
 #dashboard-lastdays {
@@ -141,70 +140,25 @@ body[data-bs-theme="dark"] {
 @media print {
     @page {
         size: A4 portrait;
-        margin: 20mm;
+        margin: 15mm; /* Margem bem fina pra aproveitar espaço */
+    }
+
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 210mm;
+        height: 297mm;
+        font-size: 10pt;
+        background: white !important;
+        color: black !important;
     }
 
     body {
         margin: 0;
         padding: 0;
-        width: 210mm;
-        height: 297mm;
-        font-size: 12pt;
-        background: white !important;
-        color: black !important;
     }
 
-    body * {
-        visibility: hidden;
-    }
-
-    #conteudo, #conteudo * {
-        visibility: visible;
-    }
-
-    #conteudo {
-    width: 100%;
-    max-width: 180mm;
-    margin: 0 auto;
-    padding: 10mm;
-    box-sizing: border-box;
-    background-color: white;
-}
-
-    #btn-imprimir,
-    .navbar,
-    .sidebar,
-    header,
-    footer {
-        display: none !important;
-    }
-
-    .shadow, .card, .card-footer, .img-fluid {
-        box-shadow: none !important;
-    }
-
-    h1, h2, .row {
-        page-break-inside: avoid;
-    }
-}
-
-/* Impressão */
-@media print {
-    @page {
-        size: A4;
-        margin: 15mm;
-    }
-
-    html, body {
-        width: 210mm;
-        height: 297mm;
-        margin: 0;
-        padding: 0;
-        font-size: 12pt;
-        background: white !important;
-        color: black !important;
-    }
-
+    /* Oculta tudo exceto conteúdo */
     body * {
         visibility: hidden;
     }
@@ -215,60 +169,75 @@ body[data-bs-theme="dark"] {
 
     #conteudo {
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        margin: auto;
-        width: 180mm;
-        padding: 0;
-        overflow: hidden;
+        top: 1mm;   /* Pequeno espaçamento do topo */
+        left: 1mm;  /* Pequeno espaçamento da esquerda */
+        right: 1mm; /* Pequeno espaçamento da direita */
+        margin: 0 auto;
+        width: calc(210mm - 2mm); /* Ajusta largura para margem reduzida */
+        max-width: 100%;
+        padding: 0 !important;
+        background-color: white;
+        overflow: visible;
+        box-sizing: border-box;
     }
 
+    /* Remove margin e padding das rows e colunas dentro do conteúdo para economizar espaço */
+    #conteudo .row,
+    #conteudo [class*="col-"] {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Evita quebra dentro de cartões e linhas */
+    .card, .row, .dashboard-box {
+        page-break-inside: avoid !important;
+    }
+
+    /* Esconder elementos desnecessários */
     #btn-imprimir,
+    .btn-voltar,
     nav,
+    .navbar,
+    .sidebar,
     header,
     footer {
         display: none !important;
     }
 
+    /* Remove sombras para impressão */
+    .shadow, .card, .card-footer {
+        box-shadow: none !important;
+    }
+
     img {
         max-width: 100% !important;
         height: auto !important;
+        max-height: 100px !important;
     }
 
-    .row {
-        flex-wrap: wrap;
+    h1 {
+        font-size: 16pt !important;
+        margin: 1px 0 !important;
+    }
+    h2 {
+        font-size: 14pt !important;
+        margin: 1px 0 !important;
+    }
+    h3, h4, h5, h6, p, span {
+        font-size: 10pt !important;
+        margin: 1px 0 !important;
         page-break-inside: avoid;
     }
 
-    h1, h2, h3, h4, h5, h6, p {
-        page-break-inside: avoid;
-    }
-}
-
-.print-only {
-    display: none;
-}
-
-@media print {
-    #conteudo {
-        width: 100%;
-        max-width: 100%;
-        padding: 0;
-        margin: 0;
-    }
-
-    /* Diminui a fonte só do título com texto longo */
     .titulo-vgm {
-        font-size: 0.85rem; /* Ajuste conforme preferir */
-        white-space: nowrap; /* para não quebrar linha */
+        font-size: 1rem !important;
+        white-space: nowrap;
         overflow: hidden;
-        text-overflow: ellipsis; /* se não couber, coloca reticências */
+        text-overflow: ellipsis;
     }
-}
 
-@media print {
-    .btn-voltar {
+    /* Remove espaços vazios que podem gerar quebras */
+    #conteudo div:empty {
         display: none !important;
     }
 }

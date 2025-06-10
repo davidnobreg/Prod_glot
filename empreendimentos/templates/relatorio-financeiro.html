@@ -8,127 +8,92 @@
 
 {% block content %}
     <div class="container py-5" id="conteudo">
-        <div class="card shadow p-4">
 
-            {% if empreendimento.logo %}
-                <div class="text-center mb-4">
-                    <img src="{{ empreendimento.logo.url }}" alt="{{ empreendimento.nome }}" class="img-fluid"
-                         style="max-height: 150px;">
-                </div>
-            {% endif %}
-
-            <h1 class="text-center text-success">RESUMO DE VENDAS E FINANCEIRO</h1>
-
-            <h2 class="text-center mb-4">{{ empreendimento.nome }}</h2>
-
-            <p class="text-center">Data: {{ data_atual|date:"d/m/Y" }}</p>
-
-            <hr>
-            <div class="row mb-3 text-bg-success">
-                <div class="col-md-10 d-flex d-inline p-2">
-                    <h5 class="mb-0 me-2">Quantidade de Lotes a Venda:</h5>
-                </div>
-                <div class="col-md-2 d-flex flex-row-reverse align-items-center p-2">
-                    <span>{{ quantidade_lotes }}</span>
-                </div>
-                <div class="col-md-9 d-flex align-items-center p-2">
-                    <h5 class="mb-0 me-2">Valor Geral a Vender:</h5>
-                </div>
-                <div class="col-md-3 d-flex flex-row-reverse align-items-center p-2">
-                    <p class="mb-0">{{ valor_total_formatado }}</p>
-                </div>
-
-                <div class="col-md-10 d-flex align-items-center d-inline p-2">
-                    <h5 class="mb-0 me-2 titulo-vgm">
-                        Valor Geral De Recebimentos Por Mês Lotes Vendidos (V.G.M.):
-                    </h5>
-                </div>
-                <div class="col-md-2 d-flex flex-row-reverse align-items-center p-2">
-                    <p class="mb-0">{{ parcelas_total_vendidos_formatado }}</p>
-                </div>
-
+        {% if empreendimento.logo %}
+            <div class="text-center mb-4">
+                <img src="{{ empreendimento.logo.url }}" alt="{{ empreendimento.nome }}" class="img-fluid"
+                     style="max-height: 200px;">
             </div>
+        {% endif %}
 
-            <div class="row mb-3">
-                <div class="col-md-12 d-flex align-items-center d-inline p-2">
-                    <h5 class="mb-0 me-2">Quantidade de Lotes Disponíveis:</h5>
-                    <p class="mb-0">{{ quantidade_lotes_disponivel }}</p>
-                </div>
+        <h1 class="text-center text-success">RESUMO DE VENDAS E FINANCEIRO</h1>
+        <h2 class="text-center mb-4">{{ empreendimento.nome }}</h2>
+        <p class="text-center">Data: {{ data_atual|date:"d/m/Y" }}</p>
+
+        <table class="table table-bordered table-striped">
+            <tbody>
+                <!-- Quantidade de Lotes a Venda -->
+                <tr class="table-success">
+                    <th>Quantidade de Lotes a Venda:</th>
+                    <td class="text-end">{{ quantidade_lotes }}</td>
+                </tr>
+                <tr>
+                    <th>Valor Geral de Recebimentos por Mês a Vender:</th>
+                    <td class="text-end">{{ parcelas_total_formatado }}</td>
+                </tr>
+                <tr>
+                    <th>Valor Geral a Vender:</th>
+                    <td class="text-end">{{ valor_total_formatado }}</td>
+                </tr>
+
+                <!-- Separador visual -->
+                <tr><td colspan="2" class="bg-success"></td></tr>
+
+                <!-- Quantidade de Lotes Vendidos -->
+                <tr class="table-success">
+                    <th>Quantidade de Lotes Vendidos:</th>
+                    <td class="text-end">{{ quantidade_lotes_vendidos }}</td>
+                </tr>
+                <tr>
+                    <th>Valor Geral De Recebimentos Por Mês Lotes Vendidos (V.G.M.):</th>
+                    <td class="text-end">{{ parcelas_total_vendidos_formatado }}</td>
+                </tr>
+                <tr>
+                    <th>Valor Geral De Recebimentos De Lotes Vendidos (V.G.V.):</th>
+                    <td class="text-end">{{ valor_total_vendidos_formatado }}</td>
+                </tr>
+
+                <!-- Separador visual -->
+                <tr><td colspan="2" class="bg-success"></td></tr>
+
+                <!-- Quantidade de Lotes Disponíveis -->
+                <tr class="table-success">
+                    <th>Quantidade de Lotes Disponíveis:</th>
+                    <td class="text-end">{{ quantidade_lotes_disponivel }}</td>
+                </tr>
+                <tr>
+                    <th>Valor Geral a Receber Mensal dos Lotes Disponíveis:</th>
+                    <td class="text-end">{{ parcelas_total_disponivel_formatado }}</td>
+                </tr>
+                <tr>
+                    <th>Valor Geral dos Lotes Disponíveis:</th>
+                    <td class="text-end">{{ valor_total_disponivel_formatado }}</td>
+                </tr>
+
+                <!-- Separador visual -->
+                <tr><td colspan="2" class="bg-success"></td></tr>
+
+                <!-- Quantidade de Lotes Indisponíveis -->
+                <tr class="table-secondary">
+                    <th>Quantidade de Lotes Indisponíveis:</th>
+                    <td class="text-end">{{ quantidade_lotes_indisponivel }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="text-center mb-4">
+            <img src="{% static 'images/rodape_relatorio.png' %}" class="img-fluid rounded shadow mb-0 me-2 w-100"
+                 alt="Rodapé">
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-6 d-flex justify-content-start align-items-center">
+                <a class="btn btn-warning btn-voltar" href="{% url 'lista-empreendimento-tabela' %}">Voltar</a>
             </div>
-
-            <div class="row mb-3">
-                <div class="col-md-12 d-flex align-items-center d-inline p-2 text-bg-success">
-                    <h5 class="mb-0 me-2">Quantidade de Lotes Vendidos:</h5>
-                    <p class="mb-0">{{ quantidade_lotes_vendidos }}</p>
-                </div>
+            <div class="col-6 d-flex justify-content-end align-items-center">
+                <button id="btn-imprimir" class="btn btn-primary" onclick="window.print()">Imprimir Página</button>
             </div>
-
-            <div class="row mb-3">
-                <div class="col-md-12 d-flex align-items-center d-inline p-2 text-bg-success">
-                    <h5 class="mb-0 me-2">Quantidade de Lotes Indisponiveis:</h5>
-                    <p class="mb-0"> {{ quantidade_lotes_indisponivel }}</p>
-                </div>
-            </div>
-
-
-            <div class="row mb-3">
-                <div class="col-md-12 d-flex align-items-center">
-                    <h5 class="mb-0 me-2">Valor Geral de Recebimentos por Mês a Vender:</h5>
-                    <p class="mb-0">R$ {{ parcelas_total_formatado }}</p>
-                </div>
-            </div>
-
-
-            <div class="row mb-3">
-                <div class="col-md-12 d-flex align-items-center">
-                    <h5 class="mb-0 me-2">Valor Geral dos Lotes Disponíveis:</h5>
-                    <p class="mb-0">{{ valor_total_disponivel_formatado }}</p>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-12 d-flex align-items-center">
-                    <h5 class="mb-0 me-2">Valor Geral a Receber Mensal dos Lotes Disponíveis:</h5>
-                    <p class="mb-0">{{ parcelas_total_disponivel_formatado }}</p>
-                </div>
-            </div>
-
-
-            <div class="row mb-3">
-                <div class="col-md-12 d-flex align-items-center">
-                    <h5 class="mb-0 me-2 titulo-vgm">Valor Geral De Recebimentos De Lotes Vendidos (V.G.V.):</h5>
-                    <p class="mb-0"> {{ valor_total_vendidos_formatado }}</p>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-12 d-flex align-items-center">
-                    <h5 class="mb-0 me-2 titulo-vgm">
-                        Valor Geral De Recebimentos Por Mês Lotes Vendidos (V.G.M.):
-                    </h5>
-                    <p class="mb-0">{{ parcelas_total_vendidos_formatado }}</p>
-                </div>
-            </div>
-
-
-            <hr>
-
-            <div class="card-footer bg-white border-0 text-center">
-                <img src="{% static 'images/rodape_relatorio.png' %}" class="img-fluid rounded shadow mb-0 me-2"
-                     alt="Rodapé">
-            </div>
-            <div class="row mb-3">
-                <div class="col-6 d-flex justify-content-start align-items-center">
-                    <a class="btn btn-warning btn-voltar" href="{% url 'lista-empreendimento-tabela' %}">Voltar</a>
-                </div>
-                <div class="col-6 d-flex justify-content-end align-items-center">
-                    <button id="btn-imprimir" class="btn btn-primary" onclick="window.print()">Imprimir Página</button>
-                </div>
-            </div>
-
-
         </div>
 
     </div>
-
 {% endblock %}

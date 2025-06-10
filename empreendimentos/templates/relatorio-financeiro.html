@@ -24,16 +24,33 @@
             <p class="text-center">Data: {{ data_atual|date:"d/m/Y" }}</p>
 
             <hr>
-            <div class="row mb-3">
-                <div class="col-md-12 d-flex align-items-center d-inline p-2 text-bg-success">
+            <div class="row mb-3 text-bg-success">
+                <div class="col-md-10 d-flex d-inline p-2">
                     <h5 class="mb-0 me-2">Quantidade de Lotes a Venda:</h5>
+                </div>
+                <div class="col-md-2 d-flex flex-row-reverse align-items-center p-2">
                     <span>{{ quantidade_lotes }}</span>
+                </div>
+                <div class="col-md-9 d-flex align-items-center p-2">
+                    <h5 class="mb-0 me-2">Valor Geral a Vender:</h5>
+                </div>
+                <div class="col-md-3 d-flex flex-row-reverse align-items-center p-2">
+                    <p class="mb-0">{{ valor_total_formatado }}</p>
+                </div>
+
+                <div class="col-md-10 d-flex align-items-center d-inline p-2">
+                    <h5 class="mb-0 me-2 titulo-vgm">
+                        Valor Geral De Recebimentos Por Mês Lotes Vendidos (V.G.M.):
+                    </h5>
+                </div>
+                <div class="col-md-2 d-flex flex-row-reverse align-items-center p-2">
+                    <p class="mb-0">{{ parcelas_total_vendidos_formatado }}</p>
                 </div>
 
             </div>
 
             <div class="row mb-3">
-                <div class="col-md-12 d-flex align-items-center d-inline p-2 text-bg-success">
+                <div class="col-md-12 d-flex align-items-center d-inline p-2">
                     <h5 class="mb-0 me-2">Quantidade de Lotes Disponíveis:</h5>
                     <p class="mb-0">{{ quantidade_lotes_disponivel }}</p>
                 </div>
@@ -53,12 +70,6 @@
                 </div>
             </div>
 
-            <div class="row mb-3">
-                <div class="col-md-12 d-flex align-items-center">
-                    <h5 class="mb-0 me-2">Valor Geral a Vender:</h5>
-                    <p class="mb-0">{{ valor_total_formatado }}</p>
-                </div>
-            </div>
 
             <div class="row mb-3">
                 <div class="col-md-12 d-flex align-items-center">

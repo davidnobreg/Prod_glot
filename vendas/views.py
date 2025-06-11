@@ -292,6 +292,18 @@ def deleteReseva(request, id):
     messages.error(request, "Reserva Cancelada com sucesso!")
     return redirect('listar-quadras', id=loteSituação.quadra.empr_id)
 
+@has_permission_decorator('cancelarReservado')
+def deleteResevaLista(request, id):
+    venda = RegisterVenda.objects.get(id=id)
+    loteSituação = Lote.objects.get(id=venda.lote.id)
+    loteSituação.situacao = 'DISPONIVEL'
+    loteSituação.save()
+    venda.is_ativo = False
+    venda.tipo_venda = 'CANCELADA'
+    venda.save()
+    messages.error(request, "Reserva Cancelada com sucesso!")
+    return redirect('lista-reserva')
+
 
 @has_permission_decorator('cancelarVenda')
 def deleteVenda(request, id):

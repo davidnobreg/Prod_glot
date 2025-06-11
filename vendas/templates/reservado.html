@@ -74,7 +74,7 @@
                                    class="btn btn-primary text-center py-3 w-50"
                                    aria-label="Exibir todos os lotes">
                                     <label class="form-label fw-bold d-block">Quadras</label>
-                                    <p class="mb-0">{{ total }}</p>
+
                                 </a>
                             </div>
                             <div class="col-md-4">
@@ -82,21 +82,78 @@
                                    class="btn btn-warning text-center py-3 w-50"
                                    aria-label="Exibir todos os lotes">
                                     <label class="form-label fw-bold d-block">Listagem</label>
-                                    <p class="mb-0">{{ total }}</p>
+
                                 </a>
                             </div>
                             {% if user.is_authenticated and user.tipo_usuario == "A" %}
                                 <div class="col-md-4">
-                                    <a href="{% url 'delete-venda' reservas.lote.id %}"
-                                       class="btn btn-danger text-center py-3 w-50"
-                                       aria-label="Exibir todos os lotes">
+                                    <a class="btn btn-danger text-center py-3 w-50"
+                                       name="pre-reserva"
+                                       data-bs-toggle="modal"
+                                       data-bs-target="#ReservaModalDelete"
+                                       title="Excluir Reserva"
+                                       aria-label="Detalhes da Reserva">
                                         <label class="form-label fw-bold d-block">Cancelar</label>
-                                        <p class="mb-0">{{ total }}</p>
+
                                     </a>
                                 </div>
                             {% endif %}
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="ReservaModalDelete" tabindex="-1" aria-labelledby="ReservaModalDelete"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="clienteModalLabel">Detalhes da Reserva</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <strong>Cliente:</strong>
+                            <span>{{ reservas.cliente }}</span>
+                        </div>
+                    </div>
+                    </br>
+                    <div class="row">
+                        <div class="col-12">
+                            <strong>Empreendimento:</strong>
+                            <span>{{ reservas.lote.quadra.empr.nome }}</span>
+                        </div>
+                    </div>
+                    </br>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Quadra:</strong>
+                            <span>{{ reservas.lote.quadra }}</span>
+                        </div>
+                        <div class="col-6">
+                            <strong>Lote:</strong>
+                            <span>{{ reservas.lote }}</span>
+                        </div>
+                    </div>
+                    </br>
+                    <p>
+                        <strong>Corretor:</strong>
+                        <span>{{ reservas.lote.user }}</span>
+                    </p>
+                    <p>
+                        <strong>Vencimento da Reserva:</strong>
+                        <span>{{ reservas.lote.data_termina_reserva }}</span>
+                    </p>
+                </div>
+                <div class="modal-footer">
+
+                    <a href="{% url 'delete-venda' reservas.lote.id %}" class="btn btn-danger">deletar</a>
+                    <button type="button" href="{% url 'lista-pre-reserva' %}" class="btn btn-secondary"
+                            data-bs-dismiss="modal">Canselar
+                    </button>
                 </div>
             </div>
         </div>

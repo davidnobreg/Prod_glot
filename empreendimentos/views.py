@@ -2,10 +2,17 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 import pandas as pd
 from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.core.exceptions import ValidationError
 from django.views.decorators.http import require_POST
 from django.db.models import Q
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.units import cm
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 
 
 from rolepermissions.decorators import has_permission_decorator
@@ -159,85 +166,6 @@ def listaEmpreendimentoTabela(request):
         'empreendimentos': empreendimento_info,
     }
     return render(request, 'lista-empreendimentos-tabela.html', context)
-
-
-"""def listaQuadra(request, id):
-    empreendimento = get_object_or_404(Empreendimento, id=id)
-    situacao_filtro = request.GET.get('situacao')
-
-    # Filtra as quadras do empreendimento
-    quadras = Quadra.objects.filter(empr=empreendimento).order_by('id')
-
-    # Aplica o filtro de situação se houver
-    if situacao_filtro and situacao_filtro != 'TODOS':
-        if situacao_filtro == 'OUTROS':
-            quadras = quadras.filter(
-                Q(situacao='CONSTRUTORA') |
-                Q(situacao='EM_RESERVA') |
-                Q(situacao='INDISPONIVEL')
-            )
-        else:
-            quadras = quadras.filter(situacao=situacao_filtro)
-
-    quadras_info_list = []
-
-    for quadra in quadras:
-        lotes = Lote.objects.filter(quadra=quadra).order_by('id')
-        total_livres = lotes.filter(situacao="DISPONIVEL").count()
-        total_vendidos = lotes.filter(situacao="VENDIDO").count()
-        outros = lotes.filter(
-            Q(situacao='CONSTRUTORA') |
-            Q(situacao='EM_RESERVA') |
-            Q(situacao='INDISPONIVEL')
-        ).count()
-
-        lotes_info = [
-            {'lote': lote, 'situacao': lote.situacao} for lote in lotes
-        ]
-
-        quadras_info_list.append({
-            'quadra': quadra,
-            'total_livres': total_livres,
-            'total_vendidos': total_vendidos,
-            'lotes': lotes_info,
-            'outros': outros
-        })
-
-    # Paginação
-    paginator = Paginator(quadras_info_list, 12)
-    page = request.GET.get('page')
-
-    try:
-        quadras_info_page = paginator.page(page)
-    except PageNotAnInteger:
-        quadras_info_page = paginator.page(1)
-    except EmptyPage:
-        quadras_info_page = paginator.page(paginator.num_pages)
-
-    # Estatísticas gerais
-    all_lotes = Lote.objects.filter(quadra__empr=empreendimento)
-
-    querydict = request.GET.copy()
-    if 'page' in querydict:
-        querydict.pop('page')
-
-    context = {
-        'quadras_info': quadras_info_page,  # importante!
-        'empreendimento': empreendimento,
-        'total': all_lotes.count(),
-        'livre': all_lotes.filter(situacao='DISPONIVEL').count(),
-        'reserva': all_lotes.filter(situacao='RESERVADO').count(),
-        'vendido': all_lotes.filter(situacao='VENDIDO').count(),
-        'outros': all_lotes.filter(
-            Q(situacao='CONSTRUTORA') |
-            Q(situacao='EM_RESERVA') |
-            Q(situacao='INDISPONIVEL')
-        ).count(),
-        'situacao_filtro': situacao_filtro,
-        'querystring': urlencode(querydict)
-    }
-
-    return render(request, 'lista-quadras.html', context)"""
 
 
 @has_permission_decorator('listaQuadra')
@@ -614,6 +542,16 @@ def listaReservasTemporaria(request):
     return render(request, 'relatorio_de_reservas_temporario.html', context)
 
 
+@has_permission_decorator('liberaLote')
+def liberaLote(request, id):
+    get_lote = get_object_or_404(Lote, id=id)
+
+    if request.method == 'GET':
+        get_lote.situacao = "DISPONIVEL"
+        get_lote.save()
+        messages.success(request, "Lote liberado com Sucesso!")
+    return redirect('listar-quadras', id=get_lote.quadra.empr_id)
+
 @has_permission_decorator('cancelarReservadoTemporaria')
 def cancelarReservadoTemporaria(request, id):
     get_lote = get_object_or_404(Lote, id=id)
@@ -644,3 +582,67 @@ def renovaReserva(request, id):
     get_lote.save()
     messages.success(request, "Reserva renovada com sucesso!")
     return redirect('lista-pre-reserva')
+
+def gerarRelatorioLotes(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="relatorio_lotes.pdf"'
+
+    # Tamanho da página em modo paisagem (horizontal)
+    doc = SimpleDocTemplate(
+        response,
+        pagesize=landscape(A4),
+        leftMargin=30,
+        rightMargin=30,
+        topMargin=40,
+        bottomMargin=40
+    )
+
+    styles = getSampleStyleSheet()
+    elementos = []
+
+    # Filtro de situação
+    situacao = request.GET.get('situacao', 'TODOS')
+    lotes = Lote.objects.all() if situacao == 'TODOS' else Lote.objects.filter(situacao=situacao)
+
+    # Verifica se há pelo menos um lote
+    primeiro_lote = lotes.first()
+    nome_empreendimento = primeiro_lote.quadra.empr.nome if primeiro_lote else "Empreendimento não identificado"
+
+    # Título
+    titulo = Paragraph(f"Relatório de Lotes - <b>{nome_empreendimento}</b>", styles['Title'])
+    elementos.append(titulo)
+    elementos.append(Spacer(1, 12))
+
+    # Subtítulo
+    subtitulo = Paragraph(f"Situação dos Lotes: <b>{situacao}</b>", styles['Heading2'])
+    elementos.append(subtitulo)
+    elementos.append(Spacer(1, 12))
+
+    # Cabeçalho da tabela
+    dados = [['Quadra', 'Lote', 'Situação', 'Vencimento da Reserva']]
+
+    for lote in lotes:
+        dados.append([
+            lote.quadra.namequadra,
+            lote.lote,
+            lote.situacao,
+            lote.data_termina_reserva.strftime('%d/%m/%Y') if lote.data_termina_reserva else ''
+        ])
+
+    # Tabela com colunas largas e alinhadas
+    tabela = Table(dados, colWidths=[120, 100, 150, 200])
+    tabela.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#036B91")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 12),
+        ('FONTSIZE', (0, 1), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+        ('TOPPADDING', (1, 1), (-1, -1), 6),
+    ]))
+
+    elementos.append(tabela)
+    doc.build(elementos)
+    return response

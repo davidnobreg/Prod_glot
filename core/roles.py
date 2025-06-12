@@ -71,6 +71,7 @@ class Corretor(AbstractUserRole):
         'selectEmpreendimento': True,
         'listaEmpreendimento': True,
         'listaQuadra': True,
+        'loberaLote': True,
         'alterarEmpreendimento': True,
         'reservarLote': True,
         'alterarLote': True,

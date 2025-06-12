@@ -12,89 +12,108 @@
             <div class="col-lg-8">
                 <div class="card shadow-lg">
                     <div class="card-header text-white text-center" style="background-color: rgb(3, 107, 145);">
-                        <h3 class="mb-0 display-5 ">Detalhes da Venda</h3> <!-- Fonte grande e proporcional -->
+                        <h3 class="mb-0 display-5">Detalhes da Venda</h3>
                     </div>
                     <div class="card-body">
-                        <!-- Informações do Empreendimento e Quadra -->
-                        <div class="row mb-4 d-flex align-items-center justify-content-center text-center"
-                             style="min-height: 200px;">
-                            <div class="col-md-6 d-flex justify-content-center align-items-center">
-                                {% if reservas.lote.quadra.empr.logo %}
-                                    <div class="image-container">
-                                        <img src="{{ reservas.lote.quadra.empr.logo.url }}"
-                                             alt="Logo de {{ reservas.lote.quadra.empr }}"
-                                             class="img-fluid"
-                                             style="max-height: 150px;">
+                        {% if reservas %}
+                            <!-- Bloco com venda existente -->
+                            <!-- Logo e Empreendimento -->
+                            <div class="row mb-4 d-flex align-items-center justify-content-center text-center"
+                                 style="min-height: 200px;">
+                                <div class="col-md-6 d-flex justify-content-center align-items-center">
+                                    {% if reservas.lote.quadra.empr.logo %}
+                                        <div class="image-container">
+                                            <img src="{{ reservas.lote.quadra.empr.logo.url }}"
+                                                 alt="Logo de {{ reservas.lote.quadra.empr }}"
+                                                 class="img-fluid"
+                                                 style="max-height: 150px;">
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 d-flex flex-column justify-content-center align-items-center">
+                                    <p class="fw-bold text-primary fs-4 mb-1">Empreendimento:</p>
+                                    <p class="fs-5 mb-0">{{ reservas.lote.quadra.empr }}</p>
+                                </div>
+                            </div>
+
+                            <hr class="my-4"/>
+
+                            <!-- Informações do Lote -->
+                            <div class="row mb-4 text-center">
+                                <div class="col-md-4">
+                                    <p class="fw-bold text-primary fs-4 mb-1">Quadra:</p>
+                                    <p class="fs-5 mb-0">{{ reservas.lote.quadra.namequadra }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="fw-bold text-primary fs-4 mb-1">Lote:</p>
+                                    <p class="fs-5 mb-0">{{ reservas.lote.lote }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="fw-bold text-primary fs-4 mb-1">Vencimento:</p>
+                                    <p class="fs-5 mb-0">{{ reservas.lote.data_termina_reserva }}</p>
+                                </div>
+                            </div>
+
+                            <hr class="my-4"/>
+
+                            <!-- Corretor -->
+                            <div class="row text-center">
+                                <div class="col-md-6">
+                                    <p class="fw-bold text-primary fs-4 mb-1">Corretor:</p>
+                                    <p class="fs-5 mb-0">{{ reservas.user.first_name }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fw-bold text-primary fs-4 mb-1">Contato:</p>
+                                    <p class="fs-5 mb-0">{{ reservas.user.contato }}</p>
+                                </div>
+                            </div>
+                        {% else %}
+                            <!-- Bloco sem venda -->
+                            <div class="alert alert-warning text-center">
+                                <h4 class="fw-bold text-danger">Este lote está marcado como <u>vendido</u>, mas não há
+                                    venda registrada.</h4>
+                                <h5 class="fw-bold text-danger">Id do Lote: {{ lote.id }}</h5>
+                                <p class="mb-0">Verifique com o administrador do sistema ou registre a venda
+                                    corretamente.</p>
+                                {% if user.is_authenticated and user.tipo_usuario == "A" %}
+                                    <div class="col-md-12">
+                                        <a href="{% url 'libera-lote' lote.id %}"
+                                           class="btn btn-dark text-bg-info text-center py-3 w-50"
+                                           aria-label="Exibir quadras">
+                                            <label class="form-label fw-bold d-block">Libera Lote</label>
+                                        </a>
                                     </div>
                                 {% endif %}
                             </div>
-                            <div class="col-md-6 d-flex flex-column justify-content-center align-items-center">
-                                <p class="fw-bold text-primary fs-4 mb-1">Empreendimento:</p>
-                                <p class="fs-5 mb-0">{{ reservas.lote.quadra.empr }}</p>
-                            </div>
-                        </div>
+                        {% endif %}
 
                         <hr class="my-4"/>
 
-                        <!-- Informações do Lote -->
-                        <div class="row mb-4 text-center">
-                            <div class="col-md-4">
-                                <p class="fw-bold text-primary fs-4 mb-1">Quadra:</p>
-                                <p class="fs-5 mb-0">{{ reservas.lote.quadra.namequadra }}</p>
-                            </div>
-                            <div class="col-md-4">
-                                <p class="fw-bold text-primary fs-4 mb-1">Lote:</p>
-                                <p class="fs-5 mb-0">{{ reservas.lote.lote }}</p>
-                            </div>
-                            <div class="col-md-4">
-                                <p class="fw-bold text-primary fs-4 mb-1">Vencimento:</p>
-                                <p class="fs-5 mb-0">{{ reservas.lote.data_termina_reserva }}</p>
-                            </div>
-                        </div>
-
-                        <hr class="my-4"/>
-
-                        <!-- Informações do Corretor Responsável -->
-                        <div class="row text-center">
-                            <div class="col-md-6">
-                                <p class="fw-bold text-primary fs-4 mb-1">Corretor:</p>
-                                <p class="fs-5 mb-0">{{ reservas.user.first_name }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p class="fw-bold text-primary fs-4 mb-1">Contato:</p>
-                                <p class="fs-5 mb-0">{{ reservas.user.contato }}</p>
-                            </div>
-                        </div>
-
-                        <hr class="my-4"/>
-
+                        <!-- Botões de navegação -->
                         <div class="row text-center">
                             <div class="col-md-4">
-                                <a href="{% url 'listar-quadras' reservas.lote.quadra.empr.id %}"
+                                <a href="
+
+                                        {% if reservas %}{% url 'listar-quadras' reservas.lote.quadra.empr.id %}{% else %}{% url 'listar-quadras' lote.quadra.empr.id %}{% endif %}"
                                    class="btn btn-primary text-center py-3 w-50"
-                                   aria-label="Exibir todos os lotes">
+                                   aria-label="Exibir quadras">
                                     <label class="form-label fw-bold d-block">Quadras</label>
-
                                 </a>
                             </div>
                             <div class="col-md-4">
                                 <a href="{% url 'lista-venda' %}"
                                    class="btn btn-warning text-center py-3 w-50"
-                                   aria-label="Exibir todos os lotes">
+                                   aria-label="Listagem de vendas">
                                     <label class="form-label fw-bold d-block">Listagem</label>
-
                                 </a>
                             </div>
-                            {% if user.is_authenticated and user.tipo_usuario == "A" %}
+                            {% if user.is_authenticated and user.tipo_usuario == "A" and reservas %}
                                 <div class="col-md-4">
                                     <a class="btn btn-danger text-center py-3 w-50"
-                                       name="pre-reserva"
                                        data-bs-toggle="modal"
                                        data-bs-target="#ReservaModalDelete"
-                                       title="Excluir Reserva"
-                                       aria-label="Detalhes da Reserva">
+                                       title="Excluir Reserva">
                                         <label class="form-label fw-bold d-block">Cancelar</label>
-
                                     </a>
                                 </div>
                             {% endif %}
@@ -104,59 +123,33 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="ReservaModalDelete" tabindex="-1" aria-labelledby="ReservaModalDelete"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="clienteModalLabel">Detalhes da Reserva</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                {% csrf_token %}
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-12">
-                            <strong>Cliente:</strong>
-                            <span>{{ reservas.cliente }}</span>
-                        </div>
-                    </div>
-                    </br>
-                    <div class="row">
-                        <div class="col-12">
-                            <strong>Empreendimento:</strong>
-                            <span>{{ reservas.lote.quadra.empr.nome }}</span>
-                        </div>
-                    </div>
-                    </br>
-                    <div class="row">
-                        <div class="col-6">
-                            <strong>Quadra:</strong>
-                            <span>{{ reservas.lote.quadra }}</span>
-                        </div>
-                        <div class="col-6">
-                            <strong>Lote:</strong>
-                            <span>{{ reservas.lote }}</span>
-                        </div>
-                    </div>
-                    </br>
-                    <p>
-                        <strong>Corretor:</strong>
-                        <span>{{ reservas.lote.user }}</span>
-                    </p>
-                    <p>
-                        <strong>Vencimento da Reserva:</strong>
-                        <span>{{ reservas.lote.data_termina_reserva }}</span>
-                    </p>
-                </div>
-                <div class="modal-footer">
 
-                    <a href="{% url 'delete-venda' reservas.lote.id %}" class="btn btn-danger">deletar</a>
-                    <button type="button" href="{% url 'lista-pre-reserva' %}" class="btn btn-secondary"
-                            data-bs-dismiss="modal">Canselar
-                    </button>
+    {% if reservas %}
+        <!-- Modal para deletar reserva -->
+        <div class="modal fade" id="ReservaModalDelete" tabindex="-1" aria-labelledby="ReservaModalDelete"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Detalhes da Reserva</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <p><strong>Cliente:</strong> {{ reservas.cliente }}</p>
+                        <p><strong>Empreendimento:</strong> {{ reservas.lote.quadra.empr.nome }}</p>
+                        <p><strong>Quadra:</strong> {{ reservas.lote.quadra }}</p>
+                        <p><strong>Lote:</strong> {{ reservas.lote }}</p>
+                        <p><strong>Corretor:</strong> {{ reservas.user }}</p>
+                        <p><strong>Vencimento da Reserva:</strong> {{ reservas.lote.data_termina_reserva }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="{% url 'delete-venda' reservas.lote.id %}" class="btn btn-danger">Deletar</a>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
+    {% endif %}
 {% endblock %}
+

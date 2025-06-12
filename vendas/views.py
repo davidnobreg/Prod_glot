@@ -15,10 +15,19 @@ from .models import RegisterVenda
 from empreendimentos.models import Lote, Empreendimento
 
 
+
 @has_permission_decorator('reservado')
 def reservado(request, id):
-    reservas = RegisterVenda.objects.filter(lote=id).first()
-    context = {'reservas': reservas}
+    lote = get_object_or_404(Lote, pk=id)
+    venda = RegisterVenda.objects.filter(lote=lote).first()
+
+    # Verifica se o lote está marcado como vendido mas não possui venda registrada
+    if lote.situacao.lower() == 'vendido' and venda is None:
+        return render(request, 'reservado.html', {'lote': lote})
+
+    # Caso contrário, segue para o template padrão
+    context = {'reservas': venda,
+               'lote':lote}
     return render(request, 'reservado.html', context)
 
 

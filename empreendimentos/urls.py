@@ -2,8 +2,8 @@ from django.urls import path
 from .views import (criarEmpreendimento, listaEmpreendimento, listaEmpreendimentoTabela, listaQuadra, \
                     deleteEmpreendimento, alteraEmpreendimento, selectEmpreendimento, detalheEmpreendimento,
                     relatorioFinanceiro, reservadoDetalheEmpreendimento, listaReservasTemporaria,
-                    cancelarReservadoTemporaria, cancelarReservadoTemporariaLista,\
-                    alteraLote, renovaReserva, \
+                    cancelarReservadoTemporaria, cancelarReservadoTemporariaLista, \
+                    alteraLote, renovaReserva, liberaLote, gerarRelatorioLotes, \
                     importarDados)
 
 urlpatterns = [
@@ -34,7 +34,10 @@ urlpatterns = [
          name='reservado-detalhes-pre-reserva-lote'),
     path('listar_pre_reserva/', listaReservasTemporaria, name='lista-pre-reserva'),
     path('cancela_reserva_lote/<int:id>/', cancelarReservadoTemporaria, name='cancela-lote-pre-reserva'),
-    path('cancela_reserva_lote_lista/<int:id>/', cancelarReservadoTemporariaLista, name='cancela-lote-pre-reserva-lista'),
+    path('cancela_reserva_lote_lista/<int:id>/', cancelarReservadoTemporariaLista,
+         name='cancela-lote-pre-reserva-lista'),
     path('renova_reserva_lote/<int:id>/', renovaReserva, name='renova-lote-pre-reserva'),
+    path('libera_lote/<int:id>/', liberaLote, name='libera-lote'),
+    path('relatorio-lotes/', gerarRelatorioLotes, name='relatorio-lotes'),
 
 ]

@@ -590,7 +590,7 @@ def gerarRelatorioLotes(request):
     # Tamanho da página em modo paisagem (horizontal)
     doc = SimpleDocTemplate(
         response,
-        pagesize=landscape(A4),
+        pagesize=A4,
         leftMargin=30,
         rightMargin=30,
         topMargin=40,
@@ -630,7 +630,7 @@ def gerarRelatorioLotes(request):
         ])
 
     # Tabela com colunas largas e alinhadas
-    tabela = Table(dados, colWidths=[120, 100, 150, 200])
+    tabela = Table(dados, colWidths=[90, 90, 120, 180])
     tabela.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#036B91")),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),

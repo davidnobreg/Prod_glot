@@ -59,22 +59,17 @@
                     </div>
                 </div>
             </div>
-
+            <div class="col-md-12">
                 <div class="col-6">
-                    <label class="form-label fw-bold d-block"></label>
                     <a href="{% url 'relatorio-lotes' %}?situacao={{ request.GET.situacao|default:'TODOS' }}"
-                       class="btn btn-danger" target="_blank">
-                        📄 Baixar Relatório em PDF
-                    </a>
+                   class="btn btn-danger" target="_blank">
+                    📄 Baixar Relatório em PDF
+                </a>
                 </div>
                 <div class="col-6">
-                    <label class="form-label fw-bold d-block"></label>
-                    <button class="btn btn-outline-primary" onclick="compartilharRelatorio()">📤 Compartilhar Relatório
-                    </button>
+                    <button class="btn btn-outline-primary" onclick="compartilharRelatorio()">📤 Compartilhar Relatório</button>
                 </div>
-
-
-
+            </div>
         </div>
 
         <!-- Quadras e Lotes -->

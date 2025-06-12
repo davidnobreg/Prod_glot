@@ -97,6 +97,39 @@ document.addEventListener("DOMContentLoaded", function () {
 
 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
 tooltipTriggerList.forEach(function (tooltipTriggerEl) {
-  new bootstrap.Tooltip(tooltipTriggerEl)
+    new bootstrap.Tooltip(tooltipTriggerEl)
 })
 
+async function compartilharRelatorio() {
+    const situacao = new URLSearchParams(window.location.search).get('situacao') || 'TODOS';
+    const response = await fetch(`/empreendimentos/relatorio-lotes/?situacao=${situacao}`);
+
+    if (!response.ok) {
+        alert('Erro ao gerar o relatório');
+        return;
+    }
+
+    const blob = await response.blob();
+    const file = new File([blob], "relatorio_lotes.pdf", { type: "application/pdf" });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+            await navigator.share({
+                title: "Relatório de Lotes",
+                text: "Segue o relatório de lotes gerado.",
+                files: [file]
+            });
+        } catch (err) {
+            alert("Compartilhamento cancelado ou falhou.");
+        }
+    } else {
+        // Alternativa para desktop ou navegadores que não suportam Web Share API
+        const url = URL.createObjectURL(file);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file.name;
+        a.click();
+        URL.revokeObjectURL(url);
+        alert("Navegador não suporta compartilhamento direto. O arquivo foi baixado.");
+    }
+}

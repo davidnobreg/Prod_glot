@@ -107,12 +107,11 @@
                                             </a>
                                         </div>
                                         <div class="col-md-3">
-                                            <a href="{% url 'delete-usuario' usuario.id %}"
-                                               class="btn btn-danger w-auto h-auto text-wrap text-center"
-                                               title="Excluir Usuario" data-bs-toggle="tooltip"
-                                               aria-label="Excluir Usuario">
+                                            <button class="btn btn-danger"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#usuarioModalDelete{{ usuario.id }}">
                                                 <i class="fas fa-window-close"></i>
-                                            </a>
+                                            </button>
                                         </div>
                                     </div>
                                 </td>
@@ -123,10 +122,14 @@
                     <div>
                         <ul class="pagination justify-content-center mt-4">
                             <li class="page-item">
-
                                 {% if page_obj.has_previous %}
                                     <a class="btn btn-primary"
-                                      href="?page={{ page_obj.previous_page_number }}{% if request.GET.user %}&user={{ request.GET.user }}
+                                       href="?page=
+
+
+
+
+                                               {{ page_obj.previous_page_number }}{% if request.GET.user %}&user={{ request.GET.user }}
                                             {% endif %}{% if request.GET.tipo_user %}&tipo_user={{ request.GET.tipo_user }}{% endif %}"
                                        aria-label="Página anterior">
                                         Voltar
@@ -144,6 +147,10 @@
                                 {% if page_obj.has_next %}
                                     <a class="btn btn-primary"
                                        href="?page=
+
+
+
+
                                                {{ page_obj.next_page_number }}{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}
                                                 {% if request.GET.tipo_user %}&tipo_user={{ request.GET.tipo_user }}{% endif %}"
                                        aria-label="Próxima página">
@@ -158,4 +165,54 @@
             </div>
         </div>
     </div>
+
+    {% for usuario in usuarios %}
+        <div class="modal fade" id="usuarioModalDelete{{ usuario.id }}" tabindex="-1"
+             aria-labelledby="usuarioModalDelete{{ usuario.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <!-- Cabeçalho -->
+                    <div class="modal-header">
+                        <h5 class="modal-title">Detalhes do Usuário</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+
+                    <!-- Corpo do modal -->
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <strong>Creci:</strong>
+                            <span>{{ usuario.creci|default:"-" }}</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Nome Usual:</strong>
+                            <span>{{ usuario.first_name|default:"-" }}</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Nome Completo:</strong>
+                            <span>{{ usuario.last_name|default:"-" }}</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Contato:</strong>
+                            <span>{{ usuario.contato|default:"-" }}</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Email:</strong>
+                            <span>{{ usuario.email|default:"-" }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Rodapé do modal -->
+                    <div class="modal-footer">
+                        <a href="{% url 'delete-usuario' usuario.id %}" class="btn btn-danger">Deletar</a>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
 {% endblock %}

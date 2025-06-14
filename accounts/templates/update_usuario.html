@@ -14,29 +14,46 @@
             <div class="col-lg-6">
                 <img src="{% static 'images/carlos.jpg' %}" class="img-fluid rounded shadow" alt="Cliente"/>
             </div>
-
             <!-- Formulário -->
             <div class="col-lg-6">
-                <form method="post">
-                    {% csrf_token %}
+                <div class="container">
+
+                    <hr>
                     <h4 class="mb-3 text-center">Cadastrar Usuario</h4>
-                    {% if status == '0' %}
-                        <div class="alert alert-success" role="alert">Usuari cadastrado com sucesso</div>
-                    {% elif status == '1' %}
-                        <div class="alert alert-danger" role="alert">Preencha o nome</div>
-                    {% elif status == '2' %}
-                        <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente</div>
-                    {% elif status == '3' %}
-                        <div class="alert alert-danger" role="alert">Preencha o contato</div>
-                    {% endif %}
-                    <hr/>
-                    {{ form.as_ul }}
-                    <hr/>
+                    <hr>
+                    <form method="post" class="card  p-4 shadow align-items-center">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            {{ form.username.label_tag }} {{ form.username }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.first_name.label_tag }} {{ form.first_name }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.last_name.label_tag }} {{ form.last_name }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.email.label_tag }} {{ form.email }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.creci.label_tag }} {{ form.creci }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.contato.label_tag }} {{ form.contato }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.tipo_usuario.label_tag }} {{ form.tipo_usuario }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.password1.label_tag }} {{ form.password1 }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.password2.label_tag }} {{ form.password2 }}
+                        </div>
 
-                    <button type="submit" class="btn btn-primary w-100 mt-3">Salvar</button>
-
-                    <button class="btn btn-primary w-100 mt-3">Canselar</button>
-                </form>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </form>
+                </div>
             </div>
             <hr/>
         </div>

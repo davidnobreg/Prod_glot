@@ -102,34 +102,50 @@ tooltipTriggerList.forEach(function (tooltipTriggerEl) {
 
 async function compartilharRelatorio() {
     const situacao = new URLSearchParams(window.location.search).get('situacao') || 'TODOS';
-    const response = await fetch(`/empreendimentos/relatorio-lotes/?situacao=${situacao}`);
 
-    if (!response.ok) {
-        alert('Erro ao gerar o relatório');
-        return;
-    }
+    try {
+        const response = await fetch(`/empreendimentos/relatorio-lotes/?situacao=${situacao}`);
 
-    const blob = await response.blob();
-    const file = new File([blob], "relatorio_lotes.pdf", { type: "application/pdf" });
+        if (!response.ok) {
+            alert('Erro ao gerar o relatório');
+            return;
+        }
 
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
+        const blob = await response.blob();
+        const file = new File([blob], "relatorio_lotes.pdf", { type: "application/pdf" });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
             await navigator.share({
                 title: "Relatório de Lotes",
                 text: "Segue o relatório de lotes gerado.",
                 files: [file]
             });
-        } catch (err) {
-            alert("Compartilhamento cancelado ou falhou.");
+        } else {
+            // Fallback confiável para download no Edge Desktop
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.setAttribute('download', file.name);
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            }, 1000);
+
+            alert("Este navegador não suporta compartilhamento direto. O relatório foi baixado.");
         }
-    } else {
-        // Alternativa para desktop ou navegadores que não suportam Web Share API
-        const url = URL.createObjectURL(file);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = file.name;
-        a.click();
-        URL.revokeObjectURL(url);
-        alert("Navegador não suporta compartilhamento direto. O arquivo foi baixado.");
+    } catch (err) {
+        console.error("Erro ao compartilhar:", err);
+        alert("Ocorreu um erro ao gerar ou compartilhar o relatório.");
     }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Verifica se o navegador suporta navigator.share com arquivos
+    if (!navigator.canShare || !navigator.canShare({ files: [new File([""], "teste.pdf", { type: "application/pdf" })] })) {
+        const botao = document.querySelector('button[onclick="compartilharRelatorio()"]');
+        if (botao) botao.style.display = 'none';
+    }
+});

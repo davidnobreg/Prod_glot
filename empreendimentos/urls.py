@@ -3,7 +3,7 @@ from .views import (criarEmpreendimento, listaEmpreendimento, listaEmpreendiment
                     deleteEmpreendimento, alteraEmpreendimento, selectEmpreendimento, detalheEmpreendimento,
                     relatorioFinanceiro, reservadoDetalheEmpreendimento, listaReservasTemporaria,
                     cancelarReservadoTemporaria, cancelarReservadoTemporariaLista, \
-                    alteraLote, renovaReserva, liberaLote, gerarRelatorioLotes, \
+                    alteraLote, renovaReserva, liberaLote, gerarRelatorioLotes, criarUsuarioEmpreendimento, \
                     importarDados)
 
 urlpatterns = [
@@ -39,5 +39,7 @@ urlpatterns = [
     path('renova_reserva_lote/<int:id>/', renovaReserva, name='renova-lote-pre-reserva'),
     path('libera_lote/<int:id>/', liberaLote, name='libera-lote'),
     path('relatorio-lotes/', gerarRelatorioLotes, name='relatorio-lotes'),
+
+    path('usuariosempreendimento/', criarUsuarioEmpreendimento, name='criar-usuario-empreendimento'),
 
 ]

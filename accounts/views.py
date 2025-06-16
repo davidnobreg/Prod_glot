@@ -149,27 +149,29 @@ def deleteUsuario(request, id):
     return redirect('lista-usuario')
 
 @has_permission_decorator('criarUsuarioEmpreendimento')
-def criarUsuarioEmpreendimento(request):
-    get_user = request.GET.get('user')
-    get_empreendimento = request.GET.get('empreendimento')
+def criarUsuariosEmpreendimento(request):
+    if request.method == 'POST':
+        ids_usuarios = request.POST.getlist('usuarios_selecionados')
+        id_empreendimento = request.POST.get('empreendimento')
 
-    # Buscar os objetos
-    usuario = User.objects.get(id=get_user)
-    empreendimento = Empreendimento.objects.get(id=get_empreendimento)
+        empreendimento = get_object_or_404(Empreendimento, id=id_empreendimento)
 
-    # Criar ou ativar o relacionamento
-    usuario_empreendimento, created = UsuarioEmpreendimento.objects.get_or_create(
-        usuario=usuario,
-        empreendimento=empreendimento,
-        defaults={'ativo': True}
-    )
+        for user_id in ids_usuarios:
+            usuario = User.objects.get(id=user_id)
+            relacao, created = UsuarioEmpreendimento.objects.get_or_create(
+                usuario=usuario,
+                empreendimento=empreendimento,
+                defaults={'ativo': True}
+            )
 
-    if not created:
-        # Se já existe, reativa (caso tenha sido desativado)
-        usuario_empreendimento.ativo = True
-        usuario_empreendimento.save()
+            if not created:
+                relacao.ativo = True
+                relacao.save()
 
-    return redirect('detalhe-empreendimento', id=empreendimento.id)
+        messages.success(request, "Usuários associados com sucesso.")
+        return redirect('detalhe-empreendimento', id=empreendimento.id)
+
+    return redirect('lista-empreendimento-tabela')
 
 
 @has_permission_decorator('deleteUsuarioEmpreendimento')

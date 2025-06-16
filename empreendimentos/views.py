@@ -6,9 +6,7 @@ from django.http import JsonResponse, HttpResponse
 from django.core.exceptions import ValidationError
 from django.views.decorators.http import require_POST
 from django.db.models import Q
-from reportlab.pdfgen import canvas
-from reportlab.lib import colors
-from reportlab.lib.units import cm
+from django.views.decorators.http import require_http_methods
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -304,12 +302,12 @@ class importarDados(View):
 def detalheEmpreendimento(request, id):
     template_name = 'detalhes-do-empreendimento.html'
 
-    usuarios = User.objects.all()
+    empreendimento = get_object_or_404(Empreendimento, id=id)
 
-    empreendimento = Empreendimento.objects.get(id=id)
+    usuarios = User.objects.all()
+    empreendimentos = Empreendimento.objects.all()
     corretores = UsuarioEmpreendimento.objects.filter(empreendimento=id, ativo=True)
 
-    # Filtra apenas os lotes desse empreendimento
     lotes = Lote.objects.filter(quadra__empr=empreendimento)
 
     total = lotes.count()
@@ -324,8 +322,9 @@ def detalheEmpreendimento(request, id):
 
     context = {
         'empreendimento': empreendimento,
-        'corretores': corretores,
+        'empreendimentos': empreendimentos,  # <- necessário para o <select>
         'usuarios': usuarios,
+        'corretores': corretores,
         'total': total,
         'livre': livre,
         'reserva': reserva,
@@ -652,3 +651,26 @@ def gerarRelatorioLotes(request):
     elementos.append(tabela)
     doc.build(elementos)
     return response
+
+@require_http_methods(["POST"])
+def criarUsuarioEmpreendimento(request):
+    users_ids = request.POST.getlist('users')  # Lista de usuários
+    empreendimento_id = request.POST.get('empreendimento')
+
+    empreendimento = get_object_or_404(Empreendimento, id=empreendimento_id)
+
+    for user_id in users_ids:
+        usuario = get_object_or_404(User, id=user_id)
+
+        usuario_empreendimento, created = UsuarioEmpreendimento.objects.get_or_create(
+            usuario=usuario,
+            empreendimento=empreendimento,
+            defaults={'ativo': True}
+        )
+
+        if not created:
+            usuario_empreendimento.ativo = True
+            usuario_empreendimento.save()
+
+    messages.success(request, "Usuários adicionados com sucesso!")
+    return redirect('detalhe-empreendimento', id=empreendimento.id)

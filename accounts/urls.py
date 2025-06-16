@@ -19,7 +19,7 @@ urlpatterns = [
 
     path('alterar_usuarios/<int:id>/', views.alteraUsuario, name='update-usuario'),
 
-    path('usuariosempreendimento/', views.criarUsuarioEmpreendimento, name='criar-usuario-empreendimento'),
+    path('usuariosempreendimento/multiplos/', views.criarUsuariosEmpreendimento, name='criar-usuarios-empreendimento'),
 
     path('delete_usuarios_empreendimento/<int:id>/', views.deleteUsuarioEmpreendimento, name='delete-usuario-empreendimento'),
 ]

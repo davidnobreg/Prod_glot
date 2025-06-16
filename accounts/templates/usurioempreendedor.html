@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 
-
 {% block title %}
     Cadastro
 {% endblock %}
@@ -8,57 +7,55 @@
 {% load static %}
 
 {% block content %}
-    <h1>Teste usuario em preendedor</h1>
-    <div class="container mt-4">
-        <h4 class="mt-4 text-center">CADASTRAR USUARIOS EM EMPREENDIMENTOS</h4>
-        <hr>
+<h1>Teste usuário em empreendimento</h1>
+<div class="container mt-4">
+    <h4 class="mt-4 text-center">CADASTRAR USUÁRIOS EM EMPREENDIMENTOS</h4>
+    <hr>
 
-        <!-- Filtros -->
-        <div class="row g-3 align-items-center bg-light p-4 rounded shadow mb-4">
-            <div class="col-md-6">
-                <a href="{% url 'criar-empreendimento' %}" class="btn btn-primary md-4">
-                    Adicionar Empreendimento
-                </a>
-            </div>
-            <!-- Pesquisar pelo empreendimento -->
-            <div class="col-md-5">
-                <label for="empreendimentoSearch" class="form-label">Nome do Empreendimento</label>
-                <form class="d-flex" action="{% url 'lista-empreendimento-tabela' %}">
-                    <input name="empreendimento" id="empreendimentoSearch" type="search" class="form-control me-2"
-                           placeholder="Pesquisar Empreendimento..." value="{{ request.GET.empreendimento }}">
-                    <button class="btn btn-success" type="submit">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </form>
-            </div>
-
-            <!-- Resetar filtros -->
-            <div class="col-md-1">
-                <label for="idReset" class="form-label">Resetar</label>
-                <a class="btn btn-danger" href="{% url 'lista-empreendimento-tabela' %}">
-                    <i class="fas fa-window-close"></i>
-                </a>
-            </div>
+    <!-- Filtros -->
+    <div class="row g-3 align-items-center bg-light p-4 rounded shadow mb-4">
+        <div class="col-md-6">
+            <a href="{% url 'criar-empreendimento' %}" class="btn btn-primary md-4">
+                Adicionar Empreendimento
+            </a>
         </div>
-        <hr>
-        <div class="table-responsive">
-            <table class="table table-striped text-center">
-                <thead>
+        <div class="col-md-5">
+            <label for="empreendimentoSearch" class="form-label">Nome do Empreendimento</label>
+            <form class="d-flex" action="{% url 'lista-empreendimento-tabela' %}">
+                <input name="empreendimento" id="empreendimentoSearch" type="search" class="form-control me-2"
+                    placeholder="Pesquisar Empreendimento..." value="{{ request.GET.empreendimento }}">
+                <button class="btn btn-success" type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+        <div class="col-md-1">
+            <label class="form-label">Resetar</label>
+            <a class="btn btn-danger" href="{% url 'lista-empreendimento-tabela' %}">
+                <i class="fas fa-window-close"></i>
+            </a>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Tabela de Empreendimentos -->
+    <div class="table-responsive mb-5">
+        <table class="table table-striped text-center">
+            <thead>
                 <tr>
-                    <th scope="col">id</th>
-                    <th scope="col">Nome</th>
-                    <th scope="col">Dias de Reserva</th>
-                    <th scope="col">Lotes Disponível</th>
-                    <th scope="col">Lotes Reservados</th>
-                    <th scope="col">Lotes Vendidos</th>
-                    <th scope="col">Outras Situações</th>
-                    <th scope="col">Total de Lotes</th>
-                    <th scope="col"></th>
-
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Dias de Reserva</th>
+                    <th>Lotes Disponíveis</th>
+                    <th>Lotes Reservados</th>
+                    <th>Lotes Vendidos</th>
+                    <th>Outras Situações</th>
+                    <th>Total de Lotes</th>
+                    <th>Ações</th>
                 </tr>
-                </thead>
-
-                <tbody class="featurette-heading fw-normal lh-1">
+            </thead>
+            <tbody class="featurette-heading fw-normal lh-1">
                 {% for empreendimento in empreendimentos %}
                     <tr>
                         <td>{{ empreendimento.id }}</td>
@@ -70,24 +67,64 @@
                         <td>{{ outras }}</td>
                         <td>{{ total }}</td>
                         <td>
-                            <a href="{% url 'arquivo' empreendimento.id %}" class="btn btn-success">Arquivo</a>
-                            <a href="{% url 'alterar-empreendimento' empreendimento.id %}"
-                               class="btn btn-warning">Alterar</a>
-
-                            <button class="btn btn-danger btn-detalhes-empreendimento"
-                                    name="empreendimento"
-                                    data-id="{{ empreendimento.id }}"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#empreendimentoModal">
-                                Excluir
-                            </button>
-
+                            <a href="{% url 'arquivo' empreendimento.id %}" class="btn btn-success btn-sm">Arquivo</a>
+                            <a href="{% url 'alterar-empreendimento' empreendimento.id %}" class="btn btn-warning btn-sm">Alterar</a>
+                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#empreendimentoModal"
+                                data-id="{{ empreendimento.id }}">Excluir</button>
                         </td>
                     </tr>
                 {% endfor %}
-                </tbody>
-
-            </table>
-        </div>
+            </tbody>
+        </table>
     </div>
+
+    <!-- Formulário para associar múltiplos usuários a um empreendimento -->
+    <div class="bg-light p-4 rounded shadow mb-4">
+        <h5 class="mb-3">Selecionar usuários para associar a um empreendimento</h5>
+        <form method="post" action="{% url 'criar-usuarios-empreendimento' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="empreendimentoSelect" class="form-label">Selecionar Empreendimento</label>
+                <select name="empreendimento" id="empreendimentoSelect" class="form-select" required>
+                    <option value="">-- Escolha um empreendimento --</option>
+                    {% for empreendimento in empreendimentos %}
+                        <option value="{{ empreendimento.id }}">{{ empreendimento.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="selecionar-todos"></th>
+                            <th>Nome</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios %}
+                            <tr>
+                                <td><input type="checkbox" name="usuarios_selecionados" value="{{ usuario.id }}"></td>
+                                <td>{{ usuario.get_full_name }}</td>
+                                <td>{{ usuario.email }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-3">Associar Selecionados</button>
+        </form>
+    </div>
+</div>
+
+<!-- JavaScript para selecionar todos os checkboxes -->
+<script>
+document.getElementById('selecionar-todos').addEventListener('change', function() {
+    document.querySelectorAll('input[name="usuarios_selecionados"]').forEach(cb => {
+        cb.checked = this.checked;
+    });
+});
+</script>
 {% endblock %}

@@ -23,6 +23,7 @@
 
                             <div class="col-lg-6 g-4">
                                 <div class="row g-3">
+
                                     {% if empreendimento.logo %}
                                         <div class="image-container">
                                             <img src="{{ empreendimento.logo.url }}" alt="{{ empreendimento.nome }}"
@@ -30,35 +31,25 @@
                                         </div>
                                     {% endif %}
 
-                                    <!-- Seletor de corretor -->
-                                    <form action="" method="get">
-                                        <label for="typeFilter" class="form-label fw-bold">Selecione o Usuário</label>
-                                        <select name="user" id="typeFilter" class="form-select text-center"
-                                                onchange="this.form.submit()">
-                                            <option value=""></option>
+                                    <!-- Formulário para seleção múltipla de usuários -->
+                                    <form method="post" action="{% url 'criar-usuario-empreendimento' %}">
+                                        {% csrf_token %}
+                                        <label for="usuarios" class="form-label fw-bold">Selecione Usuários</label>
+                                        <select name="users" id="usuarios" class="form-select text-center" multiple size="5" required>
                                             {% for usuario in usuarios %}
-                                                <option value="{{ usuario.id }}"
-                                                        {% if request.GET.user == usuario.id|stringformat:"s" %}selected{% endif %}>
-                                                    {{ usuario.first_name }}
+                                                <option value="{{ usuario.id }}">
+                                                    {{ usuario.first_name }} ({{ usuario.email }})
                                                 </option>
                                             {% endfor %}
                                         </select>
+
+                                        <input type="hidden" name="empreendimento" value="{{ empreendimento.id }}">
+
+                                        <button type="submit" class="btn btn-secondary w-100 text-center py-3 mt-3">
+                                            <label class="form-label fw-bold d-block mb-0">Adicionar Corretores</label>
+                                        </button>
                                     </form>
 
-                                    <!-- Botão para adicionar corretor selecionado -->
-                                    {% if request.GET.user %}
-                                        <form method="get" action="{% url 'criar-usuario-empreendimento' %}">
-                                            <input type="hidden" name="user" value="{{ request.GET.user }}">
-                                            <input type="hidden" name="empreendimento" value="{{ empreendimento.id }}">
-                                            <button type="submit" class="btn btn-secondary w-100 text-center py-3 mt-2">
-                                                <label class="form-label fw-bold d-block mb-0">Adicionar
-                                                    Corretor</label>
-                                            </button>
-                                        </form>
-                                    {% else %}
-                                        <p class="text-center text-danger">Selecione um usuário para adicionar ao
-                                            empreendimento.</p>
-                                    {% endif %}
                                 </div>
                             </div>
 

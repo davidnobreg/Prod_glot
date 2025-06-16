@@ -587,7 +587,6 @@ def gerarRelatorioLotes(request):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="relatorio_lotes.pdf"'
 
-    # Tamanho da página em modo paisagem (horizontal)
     doc = SimpleDocTemplate(
         response,
         pagesize=A4,
@@ -600,9 +599,16 @@ def gerarRelatorioLotes(request):
     styles = getSampleStyleSheet()
     elementos = []
 
-    # Filtro de situação
+    # Filtros
     situacao = request.GET.get('situacao', 'TODOS')
-    lotes = Lote.objects.all() if situacao == 'TODOS' else Lote.objects.filter(situacao=situacao)
+    loteamento_id = request.GET.get('loteamento_id')
+
+    # Aplica os filtros
+    lotes = Lote.objects.all()
+    if loteamento_id:
+        lotes = lotes.filter(quadra__empr__id=loteamento_id)
+    if situacao != 'TODOS':
+        lotes = lotes.filter(situacao=situacao)
 
     # Verifica se há pelo menos um lote
     primeiro_lote = lotes.first()
@@ -629,7 +635,7 @@ def gerarRelatorioLotes(request):
             lote.data_termina_reserva.strftime('%d/%m/%Y') if lote.data_termina_reserva else ''
         ])
 
-    # Tabela com colunas largas e alinhadas
+    # Tabela formatada
     tabela = Table(dados, colWidths=[90, 90, 120, 180])
     tabela.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#036B91")),

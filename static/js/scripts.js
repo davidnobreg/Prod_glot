@@ -98,13 +98,17 @@ document.addEventListener("DOMContentLoaded", function () {
 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
 tooltipTriggerList.forEach(function (tooltipTriggerEl) {
     new bootstrap.Tooltip(tooltipTriggerEl)
-})
+});
 
 async function compartilharRelatorio() {
-    const situacao = new URLSearchParams(window.location.search).get('situacao') || 'TODOS';
+    const params = new URLSearchParams(window.location.search);
+    const situacao = params.get('situacao') || 'TODOS';
+    const loteamento_id = document.body.dataset.loteamentoId || '';
+
+    const url = `/empreendimentos/relatorio-lotes/?situacao=${encodeURIComponent(situacao)}&loteamento_id=${encodeURIComponent(loteamento_id)}`;
 
     try {
-        const response = await fetch(`/empreendimentos/relatorio-lotes/?situacao=${situacao}`);
+        const response = await fetch(url);
 
         if (!response.ok) {
             alert('Erro ao gerar o relatório');
@@ -121,16 +125,16 @@ async function compartilharRelatorio() {
                 files: [file]
             });
         } else {
-            // Fallback confiável para download no Edge Desktop
-            const url = URL.createObjectURL(blob);
+            // Fallback: download
+            const urlBlob = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
+            a.href = urlBlob;
             a.setAttribute('download', file.name);
             a.style.display = 'none';
             document.body.appendChild(a);
             a.click();
             setTimeout(() => {
-                URL.revokeObjectURL(url);
+                URL.revokeObjectURL(urlBlob);
                 document.body.removeChild(a);
             }, 1000);
 
@@ -143,7 +147,7 @@ async function compartilharRelatorio() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Verifica se o navegador suporta navigator.share com arquivos
+    // Oculta o botão se não suportar compartilhamento de arquivos
     if (!navigator.canShare || !navigator.canShare({ files: [new File([""], "teste.pdf", { type: "application/pdf" })] })) {
         const botao = document.querySelector('button[onclick="compartilharRelatorio()"]');
         if (botao) botao.style.display = 'none';

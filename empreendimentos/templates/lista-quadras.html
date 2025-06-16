@@ -63,12 +63,13 @@
             <div class="col-md-12">
                 <div class="row justify-content-center g-3">
                     <div class="col-md-3 g-4">
-                        <a href="{% url 'relatorio-lotes' %}?situacao={{ request.GET.situacao|default:'TODOS' }}"
+                        <a href="{% url 'relatorio-lotes' %}?situacao={{ request.GET.situacao|default:'TODOS' }}&loteamento_id={{ empreendimento.id }}"
                            class="btn btn-danger text-center py-3 w-100" target="_blank">
                             Baixar Relatório em PDF
                         </a>
                     </div>
                     <div class="col-md-3 g-4">
+                        <body data-loteamento-id="{{ empreendimento.id }}">
                         <button class="btn btn-outline-primary text-center py-3 w-100"
                                 onclick="compartilharRelatorio()">Compartilhar Relatório
                         </button>
@@ -175,4 +176,3 @@
 
     </div>
 {% endblock %}
-

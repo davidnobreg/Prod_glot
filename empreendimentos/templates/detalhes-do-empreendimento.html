@@ -23,11 +23,10 @@
 
                             <div class="col-lg-6 g-4">
                                 <div class="row g-3">
-
                                     {% if empreendimento.logo %}
                                         <div class="image-container">
-                                            <img src="{{ empreendimento.logo.url }}" alt="{{ empreendimento.nome }}"
-                                                 class="card-img-top">
+                                            <img src="{{ empreendimento.logo.url }}" width="200px" height="200px"
+                                                 alt="{{ empreendimento.nome }}" class="card-img-top">
                                         </div>
                                     {% endif %}
 
@@ -35,11 +34,14 @@
                                     <form method="post" action="{% url 'criar-usuario-empreendimento' %}">
                                         {% csrf_token %}
                                         <label for="usuarios" class="form-label fw-bold">Selecione Usuários</label>
-                                        <select name="users" id="usuarios" class="form-select text-center" multiple size="5" required>
+                                        <select name="users" id="usuarios" class="form-select text-center" multiple
+                                                size="5" required>
                                             {% for usuario in usuarios %}
                                                 <option value="{{ usuario.id }}">
-                                                    {{ usuario.first_name }} ({{ usuario.email }})
+                                                    {{ usuario.first_name }} &mdash; <small
+                                                        class="text-muted">{{ usuario.email }}</small>
                                                 </option>
+
                                             {% endfor %}
                                         </select>
 

@@ -541,7 +541,7 @@ def listaReservasTemporaria(request):
     return render(request, 'relatorio_de_reservas_temporario.html', context)
 
 
-@has_permission_decorator('liberaLote')
+#@has_permission_decorator('liberaLote')
 def liberaLote(request, id):
     get_lote = get_object_or_404(Lote, id=id)
 

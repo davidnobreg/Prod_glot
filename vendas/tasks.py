@@ -39,6 +39,8 @@ def liberar_lotes_reservados_expirados():
             if hoje > data_limite and lote.situacao == "RESERVADO":
                 with transaction.atomic():
                     lote.situacao = "DISPONIVEL"
+                    lote.cliente_reserva = ""
+                    lote.telefone = ""
                     lote.save()
 
                     venda.tipo_venda = "CANCELADA"

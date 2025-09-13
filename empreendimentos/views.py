@@ -557,6 +557,8 @@ def cancelarReservadoTemporaria(request, id):
 
     if request.method == 'GET':
         get_lote.situacao = "DISPONIVEL"
+        get_lote.cliente_reserva = ""
+        get_lote.telefone = ""
         get_lote.save()
         messages.error(request, "Pre-Resevado Cancelada!")
     return redirect('listar-quadras', id=get_lote.quadra.empr_id)
@@ -567,6 +569,8 @@ def cancelarReservadoTemporariaLista(request, id):
 
     if request.method == 'GET':
         get_lote.situacao = "DISPONIVEL"
+        get_lote.cliente_reserva = ""
+        get_lote.telefone = ""
         get_lote.save()
         messages.error(request, "Pre-Resevado Cancelada!")
     return redirect('lista-pre-reserva')

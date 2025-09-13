@@ -24,6 +24,8 @@ def liberar_lotes_reservados_expirados():
 
     for lote in lotes_expirados:
         lote.situacao = "DISPONIVEL"
+        lote.cliente_reserva = ""
+        lote.telefone = ""
         lote.save()
         logger.info(f"Lote {lote.id} alterado para DISPONIVEL após expiração.")
 
@@ -49,6 +51,8 @@ def liberar_lotes_expirados():
             if lote.data_termina_reserva <= hoje:
                 with transaction.atomic():
                     lote.situacao = "DISPONIVEL"
+                    lote.cliente_reserva = ""
+                    lote.telefone = ""
                     lote.save()
                     total_processados += 1
                     logger.info(f"[OK] Lote {lote.id} liberado (reserva expirada em {lote.data_termina_reserva}).")

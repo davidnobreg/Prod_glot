@@ -42,7 +42,7 @@ admin.site.register(models.Empreendimento, EmpreendimentoAdmin)
 class LoteInlineAdmin(admin.TabularInline):
     model = models.Lote
     extra = 0  # Não adicionar lotes vazios
-    fields = ['id', 'lote', 'area', 'situacao']  # Definindo campos a serem exibidos
+    fields = ['id', 'lote', 'area', 'situacao', 'data_termina_reserva']  # Definindo campos a serem exibidos
 
 # Admin para o modelo Quadra
 class QuadraAdmin(admin.ModelAdmin):

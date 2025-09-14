@@ -30,25 +30,22 @@ def liberar_lotes_reservados_expirados():
         logger.info(f"Lote {lote.id} alterado para DISPONIVEL após expiração.")
 
 
-
 @shared_task
 def liberar_lotes_expirados():
     """
     Atualiza lotes cuja data_termina_reserva já passou.
-    Altera apenas o campo 'situacao' do lote para 'DISPONIVEL' se estiver 'RESERVADO'.
+    Altera apenas o campo 'situacao' do lote para 'DISPONIVEL' se estiver 'PRE-RESERVA'.
     """
 
-    # Filtra apenas os lotes com situação 'RESERVADO' e data_termina_reserva preenchida
-    lotes_reservados = Lote.objects.filter(situacao="PRE-RESERVA")#.exclude(data_termina_reserva=None)
-
-    print(lotes_reservados.id)
+    # Filtra apenas os lotes com situação 'PRE-RESERVA'
+    lotes_reservados = Lote.objects.filter(situacao="PRE-RESERVA")
 
     total_processados = 0
     hoje = timezone.now().date()
 
     for lote in lotes_reservados:
         try:
-            if lote.data_termina_reserva <= hoje:
+            if lote.data_termina_reserva and lote.data_termina_reserva <= hoje:
                 with transaction.atomic():
                     lote.situacao = "DISPONIVEL"
                     lote.cliente_reserva = ""

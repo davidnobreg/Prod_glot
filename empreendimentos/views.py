@@ -20,6 +20,9 @@ from django.views import View
 
 from django.utils import timezone
 from datetime import datetime, timedelta
+
+from tornado.http1connection import parse_int
+
 from .forms import EmpreendimentoForm, ArquivoForm, LoteForm
 from .models import Empreendimento, Quadra, Lote
 from accounts.models import User, UsuarioEmpreendimento
@@ -526,18 +529,35 @@ def reservadoDetalheEmpreendimento(request, id):
 
 @has_permission_decorator('listaReservasTemporaria')
 def listaReservasTemporaria(request):
-    # Filtra os Lotes com situação 'PRE-RESERVA'
+    query = request.GET.get('q', '')
+    tipo_empreendimento = request.GET.get('tipo_empreendimento', '')
+
+    # Filtra lotes 'PRE-RESERVA'
     lotes = Lote.objects.filter(situacao='PRE-RESERVA')
 
-    paginator = Paginator(lotes, 10)  # 10 lotes por página (ajuste conforme necessário)
+    if query:
+        lotes = lotes.filter(
+            Q(quadra__empr__nome__icontains=query) |
+            Q(quadra__nome__icontains=query) |
+            Q(numero__icontains=query) |
+            Q(user__username__icontains=query)
+        )
+
+    if tipo_empreendimento:
+        lotes = lotes.filter(quadra__empr__id=tipo_empreendimento)
+
+    paginator = Paginator(lotes, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    empreendimentos = Empreendimento.objects.filter(is_ativo=False).order_by('id')
+
     context = {
         'page_obj': page_obj,
-
+        'query': query,
+        'tipo_empreendimento': tipo_empreendimento,
+        'empreendimentos': empreendimentos,
     }
-
     return render(request, 'relatorio_de_reservas_temporario.html', context)
 
 

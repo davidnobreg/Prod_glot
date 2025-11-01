@@ -4,7 +4,6 @@ from . import views
 urlpatterns = [
     # Cadastro de cliente
     path('insert_cliente/', views.criarCliente, name='criar-cliente'),
-
     path('select/<int:cliente_id>/', views.selectCliente, name='select-cliente'),
     path('insert_cliente_modal/', views.criarClienteModal, name='criar-cliente-modal'),
     path('update/<int:cliente_id>/', views.alteraCliente, name='altera-cliente'),

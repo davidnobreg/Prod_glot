@@ -1,12 +1,18 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from .forms import ClienteForm, ClienteModalForm
-from vendas.forms import RegisterVendaForm
+
+
+from rest_framework import viewsets, filters, status
+from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.pagination import PageNumberPagination
+
 
 from .models import Cliente
+from .serializers import ClienteSerializer
 from django.core.paginator import Paginator
 from django.db.models import Q
 from rolepermissions.decorators import has_permission_decorator
@@ -81,7 +87,7 @@ def alteraCliente(request, cliente_id):
 
 @has_permission_decorator('relatorioCliente')
 def listaCliente(request):
-    clientes = Cliente.objects.filter(is_ativo=False).order_by('name')
+    clientes = Cliente.objects.filter(is_ativo=True).order_by('name')
 
     get_client = request.GET.get('client')
 
@@ -107,7 +113,7 @@ def listaCliente(request):
 
 @has_permission_decorator('relatorioClienteRelatorio')
 def listaClienteRelatorio(request):
-    clientes = Cliente.objects.filter(is_ativo=False).order_by('name')
+    clientes = Cliente.objects.filter(is_ativo=True).order_by('name')
 
     get_client = request.GET.get('client')
 
@@ -133,6 +139,6 @@ def listaClienteRelatorio(request):
 @has_permission_decorator('deletarCliente')
 def deleteCliente(request, id):
     cliente = Cliente.objects.get(id=id)
-    cliente.is_ativo = True
+    cliente.is_ativo = False
     cliente.save()
     return redirect('lista-cliente')

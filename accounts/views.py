@@ -84,7 +84,7 @@ def listarUsuario(request):
 
 @has_permission_decorator('criarUsuario')
 def criarUsuario(request):
-    template_name = 'cadastro.html'
+    template_name = 'usuario.html'
 
     if request.method == 'GET':
         return render(request, template_name)

@@ -95,37 +95,57 @@ def listaReserva(request):
 def listaVenda(request):
     empreendimentos = Empreendimento.objects.filter(is_ativo=False).order_by('id')
 
-    # Filtro inicial sem "RESERVADO"
     vendas = RegisterVenda.objects.exclude(tipo_venda='RESERVADO').filter(
-        Q(is_ativo=False) |
-        Q(tipo_venda__in=['VENDIDO', 'CANCELADA'])
+        Q(is_ativo=False) | Q(tipo_venda__in=['VENDIDO', 'CANCELADA'])
     )
 
-    get_data_venda = request.GET.get('venda')
-    get_tipo_venda = request.GET.get('tipo_venda')
-    get_id_empreendimento = request.GET.get('tipo_empreendimento')
+    filtros = {
+        'venda': request.GET.get('venda'),
+        'tipo_venda': request.GET.get('tipo_venda'),
+        'tipo_empreendimento': request.GET.get('tipo_empreendimento'),
+        'data_inicio': request.GET.get('data_inicio'),
+        'data_fim': request.GET.get('data_fim'),
+    }
 
-    if get_id_empreendimento:
-        vendas = vendas.filter(lote__quadra__empr__id=int(get_id_empreendimento))
+    # Empreendimento
+    if filtros['tipo_empreendimento']:
+        vendas = vendas.filter(lote__quadra__empr__id=filtros['tipo_empreendimento'])
 
-    if get_data_venda:
+    # Pesquisa textual
+    if filtros['venda']:
         vendas = vendas.filter(
-            Q(cliente__name__icontains=get_data_venda) |
-            Q(cliente__fone__icontains=get_data_venda) |
-            Q(lote__quadra__empr__nome__icontains=get_data_venda) |
-            Q(user__username__icontains=get_data_venda)
+            Q(cliente__name__icontains=filtros['venda']) |
+            Q(cliente__fone__icontains=filtros['venda']) |
+            Q(lote__quadra__empr__nome__icontains=filtros['venda']) |
+            Q(user__username__icontains=filtros['venda'])
         )
 
-    if get_tipo_venda:
-        # Garante que "RESERVADO" ainda será excluído mesmo se for selecionado por tipo
-        vendas = vendas.filter(tipo_venda=get_tipo_venda).exclude(tipo_venda='RESERVADO')
+    # Tipo de venda
+    if filtros['tipo_venda']:
+        vendas = vendas.filter(tipo_venda=filtros['tipo_venda'])
 
-    # Paginação
-    paginator = Paginator(vendas, 10)  # Exibe 10 por página
+
+    # 🔹 Filtro por intervalo de datas
+    if get_data_inicio and get_data_fim:
+        try:
+            data_inicio = datetime.strptime(get_data_inicio, "%Y-%m-%d").date()
+            data_fim = datetime.strptime(get_data_fim, "%Y-%m-%d").date()
+            vendas = vendas.filter(dt_venda__range=[data_inicio, data_fim])
+        except ValueError:
+            pass
+    elif get_data_inicio:
+        vendas = vendas.filter(dt_venda__date__gte=get_data_inicio)
+    elif get_data_fim:
+        vendas = vendas.filter(dt_venda__date__lte=get_data_fim)
+
+    paginator = Paginator(vendas.order_by('-id'), 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    context = {'vendas':  page_obj, 'empreendimentos': empreendimentos}
+    context = {
+        'vendas': page_obj,
+        'empreendimentos': empreendimentos,
+    }
     return render(request, 'lista_venda.html', context)
 
 

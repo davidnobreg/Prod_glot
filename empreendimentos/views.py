@@ -1,7 +1,7 @@
-from django.shortcuts import render, redirect
+
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 import pandas as pd
-from django.shortcuts import get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.core.exceptions import ValidationError
 from django.views.decorators.http import require_POST
@@ -11,6 +11,7 @@ from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+
 
 
 from rolepermissions.decorators import has_permission_decorator

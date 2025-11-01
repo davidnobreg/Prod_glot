@@ -16,44 +16,56 @@
             </div>
             <!-- Formulário -->
             <div class="col-lg-6">
-                <div class="container">
-
-                    <hr>
+                <form method="post" class="card  p-4 shadow">
+                    {% csrf_token %}
                     <h4 class="mb-3 text-center">Cadastrar Usuario</h4>
-                    <hr>
-                    <form method="post" class="card  p-4 shadow align-items-center">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            {{ form.username.label_tag }} {{ form.username }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.first_name.label_tag }} {{ form.first_name }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.last_name.label_tag }} {{ form.last_name }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.email.label_tag }} {{ form.email }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.creci.label_tag }} {{ form.creci }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.contato.label_tag }} {{ form.contato }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.tipo_usuario.label_tag }} {{ form.tipo_usuario }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.password1.label_tag }} {{ form.password1 }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.password2.label_tag }} {{ form.password2 }}
-                        </div>
+                    <!-- Mensagens de status -->
+                    {% if status == '0' %}
+                        <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso!</div>
+                    {% elif status == '1' %}
+                        <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
+                    {% elif status == '2' %}
+                        <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
+                    {% elif status == '3' %}
+                        <div class="alert alert-danger" role="alert">Preencha o telefone corretamente.</div>
+                    {% endif %}
 
+                    <hr/>
+                    <div class="mb-3">
+                        {{ form.username.label_tag }} {{ form.username }}
+                    </div>
+                    <!--<div class="mb-3">
+                        {{ form.first_name.label_tag }} {{ form.first_name }}
+                    </div>-->
+                    <div class="mb-3">
+                        {{ form.last_name.label_tag }} {{ form.last_name }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.email.label_tag }} {{ form.email }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.creci.label_tag }} {{ form.creci }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.contato.label_tag }} {{ form.contato }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.tipo_usuario.label_tag }} {{ form.tipo_usuario }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.password1.label_tag }} {{ form.password1 }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.password2.label_tag }} {{ form.password2 }}
+                    </div>
+                    <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary">Salvar</button>
-                    </form>
-                </div>
+                        <a href="{% url 'lista-usuario' %}" class="btn btn-secondary">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+
             </div>
             <hr/>
         </div>

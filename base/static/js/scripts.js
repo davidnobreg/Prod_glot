@@ -1,8 +1,58 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    // -----------------------------
-    // Função para preencher modal de cliente
-    // -----------------------------
+    // ==============================
+    // Máscaras automáticas CPF/CNPJ e Telefone
+    // ==============================
+    function aplicarMascaraDocumento(input) {
+        let value = input.value.replace(/\D/g, "");
+
+        if (value.length <= 11) {
+            // CPF
+            value = value
+                .replace(/(\d{3})(\d)/, "$1.$2")
+                .replace(/(\d{3})(\d)/, "$1.$2")
+                .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+        } else if (value.length <= 14) {
+            // CNPJ
+            value = value
+                .replace(/^(\d{2})(\d)/, "$1.$2")
+                .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+                .replace(/\.(\d{3})(\d)/, ".$1/$2")
+                .replace(/(\d{4})(\d{1,2})$/, "$1-$2");
+        }
+
+        input.value = value;
+    }
+
+    function aplicarMascaraTelefone(input) {
+        let value = input.value.replace(/\D/g, "");
+
+        if (value.length > 10) {
+            // Celular
+            value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, "($1) $2-$3");
+        } else {
+            // Telefone fixo
+            value = value.replace(/^(\d{2})(\d{4})(\d{4}).*/, "($1) $2-$3");
+        }
+
+        input.value = value;
+    }
+
+    // Aplica máscaras automaticamente em todos os inputs
+    document.querySelectorAll(".mask-doc").forEach(input => {
+        input.addEventListener("input", () => aplicarMascaraDocumento(input));
+        aplicarMascaraDocumento(input); // Aplica ao carregar (caso edição)
+    });
+
+    document.querySelectorAll(".mask-phone").forEach(input => {
+        input.addEventListener("input", () => aplicarMascaraTelefone(input));
+        aplicarMascaraTelefone(input); // Aplica ao carregar (caso edição)
+    });
+
+
+    // ==============================
+    // Modal de Cliente (Deleção)
+    // ==============================
     function preencherModalCliente(clienteId, data) {
         if (!data || typeof data !== 'object') {
             console.error('Dados do cliente inválidos:', data);
@@ -16,9 +66,6 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('cliente-email').textContent = data.email || 'Email não encontrado';
     }
 
-    // -----------------------------
-    // Modal de Deleção de Cliente
-    // -----------------------------
     const clienteModalDelete = document.getElementById('clienteModalDelete');
     if (clienteModalDelete) {
         clienteModalDelete.addEventListener('show.bs.modal', event => {
@@ -47,9 +94,10 @@ document.addEventListener("DOMContentLoaded", function () {
         console.warn("Modal clienteModalDelete não encontrado.");
     }
 
-    // -----------------------------
-    // Função para preencher modal de empreendimento
-    // -----------------------------
+
+    // ==============================
+    // Modal de Empreendimento (Deleção)
+    // ==============================
     function preencherModalEmpreendimento(empreendimentoId, data) {
         if (!data || typeof data !== 'object') {
             console.error('Dados do empreendimento inválidos:', data);
@@ -61,9 +109,6 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('empreendimento-nome').textContent = data.nome || 'Nome não encontrado';
     }
 
-    // -----------------------------
-    // Modal de Deleção de Empreendimento
-    // -----------------------------
     const empreendimentoModal = document.getElementById('empreendimentoModal');
     const formDeletarEmpreendimento = document.getElementById("form-deletar-empreendimento");
 
@@ -95,11 +140,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
-var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+
+// ==============================
+// Bootstrap tooltips
+// ==============================
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
 tooltipTriggerList.forEach(function (tooltipTriggerEl) {
-    new bootstrap.Tooltip(tooltipTriggerEl)
+    new bootstrap.Tooltip(tooltipTriggerEl);
 });
 
+
+// ==============================
+// Compartilhar relatório (PDF)
+// ==============================
 async function compartilharRelatorio() {
     const params = new URLSearchParams(window.location.search);
     const situacao = params.get('situacao') || 'TODOS';
@@ -152,4 +205,26 @@ document.addEventListener("DOMContentLoaded", () => {
         const botao = document.querySelector('button[onclick="compartilharRelatorio()"]');
         if (botao) botao.style.display = 'none';
     }
+});
+document.addEventListener("DOMContentLoaded", () => {
+    const cpfInputs = document.querySelectorAll(".mask-cpf");
+
+    cpfInputs.forEach(input => {
+        input.addEventListener("input", (e) => {
+            let value = e.target.value.replace(/\D/g, "");
+            if (value.length <= 11) {
+                // CPF: 000.000.000-00
+                value = value.replace(/(\d{3})(\d)/, "$1.$2");
+                value = value.replace(/(\d{3})(\d)/, "$1.$2");
+                value = value.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+            } else if (value.length <= 14) {
+                // CNPJ: 00.000.000/0000-00
+                value = value.replace(/^(\d{2})(\d)/, "$1.$2");
+                value = value.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+                value = value.replace(/\.(\d{3})(\d)/, ".$1/$2");
+                value = value.replace(/(\d{4})(\d)/, "$1-$2");
+            }
+            e.target.value = value;
+        });
+    });
 });

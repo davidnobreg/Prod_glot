@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% load static %}
+{% load format_filters %}
 
 {% block content %}
     <div class="container mt-4">
@@ -58,12 +59,12 @@
                     {% for cliente in clientes %}
                         <tr>
                             <td>{{ cliente.name }}</td>
-                            <td>{{ cliente.documento }}</td>
+                            <td>{{ cliente.documento|format_documento }}</td>
                             <td>{{ cliente.email }}</td>
                             <td>{{ cliente.fone }}</td>
 
                             <td>
-                                <div class="row g-2">
+                                <div class="row g-2 justify-content-center align-items-center">
                                     <div class="col-md-4">
                                         <a href="{% url 'altera-cliente' cliente.id %}"
                                            class="btn btn-warning w-auto h-auto text-wrap text-center"

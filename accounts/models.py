@@ -1,8 +1,8 @@
-import re
+
 from django.db import models
-from django.core import validators
 from django.contrib.auth.models import AbstractUser
 from empreendimentos.models import Empreendimento
+from django.core.validators import RegexValidator
 
 
 class User(AbstractUser):
@@ -12,7 +12,15 @@ class User(AbstractUser):
 
     tipo_usuario = models.CharField(max_length=1, choices=choices_tipo_usuario)
     creci = models.CharField('Creci', max_length=50, blank=True)
-    contato = models.CharField('Contato', max_length=15, blank=True)
+    contato = models.CharField(
+        max_length=15,
+        validators=[
+            RegexValidator(
+                regex=r'^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$',
+                message="Telefone deve estar no formato (99) 99999-9999 ou (99) 9999-9999."
+            )
+        ]
+    )
 
     class Meta:
         verbose_name = 'User'

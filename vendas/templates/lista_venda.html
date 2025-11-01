@@ -7,138 +7,161 @@
 {% load static %}
 
 {% block content %}
-    <div class="container mt-4">
-        <h4 class="mt-4 text-center">LISTA DE VENDAS</h4>
-        <hr>
+<div class="container mt-5">
+    <h4 class="mt-5 text-center fw-bold">LISTA DE VENDAS</h4>
+    <hr>
 
-        <!-- Filtros -->
-        <div class="row g-3 align-items-center bg-light p-2 rounded shadow mb-4">
-            <!-- Pesquisar pelo empreendimento -->
-            <div class="col-md-6">
-                <label for="vendaSearch" class="form-label"></label>
-                <form class="d-flex" action="{% url 'lista-venda' %}">
-                    <input name="venda" id="vendaSearch" type="search" class="form-control me-2"
-                           placeholder="Digite sua pesquisa..." value="{{ request.GET.venda }}">
-                    <button class="btn btn-success" type="submit">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </form>
+    <!-- 🔹 FILTROS -->
+    <form method="get" action="{% url 'lista-venda' %}" class="mb-4">
+        <div class="row g-3 bg-light p-3 rounded shadow-sm">
+            <!-- Pesquisa geral -->
+            <div class="col-md-4">
+                <label for="vendaSearch" class="form-label fw-semibold">Pesquisar</label>
+                <input name="venda" id="vendaSearch" type="search" class="form-control"
+                       placeholder="Cliente, telefone, corretor..." value="{{ request.GET.venda }}">
             </div>
-            <!-- Filtro de tipo-->
+
+            <!-- Empreendimento -->
             <div class="col-md-3">
-                <label for="typeFilter" class="form-label">Empreendimento</label>
-                <form action="">
-                    <select name="tipo_empreendimento" id="typeFilter" class="form-select"
-                            onchange="this.form.submit()">
-                        <option value="">Empreendimento</option>
-                        {% for empreendimento in empreendimentos %}
-                            <option value={{ empreendimento.id }} {% if request.tipo_empreendimento == '{{ empreendimento.id }}' %}selected{% endif %}>
-                                {{ empreendimento.nome }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </form>
+                <label for="tipo_empreendimento" class="form-label fw-semibold">Empreendimento</label>
+                <select name="tipo_empreendimento" id="tipo_empreendimento" class="form-select">
+                    <option value="">Todos</option>
+                    {% for empreendimento in empreendimentos %}
+                        <option value="{{ empreendimento.id }}"
+                                {% if request.GET.tipo_empreendimento == empreendimento.id|stringformat:"s" %}selected{% endif %}>
+                            {{ empreendimento.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
             </div>
-            <!-- Filtro de tipo -->
+
+            <!-- Status da Venda -->
             <div class="col-md-2">
-                <label for="typeFilter" class="form-label">Status da Venda</label>
-                <form action="">
-                    <select name="tipo_venda" id="typeFilter" class="form-select" onchange="this.form.submit()">
-                        <option value="">Status</option>
-                        <option value="VENDIDO" {% if request.GET.tipo_venda == 'VENDIDO' %}selected{% endif %}>
-                            Vendido
-                        </option>
-                        <option value="CANCELADA" {% if request.GET.tipo_venda == 'CANCELADA' %}selected{% endif %}>
-                            Cancelada
-                        </option>
-                    </select>
-                </form>
+                <label for="tipo_venda" class="form-label fw-semibold">Status</label>
+                <select name="tipo_venda" id="tipo_venda" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="VENDIDO" {% if request.GET.tipo_venda == 'VENDIDO' %}selected{% endif %}>Vendido</option>
+                    <option value="CANCELADA" {% if request.GET.tipo_venda == 'CANCELADA' %}selected{% endif %}>Cancelada</option>
+                </select>
             </div>
-            <!-- Resetar filtros -->
+
+            <!-- Data início -->
             <div class="col-md-1">
-                <label for="idReset" class="form-label">Resetar</label>
-                <a class="btn btn-danger" href="{% url 'lista-venda' %}">
+                <label for="data_inicio" class="form-label fw-semibold">Início</label>
+                <input name="data_inicio" id="data_inicio" type="date" class="form-control"
+                       value="{{ request.GET.data_inicio }}">
+            </div>
+
+            <!-- Data fim -->
+            <div class="col-md-1">
+                <label for="data_fim" class="form-label fw-semibold">Fim</label>
+                <input name="data_fim" id="data_fim" type="date" class="form-control"
+                       value="{{ request.GET.data_fim }}">
+            </div>
+
+            <!-- Botões -->
+            <div class="col-md-1 d-flex align-items-end justify-content-end">
+                <button type="submit" class="btn btn-success me-2" title="Filtrar">
+                    <i class="fas fa-filter"></i>
+                </button>
+                <a href="{% url 'lista-venda' %}" class="btn btn-danger" title="Limpar filtros">
                     <i class="fas fa-window-close"></i>
                 </a>
             </div>
         </div>
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th scope="col">Cliente</th>
-                <th scope="col">Contato</th>
-                <th scope="col">Loteamento</th>
-                <th scope="col">Quadra</th>
-                <th scope="col">Lote</th>
-                <th scope="col">Corretor</th>
-                <th scope="col">Status</th>
-            </tr>
-            </thead>
+    </form>
 
-            <tbody class="featurette-heading fw-normal lh-1">
-            {% for venda in vendas %}
+    <!-- 🔹 TABELA DE VENDAS -->
+    <div class="table-responsive shadow-sm">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark text-center">
                 <tr>
-                    <td>{{ venda.cliente }}</td>
-                    <td>{{ venda.cliente.fone }}</td>
-                    <td>{{ venda.lote.quadra.empr.nome }}</td>
-                    <td>{{ venda.lote.quadra }}</td>
-                    <td>{{ venda.lote }}</td>
-                    <td>{{ venda.user }}</td>
-                    <td>{{ venda.tipo_venda }}</td>
-                    <td>
-                        <div class="row g-3">
+                    <th>Cliente</th>
+                    <th>Contato</th>
+                    <th>Loteamento</th>
+                    <th>Quadra</th>
+                    <th>Lote</th>
+                    <th>Corretor</th>
+                    <th>Data da Venda</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                {% for venda in vendas %}
+                    <tr>
+                        <td>{{ venda.cliente }}</td>
+                        <td>{{ venda.cliente.fone }}</td>
+                        <td>{{ venda.lote.quadra.empr.nome }}</td>
+                        <td>{{ venda.lote.quadra }}</td>
+                        <td>{{ venda.lote }}</td>
+                        <td>{{ venda.user }}</td>
+                        <td>{{ venda.dt_venda|date:"d/m/Y" }}</td>
+                        <td>
                             {% if venda.tipo_venda == 'VENDIDO' %}
-                                <div class="col-3 col-md-3">
+                                <span class="badge bg-success">VENDIDO</span>
+                            {% elif venda.tipo_venda == 'CANCELADA' %}
+                                <span class="badge bg-danger">CANCELADA</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ venda.tipo_venda }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                {% if venda.tipo_venda == 'VENDIDO' %}
                                     <a href="{% url 'reservado' venda.lote.id %}"
-                                       class="btn btn-primary w-auto h-auto text-wrap text-center"
-                                       title="Detalhe Venda" data-bs-toggle="tooltip"
-                                       aria-label="Detalhe Venda">
+                                       class="btn btn-primary btn-sm"
+                                       title="Detalhes da Venda">
                                         <i class="fas fa-info-circle"></i>
                                     </a>
-                                </div>
-
-                                <!--<div class="col-3 col-md-3">
-                                    <a href="{% url 'delete-venda' venda.id %}"
-                                       class="btn btn-danger w-auto h-auto text-wrap text-center"
-                                       title="Excluir Venda" data-bs-toggle="tooltip"
-                                       aria-label="Excluir Venda">
-                                        <i class="fas fa-window-close"></i>
-                                    </a>
-                                </div>-->
-                            {% endif %}
-                        </div>
-                    </td>
-                </tr>
-            {% endfor %}
+                                {% endif %}
+                                <!-- Se quiser reativar exclusão, remova o comentário abaixo -->
+                                {#
+                                <a href="{% url 'delete-venda' venda.id %}"
+                                   class="btn btn-danger btn-sm"
+                                   title="Excluir Venda">
+                                    <i class="fas fa-window-close"></i>
+                                </a>
+                                #}
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-3">Nenhuma venda encontrada.</td>
+                    </tr>
+                {% endfor %}
             </tbody>
         </table>
-        <!-- Paginação -->
+    </div>
+
+    <!-- 🔹 PAGINAÇÃO -->
+    <nav aria-label="Navegação de páginas">
         <ul class="pagination justify-content-center mt-4">
             {% if vendas.has_previous %}
                 <li class="page-item">
                     <a class="btn btn-primary"
-                       href="?
-                               {% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ vendas.previous_page_number }}">
+                       href="?{{ request.GET.urlencode }}&page={{ vendas.previous_page_number }}">
                         Voltar
                     </a>
                 </li>
             {% endif %}
 
-            <li class="page-item">
-                        <span class="page-link">
-                            Página {{ vendas.number }} de {{ vendas.paginator.num_pages }}
-                        </span>
+            <li class="page-item disabled">
+                <span class="page-link">
+                    Página {{ vendas.number }} de {{ vendas.paginator.num_pages }}
+                </span>
             </li>
 
             {% if vendas.has_next %}
                 <li class="page-item">
                     <a class="btn btn-primary"
-                       href="?
-                               {% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ vendas.next_page_number }}">
+                       href="?{{ request.GET.urlencode }}&page={{ vendas.next_page_number }}">
                         Avançar
                     </a>
                 </li>
             {% endif %}
         </ul>
-    </div>
+    </nav>
+</div>
 {% endblock %}

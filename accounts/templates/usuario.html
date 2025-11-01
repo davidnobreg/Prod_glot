@@ -2,7 +2,7 @@
 
 
 {% block title %}
-    Cadastro
+    Cadastro de Usuário
 {% endblock %}
 
 {% load static %}
@@ -17,9 +17,26 @@
 
             <!-- Formulário -->
             <div class="col-lg-6">
-                <div class="container">
-                    <form action="{% url 'criar-cadastro' %}" method="POST" class="card  p-4 shadow align-items-center">
-                        {% csrf_token %}
+                <form action="{% url 'criar-cadastro' %}" method="POST" class="card  p-4 shadow">
+                    {% csrf_token %}
+                    <h4 class="mb-3 text-center">Cadastrar Usuario</h4>
+
+                    <!-- Mensagens de status -->
+                    {% if status == '0' %}
+                        <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso!</div>
+                    {% elif status == '1' %}
+                        <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
+                    {% elif status == '2' %}
+                        <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
+                    {% elif status == '3' %}
+                        <div class="alert alert-danger" role="alert">Preencha o telefone corretamente.</div>
+                    {% endif %}
+
+                    <hr/>
+                    <!-- Campos do formulário -->
+                    <div class="mb-3">
+                        {{ form.as_p }}
+
                         <div class="form-floating mb-3">
                             <input type="text" name="first_name" class="form-control" id="id_first_name"
                                    placeholder="Nome Usual">
@@ -60,26 +77,27 @@
                             </select>
                             <label for="floatingSelect">Informe o grupo</label>
                         </div>
+                    </div>
 
+                    <hr/>
 
-                        {{ form.non_field_errors }}
+                    {{ form.non_field_errors }}
 
-                        {{ field.label_tag }}
+                    {{ field.label_tag }}
 
-                        {{ field.errors }}
-
-                        <br>
-                        <br>
-                        <button type="submit" class="btn btn-primary w-50 mt-3">Salvar</button>
-                        <a href="{% url 'lista-usuario' %}" class="btn btn-primary w-50 mt-2">
+                    {{ field.errors }}
+                    <!-- Botões -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                        <a href="{% url 'lista-usuario' %}" class="btn btn-secondary">
                             Cancelar
                         </a>
+                    </div>
 
-                    </form>
-                </div>
-
-
+                </form>
             </div>
+
         </div>
+    </div>
     </div>
 {% endblock %}

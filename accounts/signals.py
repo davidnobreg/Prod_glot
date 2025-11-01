@@ -2,7 +2,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from .models import User
 from rolepermissions.roles import assign_role, clear_roles
-from django.contrib.auth import get_user_model
+
 
 @receiver(post_save, sender=User)
 def createDefinidorDePermissoes(sender, instance, **kwargs):

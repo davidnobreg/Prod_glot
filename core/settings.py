@@ -26,13 +26,14 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=config_host.list)
 
 DEFAULT_APPS = [
     'jazzmin',
-
+    #'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
 ]
 
 THIRD_APPS = [
@@ -41,6 +42,7 @@ THIRD_APPS = [
     # 'django_q',
     'django_celery_results',
     'django_celery_beat',
+    'django_filters',
 
 ]
 
@@ -49,12 +51,22 @@ PROJECT_APPS = [
     'clientes',
     'empreendimentos',
     'vendas',
+    'mensagem',
     'accounts',
     'dashboard',
 
 ]
 
 INSTALLED_APPS = PROJECT_APPS + THIRD_APPS + DEFAULT_APPS
+
+"""REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}"""
+
+# URL base da Evolution API (ajuste conforme o seu servidor)
+EVOLUTION_URL = config("EVOLUTION_API_URL")
+EVOLUTION_INSTANCE = config("EVOLUTION_INSTANCE")
+EVOLUTION_TOKEN = config("EVOLUTION_TOKEN")
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -187,10 +199,12 @@ user = config('RABBITMQ_USER')
 password = config('RABBITMQ_PASSWD')
 host = config('RABBITMQ_HOST')
 port = config('RABBITMQ_PORT')
+vhost = config('RABBITMQ_VHOST')
+
 
 CELERY_BROKER_URL = os.getenv(
     'CELERY_BROKER',
-    f'amqp://{user}:{password}@{host}:{port}/'
+    f'amqp://{user}:{password}@{host}:{port}/{vhost}'
 )
 
 # Celery Configuration Options

@@ -15,7 +15,6 @@ from .models import RegisterVenda
 from empreendimentos.models import Lote, Empreendimento
 
 
-
 @has_permission_decorator('reservado')
 def reservado(request, id):
     lote = get_object_or_404(Lote, pk=id)
@@ -107,7 +106,7 @@ def listaVenda(request):
         'data_fim': request.GET.get('data_fim'),
     }
 
-    # Empreendimento
+    # Filtrar por empreendimento
     if filtros['tipo_empreendimento']:
         vendas = vendas.filter(lote__quadra__empr__id=filtros['tipo_empreendimento'])
 
@@ -124,19 +123,23 @@ def listaVenda(request):
     if filtros['tipo_venda']:
         vendas = vendas.filter(tipo_venda=filtros['tipo_venda'])
 
+    # Filtro por intervalo de datas
+    data_inicio = filtros['data_inicio']
+    data_fim = filtros['data_fim']
 
-    # 🔹 Filtro por intervalo de datas
-    if get_data_inicio and get_data_fim:
-        try:
-            data_inicio = datetime.strptime(get_data_inicio, "%Y-%m-%d").date()
-            data_fim = datetime.strptime(get_data_fim, "%Y-%m-%d").date()
-            vendas = vendas.filter(dt_venda__range=[data_inicio, data_fim])
-        except ValueError:
-            pass
-    elif get_data_inicio:
-        vendas = vendas.filter(dt_venda__date__gte=get_data_inicio)
-    elif get_data_fim:
-        vendas = vendas.filter(dt_venda__date__lte=get_data_fim)
+    try:
+        if data_inicio and data_fim:
+            dt_inicio = datetime.strptime(data_inicio, "%Y-%m-%d").date()
+            dt_fim = datetime.strptime(data_fim, "%Y-%m-%d").date()
+            vendas = vendas.filter(dt_venda__range=[dt_inicio, dt_fim])
+        elif data_inicio:
+            dt_inicio = datetime.strptime(data_inicio, "%Y-%m-%d").date()
+            vendas = vendas.filter(dt_venda__date__gte=dt_inicio)
+        elif data_fim:
+            dt_fim = datetime.strptime(data_fim, "%Y-%m-%d").date()
+            vendas = vendas.filter(dt_venda__date__lte=dt_fim)
+    except ValueError:
+        pass
 
     paginator = Paginator(vendas.order_by('-id'), 10)
     page_number = request.GET.get('page')

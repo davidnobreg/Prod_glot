@@ -109,20 +109,11 @@
                         <td>
                             <div class="d-flex justify-content-center gap-2">
                                 {% if venda.tipo_venda == 'VENDIDO' %}
-                                    <a href="{% url 'reservado' venda.lote.id %}"
-                                       class="btn btn-primary btn-sm"
+                                    <a href="{% url 'reservado' venda.lote.id %}" class="btn btn-primary btn-sm"
                                        title="Detalhes da Venda">
                                         <i class="fas fa-info-circle"></i>
                                     </a>
                                 {% endif %}
-                                <!-- Se quiser reativar exclusão, remova o comentário abaixo -->
-                                {#
-                                <a href="{% url 'delete-venda' venda.id %}"
-                                   class="btn btn-danger btn-sm"
-                                   title="Excluir Venda">
-                                    <i class="fas fa-window-close"></i>
-                                </a>
-                                #}
                             </div>
                         </td>
                     </tr>
@@ -136,12 +127,13 @@
     </div>
 
     <!-- 🔹 PAGINAÇÃO -->
+    {% with request.GET.urlencode|cut:"page={{ vendas.number }}" as query_params %}
     <nav aria-label="Navegação de páginas">
         <ul class="pagination justify-content-center mt-4">
             {% if vendas.has_previous %}
                 <li class="page-item">
                     <a class="btn btn-primary"
-                       href="?{{ request.GET.urlencode }}&page={{ vendas.previous_page_number }}">
+                       href="?{% if query_params %}{{ query_params }}&{% endif %}page={{ vendas.previous_page_number }}">
                         Voltar
                     </a>
                 </li>
@@ -156,12 +148,13 @@
             {% if vendas.has_next %}
                 <li class="page-item">
                     <a class="btn btn-primary"
-                       href="?{{ request.GET.urlencode }}&page={{ vendas.next_page_number }}">
+                       href="?{% if query_params %}{{ query_params }}&{% endif %}page={{ vendas.next_page_number }}">
                         Avançar
                     </a>
                 </li>
             {% endif %}
         </ul>
     </nav>
+    {% endwith %}
 </div>
 {% endblock %}

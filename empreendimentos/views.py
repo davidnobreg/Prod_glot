@@ -12,8 +12,6 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 
-
-
 from rolepermissions.decorators import has_permission_decorator
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage

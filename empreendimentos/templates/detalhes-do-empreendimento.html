@@ -14,9 +14,16 @@
             <!-- Formulário -->
             <div class="col-lg-10 mx-auto alert-items-center">
                 <div class="card p-4 shadow">
+                <div class="row">
+                    <div class="col">
+                        <h4 class="mb-3 text-center fw-bold">{{ empreendimento.nome }}</h4>
+                    </div>
+                    <div class="col">
+                        <h4 class="mb-3 text-center fw-bold">Contato</h4>
+                        <h5 class="mb-3 text-center">{{ empreendimento.telefone}}</h5>
+                    </div>
+                </div>
 
-                    <h4 class="mb-3 text-center fw-bold">Detalhes </h4>
-                    <h5 class="mb-3 text-center fw-bold">{{ empreendimento.nome }}</h5>
 
                     <div class="container text-center">
                         <div class="row">

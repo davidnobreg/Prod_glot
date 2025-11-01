@@ -5,7 +5,7 @@ import os
 import logging
 
 logger = logging.getLogger(__name__)
-API_MENSAGEM_URL = os.getenv("API_MENSAGEM_URL", "http://127.0.0.1:8000/mensagem/enviar/")
+API_MENSAGEM_URL = os.getenv("API_MENSAGEM_URL", "http://prod.carlosecelsoimoveis.com.br/mensagem/enviar/")
 
 @shared_task(bind=True, max_retries=3)
 def enviar_mensagem_task(self, numero, mensagem):

@@ -8,7 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('clientes/', include('clientes.urls'), name='clientes'),
     path('empreendimentos/', include('empreendimentos.urls'), name='empreendimentos'),
-    path('mensagem/', include('mensagem.urls'), name='message'),
+    #path('mensagem/', include('mensagem.urls'), name='message'),
     path('vendas/', include('vendas.urls'), name='vendas'),
     path('dashboard/', include('dashboard.urls'), name='dashboard'),
 

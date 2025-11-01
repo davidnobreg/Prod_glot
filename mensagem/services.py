@@ -1,8 +1,11 @@
 import requests
+import logging
+
+logger = logging.getLogger(__name__)
 
 class EvolutionService:
     def __init__(self, server_url, instance, api_key):
-        self.server_url = server_url
+        self.server_url = server_url.rstrip('/')
         self.instance = instance
         self.api_key = api_key
         self.headers = {
@@ -12,12 +15,7 @@ class EvolutionService:
 
     def enviar_mensagem(self, numero, mensagem, options=None):
         """
-        Envia uma mensagem via Evolution API.
-
-        :param numero: número do destinatário no formato 559999999999
-        :param mensagem: texto da mensagem
-        :param options: dict opcional com delay, mentions, quoted, etc.
-        :return: dict com resposta da API
+        Envia mensagem via Evolution API.
         """
         url = f"{self.server_url}/message/sendText/{self.instance}"
         payload = {
@@ -29,18 +27,12 @@ class EvolutionService:
             payload["options"] = options
 
         try:
-            response = requests.post(url, json=payload, headers=self.headers)
-            response.raise_for_status()  # Levanta erro para status >= 400
-            return {
-                "success": True,
-                "status": response.status_code,
-                "response": response.json()
-            }
-        except requests.exceptions.HTTPError as errh:
-            return {"success": False, "error": f"HTTP Error: {errh}", "status": response.status_code}
-        except requests.exceptions.ConnectionError as errc:
-            return {"success": False, "error": f"Connection Error: {errc}"}
-        except requests.exceptions.Timeout as errt:
-            return {"success": False, "error": f"Timeout Error: {errt}"}
-        except requests.exceptions.RequestException as err:
-            return {"success": False, "error": f"Request Exception: {err}"}
+            logger.info(f"📤 Enviando mensagem para {numero} via EvolutionService: {payload}")
+            response = requests.post(url, json=payload, headers=self.headers, timeout=15)
+            response.raise_for_status()
+            resp_json = response.json()
+            logger.info(f"✅ Mensagem enviada: {resp_json}")
+            return {"success": True, "response": resp_json}
+        except requests.exceptions.RequestException as e:
+            logger.error(f"❌ Erro ao enviar mensagem: {e}")
+            return {"success": False, "error": str(e)}

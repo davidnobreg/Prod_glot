@@ -26,7 +26,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=config_host.list)
 
 DEFAULT_APPS = [
     'jazzmin',
-    #'rest_framework',
+    # 'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -70,13 +70,13 @@ EVOLUTION_TOKEN = config("EVOLUTION_TOKEN")
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -200,7 +200,6 @@ password = config('RABBITMQ_PASSWD')
 host = config('RABBITMQ_HOST')
 port = config('RABBITMQ_PORT')
 vhost = config('RABBITMQ_VHOST')
-
 
 CELERY_BROKER_URL = os.getenv(
     'CELERY_BROKER',

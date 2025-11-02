@@ -15,44 +15,51 @@ class MultipleFileField(forms.FileField):
     def clean(self, data, initial=None):
         single_file_clean = super().clean
         if isinstance(data, (list, tuple)):
-            result = [single_file_clean(d, initial) for d in data]
-        else:
-            result = [single_file_clean(data, initial)]
-        return result
+            return [single_file_clean(d, initial) for d in data]
+        return [single_file_clean(data, initial)]
 
-## Cadastra um Imovel
+
+## Formulário para cadastro de Empreendimento
 class EmpreendimentoForm(forms.ModelForm):
-    #Quadras = MultipleFileField()
     class Meta:
         model = Empreendimento
         fields = '__all__'
         exclude = ('is_ativo',)
-        
-    def __init__(self, *args, **kwargs): # Adiciona 
-        super().__init__(*args, **kwargs)  
-        for field_name, field in self.fields.items():   
-            if field.widget.__class__ in [forms.CheckboxInput, forms.RadioSelect]:
-                field.widget.attrs['class'] = 'form-control'
-            else:
-                field.widget.attrs['class'] = 'form-control'
-    
-## Formulario para cadastro atraves de arquivo
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({'class': 'form-control mb-3'})
+
+
+## Formulário para upload de arquivos
 class ArquivoForm(forms.Form):
     arquivo = forms.FileField(label="Arquivo", required=True)
 
-## Formulario para cadastro de reserva temporario
+
+## Formulário para cadastro de reserva temporário
 class LoteForm(forms.ModelForm):
     class Meta:
         model = Lote
-        fields = ('cliente_reserva','telefone')
-
+        fields = ('cliente_reserva', 'telefone')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Aplicando classes para controle geral
+        # Aplica classes gerais e placeholders
         for field_name, field in self.fields.items():
             field.widget.attrs.update({'class': 'form-control mb-3'})
 
-        # Aplicando classes específicas para os campos com máscaras
-        self.fields['telefone'].widget.attrs.update({'class': 'form-control mb-3 mask-phone'})
+        # Máscara de telefone
+        self.fields['telefone'].widget.attrs.update({
+            'class': 'form-control mb-3 mask-phone',
+            'placeholder': '(99) 99999-9999'
+        })
+
+        # Formata valor existente (edição)
+        if self.instance and self.instance.telefone:
+            tel = self.instance.telefone
+            if len(tel) == 11:
+                self.initial['telefone'] = f"({tel[:2]}) {tel[2:7]}-{tel[7:]}"
+            elif len(tel) == 10:
+                self.initial['telefone'] = f"({tel[:2]}) {tel[2:6]}-{tel[6:]}"

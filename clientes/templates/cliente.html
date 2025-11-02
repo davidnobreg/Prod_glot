@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Cadastrar Cliente
+{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="row align-items-center g-4">
+            <hr />
+            <!-- Imagem -->
+            <div class="col-lg-6">
+                <img src="{% static 'images/carlos.jpg' %}" class="img-fluid rounded shadow" alt="Cliente" />
+            </div>
+
+            <!-- Formulário -->
+            <div class="col-lg-6">
+                <form action="{% url 'criar-cliente' %}" method="post" class="card p-4 shadow">
+                    {% csrf_token %}
+                    <h4 class="mb-3 text-center">Cadastrar Cliente</h4>
+
+                    <!-- Mensagens de status -->
+                    {% if status == '0' %}
+                        <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso!</div>
+                    {% elif status == '1' %}
+                        <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
+                    {% elif status == '2' %}
+                        <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
+                    {% elif status == '3' %}
+                        <div class="alert alert-danger" role="alert">Preencha o telefone corretamente.</div>
+                    {% endif %}
+
+                    <hr />
+
+                    <!-- Campos do formulário -->
+                    <div class="mb-3">
+                        {{ form.as_p }}
+                    </div>
+
+                    <hr />
+
+                    <!-- Botões -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                        <a href="{% url 'lista-cliente' %}" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+            <hr />
+        </div>
+    </div>
+{% endblock %}

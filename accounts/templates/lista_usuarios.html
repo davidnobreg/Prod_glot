@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Lista de Usuarios
+{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="row g-3 align-items-center bg-light p-2 rounded shadow mb-4">
+            <h4 class="mt-4 text-center">LISTA DE USUARIOS</h4>
+            <hr>
+
+            <!-- Filtros -->
+            <div class="row g-3 align-items-center bg-light p-4 rounded shadow mb-4">
+                <div class="col-md-2">
+                    <a href="{% url 'criar-cadastro' %}" class="btn btn-primary">
+                        Adicionar Usuario
+                    </a>
+                </div>
+                <!-- Pesquisar pelo cliente -->
+                <div class="col-md-6">
+                    <label for="userSearch" class="form-label">Nome do Usuario, Creci, Contato ou E-mail</label>
+                    <form class="d-flex" action="{% url 'lista-usuario' %}">
+                        <input name="user" id="userSearch" type="search" class="form-control me-2"
+                               placeholder="Digite sua pesquisar..." value="{{ request.GET.user }}">
+                        <button class="btn btn-success" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Filtro de tipo-->
+                <div class="col-md-3">
+                    <label for="typeFilter" class="form-label">Grupo de Usuario</label>
+                    <form action="">
+                        <select name="tipo_user" id="typeFilter" class="form-select" onchange="this.form.submit()">
+                            <option value="">Status</option>
+                            <option value="A"
+                                    {% if request.GET.tipo_user == 'ADMINISTRADOR' %}selected{% endif %}>
+                                Administrador
+                            </option>
+                            <option value="C" {% if request.GET.tipo_user == 'CORRETOR' %}selected{% endif %}>
+                                Corretor
+                            </option>
+                            <option value="P" {% if request.GET.tipo_user == 'PROPIETARIO' %}selected{% endif %}>
+                                Propietario
+                            </option>
+                        </select>
+                    </form>
+                </div>
+
+                <!-- Resetar filtros -->
+                <div class="col-md-1">
+                    <label for="idReset" class="form-label">Resetar</label>
+                    <a class="btn btn-danger" href="{% url 'lista-usuario' %}">
+                        <i class="fas fa-window-close"></i>
+                    </a>
+                </div>
+
+            </div>
+
+            <hr>
+            <div class="row col-md-12 g-3">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th scope="col">Creci</th>
+                            <th scope="col">Nome Usual</th>
+                            <th scope="col">Nome Completo</th>
+                            <th scope="col">E-mail</th>
+                            <th scope="col">Contato</th>
+                            <th scope="col">Tipo usuario:</th>
+                        </tr>
+                        </thead>
+
+                        <tbody class="featurette-heading fw-normal lh-1">
+                        {% for usuario in usuarios %}
+                            <tr>
+                                <td>{{ usuario.creci }}</td>
+                                <td>{{ usuario.first_name }}</td>
+                                <td>{{ usuario.last_name }}</td>
+                                <td>{{ usuario.email }}</td>
+                                <td>{{ usuario.contato }}</td>
+                                <td class="field-tipo_usuario">
+                                    {% if usuario.tipo_usuario == 'A' %}
+                                        Administrador
+                                    {% elif usuario.tipo_usuario == 'C' %}
+                                        Corretor
+                                    {% elif usuario.tipo_usuario == 'P' %}
+                                        Proprietário
+                                    {% else %}
+                                        {{ usuario.tipo_usuario }}
+                                        <!-- Caso não corresponda aos tipos mapeados, exibe o valor original -->
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <a href="{% url 'update-usuario' usuario.id %}"
+                                               class="btn btn-warning w-auto h-auto text-wrap text-center"
+                                               title="Editar Usuario" data-bs-toggle="tooltip"
+                                               aria-label="Editar Usuario">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button class="btn btn-danger"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#usuarioModalDelete{{ usuario.id }}">
+                                                <i class="fas fa-window-close"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <div>
+                        <ul class="pagination justify-content-center mt-4">
+                            <li class="page-item">
+                                {% if page_obj.has_previous %}
+                                    <a class="btn btn-primary"
+                                       href="?page=
+
+
+
+
+                                               {{ page_obj.previous_page_number }}{% if request.GET.user %}&user={{ request.GET.user }}
+                                            {% endif %}{% if request.GET.tipo_user %}&tipo_user={{ request.GET.tipo_user }}{% endif %}"
+                                       aria-label="Página anterior">
+                                        Voltar
+                                    </a>
+                                {% endif %}
+                            </li>
+
+                            <li class="page-item">
+                                 <span class="page-link">
+                                      Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                                 </span>
+                            </li>
+
+                            <li class="page-item">
+                                {% if page_obj.has_next %}
+                                    <a class="btn btn-primary"
+                                       href="?page=
+
+
+
+
+                                               {{ page_obj.next_page_number }}{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}
+                                                {% if request.GET.tipo_user %}&tipo_user={{ request.GET.tipo_user }}{% endif %}"
+                                       aria-label="Próxima página">
+                                        Avançar
+                                    </a>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% for usuario in usuarios %}
+        <div class="modal fade" id="usuarioModalDelete{{ usuario.id }}" tabindex="-1"
+             aria-labelledby="usuarioModalDelete{{ usuario.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <!-- Cabeçalho -->
+                    <div class="modal-header">
+                        <h5 class="modal-title">Detalhes do Usuário</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+
+                    <!-- Corpo do modal -->
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <strong>Creci:</strong>
+                            <span>{{ usuario.creci|default:"-" }}</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Nome Usual:</strong>
+                            <span>{{ usuario.first_name|default:"-" }}</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Nome Completo:</strong>
+                            <span>{{ usuario.last_name|default:"-" }}</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Contato:</strong>
+                            <span>{{ usuario.contato|default:"-" }}</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Email:</strong>
+                            <span>{{ usuario.email|default:"-" }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Rodapé do modal -->
+                    <div class="modal-footer">
+                        <a href="{% url 'delete-usuario' usuario.id %}" class="btn btn-danger">Deletar</a>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}

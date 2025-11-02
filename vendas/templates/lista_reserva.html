@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Lista de Reserva
+{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h4 class="mt-4 text-center">GERENCIAMENTO DE RESERVAS</h4>
+        <hr>
+
+        <!-- Filtros -->
+        <form method="get" action="{% url 'lista-reserva' %}">
+            <div class="row g-3 align-items-center bg-light p-2 rounded shadow mb-4">
+                <!-- Busca -->
+                <div class="col-md-3">
+                    <label class="form-label">Nome do Cliente ou Corretor</label>
+                    <input name="search_nome" type="search" class="form-control"
+                           placeholder="Digite sua pesquisa..." value="{{ request.GET.search_nome }}">
+                </div>
+
+                <!-- Empreendimento -->
+                <div class="col-md-3">
+                    <label class="form-label">Empreendimento</label>
+                    <select name="tipo_empreendimento" class="form-select">
+                        <option value="">Todos</option>
+                        {% for empreendimento in empreendimentos %}
+                            <option value="{{ empreendimento.id }}"
+                                {% if request.GET.tipo_empreendimento == empreendimento.id|stringformat:"s" %}selected{% endif %}>
+                                {{ empreendimento.nome }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Tipo de venda -->
+                <div class="col-md-2">
+                    <label class="form-label">Tipo de Venda</label>
+                    <select name="tipo_venda" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="RESERVADO" {% if request.GET.tipo_venda == 'RESERVADO' %}selected{% endif %}>Reservado</option>
+                        <option value="CANCELADA" {% if request.GET.tipo_venda == 'CANCELADA' %}selected{% endif %}>Cancelada</option>
+                    </select>
+                </div>
+
+                <!-- Data de Reserva -->
+                <div class="col-md-2">
+                    <label class="form-label">Data da Reserva</label>
+                    <input name="data_reserva" type="date" class="form-control" value="{{ request.GET.data_reserva }}">
+                </div>
+
+                <!-- Data de Venda
+                <div class="col-md-2">
+                    <label class="form-label">Data da Venda</label>
+                    <input name="data_venda" type="date" class="form-control" value="{{ request.GET.data_venda }}">
+                </div>-->
+
+                <!-- Botões -->
+                <div class="col-md-1 d-flex align-items-end">
+                    <button class="btn btn-outline-dark w-100" type="submit">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                </div>
+
+                <div class="col-md-1 d-flex align-items-end">
+                    <a class="btn btn-danger w-100" href="{% url 'lista-reserva' %}">
+                        <i class="fas fa-window-close"></i>
+                    </a>
+                </div>
+            </div>
+        </form>
+
+        <hr>
+        <div class="row g-3 align-items-center bg-light p-4 rounded shadow mb-4">
+            <div class="table-responsive">
+                <table class="table table-striped-columns table-bordered table-sm text-center">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Loteamento</th>
+                            <th>Quadra</th>
+                            <th>Lote</th>
+                            <th>Corretor</th>
+                            <th>Status</th>
+                            <th>Data da Reserva</th>
+                            <th>Comandos</th>
+                        </tr>
+                    </thead>
+                    <tbody class="featurette-heading fw-normal lh-1">
+                        {% for reserva in reservas %}
+                            <tr>
+                                <td>{{ reserva.cliente }}</td>
+                                <td>{{ reserva.lote.quadra.empr.nome }}</td>
+                                <td>{{ reserva.lote.quadra }}</td>
+                                <td>{{ reserva.lote }}</td>
+                                <td>{{ reserva.user }}</td>
+                                <td>{{ reserva.tipo_venda }}</td>
+                                <td>{{ reserva.dt_reserva }}</td>
+                                <td>
+                                    <div class="row g-2">
+                                        <div class="col-4">
+                                            <a href="{% url 'renova-reserva' reserva.id %}" class="btn btn-warning" title="Renovar Reserva">
+                                                <i class="fa fa-refresh"></i>
+                                            </a>
+                                        </div>
+                                        <div class="col-4">
+                                            <a href="{% url 'criar-venda' reserva.id %}" class="btn btn-success" title="Confirmar Venda">
+                                                <i class="fa fa-check"></i>
+                                            </a>
+                                        </div>
+                                        <div class="col-4">
+                                            <button class="btn btn-danger w-auto h-auto text-wrap text-center"
+                                                name="pre-reserva"
+                                                data-cliente-id="{{ lote.id }}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#ReservaModalDelete"
+                                                title="Excluir Reserva"
+                                                aria-label="Detalhes da Reserva">
+                                            <i class="fas fa-window-close"></i>
+                                        </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <!-- Paginação -->
+                <ul class="pagination justify-content-center mt-4">
+                    {% if reservas.has_previous %}
+                        <li class="page-item">
+                            <a class="btn btn-primary"
+                               href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ reservas.previous_page_number }}">
+                                Voltar
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item">
+                        <span class="page-link">
+                            Página {{ reservas.number }} de {{ reservas.paginator.num_pages }}
+                        </span>
+                    </li>
+
+                    {% if reservas.has_next %}
+                        <li class="page-item">
+                            <a class="btn btn-primary"
+                               href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ reservas.next_page_number }}">
+                                Avançar
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    {% for reserva in reservas %}
+        <div class="modal fade" id="ReservaModalDelete" tabindex="-1" aria-labelledby="ReservaModalDelete"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="clienteModalLabel">Detalhes da Reserva</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <strong>Cliente:</strong>
+                                <span>{{ reserva.cliente }}</span>
+                            </div>
+                        </div>
+                        </br>
+                        <div class="row">
+                            <div class="col-12">
+                                <strong>Empreendimento:</strong>
+                                <span>{{ reserva.lote.quadra.empr.nome }}</span>
+                            </div>
+                        </div>
+                        </br>
+                        <div class="row">
+                            <div class="col-6">
+                                <strong>Quadra:</strong>
+                                <span>{{ reserva.lote.quadra }}</span>
+                            </div>
+                            <div class="col-6">
+                                <strong>Lote:</strong>
+                                <span>{{ reserva.lote }}</span>
+                            </div>
+                        </div>
+                        </br>
+                        <p>
+                            <strong>Corretor:</strong>
+                            <span>{{ reserva.lote.user }}</span>
+                        </p>
+                        <p>
+                            <strong>Vencimento da Reserva:</strong>
+                            <span>{{ reserva.lote.data_termina_reserva }}</span>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+
+                        <a href="{% url 'delete-reservado-lista' reserva.id %}" class="btn btn-danger">deletar</a>
+                        <button type="button" href="{% url 'lista-pre-reserva' %}" class="btn btn-secondary"
+                                data-bs-dismiss="modal">Canselar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

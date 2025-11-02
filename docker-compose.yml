@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  django:
+    build:
+      context: .
+      args:
+        REPO_URL: "https://github.com/davidnobreg/Prod_glot.git"
+        BRANCH: "main"
+    container_name: django_glot
+    restart: unless-stopped
+    networks:
+      - web
+    env_file:
+      - .env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.django.rule=Host(`django.seudominio.com`)"
+      - "traefik.http.routers.django.entrypoints=websecure"
+      - "traefik.http.routers.django.tls.certresolver=lets-encrypt"
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+
+volumes:
+  static_volume:
+  media_volume:
+
+networks:
+  web:
+    external: true

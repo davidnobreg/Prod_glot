@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    deletar este cliente
+{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="row align-items-center g-4">
+            <hr/>
+            <!-- Imagem -->
+            <div class="col-lg-6">
+                <img src="{% static 'images/client.jpg' %}" class="img-fluid rounded shadow" alt="Cliente"/>
+            </div>
+
+            <!-- Formulário -->
+            <div class="col-lg-6">
+                <form method="post" class="card p-4 shadow">
+                    {% csrf_token %}
+                    <h4 class="mb-3 text-center">Alterar Cliente</h4>
+
+                    {% if status == '0' %}
+                        <div class="alert alert-success" role="alert">Cliente alterado com sucesso!</div>
+                    {% elif status == '1' %}
+                        <div class="alert alert-danger" role="alert">Preencha o nome.</div>
+                    {% elif status == '2' %}
+                        <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
+                    {% elif status == '3' %}
+                        <div class="alert alert-danger" role="alert">Preencha o contato.</div>
+                    {% endif %}
+
+                    <hr/>
+
+                    <!-- Renderiza os campos do formulário -->
+                    <div class="mb-3">
+                        {{ form.as_p }}
+                        {% for cliente in clientes%}
+                        <input type="hidden" name="id" id="cliente-id">
+                        <p><strong>ID:</strong> <span>{{ cliente.name }}</span></p>
+                        <p><strong>Cliente:</strong> <span id="cliente-name"></span></p>
+                        <p><strong>Documento:</strong> <span id="cliente-documento"></span></p>
+                        <p><strong>Email:</strong> <span id="cliente-email"></span></p>
+                        {% endfor %}
+                    </div>
+
+                    <hr/>
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Salvar</button>
+                    <!-- Botão Cancelar -->
+                    <a href="{% url 'lista-cliente' %}" class="btn btn-secondary w-100 mt-3">Cancelar</a>
+                </form>
+            </div>
+            <hr/>
+        </div>
+    </div>
+{% endblock %}

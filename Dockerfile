@@ -1,28 +1,30 @@
-# Dockerfile
+# --- Base image ---
 FROM python:3.12-slim
 
-# Evita arquivos .pyc e buffer de logs
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+# --- Variáveis de ambiente globais ---
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
+# --- Diretório de trabalho ---
 WORKDIR /app
 
-# Instala git e dependências do sistema
-RUN apt-get update && apt-get install -y git && apt-get clean
+# --- Instala pacotes de sistema necessários ---
+RUN apt-get update && apt-get install -y \
+    git \
+    gcc \
+    libpq-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Argumentos para clonar o Git
-ARG REPO_URL
-ARG BRANCH=main
+# --- Clona o repositório do GitHub ---
+RUN git clone --branch main https://github.com/davidnobreg/glot.git /app
 
-# Clona o repositório
-RUN git clone --branch $BRANCH $REPO_URL /app
-
-# Instala dependências Python
+# --- Instala dependências Python ---
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-# Expondo porta para Gunicorn
+# --- Expõe a porta do Gunicorn ---
 EXPOSE 8000
 
-# Comando padrão para produção
-CMD ["gunicorn", "meu_projeto.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4", "--threads", "2"]
+# --- Comando padrão (Gunicorn) ---
+CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000"]

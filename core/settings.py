@@ -26,7 +26,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=config_host.list)
 
 DEFAULT_APPS = [
     'jazzmin',
-    # 'rest_framework',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -80,7 +80,7 @@ MIDDLEWARE = [
 ]
 
 # Sessão expira em 15 minutos (900 segundos)
-SESSION_COOKIE_AGE = 1 * 60
+SESSION_COOKIE_AGE = 15 * 60
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_SAVE_EVERY_REQUEST = True
 

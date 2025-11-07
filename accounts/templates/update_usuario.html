@@ -52,12 +52,19 @@
                     <div class="mb-3">
                         {{ form.tipo_usuario.label_tag }} {{ form.tipo_usuario }}
                     </div>
+                    <div class="form-check mb-3">
+                        {{ form.is_active }}
+                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                            {{ form.is_active.label }}
+                        </label>
+                    </div>
                     <div class="mb-3">
                         {{ form.password1.label_tag }} {{ form.password1 }}
                     </div>
                     <div class="mb-3">
                         {{ form.password2.label_tag }} {{ form.password2 }}
                     </div>
+
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary">Salvar</button>
                         <a href="{% url 'lista-usuario' %}" class="btn btn-secondary">

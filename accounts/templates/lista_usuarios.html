@@ -11,11 +11,10 @@
         <div class="row g-3 align-items-center bg-light p-2 rounded shadow mb-4">
             <h4 class="mt-4 text-center">LISTA DE USUARIOS</h4>
             <hr>
-
             <!-- Filtros -->
             <div class="row g-3 align-items-center bg-light p-4 rounded shadow mb-4">
-                <div class="col-md-2">
-                    <a href="{% url 'criar-cadastro' %}" class="btn btn-primary">
+                <div class="col-md-12">
+                    <a href="{% url 'criar-cadastro' %}" class="btn btn-primary rounded-pill">
                         Adicionar Usuario
                     </a>
                 </div>
@@ -25,7 +24,7 @@
                     <form class="d-flex" action="{% url 'lista-usuario' %}">
                         <input name="user" id="userSearch" type="search" class="form-control me-2"
                                placeholder="Digite sua pesquisar..." value="{{ request.GET.user }}">
-                        <button class="btn btn-success" type="submit">
+                        <button class="btn btn-success rounded-pill" type="submit">
                             <i class="fas fa-search"></i>
                         </button>
                     </form>
@@ -46,6 +45,21 @@
                             </option>
                             <option value="P" {% if request.GET.tipo_user == 'PROPIETARIO' %}selected{% endif %}>
                                 Propietario
+                            </option>
+                        </select>
+                    </form>
+                </div>
+                <!-- Filtro de Usuarios ativos-->
+                <div class="col-md-2">
+                    <label for="typeFilter" class="form-label">Ativos ou Inativos</label>
+                    <form action="">
+                        <select name="is_active" id="typeFilter" class="form-select" onchange="this.form.submit()">
+                            <option value=""></option>
+                            <option value="True" {% if request.GET.is_active == 'True' %}selected{% endif %}>
+                                Ativos
+                            </option>
+                            <option value="False" {% if request.GET.is_active == 'False' %}selected{% endif %}>
+                                Inativos
                             </option>
                         </select>
                     </form>

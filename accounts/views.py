@@ -24,7 +24,7 @@ def login(request):
         login = request.POST.get('email')
         senha = request.POST.get('senha')
 
-        user = authenticate(username=login, password=senha)
+        user = authenticate(username=login, password=senha, is_active=True)
 
         if not user:
             # TODO: Redirecionar com mensagem de erro
@@ -43,40 +43,55 @@ def logout(request):
 
 @has_permission_decorator('listarUsuario')
 def listarUsuario(request):
-    usuarios = User.objects.filter(is_active=True).order_by('first_name')
+    usuarios = User.objects.all().order_by('first_name')
 
     # Mapeamento dos tipos de usuário
     tipo_usuario_map = {
         'A': 'Administrador',
         'C': 'Corretor',
-        'P': 'Proprietário'
+        'P': 'Proprietário',
     }
 
-    get_user = request.GET.get('user')
-    get_tipo_user = request.GET.get('tipo_user')
+    # Filtros vindos da query string
+    get_user = request.GET.get('user', '').strip()
+    get_tipo_user = request.GET.get('tipo_user', '').strip()
+    get_is_active = request.GET.get('is_active', '').strip()
 
+    # Aplicação dos filtros
     if get_user:
         usuarios = usuarios.filter(
-            Q(username__icontains=get_user) |
-            Q(phone__icontains=get_user) |
-            Q(email__icontains=get_user)
+            Q(username__icontains=get_user)
+            | Q(email__icontains=get_user)
+            | Q(contato__icontains=get_user)  # alterei 'phone' → 'contato' (como no seu form)
         )
 
     if get_tipo_user:
-        usuarios = usuarios.filter(tipo_usuario__icontains=get_tipo_user)
+        usuarios = usuarios.filter(tipo_usuario=get_tipo_user)
 
-    # Adicionando o display para tipo_usuario
+    if get_is_active:
+        # Filtra explicitamente True/False
+        if get_is_active.lower() in ['true', '1', 'ativo']:
+            usuarios = usuarios.filter(is_active=True)
+        elif get_is_active.lower() in ['false', '0', 'inativo']:
+            usuarios = usuarios.filter(is_active=False)
+
+    # Adicionando o display legível para tipo_usuario
     for usuario in usuarios:
-        usuario.tipo_usuario_display = tipo_usuario_map.get(usuario.tipo_usuario, usuario.tipo_usuario)
+        usuario.tipo_usuario_display = tipo_usuario_map.get(usuario.tipo_usuario, '—')
 
     # Paginação
-    paginator = Paginator(usuarios, 10)  # 10 usuários por página
+    paginator = Paginator(usuarios, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     context = {
         'page_obj': page_obj,
         'usuarios': page_obj.object_list,
+        'filtros': {
+            'user': get_user,
+            'tipo_user': get_tipo_user,
+            'is_active': get_is_active,
+        }
     }
 
     return render(request, 'lista_usuarios.html', context)

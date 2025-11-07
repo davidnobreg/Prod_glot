@@ -10,8 +10,13 @@ class FormMixin:
     """
     def apply_bootstrap(self):
         for field_name, field in self.fields.items():
-            field.widget.attrs.update({'class': 'form-control mb-3'})
+            # Se for um campo booleano (checkbox)
+            if isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
+            else:
+                field.widget.attrs.update({'class': 'form-control mb-3'})
 
+        # Personaliza o campo contato
         if 'contato' in self.fields:
             self.fields['contato'].widget.attrs.update({
                 'class': 'form-control mb-3 mask-phone',
@@ -42,7 +47,7 @@ class FormMixin:
 class UserCreationForm(BaseUserCreationForm, FormMixin):
     class Meta(BaseUserCreationForm.Meta):
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'creci', 'contato', 'tipo_usuario']
+        fields = ['username', 'first_name', 'last_name', 'email', 'creci', 'contato', 'tipo_usuario', 'is_active']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -52,7 +57,7 @@ class UserCreationForm(BaseUserCreationForm, FormMixin):
 class UserChangeForm(BaseUserChangeForm, FormMixin):
     class Meta(BaseUserChangeForm.Meta):
         model = User
-        fields = ['first_name', 'last_name', 'username', 'email', 'creci', 'contato', 'tipo_usuario']
+        fields = ['first_name', 'last_name', 'username', 'email', 'creci', 'contato', 'tipo_usuario', 'is_active']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -6,6 +6,8 @@ from datetime import timedelta
 from prettyconf import Configuration
 from decouple import config
 
+from test_rabbitmq import config_host
+
 config_host = Configuration()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,6 +23,10 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config_host('DEBUG', default=False, cast=config_host.boolean)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=config_host.list)
+
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=config_host.list)
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 

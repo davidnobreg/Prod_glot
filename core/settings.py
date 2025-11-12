@@ -6,8 +6,6 @@ from datetime import timedelta
 from prettyconf import Configuration
 from decouple import config
 
-from test_rabbitmq import config_host
-
 config_host = Configuration()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,15 +22,11 @@ DEBUG = config_host('DEBUG', default=False, cast=config_host.boolean)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=config_host.list)
 
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=config_host.list)
-
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
 # Application definition
 
 DEFAULT_APPS = [
     'jazzmin',
-    # 'rest_framework',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -84,6 +78,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Sessão expira em 15 minutos (900 segundos)
+SESSION_COOKIE_AGE = 15 * 60
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_SAVE_EVERY_REQUEST = True
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 

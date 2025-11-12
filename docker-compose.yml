@@ -3,107 +3,78 @@ version: "3.9"
 services:
   db:
     image: postgres:16
+    command: [postgres, --max_connections=100]
+    networks:
+      - app_network
+    ports:
+      - "5432:5432"
     volumes:
       - ./data/db:/var/lib/postgresql/data
+    #volumes:
+     # - postgres_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: glot
+      POSTGRES_DB: glot_new
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: glot2025
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1024M
+    restart: always
 
   rabbitmq:
     image: rabbitmq:3-management
-    environment:
-      RABBITMQ_DEFAULT_USER: carlosecelsoimoveis
-      RABBITMQ_DEFAULT_PASS: M3CRexzgkEafveXjq3ZuuB20eswbAr
+    command: rabbitmq-server
+    hostname: rabbitmq
+    networks:
+      - app_network
     ports:
       - "15672:15672"
       - "5672:5672"
-
-  setup_env:
-    image: alpine:latest
-    container_name: setup_env
-    volumes:
-      - .:/app
-    working_dir: /app
-    command: >
-      sh -c "
-      if [ ! -f .env ]; then
-        echo '# ======================' > .env &&
-        echo '# Django configuration' >> .env &&
-        echo '# ======================' >> .env &&
-        echo 'SECRET_KEY=django-insecure-^-g*v!&(yc1dzs&qvkw5bhashtag#3se%!!ygiu-fm7oy01a)%7@wmeq9' >> .env &&
-        echo 'ALLOWED_HOSTS=*' >> .env &&
-        echo 'DEBUG=True' >> .env &&
-        echo '' >> .env &&
-        echo '# ======================' >> .env &&
-        echo '# Database configuration' >> .env &&
-        echo '# ======================' >> .env &&
-        echo 'DB_NAME=glot' >> .env &&
-        echo 'DB_USER=postgres' >> .env &&
-        echo 'DB_PASSWORD=glot2025' >> .env &&
-        echo 'DB_HOST=37.27.187.172' >> .env &&
-        echo 'DB_PORT=5432' >> .env &&
-        echo '' >> .env &&
-        echo '# ======================' >> .env &&
-        echo '# RabbitMQ configuration' >> .env &&
-        echo '# ======================' >> .env &&
-        echo 'RABBITMQ_USER=carlosecelsoimoveis' >> .env &&
-        echo 'RABBITMQ_PASSWD=M3CRexzgkEafveXjq3ZuuB20eswbAr' >> .env &&
-        echo 'RABBITMQ_VHOST=carlosecelsoimoveis' >> .env &&
-        echo 'RABBITMQ_HOST=rabbitmq.carlosecelsoimoveis.com.br' >> .env &&
-        echo 'RABBITMQ_PORT=5672' >> .env &&
-        echo '' >> .env &&
-        echo '# ======================' >> .env &&
-        echo '# Evolution API configuration' >> .env &&
-        echo '# ======================' >> .env &&
-        echo 'EVOLUTION_API_URL=https://eapi.carlosecelsoimoveis.com.br/' >> .env &&
-        echo 'EVOLUTION_TOKEN=3EYi+%bhjzk-d5:sf@YVJpe=WrG?i}' >> .env &&
-        echo 'EVOLUTION_INSTANCE=carlosecelso' >> .env &&
-        echo '' >> .env &&
-        echo '# ======================' >> .env &&
-        echo '# Repository info' >> .env &&
-        echo '# ======================' >> .env &&
-        echo 'REPO_URL=https://github.com/davidnobreg/glot.git' >> .env &&
-        echo 'BRANCH=master' >> .env &&
-        echo '.env criado com sucesso!'
-      else
-        echo '.env já existe — pulando criação.'
-      fi
-      "
+    environment:
+      RABBITMQ_ERLANG_COOKIE: 'cnV34K:)tuvX6Q!51!VZxZHcQtvtFn'
+      RABBITMQ_DEFAULT_VHOST: carlosecelsoimoveis
+      RABBITMQ_DEFAULT_USER: carlosecelsoimoveis
+      RABBITMQ_DEFAULT_PASS: M3CRexzgkEafveXjq3ZuuB20eswbAr 
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+    restart: always
+    #volumes:
+    #  - rabbitmq_data:/var/lib/rabbitmq
 
   web:
     build: .
-    container_name: django_app
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-    restart: always
-    volumes:
-      - .:/app
+    image: davidnobrega/glot:latest
+    command: /bin/sh -c "\
+      cd /app && git pull || echo 'Falha no pull' && \
+      pip install --no-cache-dir -r /app/requirements.txt && \
+      python /app/manage.py runserver 0.0.0.0:8000"
+    networks:
+      - app_network
+    depends_on:
+      - db
+      - rabbitmq
     ports:
       - "8000:8000"
-    env_file:
-      - .env
-    depends_on:
-      - setup_env
-      - db
-      - rabbitmq
-
-  celery:
-    build: .
-    command: celery -A core worker -l info
     restart: always
-    volumes:
-      - .:/app
-    depends_on:
-      - db
-      - rabbitmq
+    
 
-  celery-beat:
-    build: .
-    command: celery -A core beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
-    restart: always
-    volumes:
-      - .:/app
-    depends_on:
-      - db
-      - rabbitmq
 
+
+networks:
+  app_network:
+    external: true

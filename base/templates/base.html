@@ -23,6 +23,32 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+
+    <script>
+        // Pega o tempo total da sessão (em segundos)
+        const sessionAge = {{ request.session.get_expiry_age|default:900 }};
+        let timeLeft = sessionAge;
+
+        function startSessionTimer() {
+            const warningTime = 60; // 1 minuto antes de expirar
+            const interval = setInterval(() => {
+                timeLeft--;
+
+                if (timeLeft === warningTime) {
+                    alert("⚠️ Sua sessão expirará em 1 minuto. Salve seu trabalho!");
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    alert("Sua sessão expirou. Você será desconectado.");
+                    window.location.href = "{% url 'logout' %}";
+                }
+            }, 1000);
+        }
+
+        document.addEventListener("DOMContentLoaded", startSessionTimer);
+    </script>
 </head>
 <body>
 <!-- Include Navbar and Message -->

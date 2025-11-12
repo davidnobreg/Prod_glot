@@ -23,6 +23,8 @@ def pre_save_lote(sender, instance, **kwargs):
     if instance.pk:
         old_instance = Lote.objects.get(pk=instance.pk)
         instance._old_situacao = old_instance.situacao
+        instance._old_cliente_reserva = old_instance.cliente_reserva
+        instance._old_telefone = old_instance.telefone
     else:
         instance._old_situacao = None
 
@@ -30,6 +32,9 @@ def pre_save_lote(sender, instance, **kwargs):
 def post_save_lote(sender, instance, created, **kwargs):
     situacao_atual = instance.situacao
     situacao_antiga = getattr(instance, "_old_situacao", None)
+    cliente_reserva_antiga = getattr(instance, "_old_cliente_reserva", None)
+    telefone_cliente_antiga = formatar_telefone(getattr(instance, "_old_telefone", None))
+
 
     if situacao_atual == situacao_antiga:
         return
@@ -55,6 +60,7 @@ def post_save_lote(sender, instance, created, **kwargs):
         ]
     elif situacao_atual == "DISPONIVEL":
         mensagens = [
+            (telefone_cliente_antiga, f"Senhor *{cliente_reserva_antiga}*, o Cancelamento da  *RESERVA* do Lote *{nome_lote}*, Quadra *{nome_quadra}*, do Loteamento *{nome_empr}* foi Realizado com Sucesso."),
             (telefone_user, f"O Lote *{nome_lote}* na Quadra *{nome_quadra}* voltou a estar *DISPONÍVEL*."),
             (telefone_empr, f"O Lote *{nome_lote}* na Quadra *{nome_quadra}* do Loteamento *{nome_empr}* voltou ao status *DISPONÍVEL*.")
         ]

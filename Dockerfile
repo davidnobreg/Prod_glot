@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Instala dependências básicas
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git gcc libpq-dev \
+    git gcc libpq-dev build-essential \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Clona o projeto (branch main)

@@ -22,6 +22,8 @@ DEBUG = config_host('DEBUG', default=False, cast=config_host.boolean)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=config_host.list)
 
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=config_host.list)
+
 # Application definition
 
 DEFAULT_APPS = [

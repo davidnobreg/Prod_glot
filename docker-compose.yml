@@ -11,7 +11,11 @@ services:
       cd /app && git pull || echo 'Falha no pull' && \
       pip install --no-cache-dir -r /app/requirements.txt && \
       python /app/manage.py runserver 0.0.0.0:8000"
-    
+
+    volumes:
+      - .:/app
+      - media_volume:/app/media
+
     networks:
       - app_network
       - traefik_public
@@ -44,7 +48,8 @@ services:
         - traefik.http.routers.web.tls=true
         - traefik.http.routers.web.tls.certresolver=le
         
-
+volumes:
+  media_volume:
 
 networks:
   traefik_public:

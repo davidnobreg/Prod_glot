@@ -67,6 +67,8 @@ EVOLUTION_URL = config("EVOLUTION_API_URL")
 EVOLUTION_INSTANCE = config("EVOLUTION_INSTANCE")
 EVOLUTION_TOKEN = config("EVOLUTION_TOKEN")
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -83,7 +85,7 @@ SESSION_COOKIE_AGE = 15 * 60
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_SAVE_EVERY_REQUEST = True
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 ROOT_URLCONF = 'core.urls'
 
@@ -162,17 +164,19 @@ USE_L10N = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
+STATIC_URL = '/static/'
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-STATIC_DIR = os.path.join(BASE_DIR, 'static')
+#STATIC_DIR = os.path.join(BASE_DIR, 'static')
 
-STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-MEDIA_DIR = os.path.join(BASE_DIR, 'media')
+#MEDIA_DIR = os.path.join(BASE_DIR, 'static', 'media')
 
-MEDIA_URL = '/media/'
+
 
 
 

@@ -169,15 +169,15 @@ USE_L10N = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 # URLs para navegador
-STATIC_URL = 'static/'
-MEDIA_URL = 'media/'
+STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
 
 # Caminhos físicos
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')  # usado pelo collectstatic
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')   # usado para uploads
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')  # usado pelo collectstatic
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')   # usado para uploads
 
 # Opcional: desenvolvimento
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'base/static')]  # onde seus apps guardam static
+#STATICFILES_DIRS = [os.path.join(BASE_DIR, 'base/static')]  # onde seus apps guardam static
 
 
 # Default primary key field type

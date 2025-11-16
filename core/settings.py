@@ -4,19 +4,19 @@ from pathlib import Path
 from datetime import timedelta
 
 from prettyconf import Configuration
-from decouple import config
-
-config_host = Configuration()
+from decouple import Config, RepositoryEnv
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
+# Caminho da pasta conf/.env
+ENV_PATH = BASE_DIR / 'configuration' / '.env'
 
-STATIC_DIR = os.path.join(BASE_DIR, 'static')
+# Carrega o arquivo .env desta pasta
+config= Config(RepositoryEnv(ENV_PATH))
+config_host = Configuration()
 
-MEDIA_DIR = os.path.join(BASE_DIR, 'media')
-
+# Suas variáveis
 SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = config_host('DEBUG', default=False, cast=config_host.boolean)
@@ -24,6 +24,12 @@ DEBUG = config_host('DEBUG', default=False, cast=config_host.boolean)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=config_host.list)
 
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=config_host.list)
+
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
+
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+
+MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
 # Application definition
 

@@ -10,11 +10,12 @@ from decouple import Config, RepositoryEnv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Caminho da pasta conf/.env
-ENV_PATH = BASE_DIR / 'configuration' / '.env'
+#ENV_PATH = BASE_DIR / 'configuration' / '.env'
 
 # Carrega o arquivo .env desta pasta
-config= Config(RepositoryEnv(ENV_PATH))
+#config= Config(RepositoryEnv(ENV_PATH))
 config_host = Configuration()
+config = Configuration()
 
 # Suas variáveis
 SECRET_KEY = config('SECRET_KEY')

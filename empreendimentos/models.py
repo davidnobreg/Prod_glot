@@ -30,7 +30,7 @@ class Empreendimento(models.Model):
         return "{}".format(self.nome)
 
     class Meta:
-        verbose_name = 'empreendimento'
+        verbose_name = 'Empreendimento'
         verbose_name_plural = 'Empreendimentos'
         ordering = ['id']
 

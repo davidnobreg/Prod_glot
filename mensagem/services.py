@@ -17,14 +17,14 @@ class EvolutionService:
         """
         Envia mensagem via Evolution API.
         """
-        print(numero, mensagem)
+
         url = f"{self.server_url}/message/sendText/{self.instance}"
         payload = {
             "number": numero,
             "text": mensagem
             #"textMessage": {"text": mensagem}
         }
-        print(payload)
+
 
         if options:
             payload["options"] = options

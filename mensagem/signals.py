@@ -61,7 +61,7 @@ def post_save_lote(sender, instance, created, **kwargs):
     elif situacao_atual == "DISPONIVEL":
         mensagens = [
             (telefone_cliente_antiga, f"Senhor *{cliente_reserva_antiga}*, o Cancelamento da  *RESERVA* do Lote *{nome_lote}*, Quadra *{nome_quadra}*, do Loteamento *{nome_empr}* foi Realizado com Sucesso."),
-            (telefone_user, f"O Lote *{nome_lote}* na Quadra *{nome_quadra}* voltou a estar *DISPONÍVEL*."),
+            (telefone_user, f"O Lote *{nome_lote}* na Quadra *{nome_quadra}* do Loteamento *{nome_empr}* voltou a estar *DISPONÍVEL*."),
             (telefone_empr, f"O Lote *{nome_lote}* na Quadra *{nome_quadra}* do Loteamento *{nome_empr}* voltou ao status *DISPONÍVEL*.")
         ]
     else:

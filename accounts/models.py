@@ -6,11 +6,11 @@ from django.core.validators import RegexValidator
 
 
 class User(AbstractUser):
-    choices_tipo_usuario = (('A', 'ADMINISTRADOR'),
-                             ('C', 'CORRETOR'),
-                             ('P', 'PROPRIETARIO'))
+    choices_tipo_usuario = (('ADMINISTRADOR', 'ADMINISTRADOR'),
+                             ('CORRETOR', 'CORRETOR'),
+                             ('PROPRIETARIO', 'PROPRIETARIO'))
 
-    tipo_usuario = models.CharField(max_length=1, choices=choices_tipo_usuario)
+    tipo_usuario = models.CharField(max_length=13, choices=choices_tipo_usuario)
     creci = models.CharField('Creci', max_length=50, blank=True)
     contato = models.CharField(
         max_length=15,

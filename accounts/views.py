@@ -47,9 +47,9 @@ def listarUsuario(request):
 
     # Mapeamento dos tipos de usuário
     tipo_usuario_map = {
-        'A': 'Administrador',
-        'C': 'Corretor',
-        'P': 'Proprietário',
+        'ADMINISTRADOR': 'ADMINISTRADOR',
+        'CORRETOR': 'CORRETOR',
+        'PROPRIETARIO': 'PROPRIETARIO',
     }
 
     # Filtros vindos da query string

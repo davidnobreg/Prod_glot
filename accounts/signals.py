@@ -10,9 +10,9 @@ def createDefinidorDePermissoes(sender, instance, **kwargs):
     clear_roles(instance)
 
     # Define a nova role com base no tipo de usuário
-    if instance.tipo_usuario == "A":
+    if instance.tipo_usuario == "ADMINISTRADOR":
         assign_role(instance, 'administrador')
-    elif instance.tipo_usuario == "C":
+    elif instance.tipo_usuario == "CORRETOR":
         assign_role(instance, 'corretor')
-    elif instance.tipo_usuario == "P":
+    elif instance.tipo_usuario == "PROPRIETARIO":
         assign_role(instance, 'proprietario')

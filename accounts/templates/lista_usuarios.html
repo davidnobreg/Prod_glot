@@ -43,8 +43,8 @@
                             <option value="C" {% if request.GET.tipo_user == 'CORRETOR' %}selected{% endif %}>
                                 Corretor
                             </option>
-                            <option value="P" {% if request.GET.tipo_user == 'PROPIETARIO' %}selected{% endif %}>
-                                Propietario
+                            <option value="P" {% if request.GET.tipo_user == 'PROPRIETARIO' %}selected{% endif %}>
+                                Proprietário
                             </option>
                         </select>
                     </form>
@@ -99,11 +99,11 @@
                                 <td>{{ usuario.email }}</td>
                                 <td>{{ usuario.contato }}</td>
                                 <td class="field-tipo_usuario">
-                                    {% if usuario.tipo_usuario == 'A' %}
+                                    {% if usuario.tipo_usuario == 'ADMINISTRADOR' %}
                                         Administrador
-                                    {% elif usuario.tipo_usuario == 'C' %}
+                                    {% elif usuario.tipo_usuario == 'CORRETOR' %}
                                         Corretor
-                                    {% elif usuario.tipo_usuario == 'P' %}
+                                    {% elif usuario.tipo_usuario == 'PROPRIETARIO' %}
                                         Proprietário
                                     {% else %}
                                         {{ usuario.tipo_usuario }}

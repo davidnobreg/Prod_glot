@@ -1,0 +1,9 @@
+@import "../scss/_functions.scss";
+@import "variables";
+
+$custom-color: (
+  "personalizado": #fd7e14;
+)
+
+@import "../scss/bootstrap/scss/bootstrap";
+

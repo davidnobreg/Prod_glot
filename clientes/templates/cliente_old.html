@@ -1,0 +1,376 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Cadastrar Cliente{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="row g-4">
+            <hr>
+
+            <!-- IMAGEM -->
+            <div class="col-lg-6">
+                <img src="{% static 'images/carlos.jpg' %}" class="img-fluid rounded shadow" alt="Cliente">
+            </div>
+
+            <!-- FORMULÁRIO PRINCIPAL -->
+            <div class="col-lg-6">
+
+                <form id="mainForm" action="{% url 'criar-cliente' %}" method="POST" class="card p-4 shadow">
+                    {% csrf_token %}
+
+                    <h4 class="mb-3 text-center">Cadastrar Cliente</h4>
+
+                    <!-- MENSAGENS -->
+                    {% if status == '0' %}
+                        <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso!</div>
+                    {% elif status == '1' %}
+                        <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
+                    {% elif status == '2' %}
+                        <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
+                    {% elif status == '3' %}
+                        <div class="alert alert-danger" role="alert">Preencha o telefone corretamente.</div>
+                    {% endif %}
+
+                    <hr>
+
+                    <!-- CAMPOS CLIENTE -->
+                    <div class="row">
+                        <!-- ESQUERDA -->
+                        <div class="col-md-6">
+                            {% for field in form %}
+                                {% if field.field.widget.attrs.col == 'left' %}
+                                    <div class="mb-3">
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <!-- DIREITA -->
+                        <div class="col-md-6">
+                            {% for field in form %}
+                                {% if field.field.widget.attrs.col == 'right' %}
+                                    <div class="mb-3">
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+
+                            <!-- BOTÕES MODAIS -->
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-secondary rounded-pill" data-bs-toggle="modal"
+                                        data-bs-target="#modalTelefone">
+                                    Contatos
+                                </button>
+
+                                <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal"
+                                        data-bs-target="#modalEndereco">
+                                    Endereço
+                                </button>
+
+                                <button type="button" id="btnAbrirConjuge"
+                                        class="btn btn-outline-secondary rounded-pill"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalConjuge">
+                                    Cônjuge
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- BOTÕES FINAIS -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" name="salvar_cliente" class="btn btn-success rounded-pill">
+                            Salvar Cliente
+                        </button>
+
+                        {% if veio_da_lista %}
+                            <a href="{% url 'lista-cliente' %}" class="btn btn-danger rounded-pill">Cancelar</a>
+                        {% else %}
+                            <a href="{% url 'lista-empreendimento' %}" class="btn btn-danger rounded-pill">Cancelar</a>
+                        {% endif %}
+                    </div>
+
+                    {% if lote_id %}
+                        <input type="hidden" name="lote_id" value="{{ lote_id }}">
+                    {% endif %}
+
+                    <!-- ============================
+                         MODAL ENDEREÇO
+                    ============================= -->
+                    <div class="modal fade" id="modalEndereco" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Cadastro de Endereço</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            {% for field in formEndereco %}
+                                                {% if field.field.widget.attrs.col == 'left' %}
+                                                    <div class="mb-3">
+                                                        {{ field }}
+                                                        {% if field.errors %}
+                                                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            {% for field in formEndereco %}
+                                                {% if field.field.widget.attrs.col == 'right' %}
+                                                    <div class="mb-3">
+                                                        {{ field }}
+                                                        {% if field.errors %}
+                                                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <p class="text-muted small">Digite o CEP e os campos serão preenchidos
+                                                automaticamente.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button class="btn btn-danger rounded-pill" data-bs-dismiss="modal">Fechar</button>
+                                    <button class="btn btn-success rounded-pill" data-bs-dismiss="modal">Salvar
+                                        Endereço
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===========================================================
+     MODAL DE CÔNJUGE — TOTALMENTE CORRIGIDO E FUNCIONAL
+=============================================================== -->
+                    <div class="modal fade" id="modalConjuge" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+
+                                <form method="post" id="formConjuge">
+                                    {% csrf_token %}
+
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Cadastrar Cônjuge</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+
+                                    <div class="modal-body">
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                {% for field in formConjuge %}
+                                                    {% if field.field.widget.attrs.col == 'left' %}
+                                                        <div class="mb-3">
+                                                            <label class="form-label">{{ field.label }}</label>
+                                                            {{ field }}
+                                                            {% if field.errors %}
+                                                                <div class="invalid-feedback d-block">
+                                                                    {{ field.errors|striptags }}
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                {% for field in formConjuge %}
+                                                    {% if field.field.widget.attrs.col == 'right' %}
+                                                        <div class="mb-3">
+                                                            <label class="form-label">{{ field.label }}</label>
+                                                            {{ field }}
+                                                            {% if field.errors %}
+                                                                <div class="invalid-feedback d-block">
+                                                                    {{ field.errors|striptags }}
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                            Fechar
+                                        </button>
+
+                                        <!-- O BOTÃO DE SALVAR AGORA ESTÁ DENTRO DO FORM! -->
+                                        <button type="submit" name="salvar_conjuge" class="btn btn-primary">
+                                            Salvar Cônjuge
+                                        </button>
+                                    </div>
+
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                </form>
+            </div>
+
+            <hr>
+        </div>
+    </div>
+
+    <!-- ============================
+         MODAL TELEFONE (Form separado)
+    ============================== -->
+    <div class="modal fade {% if abrir_modal_telefone %}show{% endif %}"
+         id="modalTelefone"
+         tabindex="-1"
+         {% if abrir_modal_telefone %}style="display:block;"{% endif %}>
+
+        <div class="modal-dialog modal-lg">
+
+            <!-- ⚠️ FORM SEPARADO SÓ PARA TELEFONE -->
+            <form method="POST" action="{% url 'criar-cliente' %}">
+                {% csrf_token %}
+
+                <div class="modal-content">
+
+                    <!-- HEADER -->
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cadastrar Contatos</h5>
+
+                        <!-- IMPORTANTE: este botão NÃO fecha o modal quando adiciona -->
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <!-- BODY -->
+                    <div class="modal-body">
+
+                        <div class="row g-2">
+
+                            <!-- COL A -->
+                            <div class="col-md-3">
+                                {% for field in formTelefone %}
+                                    {% if field.field.widget.attrs.col == 'left' %}
+                                        <div class="mb-2">{{ field }}</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            <!-- COL B -->
+                            <div class="col-md-3">
+                                {% for field in formTelefone %}
+                                    {% if field.field.widget.attrs.col == 'center' %}
+                                        <div class="mb-2">{{ field }}</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            <!-- COL C -->
+                            <div class="col-md-3">
+                                {% for field in formTelefone %}
+                                    {% if field.field.widget.attrs.col == 'right' %}
+                                        <div class="mb-2">{{ field }}</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            <!-- BOTÃO ADD -->
+                            <div class="col-md-3 text-center">
+                                <button type="submit"
+                                        name="add_telefone"
+                                        value="1"
+                                        class="btn btn-secondary w-100 rounded-pill">
+                                    ADD
+                                </button>
+                            </div>
+
+                        </div>
+
+                        <hr>
+
+                        <h6>Contatos adicionados</h6>
+
+                        {% if telefones_existentes %}
+                            <ul class="list-group">
+
+                                {% for tel in telefones_existentes %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+
+                                        <div>
+                                            <strong>{{ tel.numero }}</strong><br>
+                                            <small class="text-muted">
+                                                {{ tel.tipo }}
+                                                {% if tel.observacao %} — {{ tel.observacao }}{% endif %}
+                                            </small>
+                                        </div>
+
+                                        <form method="POST" action="{% url 'criar-cliente' %}">
+                                            {% csrf_token %}
+                                            <button type="submit"
+                                                    name="remove_telefone"
+                                                    value="{{ forloop.counter0 }}"
+                                                    class="btn btn-danger btn-sm">
+                                                Remover
+                                            </button>
+                                        </form>
+
+                                    </li>
+                                {% endfor %}
+
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">Nenhum telefone adicionado ainda.</p>
+                        {% endif %}
+
+                    </div>
+
+                    <!-- FOOTER -->
+                    <div class="modal-footer">
+
+                        <!-- FECHAR NORMAL -->
+                        <button type="button"
+                                class="btn btn-danger rounded-pill"
+                                data-bs-dismiss="modal">
+                            Fechar
+                        </button>
+
+                        <!-- FECHAR E CONTINUAR -->
+                        <button type="button"
+                                class="btn btn-success rounded-pill"
+                                data-bs-dismiss="modal">
+                            Fechar e continuar
+                        </button>
+
+                    </div>
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+
+    <!-- JS -->
+    <script src="{% static 'js/cep.js' %}"></script>
+    <script src="{% static 'js/telefone.js' %}"></script>
+    <script src="{% static 'js/conjuge.js' %}"></script>
+
+{% endblock %}

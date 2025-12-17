@@ -1,23 +1,39 @@
 from django.contrib import admin
-from .models import Cliente
+from .models import Cliente, ClienteConjuge, ClienteEndereco, ClienteTelefone
 
-from django.contrib import admin
-from .models import Cliente
+
+class ClienteEnderecoInline(admin.StackedInline):
+    model = ClienteEndereco
+    extra = 0
+    max_num = 1
+
+
+class ClienteConjugeInline(admin.StackedInline):
+    model = ClienteConjuge
+    extra = 0
+    max_num = 1
+
+
+class ClienteTelefoneInline(admin.TabularInline):
+    model = ClienteTelefone
+    extra = 1
 
 
 @admin.register(Cliente)
 class ClienteAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'documento_formatado', 'email', 'fone', 'is_ativo']
+
+    list_display = ['id', 'name', 'documento', 'email', 'is_ativo']
+    search_fields = ['name', 'documento', 'email']
+    list_filter = ['estado_civil', 'is_ativo', 'nacionalidade']
+
+    list_display = ['id', 'name', 'documento', 'email', 'is_ativo']
     search_fields = ('name', 'documento', 'email')
     list_filter = ('is_ativo',)
 
-    def documento_formatado(self, obj):
-        """Mostra CPF/CNPJ formatado na lista do admin."""
-        doc = obj.documento
-        if len(doc) == 11:
-            return f"{doc[:3]}.{doc[3:6]}.{doc[6:9]}-{doc[9:]}"
-        elif len(doc) == 14:
-            return f"{doc[:2]}.{doc[2:5]}.{doc[5:8]}/{doc[8:12]}-{doc[12:]}"
-        return doc
 
-    documento_formatado.short_description = "CPF/CNPJ"
+    # aqui colocamos TODOS os inlines juntos
+    inlines = [
+        ClienteEnderecoInline,
+        ClienteConjugeInline,
+        ClienteTelefoneInline,
+    ]

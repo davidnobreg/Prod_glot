@@ -16,7 +16,6 @@ class Administrador(AbstractUserRole):
 
         'selectCliente': True,
         'criarCliente': True,
-        'criarClienteModal': True,
         'alterarCliente': True,
         'deletarCliente': True,
         'relatorioCliente': True,
@@ -64,7 +63,6 @@ class Corretor(AbstractUserRole):
 
         'selectCliente': True,
         'criarCliente': True,
-        'criarClienteModal': True,
         'relatorioClienteRelatorio': True,
 
         # MODULO EMPREENDIMENTO
@@ -80,7 +78,6 @@ class Corretor(AbstractUserRole):
         'cancelarReservadoTemporaria':True,
         'cancelarReservadoTemporariaLista': True,
         'renovarReservaTemporaria':True,
-        
 
 
         # MODULO VENDA

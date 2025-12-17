@@ -65,8 +65,10 @@
                             <h4 class="mb-3">Cadastrar Reserva</h4>
                         </div>
                         <div class="col">
-                            <a type="button" class="btn btn-primary w-100 mt-3" data-bs-toggle="modal"
-                               data-bs-target="#clienteModalFormAbri">Add Clientes</a>
+                            <a href="{% url 'criar-cliente' %}?lote_id={{ lote.id }}"
+                               class="btn btn-primary w-100 mt-3">
+                                Add Clientes
+                            </a>
                         </div>
                     </div>
 
@@ -85,78 +87,5 @@
         </div>
         <hr/>
         <hr/>
-    </div>
-
-    <!-- The Modal -->
-    <div class="modal" id="clienteModalFormAbri">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <!-- Modal Header -->
-                <div class="modal-header">
-                    <h4 class="mb-3 text-center">Cadastrar Cliente</h4>
-
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <!-- Modal body -->
-                <div class="modal-body">
-                    <form id="clienteModalForm" action="{% url 'criar-cliente-modal' %}" class="card p-4 shadow"
-                          method="post">
-                        {% csrf_token %}
-                        {% if status == '0' %}
-                            <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso</div>
-                        {% elif status == '1' %}
-                            <div class="alert alert-danger" role="alert">Preencha o nome</div>
-                        {% elif status == '2' %}
-                            <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente</div>
-                        {% elif status == '3' %}
-                            <div class="alert alert-danger" role="alert">Preencha o contato</div>
-                        {% endif %}
-
-                        <label for="">Nome:</label>
-                        <input type="text" name="name" class="form-control" placeholder="Digite o nome do cliente"/>
-                        <label for="">Documento:</label>
-                        <input type="text" name="documento" class="form-control mask-cpf"
-                               placeholder="Digite o cpf do cliente"/>
-                        <label for="">E-mail:</label>
-                        <input type="email" name="email" class="form-control "
-                               placeholder="Digite o e-mail do cliente"/>
-                        <label for="">Contato:</label>
-                        <input type="tel" name="fone" class="form-control mask-phone"
-                               placeholder="Digite o Contato do cliente"/>
-                        <input type="hidden" name="lote_id" value="{{ lote.id }}">
-                        <hr/>
-
-                        <button type="submit" class="btn btn-primary w-100 mt-3">Salvar</button>
-                        <span class="fechar">
-                            <button type="button" class="btn btn-danger w-100 mt-3">Canselar
-                            </button>
-                        </span>
-                    </form>
-                </div>
-                <!-- Modal footer -->
-                <div class="modal-footer">
-
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    ...
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
-            </div>
-        </div>
     </div>
 {% endblock %}

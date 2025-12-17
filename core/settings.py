@@ -1,36 +1,29 @@
 import os
 from pathlib import Path
-
 from datetime import timedelta
-
 from prettyconf import Configuration
-from decouple import Config, RepositoryEnv
+from decouple import Config, Csv, RepositoryEnv
 
-
+# --- Caminhos básicos ---
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Caminho da pasta conf/.env
 ENV_PATH = BASE_DIR / 'configuration' / '.env'
 
+# Carrega variáveis do .env
+config = Config(repository=RepositoryEnv(ENV_PATH))
+
 # Carrega o arquivo .env desta pasta
-config= Config(RepositoryEnv(ENV_PATH))
-config_host = Configuration()
-#config = Configuration()
+#config= Config(RepositoryEnv(ENV_PATH))
+#config_host = Configuration()
 
-# Suas variáveis
+# --- Segurança ---
 SECRET_KEY = config('SECRET_KEY')
+DEBUG = config('DEBUG', cast=bool, default=False)
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default=[])
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=Csv(), default=[])
 
-DEBUG = config('DEBUG', default=False, cast=config_host.boolean)
-
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=config_host.list)
-
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=config_host.list)
-
+# --- Templates ---
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 
-STATIC_DIR = os.path.join(BASE_DIR, 'static')
-
-MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
 # Application definition
 
@@ -120,7 +113,14 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+"""
+DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / "db.sqlite3",
+        }
+    }
+"""
 if DEBUG:
     DATABASES = {
         'default': {
@@ -180,11 +180,12 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
 # Caminhos físicos
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')  # usado pelo collectstatic
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')   # usado para uploads
+STATIC_ROOT = os.path.join(BASE_DIR, 'static') # usado pelo collectstatic
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')        # usado para uploads
+
 
 # Opcional: desenvolvimento
-#STATICFILES_DIRS = [os.path.join(BASE_DIR, 'base/static')]  # onde seus apps guardam static
+#STATICFILES_DIRS = [os.path.join(BASE_DIR, 'base/static')] # onde seus apps guardam static]
 
 
 # Default primary key field type
@@ -279,7 +280,9 @@ JAZZMIN_SETTINGS = {
     "site_brand": "Carlos_&_Celso",
 
     # Logo to use for your site, must be present in static files, used for brand on top left
-    "site_logo": "books/img/logo.png",
+    "site_logo": "books/img/logo.jpg",
+    "site_logo_classes": "img-fluid",     # classes extras da logo
+    "site_logo_width": 200,               # opcional
 
     # Logo to use for your site, must be present in static files, used for login form logo (defaults to site_logo)
     "login_logo": None,

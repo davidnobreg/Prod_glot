@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Cadastrar Cliente
+    Cliente
 {% endblock %}
 
 {% load static %}
@@ -17,12 +17,12 @@
 
             <!-- Formulário -->
             <div class="col-lg-6">
-                <form action="{% url 'criar-cliente' %}" method="POST" class="card p-4 shadow">
+                <form action="{% url 'atualizar-cliente' cliente.id %}" method="POST" class="card p-4 shadow">
                     {% csrf_token %}
                     <input type="hidden" name="conjuge_json" id="conjuge_json">
                     <input type="hidden" name="endereco_json" id="endereco_json">
                     <input type="hidden" name="telefones_json" id="telefones_json">
-                    <h4 class="mb-3 text-center">Cadastrar Cliente</h4>
+                    <h4 class="mb-3 text-center">Cliente</h4>
 
                     <!-- Mensagens -->
                     {% if status == '0' %}
@@ -120,7 +120,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Cadastro de Endereço</h5>
+                    <h5 class="modal-title">Endereço</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <!-- Mensagens -->
@@ -175,7 +175,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Cadastrar Cônjuge</h5>
+                    <h5 class="modal-title">Cônjuge</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
@@ -232,7 +232,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Cadastrar Contatos</h5>
+                    <h5 class="modal-title">Contatos</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
@@ -315,7 +315,13 @@
     </div>
 
 
+<script>
+    const clienteId = {{ cliente.id }};
 
+    const enderecoAtual = {{ cliente.clienteendereco_set.first|default:"null"|safe }};
+    const telefonesAtuais = {{ cliente.clientetelefone_set.all|safe }};
+    const conjugeAtual = {{ cliente.clienteconjuge_set.first|default:"null"|safe }};
+</script>
 
 
 

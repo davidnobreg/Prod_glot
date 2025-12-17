@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Altera Cliente
+{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="row align-items-center g-4">
+            <hr/>
+            <!-- Imagem -->
+            <div class="col-lg-6">
+                <img src="{% static 'images/carlos.jpg' %}" class="img-fluid rounded shadow" alt="Cliente"/>
+            </div>
+
+            <!-- Formulário -->
+            <div class="col-lg-6">
+                <form action="{% url 'atualizar-cliente' cliente.id %}" method="put" class="card p-4 shadow">
+                    {% csrf_token %}
+                    <h4 class="mb-3 text-center">Alterar Cliente</h4>
+
+                    <!-- Mensagens -->
+                    {% if status == '0' %}
+                        <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso!</div>
+                    {% elif status == '1' %}
+                        <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
+                    {% elif status == '2' %}
+                        <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
+                    {% elif status == '3' %}
+                        <div class="alert alert-danger" role="alert">Preencha o telefone corretamente.</div>
+                    {% endif %}
+
+                    <hr>
+
+                    <!-- 📌 Duas colunas -->
+                    <div class="row">
+                        <!-- COLUNA ESQUERDA -->
+                        <div class="col-md-6">
+                            {% for field in form %}
+                                {% if field.field.widget.attrs.col == 'left' %}
+                                    <div class="mb-3">
+
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <!-- COLUNA DIREITA -->
+                        <div class="col-md-6">
+                            {% for field in form %}
+                                {% if field.field.widget.attrs.col == 'right' %}
+                                    <div class="mb-3">
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                            <button
+                                    class="btn btn-primary py-2 w-100 rounded-pill"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#enderecoModal"
+                                    data-bs-toggle="tooltip"
+                                    title="Cadastre o endereço"
+                                    aria-label="Excluir Cliente">Endereço
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <hr>
+
+                    <!-- Botões -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success rounded-pill">Salvar</button>
+                        <a href="{% url 'lista-cliente' %}" class="btn btn-danger rounded-pill">Cancelar</a>
+                    </div>
+
+                </form>
+            </div>
+            <hr/>
+        </div>
+    </div>
+    <!-- Modal do Endereço -->
+    <div class="modal fade" id="enderecoModal" tabindex="-1" aria-labelledby="enderecoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <form id="enderecoForm" method="PUT" action="{% url 'atualizar-cliente' cliente.id %}">
+                    {% csrf_token %}
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cadastro de Endereço</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                {% for field in formEndereco %}
+                                    {% if field.field.widget.attrs.col == 'left' %}
+                                        <div class="mb-3">
+                                            {{ field }}
+                                            {% if field.errors %}
+                                                <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                {% for field in formEndereco %}
+                                    {% if field.field.widget.attrs.col == 'right' %}
+                                        <div class="mb-3">
+                                            {{ field }}
+                                            {% if field.errors %}
+                                                <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                                <p>digite o cep e preencha automatico</p>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger rounded-pill" data-bs-dismiss="modal">Fechar
+                        </button>
+                        <button type="submit" class="btn btn-success rounded-pill">Salvar Endereço</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+{% endblock %}

@@ -51,6 +51,7 @@
                         <th scope="col">Cpf ou Cnpj</th>
                         <th scope="col">E-mail</th>
                         <th scope="col">Contato</th>
+                        <th scope="col">Contato</th>
                         <th scope="col">Comandos</th>
                     </tr>
                     </thead>
@@ -61,12 +62,28 @@
                             <td>{{ cliente.name }}</td>
                             <td>{{ cliente.documento|format_documento }}</td>
                             <td>{{ cliente.email }}</td>
-                            <td>{{ cliente.fone }}</td>
-
+                            <td>
+                                {% if cliente.telefones_list %}
+                                    {% for t in cliente.telefones_list %}
+                                        <div>{{ t.numero }}</div>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted">Sem telefone</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if cliente.telefones_list %}
+                                    {% for t in cliente.telefones_list %}
+                                        <div>{{ t.tipo }}</div>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted">Sem Status</span>
+                                {% endif %}
+                            </td>
                             <td>
                                 <div class="row g-2 justify-content-center align-items-center">
                                     <div class="col-md-4">
-                                        <a href="{% url 'altera-cliente' cliente.id %}"
+                                        <a href="{% url 'atualizar-cliente' cliente.id %}"
                                            class="btn btn-warning w-auto h-auto text-wrap text-center"
                                            title="Editar Cliente" data-bs-toggle="tooltip"
                                            aria-label="Editar Cliente">
@@ -82,7 +99,7 @@
                                                 data-bs-toggle="tooltip"
                                                 title="Excluir Cliente"
                                                 aria-label="Excluir Cliente">
-                                                <i class="fas fa-window-close"></i>
+                                            <i class="fas fa-window-close"></i>
                                         </button>
                                     </div>
                                 </div>

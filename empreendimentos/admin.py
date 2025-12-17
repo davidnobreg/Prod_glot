@@ -69,7 +69,7 @@ admin.site.register(models.Quadra, QuadraAdmin)
 # Admin para o modelo Lote
 class LoteAdmin(admin.ModelAdmin):
     list_display = ['id', 'quadra', 'lote', 'area', 'situacao', 'tempo_reservado', 'valor_metro_quadrado']  # Exibir esses campos na lista de Lotes
-    search_fields = ['lote']  # Permitir busca por 'lote'
+    search_fields = ['lote', 'situacao']  # Permitir busca por 'lote'
 
 admin.site.register(models.Lote, LoteAdmin)
 

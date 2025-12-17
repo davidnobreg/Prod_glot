@@ -172,6 +172,11 @@ USE_I18N = True
 
 USE_L10N = True
 
+LOCALE_PATHS = (os.path.join(BASE_DIR, "locale"),)
+
+# English default
+#LANGUAGES = DJANGO_LANGUAGES
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 

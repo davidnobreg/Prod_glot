@@ -24,6 +24,8 @@ CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=Csv(), default=[])
 # --- Templates ---
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 
+# --- Tempo de Reserva para lote bloqueados ---
+TEMPO_RESERVA_MINUTOS = 10
 
 # Application definition
 
@@ -242,6 +244,7 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'America/Sao_Paulo'
 CELERYBEAT_SCHEDULE_FILENAME = "/var/tmp/celerybeat-schedule"
+app = Celery('tasks', backend='rpc://', broker='pyamqp://')
 
 # pick which cache from the CACHES setting.
 CELERY_CACHE_BACKEND = 'default'

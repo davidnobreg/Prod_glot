@@ -5,6 +5,7 @@ from celery import shared_task
 from django.utils import timezone
 from .models import Lote
 from django.db import transaction
+from django.conf import settings
 
 # Configuração de logging
 logger = logging.getLogger(__name__)
@@ -13,6 +14,10 @@ logger = logging.getLogger(__name__)
 def liberar_lotes_reservados_expirados():
     # Obtém a hora atual
     hora_atual = timezone.now().time()
+
+    settings.TEMPO_RESERVA_MINUTOS
+
+    print(TEMPO_RESERVA_MINUTOS)
 
     # Obtém lotes que estão reservados e cuja hora de reserva é menor que a hora atual
     lotes_expirados = Lote.objects.filter(

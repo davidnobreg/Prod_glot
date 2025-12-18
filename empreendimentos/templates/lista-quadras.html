@@ -93,7 +93,7 @@
                     <div class="card-body d-flex flex-wrap gap-2 justify-content-center">
                         {% for lote_info in quadra_info.lotes %}
                             {% if lote_info.situacao == 'DISPONIVEL' %}
-                                <a href="{% url 'alterar-lote' lote_info.lote.id %}"
+                                <a href="{% url 'reserva_temporaria' lote_info.lote.id %}"
                                    aria-label="Reservar lote {{ lote_info.lote.lote }}">
                                     <button type="button" class="btn btn-success">
                                         {{ lote_info.lote.lote }}

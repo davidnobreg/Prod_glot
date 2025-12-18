@@ -1,8 +1,8 @@
 from dateutil.tz import tzname_in_python2
 from django.db import transaction
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
-from django.shortcuts import get_object_or_404
+
 from django.db.models import Q
 from rolepermissions.decorators import has_permission_decorator
 
@@ -13,7 +13,7 @@ from django.core.paginator import Paginator
 from .forms import RegisterVendaForm
 from .models import RegisterVenda
 from empreendimentos.models import Lote, Empreendimento
-
+from empreendimentos.forms import LoteForm
 
 @has_permission_decorator('reservado')
 def reservado(request, id):
@@ -198,6 +198,110 @@ def cancelarReservado(request, id):
         get_venda.lote.save()
         messages.error(request, "Pre-Resevado Cancelada!")
     return redirect('lista-empreendimento')
+
+
+@transaction.atomic
+def reserva_temporaria(request, lote_id):
+
+    # 🔒 BUSCA ÚNICA + LOCK
+    lote = (
+        Lote.objects
+        .select_for_update()
+        .select_related('quadra__empr')
+        .get(id=lote_id)
+    )
+
+    get_tempo = lote.quadra.empr
+
+    # ======================
+    # CÁLCULOS
+    # ======================
+    try:
+        area = float(lote.area)
+        valor_metro = float(lote.valor_metro_quadrado)
+        valor = area * valor_metro
+    except (TypeError, ValueError):
+        valor = 0
+
+    valor_formatado = f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+    try:
+        total_parcelas = int(get_tempo.quantidade_parcela)
+    except (TypeError, ValueError, AttributeError):
+        total_parcelas = 0
+
+    valor_parcela = valor / total_parcelas if total_parcelas > 0 else 0
+    valor_parcela_formatado = f"R$ {valor_parcela:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+    # ======================
+    # DEFENSIVO (DENTRO DO LOCK)
+    # ======================
+    if lote.situacao == "EM_RESERVA" and not lote.user:
+        lote.situacao = "DISPONIVEL"
+        lote.tempo_reservado = None
+        lote.save()
+        messages.error(request, "Pré-reserva cancelada automaticamente.")
+
+    # ======================
+    # GET → RESERVA TEMPORÁRIA
+    # ======================
+    if request.method == 'GET':
+        if lote.situacao == "DISPONIVEL":
+            lote.situacao = "EM_RESERVA"
+            lote.tempo_reservado = timezone.now()
+            lote.save()
+        else:
+            messages.warning(
+                request,
+                "Este lote já está em reserva ou indisponível."
+            )
+            return redirect('lotes_disponiveis')
+
+        form = LoteForm(instance=lote)
+
+        return render(
+            request,
+            'reserva-temporaria.html',
+            {
+                'form': form,
+                'lote': lote,
+                'valor_formatado': valor_formatado,
+                'valor_parcela_formatado': valor_parcela_formatado,
+                'total_parcelas': total_parcelas,
+            }
+        )
+
+    # ======================
+    # POST → PRÉ-RESERVA
+    # ======================
+    elif request.method == 'POST':
+        form = LoteForm(request.POST, request.FILES, instance=lote)
+
+        if form.is_valid():
+            lote = form.save(commit=False)
+            lote.situacao = 'PRE-RESERVA'
+            lote.data_termina_reserva = timezone.now() + timedelta(
+                days=get_tempo.tempo_reserva
+            )
+            lote.user = request.user.first_name
+            lote.telefone_user = request.user.contato
+            lote.save()
+
+            messages.success(request, "Pré-reserva salva com sucesso!")
+            return redirect('listar-quadras', id=get_tempo.id)
+
+        return render(
+            request,
+            'reserva-temporaria.html',
+            {
+                'form': form,
+                'lote': lote,
+                'valor_formatado': valor_formatado,
+                'valor_parcela_formatado': valor_parcela_formatado,
+                'total_parcelas': total_parcelas,
+            }
+        )
+
 
 
 @has_permission_decorator('criarReservado')

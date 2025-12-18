@@ -17,6 +17,7 @@ from rolepermissions.decorators import has_permission_decorator
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views import View
 
+from django.db import transaction
 from django.utils import timezone
 from datetime import datetime, timedelta
 
@@ -25,6 +26,9 @@ from tornado.http1connection import parse_int
 from .forms import EmpreendimentoForm, ArquivoForm, LoteForm
 from .models import Empreendimento, Quadra, Lote
 from accounts.models import User, UsuarioEmpreendimento
+
+
+
 
 
 @has_permission_decorator('selectEmpreendimento')

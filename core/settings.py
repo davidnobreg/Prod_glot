@@ -244,7 +244,7 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'America/Sao_Paulo'
 CELERYBEAT_SCHEDULE_FILENAME = "/var/tmp/celerybeat-schedule"
-app = Celery('tasks', backend='rpc://', broker='pyamqp://')
+#app = Celery('tasks', backend='rpc://', broker='pyamqp://')
 
 # pick which cache from the CACHES setting.
 CELERY_CACHE_BACKEND = 'default'

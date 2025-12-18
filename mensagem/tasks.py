@@ -1,23 +1,66 @@
-from celery import shared_task
-from .services import EvolutionService
-from django.conf import settings
 import logging
+from celery import shared_task
+from django.conf import settings
+from .services import EvolutionService
 
 logger = logging.getLogger(__name__)
 
-evolution_service = EvolutionService(
-    server_url=settings.EVOLUTION_URL,
-    instance=settings.EVOLUTION_INSTANCE,
-    api_key=settings.EVOLUTION_TOKEN
+
+def get_evolution_service():
+    """
+    Cria a instância do serviço somente quando a task roda.
+    Evita problemas de fork/spawn no Windows.
+    """
+    return EvolutionService(
+        server_url=settings.EVOLUTION_URL,
+        instance=settings.EVOLUTION_INSTANCE,
+        api_key=settings.EVOLUTION_TOKEN
+    )
+
+
+@shared_task(
+    bind=True,
+    queue = "whatsapp",
+    autoretry_for=(Exception,),
+    retry_kwargs={"max_retries": 3, "countdown": 10},
+    retry_backoff=True,
+    retry_jitter=True
 )
 
-@shared_task(bind=True, max_retries=3, default_retry_delay=10)
-def enviar_mensagem_task(self, numero, mensagem, options=None):
-    try:
-        resultado = evolution_service.enviar_mensagem(numero, mensagem, options)
-        if not resultado.get("success"):
-            raise Exception(f"Falha no envio: {resultado}")
-        return resultado
-    except Exception as e:
-        logger.error(f"❌ Exceção ao enviar mensagem para {numero}: {e}")
-        raise self.retry(exc=e)
+def enviar_mensagem_task(self, numero: str, mensagem: str, options: dict | None = None):
+    """
+    Task responsável por enviar mensagem via WhatsApp
+    usando o Evolution API.
+    """
+    logger.info(f"📤 Enviando mensagem para {numero}")
+
+    service = get_evolution_service()
+
+    resultado = service.enviar_mensagem(
+        numero=numero,
+        mensagem=mensagem,
+        options=options
+    )
+
+    if not resultado or not resultado.get("success"):
+        erro = resultado.get("error", "Erro desconhecido")
+        logger.error(f"❌ Falha no envio para {numero}: {erro}")
+
+        # APENAS lança exceção
+        # O Celery faz o retry automaticamente
+        raise Exception(erro)
+
+    logger.info(f"✅ Mensagem enviada com sucesso para {numero}")
+    return resultado
+
+
+@shared_task
+def enviar_mensagem_whatsapp_agendada():
+    """
+    Task simples para envio automático/agendado
+    """
+    return enviar_mensagem_task.delay(
+        numero=settings.WHATSAPP_NUMERO_PADRAO,
+        mensagem="Mensagem automática do sistema",
+        options={"delay": 5}
+    )

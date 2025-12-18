@@ -17,7 +17,7 @@ def liberar_lotes_reservados_expirados():
 
     settings.TEMPO_RESERVA_MINUTOS
 
-    print(TEMPO_RESERVA_MINUTOS)
+    #print(TEMPO_RESERVA_MINUTOS)
 
     # Obtém lotes que estão reservados e cuja hora de reserva é menor que a hora atual
     lotes_expirados = Lote.objects.filter(

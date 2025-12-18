@@ -28,7 +28,7 @@ urlpatterns = [
 
     path('relatorio_financeiro/<int:id>/', relatorioFinanceiro, name='relatorio-financeiro'),
 
-    path('reserva_temporario/<int:id>/', alteraLote, name='alterar-lote'),
+    #path('reserva_temporario/<int:id>/', alteraLote, name='alterar-lote'),
 
     path('reservado_detalhes_pre_reserva_lote/<int:id>/', reservadoDetalheEmpreendimento,
          name='reservado-detalhes-pre-reserva-lote'),

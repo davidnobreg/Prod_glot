@@ -12,6 +12,7 @@ urlpatterns = [
     path('reservado_detalhes/<int:id>/', views.reservadoDetalhe, name='reservadoDetalhes'),
     path('reservado_cancelada/<int:id>/', views.cancelarReservado, name='cancelar-reservado'),
     path('reservado_cancelada_cadastro/<int:id>/', views.cancelarReservadoCadastro, name='cancelar-reservado-cadastro'),
+    path('reserva_temporario/<int:lote_id>/', views.reserva_temporaria, name='reserva_temporaria'),
     path('venda_delete/<int:id>/', views.deleteVenda, name='delete-venda'),
     path('reservado_delete/<int:id>/', views.deleteReseva, name='delete-reservado'),
     path('reservado_delete_lista/<int:id>/', views.deleteResevaLista, name='delete-reservado-lista'),

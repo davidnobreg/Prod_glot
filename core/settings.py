@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import timedelta
 from prettyconf import Configuration
 from decouple import Config, Csv, RepositoryEnv
+from kombu import Queue, Exchange
 
 # --- Caminhos básicos ---
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -12,8 +13,8 @@ ENV_PATH = BASE_DIR / 'configuration' / '.env'
 config = Config(repository=RepositoryEnv(ENV_PATH))
 
 # Carrega o arquivo .env desta pasta
-#config= Config(RepositoryEnv(ENV_PATH))
-#config_host = Configuration()
+# config= Config(RepositoryEnv(ENV_PATH))
+# config_host = Configuration()
 
 # --- Segurança ---
 SECRET_KEY = config('SECRET_KEY')
@@ -45,7 +46,7 @@ THIRD_APPS = [
     'rolepermissions',
     # 'django_crontab',
     # 'django_q',
-    #'django_celery_results',
+    # 'django_celery_results',
     'django_celery_beat',
     'django_filters',
 
@@ -90,8 +91,6 @@ MIDDLEWARE = [
 SESSION_COOKIE_AGE = 15 * 60
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_SAVE_EVERY_REQUEST = True
-
-
 
 ROOT_URLCONF = 'core.urls'
 
@@ -177,7 +176,7 @@ USE_L10N = True
 LOCALE_PATHS = (os.path.join(BASE_DIR, "locale"),)
 
 # English default
-#LANGUAGES = DJANGO_LANGUAGES
+# LANGUAGES = DJANGO_LANGUAGES
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
@@ -187,12 +186,11 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
 # Caminhos físicos
-STATIC_ROOT = os.path.join(BASE_DIR, 'static') # usado pelo collectstatic
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')        # usado para uploads
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')  # usado pelo collectstatic
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # usado para uploads
 
 # Opcional: desenvolvimento
-#STATICFILES_DIRS = [os.path.join(BASE_DIR, 'base/static')] # onde seus apps guardam static]
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'base/static')] # onde seus apps guardam static]
 
 
 # Default primary key field type
@@ -224,30 +222,67 @@ ROLEPERMISSIONS_MODULE = 'core.roles'
 
 # CRISPY_TEMPLATE_PACK = "bootstrap5"
 
+
+# Celery Configuration Options
 user = config('RABBITMQ_USER')
 password = config('RABBITMQ_PASSWD')
 host = config('RABBITMQ_HOST')
 port = config('RABBITMQ_PORT')
 vhost = config('RABBITMQ_VHOST')
 
-CELERY_BROKER_URL = os.getenv(
-    'CELERY_BROKER',
-    f'amqp://{user}:{password}@{host}:{port}/{vhost}'
-)
-
-# Celery Configuration Options
-# CELERY_BROKER_URL = os.getenv('CELERY_BROKER', f'amqp://{config('RABBITMQ_USER')}:{config('RABBITMQ_PASSWD')}@{config('RABBITMQ_HOST')}:{config('RABBITMQ_PORT')}/')
-CELERY_RESULT_BACKEND = "rpc://" #'django-db'  # os.getenv('CELERY_BACKEND', 'rpc://')
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER', f'amqp://{user}:{password}@{host}:{port}/{vhost}')
+CELERY_RESULT_BACKEND = "rpc://"  # 'django-db'  # os.getenv('CELERY_BACKEND', 'rpc://')
 CELERY_IGNORE_RESULT = True
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'America/Sao_Paulo'
 CELERYBEAT_SCHEDULE_FILENAME = "/var/tmp/celerybeat-schedule"
-#app = Celery('tasks', backend='rpc://', broker='pyamqp://')
-
 # pick which cache from the CACHES setting.
 CELERY_CACHE_BACKEND = 'default'
+
+CELERY_TASK_QUEUE_MAX_PRIORITY = 10
+CELERY_TASK_DEFAULT_PRIORITY = 5
+
+CELERY_TASK_DEFAULT_QUEUE = "default"
+CELERY_TASK_DEFAULT_EXCHANGE = "default"
+CELERY_TASK_DEFAULT_ROUTING_KEY = "default"
+
+CELERY_TASK_QUEUES = (
+    Queue(
+        "default",
+        Exchange("default"),
+        routing_key="default",
+        max_priority=3,   # tarefas simples
+    ),
+    Queue(
+        "critical",
+        Exchange("critical"),
+        routing_key="critical",
+        max_priority=10,  # tarefas críticas
+    ),
+    Queue(
+        "reservas",
+        Exchange("reservas"),
+        routing_key="reservas",
+        max_priority=7,
+    ),
+)
+
+CELERY_TASK_ROUTES = {
+    "empreendimentos.tasks.liberar_lotes_travados": {
+        "queue": "critical",
+        "routing_key": "critical",
+        "priority": 9,
+    },
+    "empreendimentos.tasks.liberar_lotes_expirados": {
+        "queue": "default",
+        "routing_key": "default",
+        "priority": 5,
+    },
+}
+
+
 
 # django setting.
 CACHES = {
@@ -290,8 +325,8 @@ JAZZMIN_SETTINGS = {
 
     # Logo to use for your site, must be present in static files, used for brand on top left
     "site_logo": "books/img/logo.jpg",
-    "site_logo_classes": "img-fluid",     # classes extras da logo
-    "site_logo_width": 200,               # opcional
+    "site_logo_classes": "img-fluid",  # classes extras da logo
+    "site_logo_width": 200,  # opcional
 
     # Logo to use for your site, must be present in static files, used for login form logo (defaults to site_logo)
     "login_logo": None,
@@ -371,7 +406,7 @@ JAZZMIN_SETTINGS = {
     "custom_links": {
         "books": [{
             "name": "Make Messages",
-            "url": "make_messages",
+            "url": "/admin/",
             "icon": "fas fa-comments",
             "permissions": ["books.view_book"]
         }]

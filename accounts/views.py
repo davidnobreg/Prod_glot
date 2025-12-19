@@ -7,8 +7,7 @@ from .models import User, UsuarioEmpreendimento
 from empreendimentos.models import Empreendimento
 
 from .forms import UserCreationForm, UserChangeForm
-from django.contrib.auth import authenticate
-from django.contrib.auth import login as login_django
+from django.contrib.auth import authenticate, login as login_django
 from django.db.models import Q
 from django.core.paginator import Paginator
 from rolepermissions.decorators import has_permission_decorator

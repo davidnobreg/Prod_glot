@@ -8,7 +8,7 @@ from .models import RegisterVenda
 
 logger = logging.getLogger(__name__)
 
-@shared_task
+@shared_task(bind=True, name="vendas.tasks.reserva_expirada")
 def liberar_lotes_reservados_expirados():
     breakpoint()  # <- Vai abrir o modo interativo
     """

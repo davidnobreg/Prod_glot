@@ -1,4 +1,4 @@
-from django.db.models.signals import pre_save, post_save
+"""from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from empreendimentos.models import Lote
 from vendas.models import RegisterVenda
@@ -128,4 +128,4 @@ def post_save_venda(sender, instance, created, **kwargs):
 
     for numero, mensagem in mensagens:
         if numero:
-            enviar_mensagem_task.delay(numero, mensagem)
+            enviar_mensagem_task.delay(numero, mensagem)"""

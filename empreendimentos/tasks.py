@@ -9,7 +9,8 @@ from .models import Lote
 logger = logging.getLogger(__name__)
 
 
-@shared_task(bind=True, autoretry_for=(Exception,), retry_kwargs={"max_retries": 3, "countdown": 10})
+#@shared_task(bind=True, autoretry_for=(Exception,), retry_kwargs={"max_retries": 3, "countdown": 10})
+@shared_task
 def liberar_lotes_travados():
     agora = timezone.now()
 

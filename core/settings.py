@@ -305,6 +305,8 @@ MENSAGEM_EXCHANGE = Exchange(
 # ==========================================================
 # Filas
 # ==========================================================
+EMPREENDIMENTOS_EXCHANGE = Exchange('app_empreendimentos.default', type='direct')
+EMPREENDIMENTOS_DLX = Exchange('app_empreendimentos.dlx', type='direct')
 
 CELERY_TASK_QUEUES = (
 

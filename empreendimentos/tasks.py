@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 @shared_task(bind=True, autoretry_for=(Exception,), retry_kwargs={"max_retries": 3, "countdown": 10})
-def liberar_lotes_travados(self):
+def liberar_lotes_travados():
     agora = timezone.now()
 
     logger.info("🔄 [CELERY] Iniciando liberação de lotes travados")

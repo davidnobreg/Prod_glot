@@ -167,8 +167,6 @@ LANGUAGE_CODE = 'pt-br'
 
 TIME_ZONE = 'America/Sao_Paulo'  # Ajuste conforme necessário
 
-CELERY_TIMEZONE = "America/Sao_Paulo"
-
 USE_TZ = True  # Habilita o uso de fuso horário
 
 USE_I18N = True
@@ -240,6 +238,24 @@ host = config("RABBITMQ_HOST")
 port = config("RABBITMQ_PORT")
 vhost = config("RABBITMQ_VHOST")
 
+# Celery básico
+CELERY_BROKER_URL = os.getenv(
+    "CELERY_BROKER",
+    f"amqp://{user}:{password}@{host}:{port}/{vhost}"
+)
+
+CELERY_RESULT_BACKEND = "rpc://"
+CELERY_IGNORE_RESULT = True
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+
+CELERY_TIMEZONE = "America/Sao_Paulo"
+
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+"""
 CELERY_BROKER_URL = os.getenv(
     "CELERY_BROKER",
     f"amqp://{user}:{password}@{host}:{port}/{vhost}"
@@ -383,7 +399,7 @@ CELERY_TASK_ROUTES = {
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'"""
 
 # django setting.
 CACHES = {
@@ -560,3 +576,4 @@ JAZZMIN_SETTINGS = {
     # Add a language dropdown into the admin
     "language_chooser": False,
 }
+""

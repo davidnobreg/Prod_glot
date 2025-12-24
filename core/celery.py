@@ -36,21 +36,21 @@ EMPREENDIMENTOS_DLX = Exchange(
 # ==================================================
 
 app.conf.task_queues = (
-
     Queue(
-        name="app_empreendimentos.default",
-        exchange=EMPREENDIMENTOS_EXCHANGE,
+        "app_empreendimentos.default",
+        exchange=Exchange("app_empreendimentos", type="direct"),
         routing_key="empreendimentos.tasks",
         queue_arguments={
             "x-dead-letter-exchange": "app_empreendimentos.dlx",
             "x-dead-letter-routing-key": "empreendimentos.dlq",
-            "x-max-priority": 10,
         },
     ),
+)
 
+app.conf.task_queues += (
     Queue(
-        name="empreendimentos.dlq",
-        exchange=EMPREENDIMENTOS_DLX,
+        "app_empreendimentos.dlq",
+        exchange=Exchange("app_empreendimentos.dlx", type="direct"),
         routing_key="empreendimentos.dlq",
     ),
 )

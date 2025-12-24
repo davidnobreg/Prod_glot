@@ -9,7 +9,12 @@ from .models import Lote
 logger = logging.getLogger(__name__)
 
 
-@shared_task(bind=True, autoretry_for=(Exception,), retry_backoff=30, retry_kwargs={"max_retries": 3})
+@shared_task(
+    bind=True,
+    name="empreendimentos.tasks.processar_empreendimento",
+    queue="app_empreendimentos.default",
+    routing_key="empreendimentos.tasks",
+)
 def processar_empreendimento(self, empreendimento_id):
     print(f"Processando empreendimento {empreendimento_id}")
 

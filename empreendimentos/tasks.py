@@ -9,8 +9,11 @@ from .models import Lote
 logger = logging.getLogger(__name__)
 
 
-#@shared_task(bind=True, autoretry_for=(Exception,), retry_kwargs={"max_retries": 3, "countdown": 10})
-@shared_task
+@shared_task(bind=True, autoretry_for=(Exception,), retry_backoff=30, retry_kwargs={"max_retries": 3})
+def processar_empreendimento(self, empreendimento_id):
+    print(f"Processando empreendimento {empreendimento_id}")
+
+@shared_task(name="empreendimentos.tasks.liberar_lotes_travados")
 def liberar_lotes_travados():
     agora = timezone.now()
 

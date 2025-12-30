@@ -5,6 +5,11 @@ from prettyconf import Configuration
 from decouple import Config, Csv, RepositoryEnv
 from kombu import Exchange, Queue
 
+from core.env import get_env
+
+N8N_URL = get_env("N8N_WEBHOOK_URL", required=True)
+N8N_INSTANCIA = get_env("N8N_INSTANCIA", default="default")
+
 # --- Caminhos básicos ---
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_PATH = BASE_DIR / 'configuration' / '.env'
@@ -253,153 +258,22 @@ CELERY_RESULT_SERIALIZER = "json"
 
 CELERY_TIMEZONE = "America/Sao_Paulo"
 
-CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+CELERY_TASK_ALWAYS_EAGER = False
+CELERY_TASK_EAGER_PROPAGATES = False
 
-"""
-CELERY_BROKER_URL = os.getenv(
-    "CELERY_BROKER",
-    f"amqp://{user}:{password}@{host}:{port}/{vhost}"
-)
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_TASK_ACKS_LATE = True
 
-# ==========================================================
-# Backend e serialização
-# ==========================================================
+FLOWER_BASIC_AUTH = ["admin:admin"]
 
-CELERY_RESULT_BACKEND = "rpc://"
-CELERY_IGNORE_RESULT = True
+#CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+#CELERY_BEAT_SCHEDULE = {
+#    "processar-outbox-a-cada-30s": {
+#        "task": "mensagem.tasks.processar_outbox",
+#        "schedule": 30.0,
+#    },
+#}
 
-CELERY_ACCEPT_CONTENT = ["json"]
-CELERY_TASK_SERIALIZER = "json"
-CELERY_RESULT_SERIALIZER = "json"
-
-CELERY_TIMEZONE = "America/Sao_Paulo"
-
-# ==========================================================
-# Prioridades
-# ==========================================================
-
-CELERY_TASK_DEFAULT_PRIORITY = 5
-CELERY_TASK_QUEUE_MAX_PRIORITY = 10
-
-# ==========================================================
-# Defaults seguros (fallback)
-# ==========================================================
-
-CELERY_TASK_DEFAULT_QUEUE = "app_core.default"
-CELERY_TASK_DEFAULT_ROUTING_KEY = "app_core.default"
-CELERY_TASK_DEFAULT_EXCHANGE_TYPE = "topic"
-
-# ==========================================================
-# Exchanges (SEMPRE antes das filas)
-# ==========================================================
-
-CORE_EXCHANGE = Exchange(
-    "app_core",
-    type="topic"
-)
-
-EMPREENDIMENTOS_EXCHANGE = Exchange(
-    "app_empreendimentos",
-    type="topic"
-)
-
-EMPREENDIMENTOS_DLX = Exchange(
-    "app_empreendimentos.dlx",
-    type="topic"
-)
-
-VENDAS_EXCHANGE = Exchange(
-    "app_vendas",
-    type="topic"
-)
-
-MENSAGEM_EXCHANGE = Exchange(
-    "app_mensagem",
-    type="topic"
-)
-
-# ==========================================================
-# Filas
-# ==========================================================
-EMPREENDIMENTOS_EXCHANGE = Exchange('app_empreendimentos.default', type='direct')
-EMPREENDIMENTOS_DLX = Exchange('app_empreendimentos.dlx', type='direct')
-
-CELERY_TASK_QUEUES = (
-
-    # Core / fallback
-    Queue(
-        name="app_core.default",
-        exchange=CORE_EXCHANGE,
-        routing_key="app_core.default",
-        max_priority=10,
-    ),
-
-    # Empreendimentos - principal
-    Queue(
-        name="app_empreendimentos.default",
-        exchange=EMPREENDIMENTOS_EXCHANGE,
-        routing_key="app_empreendimentos.default",
-        queue_arguments={
-            "x-dead-letter-exchange": "app_empreendimentos.dlx",
-            "x-dead-letter-routing-key": "app_empreendimentos.dlq",
-            "x-max-priority": 10,
-        },
-    ),
-
-    # Empreendimentos - DLQ
-    Queue(
-        name="app_empreendimentos.dlq",
-        exchange=EMPREENDIMENTOS_DLX,
-        routing_key="app_empreendimentos.dlq",
-    ),
-
-    # Vendas
-    Queue(
-        name="app_vendas.default",
-        exchange=VENDAS_EXCHANGE,
-        routing_key="app_vendas.default",
-        max_priority=10,
-    ),
-
-    # Mensagem
-    Queue(
-        name="app_mensagem.default",
-        exchange=MENSAGEM_EXCHANGE,
-        routing_key="app_mensagem.default",
-        max_priority=10,
-    ),
-)
-
-# ==========================================================
-# Rotas por app
-# ==========================================================
-
-CELERY_TASK_ROUTES = {
-
-    "empreendimentos.tasks.*": {
-        "queue": "app_empreendimentos.default",
-        "routing_key": "app_empreendimentos.default",
-    },
-
-    "vendas.tasks.*": {
-        "queue": "app_vendas.default",
-        "routing_key": "app_vendas.default",
-    },
-
-    "mensagem.tasks.*": {
-        "queue": "app_mensagem.default",
-        "routing_key": "app_mensagem.default",
-    },
-}
-
-# ==========================================================
-# Celery Beat
-# ==========================================================
-
-CELERY_ACCEPT_CONTENT = ["json"]
-CELERY_TASK_SERIALIZER = "json"
-CELERY_RESULT_SERIALIZER = "json"
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'"""
 
 # django setting.
 CACHES = {

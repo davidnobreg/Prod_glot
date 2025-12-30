@@ -1,7 +1,9 @@
 import re
+from decimal import Decimal, InvalidOperation
+
 from django import forms
 from django.core.exceptions import ValidationError
-from decimal import Decimal, InvalidOperation
+
 from .models import Cliente, ClienteConjuge, ClienteEndereco, ClienteTelefone, choices_estado
 
 
@@ -34,14 +36,12 @@ def validar_cnpj(cnpj):
     soma = sum(int(cnpj[i]) * pesos1[i] for i in range(12))
     dig1 = 11 - soma % 11
     dig1 = dig1 if dig1 < 10 else 0
-
     if dig1 != int(cnpj[12]):
         return False
 
     soma = sum(int(cnpj[i]) * pesos2[i] for i in range(13))
     dig2 = 11 - soma % 11
     dig2 = dig2 if dig2 < 10 else 0
-
     return dig2 == int(cnpj[13])
 
 
@@ -49,7 +49,6 @@ def validar_cnpj(cnpj):
 # FORM CLIENTE
 # ===================================================================
 class ClienteForm(forms.ModelForm):
-
     lote_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     origem = forms.CharField(required=False, widget=forms.HiddenInput())
 
@@ -58,43 +57,10 @@ class ClienteForm(forms.ModelForm):
         fields = '__all__'
         exclude = ('is_ativo', 'id')
 
-    # ---------------------- CPF / CNPJ -----------------------------
-    def clean_documento(self):
-        documento = re.sub(r'[^0-9]', '', self.cleaned_data.get('documento', ''))
-
-        if len(documento) == 11:
-            if not validar_cpf(documento):
-                raise ValidationError("CPF inválido.")
-        elif len(documento) == 14:
-            if not validar_cnpj(documento):
-                raise ValidationError("CNPJ inválido.")
-        else:
-            raise ValidationError("Documento deve ter 11 dígitos (CPF) ou 14 dígitos (CNPJ).")
-
-        return documento
-
-    # ---------------------- RENDA -----------------------------
-    def clean_renda(self):
-        renda = self.cleaned_data.get('renda')
-
-        if renda is None:
-            return None
-
-        if isinstance(renda, str):
-            renda = renda.replace("R$", "").strip()
-            renda = renda.replace('.', '').replace(',', '.')
-            try:
-                renda = Decimal(renda)
-            except InvalidOperation:
-                raise ValidationError("Valor de renda inválido.")
-
-        return renda
-
-    # ---------------------- CONFIG INTERFACE -------------------------
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Valor padrão para nacionalidade
+        # Configuração inicial
         if 'nacionalidade' in self.fields:
             self.fields['nacionalidade'].initial = "Brasileiro"
 
@@ -102,19 +68,14 @@ class ClienteForm(forms.ModelForm):
         for field in self.fields.values():
             field.widget.attrs.setdefault('class', 'form-control mb-3')
 
-        left_fields = [
-            'name', 'data_ns', 'documento', 'numero_rg',
-            'orgao_emissor_rg', 'estado_civil',
-            'naturalidade', 'nacionalidade'
-        ]
+        # Campos à esquerda e direita
+        left_fields = ['name', 'data_ns', 'documento', 'numero_rg', 'orgao_emissor_rg', 'estado_civil', 'observacao']
+        right_fields = ['naturalidade', 'nacionalidade', 'profissao', 'renda', 'email']
 
-        right_fields = [
-            'profissao', 'renda', 'email', 'observacao'
-        ]
-
+        # Configurações extras de placeholder, classes e estilos
         config = {
             'name': {'placeholder': 'Nome do Cliente'},
-            'data_ns': {'placeholder': 'Data de Nascimento', 'class': 'form-control mb-3 mask-data'},
+            'data_ns': {'id': 'id_data_ns', 'placeholder': 'Data de Nascimento', 'class': 'form-control mb-3 mask-data'},
             'documento': {'placeholder': 'CPF ou CNPJ', 'class': 'form-control mb-3 mask-doc'},
             'numero_rg': {'placeholder': 'RG', 'class': 'form-control mb-3 mask-rg'},
             'orgao_emissor_rg': {'placeholder': 'Orgão Emissor'},
@@ -122,27 +83,28 @@ class ClienteForm(forms.ModelForm):
             'naturalidade': {'placeholder': 'Naturalidade'},
             'nacionalidade': {'placeholder': 'Nacionalidade'},
             'profissao': {'placeholder': 'Profissão'},
-            'renda': {'placeholder': 'R$ Renda', 'class': 'form-control mb-3 mask-money'},
+            'renda': {'placeholder': 'R$ Renda', 'class': 'form-control mb-3 mask-money', 'inputmode': 'decimal'},
             'email': {'placeholder': 'Email'},
-            'observacao': {'placeholder': 'Observação', 'class': 'form-control-lg mb-3'},
+            'observacao': {'placeholder': 'Observação', 'class': 'form-control mb-3', 'style': 'height: 90px;'},
         }
-
         for field, attrs in config.items():
             if field in self.fields:
                 self.fields[field].widget.attrs.update(attrs)
 
-        # Colunas
+        # Input type data_ns
+        if 'data_ns' in self.fields:
+            self.fields['data_ns'].widget.input_type = 'text'
+
+        # Atribuir colunas
         for name in left_fields:
             if name in self.fields:
                 self.fields[name].widget.attrs['col'] = 'left'
-
         for name in right_fields:
             if name in self.fields:
                 self.fields[name].widget.attrs['col'] = 'right'
 
-        # Formatação ao editar cliente
+        # Formatação inicial de documento e renda
         if self.instance and self.instance.pk:
-            # Documento
             doc = self.instance.documento
             if doc:
                 if len(doc) == 11:
@@ -150,7 +112,6 @@ class ClienteForm(forms.ModelForm):
                 else:
                     self.initial['documento'] = f"{doc[:2]}.{doc[2:5]}.{doc[5:8]}/{doc[8:12]}-{doc[12:]}"
 
-            # Renda formatada
             if self.instance.renda is not None:
                 try:
                     renda = Decimal(str(self.instance.renda))
@@ -159,16 +120,37 @@ class ClienteForm(forms.ModelForm):
                 except:
                     pass
 
+    # ---------------------- Validação Documento ----------------------
+    def clean_documento(self):
+        documento = re.sub(r'[^0-9]', '', self.cleaned_data.get('documento', ''))
+        if len(documento) == 11 and not validar_cpf(documento):
+            raise ValidationError("CPF inválido.")
+        elif len(documento) == 14 and not validar_cnpj(documento):
+            raise ValidationError("CNPJ inválido.")
+        elif len(documento) not in (11, 14):
+            raise ValidationError("Documento deve ter 11 dígitos (CPF) ou 14 dígitos (CNPJ).")
+        return documento
+
+    # ---------------------- Validação Renda -------------------------
+    def clean_renda(self):
+        renda = self.cleaned_data.get('renda')
+        if renda in [None, '']:
+            return None
+        if isinstance(renda, str):
+            renda = renda.replace("R$", "").replace(".", "").replace(",", ".").strip()
+            try:
+                renda = Decimal(renda)
+            except InvalidOperation:
+                raise ValidationError("Valor de renda inválido.")
+        return renda
+
 
 # ===================================================================
 # FORM ENDEREÇO
 # ===================================================================
 class ClienteEnderecoForm(forms.ModelForm):
-    estado = forms.ChoiceField(
-        choices=choices_estado,
-        initial='PB',
-        widget=forms.Select(attrs={'class': 'form-select mb-3'})
-    )
+    estado = forms.ChoiceField(choices=choices_estado, initial='PB',
+                               widget=forms.Select(attrs={'class': 'form-select mb-3'}))
 
     class Meta:
         model = ClienteEndereco
@@ -193,7 +175,6 @@ class ClienteEnderecoForm(forms.ModelForm):
             'bairro': {'placeholder': 'Bairro'},
             'cidade': {'placeholder': 'Cidade'},
         }
-
         for name, attrs in config.items():
             if name in self.fields:
                 self.fields[name].widget.attrs.update(attrs)
@@ -201,7 +182,6 @@ class ClienteEnderecoForm(forms.ModelForm):
         for name in left_fields:
             if name in self.fields:
                 self.fields[name].widget.attrs['col'] = 'left'
-
         for name in right_fields:
             if name in self.fields:
                 self.fields[name].widget.attrs['col'] = 'right'
@@ -211,35 +191,25 @@ class ClienteEnderecoForm(forms.ModelForm):
 # FORM CÔNJUGE
 # ===================================================================
 class ClienteConjugeForm(forms.ModelForm):
-
     class Meta:
         model = ClienteConjuge
         fields = '__all__'
         exclude = ('is_ativo', 'id')
 
-    # ---------------------- CPF / CNPJ -----------------------------
     def clean_documento_conjuge(self):
         documento = re.sub(r'[^0-9]', '', self.cleaned_data.get('documento_conjuge', ''))
-
         if not documento:
             return ''
-
-        if len(documento) == 11:
-            if not validar_cpf(documento):
-                raise ValidationError("CPF do cônjuge inválido.")
-        elif len(documento) == 14:
-            if not validar_cnpj(documento):
-                raise ValidationError("CNPJ do cônjuge inválido.")
-        else:
+        if len(documento) == 11 and not validar_cpf(documento):
+            raise ValidationError("CPF do cônjuge inválido.")
+        elif len(documento) == 14 and not validar_cnpj(documento):
+            raise ValidationError("CNPJ do cônjuge inválido.")
+        elif len(documento) not in (11, 14):
             raise ValidationError("Documento do cônjuge deve ter 11 dígitos (CPF) ou 14 dígitos (CNPJ).")
-
         return documento
 
-    # ---------------------- CONFIG INTERFACE -------------------------
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # Classes padrão
         for field in self.fields.values():
             field.widget.attrs.setdefault('class', 'form-control mb-3')
 
@@ -252,7 +222,6 @@ class ClienteConjugeForm(forms.ModelForm):
             'numero_rg_conjuge': {'placeholder': 'Nº do RG', 'class': 'form-control mb-3 mask-rg'},
             'orgao_emissor_rg_conjuge': {'placeholder': 'Orgão emissor do RG'},
         }
-
         for field_name, attrs in config.items():
             if field_name in self.fields:
                 self.fields[field_name].widget.attrs.update(attrs)
@@ -260,12 +229,10 @@ class ClienteConjugeForm(forms.ModelForm):
         for field_name in left_fields:
             if field_name in self.fields:
                 self.fields[field_name].widget.attrs['col'] = 'left'
-
         for field_name in right_fields:
             if field_name in self.fields:
                 self.fields[field_name].widget.attrs['col'] = 'right'
 
-        # Formatação ao editar cônjuge
         if self.instance and self.instance.pk:
             doc = self.instance.documento_conjuge
             if doc:
@@ -275,13 +242,10 @@ class ClienteConjugeForm(forms.ModelForm):
                     self.initial['documento_conjuge'] = f"{doc[:2]}.{doc[2:5]}.{doc[5:8]}/{doc[8:12]}-{doc[12:]}"
 
 
-
 # ===================================================================
 # FORM TELEFONE
-# (agora otimizado para uso no modal + edição futura)
 # ===================================================================
 class ClienteTelefoneForm(forms.ModelForm):
-
     class Meta:
         model = ClienteTelefone
         fields = '__all__'
@@ -289,35 +253,20 @@ class ClienteTelefoneForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # Classes gerais
         for field_name, field in self.fields.items():
             field.widget.attrs.setdefault('class', 'form-control mb-3')
 
-        # Número — pronto para modal
         self.fields['numero'].widget.attrs.update({
             'placeholder': 'Digite o telefone',
             'class': 'form-control mb-3 mask-phone',
             'id': 'telefoneNumero'
         })
-
-        # Tipo (Select)
         if 'tipo' in self.fields:
             self.fields['tipo'].widget.attrs.update({'class': 'form-select mb-3'})
-
-        # Observação
         if 'observacao' in self.fields:
-            self.fields['observacao'].widget.attrs.update({
-                'placeholder': 'Observação'
-            })
+            self.fields['observacao'].widget.attrs.update({'placeholder': 'Observação'})
 
-        # Mapeamento de colunas
-        colunas = {
-            'numero': 'left',
-            'tipo': 'center',
-            'observacao': 'right'
-        }
-
+        colunas = {'numero': 'left', 'tipo': 'center', 'observacao': 'right'}
         for field, col in colunas.items():
             if field in self.fields:
                 self.fields[field].widget.attrs['col'] = col

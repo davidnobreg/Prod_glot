@@ -28,9 +28,6 @@ from .models import Empreendimento, Quadra, Lote
 from accounts.models import User, UsuarioEmpreendimento
 
 
-
-
-
 @has_permission_decorator('selectEmpreendimento')
 def selectEmpreendimento(request, empreendimento_id):
     empreendimento = get_object_or_404(Empreendimento, id=empreendimento_id)

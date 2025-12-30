@@ -1,66 +1,23 @@
-import logging
 from celery import shared_task
-from django.conf import settings
-from .services import EvolutionService
+from .services.n8n_service import N8nService
 
-logger = logging.getLogger(__name__)
-
-
-def get_evolution_service():
+def enviar_mensagem(numero: str, mensagem: str, instancia: str = None):
     """
-    Cria a instância do serviço somente quando a task roda.
-    Evita problemas de fork/spawn no Windows.
+    Função helper para enviar mensagem direto no shell ou em outras funções Python.
     """
-    return EvolutionService(
-        server_url=settings.EVOLUTION_URL,
-        instance=settings.EVOLUTION_INSTANCE,
-        api_key=settings.EVOLUTION_TOKEN
-    )
+    service = N8nService()
+    resultado = service.enviar_mensagem(numero, mensagem, instancia)
 
-
-@shared_task(
-    bind=True,
-    queue = "whatsapp",
-    autoretry_for=(Exception,),
-    retry_kwargs={"max_retries": 3, "countdown": 10},
-    retry_backoff=True,
-    retry_jitter=True
-)
-
-def enviar_mensagem_task(self, numero: str, mensagem: str, options: dict | None = None):
-    """
-    Task responsável por enviar mensagem via WhatsApp
-    usando o Evolution API.
-    """
-    logger.info(f"📤 Enviando mensagem para {numero}")
-
-    service = get_evolution_service()
-
-    resultado = service.enviar_mensagem(
-        numero=numero,
-        mensagem=mensagem,
-        options=options
-    )
-
-    if not resultado or not resultado.get("success"):
-        erro = resultado.get("error", "Erro desconhecido")
-        logger.error(f"❌ Falha no envio para {numero}: {erro}")
-
-        # APENAS lança exceção
-        # O Celery faz o retry automaticamente
-        raise Exception(erro)
-
-    logger.info(f"✅ Mensagem enviada com sucesso para {numero}")
+    print(f"Mensagem enviada para {numero}")
+    print("Resultado:", resultado)
     return resultado
 
 
-@shared_task
-def enviar_mensagem_whatsapp_agendada():
+@shared_task(bind=True, name="mensagem.tasks.enviar_mensagem_task")
+def enviar_mensagem_task(self, numero: str, mensagem: str, instancia: str = None):
     """
-    Task simples para envio automático/agendado
+    Task Celery para enviar mensagem usando N8nService.
+    Pode ser chamada via delay ou apply_async.
     """
-    return enviar_mensagem_task.delay(
-        numero=settings.WHATSAPP_NUMERO_PADRAO,
-        mensagem="Mensagem automática do sistema",
-        options={"delay": 5}
-    )
+    return enviar_mensagem(numero, mensagem, instancia)
+

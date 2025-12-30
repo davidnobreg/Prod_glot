@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Cliente
+    Altera Cliente
 {% endblock %}
 
 {% load static %}
@@ -17,16 +17,16 @@
 
             <!-- Formulário -->
             <div class="col-lg-6">
-                <form action="{% url 'atualizar-cliente' cliente.id %}" method="POST" class="card p-4 shadow">
+                <form action="{% url 'criar-cliente' %}" method="POST" class="card p-4 shadow">
                     {% csrf_token %}
                     <input type="hidden" name="conjuge_json" id="conjuge_json">
                     <input type="hidden" name="endereco_json" id="endereco_json">
                     <input type="hidden" name="telefones_json" id="telefones_json">
-                    <h4 class="mb-3 text-center">Cliente</h4>
+                    <h4 class="mb-3 text-center">Atualização Cliente</h4>
 
                     <!-- Mensagens -->
                     {% if status == '0' %}
-                        <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso!</div>
+                        <div class="alert alert-success" role="alert">Cliente atualizado com sucesso!</div>
                     {% elif status == '1' %}
                         <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
                     {% elif status == '2' %}
@@ -115,12 +115,13 @@
             <hr/>
         </div>
     </div>
+
     <!-- Modal do Endereço -->
     <div class="modal fade" id="enderecoModal" tabindex="-1" aria-labelledby="enderecoModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Endereço</h5>
+                    <h5 class="modal-title">Cadastro de Endereço</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <!-- Mensagens -->
@@ -175,7 +176,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Cônjuge</h5>
+                    <h5 class="modal-title">Cadastrar Cônjuge</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
@@ -229,102 +230,117 @@
     </div>
     <!-- Modal do Telefone -->
     <div class="modal fade" id="modalTelefones" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Contatos</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
+        <div class="container-fluid">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
 
-                <!-- Mensagens -->
-                {% if status == '0' %}
-                    <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso!</div>
-                {% elif status == '1' %}
-                    <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
-                {% elif status == '2' %}
-                    <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
-                {% elif status == '3' %}
-                    <div class="alert alert-danger" role="alert">Preencha o telefone corretamente.</div>
-                {% endif %}
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cadastrar Contatos</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
 
-                <div class="modal-body">
+                    <!-- Mensagens -->
+                    {% if status == '0' %}
+                        <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso!</div>
+                    {% elif status == '1' %}
+                        <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
+                    {% elif status == '2' %}
+                        <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
+                    {% elif status == '3' %}
+                        <div class="alert alert-danger" role="alert">Preencha o telefone corretamente.</div>
+                    {% endif %}
 
-                    <div class="row g-2">
+                    <div class="modal-body">
 
-                        <!-- COLUNA ESQUERDA -->
-                        <div class="col-12 col-md-3">
-                            {% for field in formTelefone %}
-                                {% if field.field.widget.attrs.col == 'left' %}
-                                    <div class="mb-3">
-                                        {{ field }}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
+                        <div class="row g-2">
+                            {% for field in form.visible_fields %}
+                            <!-- COLUNA ESQUERDA -->
+                            <div class="col-12 col-md-3">
+                                {% for form in formTelefone %}
+                                    {% if field.field.widget.attrs.col == 'left' %}
+                                        <div class="mb-3">
+                                            {{ field.label_tag }} {{ field }}
+                                            {% if field.errors %}
+                                                <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
 
-                        <!-- COLUNA CENTRO -->
-                        <div class="col-12 col-md-3">
-                            {% for field in formTelefone %}
+                            <!-- COLUNA CENTRO -->
+                            <div class="col-12 col-md-3">
+
                                 {% if field.field.widget.attrs.col == 'center' %}
                                     <div class="mb-3">
                                         {{ field }}
                                     </div>
                                 {% endif %}
-                            {% endfor %}
-                        </div>
 
-                        <!-- COLUNA DIREITA -->
-                        <div class="col-12 col-md-3">
-                            {% for field in formTelefone %}
+                            </div>
+
+                            <!-- COLUNA DIREITA -->
+                            <div class="col-12 col-md-3">
+
                                 {% if field.field.widget.attrs.col == 'right' %}
                                     <div class="mb-3">
                                         {{ field }}
                                     </div>
                                 {% endif %}
-                            {% endfor %}
-                        </div>
 
-                        <!-- BOTÃO ADD -->
-                        <div class="col-12 col-md-3 d-flex align-items-start">
-                            <button type="button"
-                                    class="btn btn-success py-2 w-100 rounded-pill"
-                                    onclick="addTelefone()">
-                                ADD
-                            </button>
-                        </div>
+                            </div>
 
+                            <!-- BOTÃO ADD -->
+                            <div class="col-12 col-md-3 d-flex align-items-start">
+                                <button type="button"
+                                        class="btn btn-success py-2 w-100 rounded-pill"
+                                        onclick="addTelefone()">
+                                    ADD
+                                </button>
+                            </div>
+
+                        </div>
+                        {% endfor %}
+                        <hr>
+                    {{ formTelefone.management_form }}
+                        {% for form in formTelefone %}
+                        <!-- LISTA DE TELEFONES -->
+
+
+                            <!--<ul id="listaTelefones" class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>(83) 99928-4151</span>
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                            onclick="removerTelefone(0)">X
+                                    </button>
+                                </li>
+                            </ul>-->
+                            <ul class="list-group">
+                                {% for field in form.visible_fields %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>{{ field }}</span>
+
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                onclick="removerTelefone(0)">X
+                                        </button>
+
+                                    </li>
+                                {% endfor %}
+                            </ul>
+
+                            {% if form.DELETE %}
+                                <!-- HIDDEN COM TELEFONES JSON PARA ENVIAR AO BACKEND -->
+                                <input type="hidden" name="telefones_json" class="btn btn-sm btn-outline-danger">
+                            {% endif %}
+                        {% endfor %}
                     </div>
 
-                    <hr>
-
-                    <!-- LISTA DE TELEFONES -->
-                    <div id="telefoneErro" style="display:none"></div>
-                    <ul id="listaTelefones" class="list-group"></ul>
-
-                    <!-- HIDDEN COM TELEFONES JSON PARA ENVIAR AO BACKEND -->
-                    <input type="hidden" id="telefones_json" name="telefones_json">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    </div>
 
                 </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                </div>
-
             </div>
         </div>
     </div>
-
-
-<script>
-    const clienteId = {{ cliente.id }};
-
-    const enderecoAtual = {{ cliente.clienteendereco_set.first|default:"null"|safe }};
-    const telefonesAtuais = {{ cliente.clientetelefone_set.all|safe }};
-    const conjugeAtual = {{ cliente.clienteconjuge_set.first|default:"null"|safe }};
-</script>
-
-
-
-
-
 {% endblock %}

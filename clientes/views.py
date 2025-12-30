@@ -1,10 +1,10 @@
 import json
-from django.shortcuts import render, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.db.models import Q, Prefetch
+from django.forms import modelformset_factory
 from rolepermissions.decorators import has_permission_decorator
 
 from .forms import ClienteForm, ClienteConjugeForm, ClienteEnderecoForm, ClienteTelefoneForm
@@ -21,7 +21,6 @@ def selectCliente(request, cliente_id):
         "name": cliente.name,
         "documento": cliente.documento,
         "email": cliente.email,
-        "fone": cliente.fone,
     }
 
     return JsonResponse(data)
@@ -156,22 +155,37 @@ def criarCliente(request):
     return render(request, 'cliente.html', context)
 
 
-
 @has_permission_decorator('alterarCliente')
 def atualizarCliente(request, cliente_id):
+    # =========================
+    # BUSCA CLIENTE E RELACIONADOS
+    # =========================
     cliente = get_object_or_404(Cliente, id=cliente_id)
-
-    # Pode não existir
     conjuge = ClienteConjuge.objects.filter(cliente=cliente).first()
+    endereco = getattr(cliente, 'endereco', None)
+    previous = request.META.get('HTTP_REFERER', '')
+    veio_da_lista = '/clientes/listar_clientes/' in previous
+
+    # =========================
+    # Formset de telefones
+    # =========================
+    TelefoneFormSet = modelformset_factory(ClienteTelefone, form=ClienteTelefoneForm, extra=1, can_delete=True)
 
     if request.method == 'POST':
         form = ClienteForm(request.POST, instance=cliente)
 
         if not form.is_valid():
             messages.error(request, "Verifique os campos obrigatórios.")
+            formTelefone = TelefoneFormSet(request.POST, queryset=ClienteTelefone.objects.filter(cliente=cliente))
+            formConjuge = ClienteConjugeForm(instance=conjuge or None)
+            formEndereco = ClienteEnderecoForm(instance=endereco or None)
             return render(request, 'cliente_update.html', {
                 'form': form,
-                'cliente': cliente
+                'formConjuge': formConjuge,
+                'formEndereco': formEndereco,
+                'formTelefone': formTelefone,
+                'cliente': cliente,
+                'veio_da_lista': veio_da_lista
             })
 
         # =========================
@@ -185,47 +199,49 @@ def atualizarCliente(request, cliente_id):
         endereco_json = request.POST.get('endereco_json')
         if endereco_json:
             endereco_data = json.loads(endereco_json)
-
-            endereco, created = ClienteEndereco.objects.get_or_create(
-                cliente=cliente
-            )
-
+            endereco, created = ClienteEndereco.objects.get_or_create(cliente=cliente)
             for campo, valor in endereco_data.items():
                 setattr(endereco, campo, valor)
-
             endereco.is_ativo = True
             endereco.save()
 
         # =========================
-        # 3️⃣ TELEFONES (JSON)
+        # 3️⃣ TELEFONES (Formset)
         # =========================
-        telefones_json = request.POST.get('telefones_json')
-        if telefones_json:
-            ClienteTelefone.objects.filter(cliente=cliente).delete()
-
-            telefones = json.loads(telefones_json)
-            for tel in telefones:
-                ClienteTelefone.objects.create(
-                    cliente=cliente,
-                    numero=tel
-                )
+        formTelefone = TelefoneFormSet(request.POST, queryset=ClienteTelefone.objects.filter(cliente=cliente))
+        if formTelefone.is_valid():
+            telefones = formTelefone.save(commit=False)
+            for telefone in telefones:
+                telefone.cliente = cliente
+                telefone.save()
+            for telefone in formTelefone.deleted_objects:
+                telefone.delete()
+        else:
+            messages.error(request, "Verifique os telefones.")
+            formConjuge = ClienteConjugeForm(instance=conjuge or None)
+            formEndereco = ClienteEnderecoForm(instance=endereco or None)
+            return render(request, 'cliente_update.html', {
+                'form': form,
+                'formConjuge': formConjuge,
+                'formEndereco': formEndereco,
+                'formTelefone': formTelefone,
+                'cliente': cliente,
+                'veio_da_lista': veio_da_lista
+            })
 
         # =========================
         # 4️⃣ CÔNJUGE (REGRA DE NEGÓCIO)
         # =========================
-        if cliente.estado_civil != 'CASADO':
+        if cliente.estado_civil != 'casado':
             ClienteConjuge.objects.filter(cliente=cliente).delete()
         else:
             conjuge_json = request.POST.get('conjuge_json')
             if conjuge_json:
                 conjuge_data = json.loads(conjuge_json)
-
-                if conjuge:
+                conjuge, created = ClienteConjuge.objects.get_or_create(cliente=cliente, defaults=conjuge_data)
+                if not created:
                     for campo, valor in conjuge_data.items():
                         setattr(conjuge, campo, valor)
-                else:
-                    conjuge = ClienteConjuge(cliente=cliente, **conjuge_data)
-
                 conjuge.is_ativo = True
                 conjuge.save()
 
@@ -235,21 +251,23 @@ def atualizarCliente(request, cliente_id):
     # =========================
     # GET
     # =========================
-
     form = ClienteForm(instance=cliente)
-    formConjuge = ClienteConjugeForm(instance=cliente)
-    formEndereco = ClienteEnderecoForm(instance=cliente)
-    formTelefone = ClienteTelefoneForm(instance=cliente)
+    formConjuge = ClienteConjugeForm(instance=conjuge or None)
+    formEndereco = ClienteEnderecoForm(instance=endereco or None)
+    telefones_qs = ClienteTelefone.objects.filter(cliente=cliente)
+    formTelefone = TelefoneFormSet(queryset=telefones_qs)
 
     context = {
         'form': form,
         'cliente': cliente,
         'formConjuge': formConjuge,
         'formEndereco': formEndereco,
-        'formTelefone': formTelefone
+        'formTelefone': formTelefone,
+        'veio_da_lista': veio_da_lista
     }
 
     return render(request, 'cliente_update.html', context)
+
 
 
 
@@ -340,7 +358,37 @@ def listaClienteRelatorio(request):
 
 @has_permission_decorator('deletarCliente')
 def deleteCliente(request, id):
-    cliente = Cliente.objects.get(id=id)
-    cliente.is_ativo = False
-    cliente.save()
-    return redirect('lista-cliente')
+    try:
+        cliente = Cliente.objects.get(id=id)
+
+        # Deletar telefones relacionados
+        if hasattr(cliente, 'telefones'):
+            cliente.telefones.all().delete()
+
+        # Deletar endereços relacionados
+        if hasattr(cliente, 'enderecos'):
+            cliente.enderecos.all().delete()
+
+        # Deletar cônjuge relacionado
+        if hasattr(cliente, 'conjuge') and cliente.conjuge is not None:
+            cliente.conjuge.delete()
+
+        # Marcar como inativo
+        cliente.is_ativo = False
+
+        # Evitar conflito de UNIQUE no email
+        if cliente.email:
+            cliente.email = f"deleted_{cliente.id}@example.com"
+
+        # Salvar alterações
+        cliente.save()
+
+        return redirect('lista-cliente')
+
+    except Cliente.DoesNotExist:
+        messages.error(request, "Cliente não encontrado.")
+        return redirect('lista-cliente')
+
+    except Exception as e:
+        messages.error(request, f"Erro ao deletar cliente: {str(e)}")
+        return redirect('lista-cliente')

@@ -17,14 +17,14 @@ class EvolutionService:
         """
         Envia mensagem via Evolution API.
         """
+        #url = f"{self.server_url}/message/sendText/{self.instance}"
 
-        url = f"{self.server_url}/message/sendText/{self.instance}"
+        #url = f"https://n8n.dnsoftware.com.br/webhook/evolution"
+        url = f"https://n8n.dnsoftware.com.br/webhook-test/evolution"
         payload = {
             "number": numero,
-            "text": mensagem
-            #"textMessage": {"text": mensagem}
+            "textMessage": {"text": mensagem}
         }
-
 
         if options:
             payload["options"] = options

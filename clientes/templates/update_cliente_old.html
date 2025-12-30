@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Cadastrar Cliente
+    Altera Cliente
 {% endblock %}
 
 {% load static %}
@@ -67,6 +67,15 @@
                                 {% endif %}
                             {% endfor %}
                             <a
+                                    class="btn btn-light py-2 w-100 rounded-pill"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalConjuge"
+                                    data-bs-toggle="tooltip"
+                                    title="Cadastre os Telefones">Cônjuge
+                            </a>
+                            <br>
+                            <br>
+                            <a
                                     class="btn btn-secondary py-2 w-100 rounded-pill"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalTelefones"
@@ -106,6 +115,7 @@
             <hr/>
         </div>
     </div>
+
     <!-- Modal do Endereço -->
     <div class="modal fade" id="enderecoModal" tabindex="-1" aria-labelledby="enderecoModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -219,97 +229,73 @@
         </div>
     </div>
     <!-- Modal do Telefone -->
+    <!-- Modal do Telefone -->
     <div class="modal fade" id="modalTelefones" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Cadastrar Contatos</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cadastrar Contatos</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
 
-                <!-- Mensagens -->
-                {% if status == '0' %}
-                    <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso!</div>
-                {% elif status == '1' %}
-                    <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
-                {% elif status == '2' %}
-                    <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
-                {% elif status == '3' %}
-                    <div class="alert alert-danger" role="alert">Preencha o telefone corretamente.</div>
-                {% endif %}
+                    <!-- Mensagens -->
+                    {% if status == '0' %}
+                        <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso!</div>
+                    {% elif status == '1' %}
+                        <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
+                    {% elif status == '2' %}
+                        <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
+                    {% elif status == '3' %}
+                        <div class="alert alert-danger" role="alert">Preencha o telefone corretamente.</div>
+                    {% endif %}
 
-                <div class="modal-body">
+                    <div class="modal-body">
 
-                    <div class="row g-2">
+                        <!-- MANAGEMENT FORM (obrigatório para formsets) -->
+                        {{ formTelefone.management_form }}
 
-                        <!-- COLUNA ESQUERDA -->
-                        <div class="col-12 col-md-3">
-                            {% for field in formTelefone %}
-                                {% if field.field.widget.attrs.col == 'left' %}
-                                    <div class="mb-3">
-                                        {{ field }}
-                                    </div>
-                                {% endif %}
+                        <div class="row g-2">
+                            {% for form in formTelefone %}
+                                <div class="col-12 col-md-4">
+                                    {% for field in form.visible_fields %}
+                                        <div class="mb-3">
+                                            {{ field.label_tag }} {{ field }}
+                                            {% if field.errors %}
+                                                <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                    {% if form.DELETE %}
+                                        <div class="form-check mb-3">
+                                            {{ form.DELETE }} <label class="form-check-label">Excluir?</label>
+                                        </div>
+                                    {% endif %}
+                                </div>
                             {% endfor %}
-                        </div>
 
-                        <!-- COLUNA CENTRO -->
-                        <div class="col-12 col-md-3">
-                            {% for field in formTelefone %}
-                                {% if field.field.widget.attrs.col == 'center' %}
-                                    <div class="mb-3">
-                                        {{ field }}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-
-                        <!-- COLUNA DIREITA -->
-                        <div class="col-12 col-md-3">
-                            {% for field in formTelefone %}
-                                {% if field.field.widget.attrs.col == 'right' %}
-                                    <div class="mb-3">
-                                        {{ field }}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-
-                        <!-- BOTÃO ADD -->
-                        <div class="col-12 col-md-3 d-flex align-items-start">
-                            <button type="button"
-                                    class="btn btn-success py-2 w-100 rounded-pill"
-                                    onclick="addTelefone()">
-                                ADD
-                            </button>
+                            <!-- BOTÃO ADD -->
+                            <div class="col-12 col-md-4 d-flex align-items-start">
+                                <button type="button" class="btn btn-success py-2 w-100 rounded-pill"
+                                        onclick="addTelefone()">
+                                    ADD
+                                </button>
+                            </div>
                         </div>
 
                     </div>
 
-                    <hr>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Salvar Telefones</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    </div>
 
-                    <!-- LISTA DE TELEFONES -->
-                    <div id="telefoneErro" style="display:none"></div>
-                    <ul id="listaTelefones" class="list-group"></ul>
-
-                    <!-- HIDDEN COM TELEFONES JSON PARA ENVIAR AO BACKEND -->
-                    <input type="hidden" id="telefones_json" name="telefones_json">
-
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                </div>
-
+                </form>
             </div>
         </div>
     </div>
 
-
-
-
-
-
-
+    
 
 {% endblock %}

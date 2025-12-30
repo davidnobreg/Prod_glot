@@ -180,59 +180,6 @@ document.addEventListener("DOMContentLoaded", function () {
         new bootstrap.Tooltip(el);
     });
 
-    // ==============================
-    // Compartilhar Relatório PDF
-    // ==============================
-    async function compartilharRelatorio() {
-        const params = new URLSearchParams(window.location.search);
-        const situacao = params.get('situacao') || 'TODOS';
-        const loteamento_id = document.body.dataset.loteamentoId || '';
-
-        const url = `/empreendimentos/relatorio-lotes/?situacao=${encodeURIComponent(situacao)}&loteamento_id=${encodeURIComponent(loteamento_id)}`;
-
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                alert('Erro ao gerar o relatório');
-                return;
-            }
-
-            const blob = await response.blob();
-            const file = new File([blob], "relatorio_lotes.pdf", {type: "application/pdf"});
-
-            if (navigator.canShare && navigator.canShare({files: [file]})) {
-                await navigator.share({
-                    title: "Relatório de Lotes",
-                    text: "Segue o relatório de lotes gerado.",
-                    files: [file]
-                });
-            } else {
-                const urlBlob = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = urlBlob;
-                a.setAttribute('download', file.name);
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(() => {
-                    URL.revokeObjectURL(urlBlob);
-                    document.body.removeChild(a);
-                }, 1000);
-                alert("Este navegador não suporta compartilhamento direto. O relatório foi baixado.");
-            }
-        } catch (err) {
-            console.error("Erro ao compartilhar:", err);
-            alert("Ocorreu um erro ao gerar ou compartilhar o relatório.");
-        }
-    }
-
-    // Oculta botão compartilhar se navegador não suportar
-    const botaoCompartilhar = document.querySelector('button[onclick="compartilharRelatorio()"]');
-    if (botaoCompartilhar && (!navigator.canShare || !navigator.canShare({files: [new File([""], "teste.pdf", {type: "application/pdf"})]}))) {
-        botaoCompartilhar.style.display = 'none';
-    }
-
-    // Torna função global para botão
-    window.compartilharRelatorio = compartilharRelatorio;
 });
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -259,4 +206,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
+
+
 

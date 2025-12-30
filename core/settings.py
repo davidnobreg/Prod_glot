@@ -266,14 +266,6 @@ CELERY_TASK_ACKS_LATE = True
 
 FLOWER_BASIC_AUTH = ["admin:admin"]
 
-#CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-#CELERY_BEAT_SCHEDULE = {
-#    "processar-outbox-a-cada-30s": {
-#        "task": "mensagem.tasks.processar_outbox",
-#        "schedule": 30.0,
-#    },
-#}
-
 
 # django setting.
 CACHES = {
@@ -450,4 +442,3 @@ JAZZMIN_SETTINGS = {
     # Add a language dropdown into the admin
     "language_chooser": False,
 }
-""

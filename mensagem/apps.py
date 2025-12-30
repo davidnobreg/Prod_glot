@@ -7,4 +7,4 @@ class MensagemConfig(AppConfig):
     verbose_name = 'Sistema de Notificações'
 
     def ready(self):
-        pass
+        import mensagem.signals

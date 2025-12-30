@@ -173,7 +173,11 @@ def listaVendaRelatorio(request):
     if get_tipo_venda:
         vendas = RegisterVenda.objects.filter(tipo_venda=get_tipo_venda)
 
-    context = {'vendas': vendas}
+    paginator = Paginator(vendas.order_by('-id'), 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {'vendas': page_obj}
     return render(request, 'lista_venda_relatorio.html', context)
 
 

@@ -81,27 +81,29 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <div class="row g-2 justify-content-center align-items-center">
-                                    <div class="col-md-4">
-                                        <a href="{% url 'atualizar-cliente' cliente.id %}"
-                                           class="btn btn-warning w-auto h-auto text-wrap text-center"
-                                           title="Editar Cliente" data-bs-toggle="tooltip"
-                                           aria-label="Editar Cliente">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <button class="btn btn-danger w-auto h-auto text-wrap text-center"
-                                                name="cliente"
-                                                data-cliente-id="{{ cliente.id }}"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#clienteModalDelete"
-                                                data-bs-toggle="tooltip"
-                                                title="Excluir Cliente"
-                                                aria-label="Excluir Cliente">
-                                            <i class="fas fa-window-close"></i>
-                                        </button>
-                                    </div>
+                                <div class="d-flex justify-content-center gap-2 flex-wrap">
+
+
+                                    <a href="{% url 'atualizar-cliente' cliente.id %}"
+                                       class="btn btn-warning w-auto h-auto text-wrap text-center"
+                                       title="Editar Cliente" data-bs-toggle="tooltip"
+                                       aria-label="Editar Cliente">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+
+
+                                    <button
+                                            class="btn btn-danger w-auto h-auto text-wrap text-center"
+                                            name="cliente"
+                                            data-cliente-id="{{ cliente.id }}"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#clienteModalDelete"
+                                            data-bs-toggle="tooltip"
+                                            title="Excluir Cliente"
+                                            aria-label="Excluir Cliente">
+                                        <i class="fas fa-window-close"></i>
+                                    </button>
+
                                 </div>
                             </td>
                         </tr>

@@ -14,7 +14,7 @@
         <!-- Filtros -->
         <div class="row g-3 align-items-center bg-light p-2 rounded shadow mb-4">
             <!-- Pesquisar pelo empreendimento -->
-            <div class="col-md-6">
+            <div class="col-md-3">
                 <label for="vendaSearch" class="form-label"></label>
                 <form class="d-flex" action="{% url 'lista-venda' %}">
                     <input name="venda" id="vendaSearch" type="search" class="form-control me-2"
@@ -36,7 +36,7 @@
                     <input name="data_venda" type="date" class="form-control" value="{{ request.GET.data_venda }}">
                 </div>
             <!-- Filtro de tipo -->
-            <div class="col-md-5">
+            <div class="col-md-2">
                 <label for="typeFilter" class="form-label"></label>
                 <form action="">
                     <select name="tipo_venda" id="typeFilter" class="form-select" onchange="this.form.submit()">
@@ -87,4 +87,34 @@
 
         </table>
     </div>
+    <!-- 🔹 PAGINAÇÃO -->
+    {% with request.GET.urlencode|cut:"page={{ vendas.number }}" as query_params %}
+    <nav aria-label="Navegação de páginas">
+        <ul class="pagination justify-content-center mt-4">
+            {% if vendas.has_previous %}
+                <li class="page-item">
+                    <a class="btn btn-primary"
+                       href="?{% if query_params %}{{ query_params }}&{% endif %}page={{ vendas.previous_page_number }}">
+                        Voltar
+                    </a>
+                </li>
+            {% endif %}
+
+            <li class="page-item disabled">
+                <span class="page-link">
+                    Página {{ vendas.number }} de {{ vendas.paginator.num_pages }}
+                </span>
+            </li>
+
+            {% if vendas.has_next %}
+                <li class="page-item">
+                    <a class="btn btn-primary"
+                       href="?{% if query_params %}{{ query_params }}&{% endif %}page={{ vendas.next_page_number }}">
+                        Avançar
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endwith %}
 {% endblock %}

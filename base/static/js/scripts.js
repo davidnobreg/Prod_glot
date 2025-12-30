@@ -38,22 +38,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 value = value.replace(/^(\d{2})(\d{4})(\d{4}).*/, "($1) $2-$3");
             }
             input.value = value;
-        },
-
-        // Renda / Valores em Real
-        dinheiro: function (input) {
-            let value = input.value.replace(/\D/g, "");
-
-            if (!value) return;
-
-            value = (parseInt(value) / 100).toFixed(2); // transforma centavos
-            value = value.replace(".", ","); // separador decimal
-
-            // separador de milhar
-            value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-
-            input.value = "R$ " + value;
         }
+
     };
 
     // ==============================
@@ -69,11 +55,38 @@ document.addEventListener("DOMContentLoaded", function () {
         mascaras.telefone(input);
     });
 
-    document.querySelectorAll(".mask-money").forEach(input => {
-        input.addEventListener("input", () => mascaras.dinheiro(input));
-        mascaras.dinheiro(input);
-    });
+    function formatarDinheiro(input) {
+        let pos = input.selectionStart; // posição do cursor
+        let value = input.value;
 
+        // remove tudo que não é número
+        let numeros = value.replace(/\D/g, "");
+
+        if (!numeros) {
+            input.value = "";
+            return;
+        }
+
+        // transforma em centavos
+        let valor = (parseInt(numeros) / 100).toFixed(2);
+
+        // separador decimal
+        let partes = valor.split(".");
+        partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        let resultado = "R$ " + partes.join(",");
+
+        input.value = resultado;
+
+        // tenta manter o cursor na posição correta
+        let diff = input.value.length - value.length;
+        input.setSelectionRange(pos + diff, pos + diff);
+    }
+
+// Aplica a máscara
+    document.querySelectorAll(".mask-money").forEach(input => {
+        input.addEventListener("input", () => formatarDinheiro(input));
+        formatarDinheiro(input);
+    });
 
 
     const conjugeForm = document.getElementById('conjugeForm');
@@ -159,7 +172,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    
+
     // ==============================
     // Bootstrap Tooltips
     // ==============================
@@ -220,5 +233,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Torna função global para botão
     window.compartilharRelatorio = compartilharRelatorio;
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    flatpickr(".mask-data", {
+        dateFormat: "d/m/Y",
+        allowInput: true,
+        locale: "pt",
+        clickOpens: true,
+        disableMobile: true
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const input = document.querySelector('.mask-data');
+
+    input.addEventListener('input', function (e) {
+        let v = e.target.value.replace(/\D/g, '');
+
+        if (v.length > 2) v = v.slice(0, 2) + '/' + v.slice(2);
+        if (v.length > 5) v = v.slice(0, 5) + '/' + v.slice(5, 9);
+
+        e.target.value = v;
+    });
+
 });
 

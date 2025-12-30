@@ -1,25 +1,28 @@
 # empreendimentos/tasks.py
 
-from celery import shared_task
+
 import logging
+from celery import shared_task
 from django.utils import timezone
 from django.db import transaction
 from .models import Lote
 
 logger = logging.getLogger(__name__)
 
-
 @shared_task(
     bind=True,
-    name="empreendimentos.tasks.processar_empreendimento",
-    queue="app_empreendimentos.default",
-    routing_key="empreendimentos.tasks",
+    name="empreendimentos.tasks.liberar_lotes_travados",
+    autoretry_for=(Exception,),
+    retry_kwargs={
+        "max_retries": 3,
+        "countdown": 30,
+    },
+    retry_backoff=False,
+    retry_jitter=False,
 )
-def processar_empreendimento(self, empreendimento_id):
-    print(f"Processando empreendimento {empreendimento_id}")
+def liberar_lotes_travados(self):
+    logger.info("Iniciando liberação de lotes travados")
 
-@shared_task(name="empreendimentos.tasks.liberar_lotes_travados")
-def liberar_lotes_travados():
     agora = timezone.now()
 
     logger.info("🔄 [CELERY] Iniciando liberação de lotes travados")
@@ -46,8 +49,19 @@ def liberar_lotes_travados():
     return liberados
 
 
-@shared_task
-def liberar_lotes_expirados():
+
+@shared_task(
+    bind=True,
+    name="empreendimentos.tasks.liberar_lotes_expirados",
+    autoretry_for=(Exception,),
+    retry_kwargs={
+        "max_retries": 3,
+        "countdown": 30,
+    },
+    retry_backoff=False,
+    retry_jitter=False,
+)
+def liberar_lotes_expirados(self):
     """
     Atualiza lotes cuja data_termina_reserva já passou.
     Altera apenas o campo 'situacao' do lote para 'DISPONIVEL' se estiver 'PRE-RESERVA'.

@@ -11,11 +11,16 @@ from .services.n8n_service import N8nService
     retry_backoff=True,
     retry_jitter=True,
 )
-def enviar_mensagem(numero: str, mensagem: str, instancia: str = None):
+def enviar_mensagem(numero: str = None, mensagem: str = None, instancia: str = None):
     """
-    Função helper para enviar mensagem direto no shell ou em outras funções Python.
+    Função helper para enviar mensagem direto no shell, via signal ou Celery.
+    Se chamada sem argumentos (ex: Beat), apenas loga e não quebra.
     """
-    service = N8nService()
+    if not numero or not mensagem:
+        print("Nenhum número ou mensagem fornecido, task não enviará nada.")
+        return None
+
+    service = N8nService(instancia=instancia)
     resultado = service.enviar_mensagem(numero, mensagem, instancia)
 
     print(f"Mensagem enviada para {numero}")
@@ -33,10 +38,9 @@ def enviar_mensagem(numero: str, mensagem: str, instancia: str = None):
     retry_backoff=True,
     retry_jitter=True,
 )
-def enviar_mensagem_task(self, numero: str, mensagem: str, instancia: str = None):
+def enviar_mensagem_task(self, numero: str = None, mensagem: str = None, instancia: str = None):
     """
     Task Celery para enviar mensagem usando N8nService.
-    Pode ser chamada via delay ou apply_async.
+    Pode ser chamada via delay, apply_async, signal ou Beat.
     """
     return enviar_mensagem(numero, mensagem, instancia)
-

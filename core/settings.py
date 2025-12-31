@@ -266,7 +266,6 @@ CELERY_TASK_ACKS_LATE = True
 
 FLOWER_BASIC_AUTH = ["admin:admin"]
 
-
 # django setting.
 CACHES = {
     'default': {
@@ -282,6 +281,11 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler',
         },
+        "celery_file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": BASE_DIR / "logs/celery.log",
+        },
     },
     'loggers': {
         'django': {
@@ -292,6 +296,11 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
+        },
+        "mensagem": {
+            "handlers": ["celery_file"],
+            "level": "INFO",
+            "propagate": False,
         },
     },
 }

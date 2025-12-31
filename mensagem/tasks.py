@@ -1,16 +1,7 @@
+import requests
 from celery import shared_task
 from .services.n8n_service import N8nService
 
-@shared_task(
-    bind=True,
-    name="mensagem.tasks.enviar_mensagem",
-    queue="app_mensagem.default",
-    routing_key="mensagem",
-    autoretry_for=(Exception,),
-    retry_kwargs={"max_retries": 3, "countdown": 30},
-    retry_backoff=True,
-    retry_jitter=True,
-)
 def enviar_mensagem(numero: str = None, mensagem: str = None, instancia: str = None):
     """
     Função helper para enviar mensagem direto no shell, via signal ou Celery.
@@ -20,7 +11,7 @@ def enviar_mensagem(numero: str = None, mensagem: str = None, instancia: str = N
         print("Nenhum número ou mensagem fornecido, task não enviará nada.")
         return None
 
-    service = N8nService(instancia=instancia)
+    service = N8nService()
     resultado = service.enviar_mensagem(numero, mensagem, instancia)
 
     print(f"Mensagem enviada para {numero}")
@@ -33,7 +24,7 @@ def enviar_mensagem(numero: str = None, mensagem: str = None, instancia: str = N
     name="mensagem.tasks.enviar_mensagem_task",
     queue="app_mensagem.default",
     routing_key="mensagem",
-    autoretry_for=(Exception,),
+    autoretry_for=(requests.RequestException,),
     retry_kwargs={"max_retries": 3, "countdown": 30},
     retry_backoff=True,
     retry_jitter=True,

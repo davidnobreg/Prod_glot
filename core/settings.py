@@ -276,23 +276,17 @@ CACHES = {
 }
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
         },
+        # comentar ou remover o celery_file
     },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'INFO',
-        },
-        'app': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': True,
-        },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
     },
 }
 

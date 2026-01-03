@@ -1,9 +1,9 @@
 import os
 from pathlib import Path
 from datetime import timedelta
-from prettyconf import Configuration
+#from prettyconf import Configuration
 from decouple import Config, Csv, RepositoryEnv
-from kombu import Exchange, Queue
+#from kombu import Exchange, Queue
 
 from core.env import get_env
 
@@ -266,6 +266,9 @@ CELERY_TASK_ACKS_LATE = True
 
 FLOWER_BASIC_AUTH = ["admin:admin"]
 
+LOG_DIR = BASE_DIR / "logs"
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
 
 # django setting.
 CACHES = {
@@ -278,17 +281,38 @@ CACHES = {
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "default": {
+            "format": "[{asctime}] {levelname} {name}: {message}",
+            "style": "{",
+        },
+    },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
+            "formatter": "default",
         },
-        # comentar ou remover o celery_file
+        "celery_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": LOG_DIR / "celery.log",
+            "maxBytes": 10 * 1024 * 1024,
+            "backupCount": 5,
+            "formatter": "default",
+        },
+    },
+    "loggers": {
+        "celery": {
+            "handlers": ["console", "celery_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
     },
     "root": {
         "handlers": ["console"],
         "level": "INFO",
     },
 }
+
 
 
 

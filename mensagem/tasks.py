@@ -25,6 +25,7 @@ def enviar_mensagem(numero: str = None, mensagem: str = None, instancia: str = N
     return resultado
 
 
+
 @shared_task(
     bind=True,
     name="mensagem.tasks.enviar_mensagem_task",
@@ -44,6 +45,8 @@ def enviar_mensagem_task(self, *args, **kwargs):
     numero = kwargs.get("numero")
     mensagem = kwargs.get("mensagem")
     instancia = kwargs.get("instancia")
+
+    print(mumero, mensagem, instancia)
 
     logger.debug(
         "Executando enviar_mensagem_task | args=%s kwargs=%s",

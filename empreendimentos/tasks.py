@@ -2,6 +2,7 @@
 
 
 import logging
+import requests
 from celery import shared_task
 from django.utils import timezone
 from django.db import transaction
@@ -9,6 +10,21 @@ from .models import Lote
 
 logger = logging.getLogger(__name__)
 
+
+
+"""@shared_task(
+    bind=True,
+    name="empreendimentos.tasks.liberar_lotes_travados",
+    queue="app_mensagem.lotes",
+    routing_key="empreendimentos",
+    autoretry_for=(requests.RequestException,),
+    retry_kwargs={
+        "max_retries": 3,
+        "countdown": 30,
+    },
+    retry_backoff=True,
+    retry_jitter=True,
+)"""
 @shared_task(
     bind=True,
     name="empreendimentos.tasks.liberar_lotes_travados",

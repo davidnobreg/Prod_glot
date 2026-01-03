@@ -7,6 +7,13 @@ from decouple import Config, Csv, RepositoryEnv
 
 from core.env import get_env
 
+# Ambiente
+DJANGO_ENV = os.getenv("DJANGO_ENV", "development")
+IS_PRODUCTION = DJANGO_ENV == "production"
+
+print("DJANGO_ENV =", DJANGO_ENV)
+print("IS_PRODUCTION =", IS_PRODUCTION)
+
 N8N_URL = get_env("N8N_WEBHOOK_URL", required=True)
 N8N_INSTANCIA = get_env("N8N_INSTANCIA", default="default")
 
@@ -119,11 +126,15 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-"""
+
 DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / "db.sqlite3",
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': config('DB_NAME'),
+            'USER': config('DB_USER'),
+            'PASSWORD': config('DB_PASSWORD'),
+            'HOST': config('DB_HOST'),
+            'PORT': config('DB_PORT')
         }
     }
 """
@@ -145,7 +156,7 @@ else:
             'HOST': config('DB_HOST'),
             'PORT': config('DB_PORT')
         }
-    }
+    }"""
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -292,26 +303,34 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "default",
         },
-        "celery_file": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": LOG_DIR / "celery.log",
-            "maxBytes": 10 * 1024 * 1024,
-            "backupCount": 5,
-            "formatter": "default",
-        },
     },
     "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+        },
         "celery": {
-            "handlers": ["console", "celery_file"],
+            "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
         },
     },
-    "root": {
-        "handlers": ["console"],
-        "level": "INFO",
-    },
 }
+
+# 🔁 SOMENTE NO WINDOWS / DEV → adiciona arquivo
+if not IS_PRODUCTION:
+    LOG_DIR = BASE_DIR / "logs"
+    LOG_DIR.mkdir(exist_ok=True)
+
+    LOGGING["handlers"]["file"] = {
+        "class": "logging.FileHandler",
+        "filename": LOG_DIR / "celery.log",
+        "formatter": "default",
+    }
+
+    LOGGING["loggers"]["celery"]["handlers"].append("file")
+    LOGGING["loggers"]["django"]["handlers"].append("file")
+
 
 
 

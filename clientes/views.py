@@ -298,11 +298,11 @@ def listaCliente(request):
 
     paginator = Paginator(clientes_qs, 10)
     page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    cliente_obj = paginator.get_page(page_number)
 
     return render(request, 'lista_cliente.html', {
-        'page_obj': page_obj,
-        'clientes': page_obj.object_list,
+        'cliente_obj': cliente_obj,
+        'clientes': cliente_obj.object_list,
     })
 
 

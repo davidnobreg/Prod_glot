@@ -264,6 +264,9 @@ CELERY_RESULT_SERIALIZER = "json"
 # IMPORTANTE PARA WINDOWS 👇
 CELERY_WORKER_POOL = "solo"
 
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
+
+
 FLOWER_BASIC_AUTH = ["admin:admin"]
 
 LOG_DIR = BASE_DIR / "logs"

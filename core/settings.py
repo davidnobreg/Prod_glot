@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import timedelta
 #from prettyconf import Configuration
 from decouple import Config, Csv, RepositoryEnv
-#from kombu import Exchange, Queue
+
 
 from core.env import get_env
 
@@ -11,8 +11,8 @@ from core.env import get_env
 DJANGO_ENV = os.getenv("DJANGO_ENV", "development")
 IS_PRODUCTION = DJANGO_ENV == "production"
 
-print("DJANGO_ENV =", DJANGO_ENV)
-print("IS_PRODUCTION =", IS_PRODUCTION)
+#print("DJANGO_ENV =", DJANGO_ENV)
+#print("IS_PRODUCTION =", IS_PRODUCTION)
 
 N8N_URL = get_env("N8N_WEBHOOK_URL", required=True)
 N8N_INSTANCIA = get_env("N8N_INSTANCIA", default="default")
@@ -240,12 +240,7 @@ ROLEPERMISSIONS_MODULE = 'core.roles'
 
 
 # ==========================================================
-# Celery + RabbitMQ
-# ==========================================================
-
-
-# ==========================================================
-# Broker (RabbitMQ)
+# Celery – SOMENTE O ESSENCIAL
 # ==========================================================
 
 user = config("RABBITMQ_USER")
@@ -254,26 +249,20 @@ host = config("RABBITMQ_HOST")
 port = config("RABBITMQ_PORT")
 vhost = config("RABBITMQ_VHOST")
 
-# Celery básico
 CELERY_BROKER_URL = os.getenv(
     "CELERY_BROKER",
     f"amqp://{user}:{password}@{host}:{port}/{vhost}"
 )
-
 CELERY_RESULT_BACKEND = "rpc://"
-CELERY_IGNORE_RESULT = True
+
+CELERY_TIMEZONE = "America/Sao_Paulo"
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 
-CELERY_TIMEZONE = "America/Sao_Paulo"
-
-CELERY_TASK_ALWAYS_EAGER = False
-CELERY_TASK_EAGER_PROPAGATES = False
-
-CELERY_WORKER_PREFETCH_MULTIPLIER = 1
-CELERY_TASK_ACKS_LATE = True
+# IMPORTANTE PARA WINDOWS 👇
+CELERY_WORKER_POOL = "solo"
 
 FLOWER_BASIC_AUTH = ["admin:admin"]
 

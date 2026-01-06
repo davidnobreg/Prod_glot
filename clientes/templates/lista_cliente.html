@@ -8,176 +8,187 @@
 {% load format_filters %}
 
 {% block content %}
-    <div class="container mt-4">
-
-        <h4 class="mt-4 text-center">LISTA DE CLIENTES</h4>
+    <div class="container mt-5">
+        <h4 class="mt-5 text-center fw-bold">LISTA DE CLIENTES</h4>
         <hr>
 
-        <!-- Filtros -->
-        <div class="row g-3 align-items-center bg-light p-4 rounded shadow mb-4">
-            <div class="col-md-6">
-                <a href="{% url 'criar-cliente' %}" class="btn btn-primary rounded-pill">
-                    Adicionar Cliente
-                </a>
-            </div>
-            <!-- Pesquisar pelo cliente -->
-            <div class="col-md-5">
-
-                <label for="clientSearch" class="form-label">Nome do Cliente, Cpf ou E-mail</label>
-                <form class="d-flex" action="{% url 'lista-cliente' %}">
-                    <input name="client" id="clientSearch" type="search" class="form-control me-2"
+        <!-- 🔹 FILTROS -->
+        <form method="get" action="{% url 'lista-cliente' %}" class="mb-4">
+            <div class="row g-3 bg-light p-3 rounded shadow-sm">
+                <div class="col-md-6">
+                    </br>
+                    <a href="{% url 'criar-cliente' %}" class="btn btn-primary rounded-pill">
+                        Adicionar Cliente
+                    </a>
+                </div>
+                <div class="col-md-5">
+                    <label for="clientSearch" class="form-label fw-semibold">Nome do Cliente, Cpf ou E-mail</label>
+                    <input name="client" id="clientSearch" type="search" class="form-control"
                            placeholder="Pesquisar cliente..." value="{{ request.GET.client }}">
-                    <button class="btn btn-success rounded-pill" type="submit">
-                        <i class="fas fa-search"></i>
+                </div>
+                <!-- Botões -->
+                <div class="col-md-1 d-flex align-items-end justify-content-end">
+                    <button type="submit" class="btn btn-success me-2" title="Filtrar">
+                        <i class="fas fa-filter"></i>
                     </button>
-                </form>
+                    <a href="{% url 'lista-cliente' %}" class="btn btn-danger" title="Limpar filtros">
+                        <i class="fas fa-window-close"></i>
+                    </a>
+                </div>
             </div>
+        </form>
 
-            <!-- Resetar filtros -->
-            <div class="col-md-1">
-                <label for="idReset" class="form-label">Resetar</label>
-                <a class="btn btn-danger" href="{% url 'lista-cliente' %}">
-                    <i class="fas fa-window-close"></i>
-                </a>
-            </div>
-        </div>
-        <hr>
-        <div class="row g-3 align-items-center bg-light p-4 rounded shadow mb-4">
-            <div class="table-responsive">
-                <table class="table table-striped-columns table-bordered table-sm text-center">
-                    <thead>
+        <!-- 🔹 TABELA DE CLIENTES -->
+
+        <div class="table-responsive shadow-sm">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark text-center">
+                <tr>
+                    <th scope="col">Nome ou Razão Social</th>
+                    <th scope="col">Cpf ou Cnpj</th>
+                    <th scope="col">E-mail</th>
+                    <th scope="col">Contato</th>
+                    <th scope="col">Ações</th>
+                </tr>
+                </thead>
+
+                <tbody class="text-center">
+                {% for cliente in clientes %}
                     <tr>
-                        <th scope="col">Nome ou Razão Social</th>
-                        <th scope="col">Cpf ou Cnpj</th>
-                        <th scope="col">E-mail</th>
-                        <th scope="col">Contato</th>
-                        <th scope="col">Contato</th>
-                        <th scope="col">Comandos</th>
+                        <td>{{ cliente.name }}</td>
+                        <td>{{ cliente.documento|format_documento }}</td>
+                        <td>{{ cliente.email }}</td>
+                        <td>
+                            {% if cliente.telefones_list %}
+                                {% for t in cliente.telefones_list %}
+                                    <div>{{ t.numero }}</div>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">Sem telefone</span>
+                            {% endif %}
+                            {% if cliente.telefones_list %}
+                                {% for t in cliente.telefones_list %}
+
+                                        {% if t.tipo == 'whatsapp' %}
+                                            <span class="badge bg-success">WHATSAPP</span>
+                                        {% elif t.tipo == 'celular' %}
+                                            <span class="badge bg-primary">CELULAR</span>
+                                        {% elif t.tipo == 'fixo' %},
+                                            <span class="badge bg-infor">FIXO</span>
+                                        {% elif t.tipo == 'recado' %}
+                                            <span class="badge bg-black">RECADO</span>
+                                        {% elif t.tipo == 'outro' %}
+                                            <span class="badge bg-danger">OUTROS</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ venda.tipo_venda }}</span>
+                                        {% endif %}
+
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">Sem Status</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="d-flex justify-content-center gap-2 flex-wrap">
+
+
+                                <a href="{% url 'atualizar-cliente' cliente.id %}"
+                                   class="btn btn-warning w-auto h-auto text-wrap text-center"
+                                   title="Editar Cliente" data-bs-toggle="tooltip"
+                                   aria-label="Editar Cliente">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+
+                                <button
+                                        class="btn btn-danger w-auto h-auto text-wrap text-center"
+                                        name="cliente"
+                                        data-cliente-id="{{ cliente.id }}"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#clienteModalDelete"
+                                        data-bs-toggle="tooltip"
+                                        title="Excluir Cliente"
+                                        aria-label="Excluir Cliente">
+                                    <i class="fas fa-window-close"></i>
+                                </button>
+
+                            </div>
+                        </td>
                     </tr>
-                    </thead>
+                {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-3">Nenhuma Cliente encontrada.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
 
-                    <tbody class="featurette-heading fw-normal lh-1">
-                    {% for cliente in clientes %}
-                        <tr>
-                            <td>{{ cliente.name }}</td>
-                            <td>{{ cliente.documento|format_documento }}</td>
-                            <td>{{ cliente.email }}</td>
-                            <td>
-                                {% if cliente.telefones_list %}
-                                    {% for t in cliente.telefones_list %}
-                                        <div>{{ t.numero }}</div>
-                                    {% endfor %}
-                                {% else %}
-                                    <span class="text-muted">Sem telefone</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if cliente.telefones_list %}
-                                    {% for t in cliente.telefones_list %}
-                                        <div>{{ t.tipo }}</div>
-                                    {% endfor %}
-                                {% else %}
-                                    <span class="text-muted">Sem Status</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <div class="d-flex justify-content-center gap-2 flex-wrap">
-
-
-                                    <a href="{% url 'atualizar-cliente' cliente.id %}"
-                                       class="btn btn-warning w-auto h-auto text-wrap text-center"
-                                       title="Editar Cliente" data-bs-toggle="tooltip"
-                                       aria-label="Editar Cliente">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-
-
-                                    <button
-                                            class="btn btn-danger w-auto h-auto text-wrap text-center"
-                                            name="cliente"
-                                            data-cliente-id="{{ cliente.id }}"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#clienteModalDelete"
-                                            data-bs-toggle="tooltip"
-                                            title="Excluir Cliente"
-                                            aria-label="Excluir Cliente">
-                                        <i class="fas fa-window-close"></i>
-                                    </button>
-
-                                </div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                <div>
+            <!-- 🔹 PAGINAÇÃO -->
+            {% with request.GET.urlencode|cut:"page={{ vendas.number }}" as query_params %}
+                <nav aria-label="Navegação de páginas">
                     <ul class="pagination justify-content-center mt-4">
-                        <li class="page-item">
-                            {% if page_obj.has_previous %}
+                        {% if cliente_obj.has_previous %}
+                            <li class="page-item">
                                 <a class="btn btn-primary"
-                                   href="?page={{ page_obj.previous_page_number }}&client={{ request.GET.client }}"
+                                   href="?page={{ cliente_obj.previous_page_number }}&client={{ request.GET.client }}"
                                    aria-label="Página anterior">
                                     Voltar
                                 </a>
-                            {% endif %}
-                        </li>
-
-                        <li class="page-item">
+                            </li>
+                        {% endif %}
+                        <li class="page-item disabled">
                                  <span class="page-link">
-                                      Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                                      Página {{ cliente_obj.number }} de {{ cliente_obj.paginator.num_pages }}
                                  </span>
                         </li>
-
-                        <li class="page-item">
-                            {% if page_obj.has_next %}
+                        {% if cliente_obj.has_next %}
+                            <li class="page-item">
                                 <a class="btn btn-primary"
-                                   href="?page={{ page_obj.next_page_number }}&client={{ request.GET.client }}"
+                                   href="?page={{ cliente_obj.next_page_number }}&client={{ request.GET.client }}"
                                    aria-label="Próxima página">
                                     Avançar
                                 </a>
-                            {% endif %}
-                        </li>
+                            </li>
+                        {% endif %}
                     </ul>
-                </div>
-            </div>
+                </nav>
+            {% endwith %}
+
         </div>
-    </div>
 
 
+        <div class="modal fade" id="clienteModalDelete" tabindex="-1" aria-labelledby="clienteModalDeleteLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="clienteModalLabel">Detalhes do Cliente</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="clienteModalDelete" method="post">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div id="loading-indicator" style="display: none;">
+                                Carregando...
+                            </div>
 
+                            <input type="hidden" name="id" id="cliente-id">
 
-    <div class="modal fade" id="clienteModalDelete" tabindex="-1" aria-labelledby="clienteModalDeleteLabel"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="clienteModalLabel">Detalhes do Cliente</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="clienteModalDelete" method="post">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        <div id="loading-indicator" style="display: none;">
-                            Carregando...
+                            <p><strong>Cliente:</strong> <span id="cliente-name"></span></p>
+                            <p><strong>Documento:</strong> <span id="cliente-documento"></span></p>
+                            <p><strong>Email:</strong> <span id="cliente-email"></span></p>
                         </div>
-
-                        <input type="hidden" name="id" id="cliente-id">
-                        <p><strong>ID:</strong> <span id="cliente-id-display"></span></p>
-                        <p><strong>Cliente:</strong> <span id="cliente-name"></span></p>
-                        <p><strong>Documento:</strong> <span id="cliente-documento"></span></p>
-                        <p><strong>Email:</strong> <span id="cliente-email"></span></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" id="btn-deletar-cliente" class="btn btn-danger">deletar</button>
-                        <button type="button" href="{% url 'lista-cliente' %}" class="btn btn-secondary"
-                                data-bs-dismiss="modal">Canselar
-                        </button>
-                    </div>
-                </form>
+                        <div class="modal-footer">
+                            <button type="submit" id="btn-deletar-cliente" class="btn btn-danger">deletar</button>
+                            <button type="button" href="{% url 'lista-cliente' %}" class="btn btn-secondary"
+                                    data-bs-dismiss="modal">Canselar
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
-
 
 
 {% endblock %}

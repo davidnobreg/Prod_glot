@@ -12,29 +12,11 @@ logger = logging.getLogger(__name__)
 
 
 
-"""@shared_task(
-    bind=True,
-    name="empreendimentos.tasks.liberar_lotes_travados",
-    queue="app_mensagem.lotes",
-    routing_key="empreendimentos",
-    autoretry_for=(requests.RequestException,),
-    retry_kwargs={
-        "max_retries": 3,
-        "countdown": 30,
-    },
-    retry_backoff=True,
-    retry_jitter=True,
-)"""
 @shared_task(
     bind=True,
     name="empreendimentos.tasks.liberar_lotes_travados",
     autoretry_for=(Exception,),
-    retry_kwargs={
-        "max_retries": 3,
-        "countdown": 30,
-    },
-    retry_backoff=False,
-    retry_jitter=False,
+    retry_kwargs={"max_retries": 3, "countdown": 30},
 )
 def liberar_lotes_travados(self):
     logger.info("Iniciando liberação de lotes travados")

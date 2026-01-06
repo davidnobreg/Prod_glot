@@ -1,3 +1,4 @@
+import json
 from dateutil.tz import tzname_in_python2
 from django.db import transaction
 from django.shortcuts import get_object_or_404, render, redirect
@@ -14,6 +15,19 @@ from .forms import RegisterVendaForm
 from .models import RegisterVenda
 from empreendimentos.models import Lote, Empreendimento
 from empreendimentos.forms import LoteForm
+
+@has_permission_decorator('selectVenda')
+def selectVenda(request, venda_id):
+    venda = get_object_or_404(RegisterVenda, id=venda_id)
+
+    data = {
+        "empreendimento": venda.lote.quadra.empr,
+        "quadra": venda.lote.quadra,
+        "lote": venda.lote,
+        "cliente": venda.cliente,
+    }
+
+    return JsonResponse(data)
 
 @has_permission_decorator('reservado')
 def reservado(request, id):
@@ -447,7 +461,7 @@ def deleteResevaLista(request, id):
 
 @has_permission_decorator('cancelarVenda')
 def deleteVenda(request, id):
-    venda = RegisterVenda.objects.get(lote=id)
+    venda = RegisterVenda.objects.get(id=id)
     loteSituação = Lote.objects.get(id=venda.lote.id)
     loteSituação.situacao = 'DISPONIVEL'
     venda.tipo_venda = 'CANCELADA'

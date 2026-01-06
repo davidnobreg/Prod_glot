@@ -17,5 +17,6 @@ urlpatterns = [
     path('reservado_delete/<int:id>/', views.deleteReseva, name='delete-reservado'),
     path('reservado_delete_lista/<int:id>/', views.deleteResevaLista, name='delete-reservado-lista'),
     path('renova_reserva/<int:id>/', views.renovaReserva, name='renova-reserva'),
+    path('select/<int:venda_id>/', views.renovaReserva, name='renova-reserva'),
 
 ]

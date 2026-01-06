@@ -1,15 +1,11 @@
 # empreendimentos/tasks.py
 
-
 import logging
-import requests
 from celery import shared_task
 from django.utils import timezone
 from django.db import transaction
-from .models import Lote
 
 logger = logging.getLogger(__name__)
-
 
 
 @shared_task(
@@ -19,11 +15,11 @@ logger = logging.getLogger(__name__)
     retry_kwargs={"max_retries": 3, "countdown": 30},
 )
 def liberar_lotes_travados(self):
-    logger.info("Iniciando liberação de lotes travados")
-
-    agora = timezone.now()
+    from .models import Lote  # 👈 IMPORT AQUI
 
     logger.info("🔄 [CELERY] Iniciando liberação de lotes travados")
+
+    agora = timezone.now()
 
     lotes = Lote.objects.filter(
         situacao="EM_RESERVA",
@@ -40,53 +36,40 @@ def liberar_lotes_travados(self):
             lote.situacao = "DISPONIVEL"
             lote.cliente_reserva = ""
             lote.telefone = ""
-            lote.save()
+            lote.save(update_fields=["situacao", "cliente_reserva", "telefone"])
             liberados += 1
 
     logger.info(f"✅ [CELERY] {liberados} lotes liberados com sucesso")
     return liberados
 
 
-
 @shared_task(
     bind=True,
     name="empreendimentos.tasks.liberar_lotes_expirados",
     autoretry_for=(Exception,),
-    retry_kwargs={
-        "max_retries": 3,
-        "countdown": 30,
-    },
-    retry_backoff=False,
-    retry_jitter=False,
+    retry_kwargs={"max_retries": 3, "countdown": 30},
 )
 def liberar_lotes_expirados(self):
-    """
-    Atualiza lotes cuja data_termina_reserva já passou.
-    Altera apenas o campo 'situacao' do lote para 'DISPONIVEL' se estiver 'PRE-RESERVA'.
-    """
-
-    # Filtra apenas os lotes com situação 'PRE-RESERVA'
-    lotes_reservados = Lote.objects.filter(situacao="PRE-RESERVA")
+    from .models import Lote  # 👈 IMPORT AQUI
 
     logger.info("🔄 [CELERY] Iniciando liberação de lotes expirados")
 
-    total_processados = 0
     hoje = timezone.now().date()
 
+    lotes_reservados = Lote.objects.filter(
+        situacao="PRE-RESERVA",
+        data_termina_reserva__lte=hoje
+    )
+
+    total_processados = 0
+
     for lote in lotes_reservados:
-        try:
-            if lote.data_termina_reserva and lote.data_termina_reserva <= hoje:
-                with transaction.atomic():
-                    lote.situacao = "DISPONIVEL"
-                    lote.cliente_reserva = ""
-                    lote.telefone = ""
-                    lote.save()
-                    total_processados += 1
-                    logger.info(f"[OK] Lote {lote.id} liberado (reserva expirada em {lote.data_termina_reserva}).")
-            else:
-                logger.debug(f"[IGNORADO] Lote {lote.id} ainda no prazo (termina em {lote.data_termina_reserva}).")
-        except Exception as e:
-            logger.error(f"[ERRO] Lote {lote.id} - {str(e)}")
+        with transaction.atomic():
+            lote.situacao = "DISPONIVEL"
+            lote.cliente_reserva = ""
+            lote.telefone = ""
+            lote.save(update_fields=["situacao", "cliente_reserva", "telefone"])
+            total_processados += 1
 
     logger.info(f"[FIM] Total de lotes liberados: {total_processados}")
-    return f"Processo concluído. Total de lotes liberados: {total_processados}"
+    return total_processados

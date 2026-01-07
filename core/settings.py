@@ -274,6 +274,8 @@ CELERY_TASK_QUEUES = (
     Queue("mensagens"),
 )
 
+CELERY_TASK_DEFAULT_QUEUE = "empreendimentos"
+
 FLOWER_BASIC_AUTH = ["admin:admin"]
 
 LOG_DIR = BASE_DIR / "logs"

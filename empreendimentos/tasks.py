@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 @shared_task(
     bind=True,
-    name="empreendimentos.tasks.liberar_lotes_travados",
     autoretry_for=(Exception,),
     retry_kwargs={"max_retries": 3, "countdown": 30},
 )
@@ -45,7 +44,6 @@ def liberar_lotes_travados(self):
 
 @shared_task(
     bind=True,
-    name="empreendimentos.tasks.liberar_lotes_expirados",
     autoretry_for=(Exception,),
     retry_kwargs={"max_retries": 3, "countdown": 30},
 )

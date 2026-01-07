@@ -23,7 +23,11 @@ def enviar_mensagem(numero: str = None, mensagem: str = None, instancia: str = N
     return resultado
 
 
-@shared_task(bind=True, name="mensagem.tasks.enviar_mensagem_task")
+@shared_task(
+    bind=True,
+    autoretry_for=(Exception,),
+    retry_kwargs={"max_retries": 3, "countdown": 30},
+)
 def enviar_mensagem_task(self, numero: str = None, mensagem: str = None, instancia: str = None):
     """
     Task Celery segura para Signal, delay, apply_async e Beat.

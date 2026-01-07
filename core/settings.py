@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import timedelta
 #from prettyconf import Configuration
 from decouple import Config, Csv, RepositoryEnv
+from kombu import Queue
 
 
 from core.env import get_env
@@ -10,6 +11,8 @@ from core.env import get_env
 # Ambiente
 DJANGO_ENV = os.getenv("DJANGO_ENV", "development")
 IS_PRODUCTION = DJANGO_ENV == "production"
+
+INSTANCIA = get_env("EVOLUTION_INSTANCE", required=True)
 
 #print("DJANGO_ENV =", DJANGO_ENV)
 #print("IS_PRODUCTION =", IS_PRODUCTION)
@@ -266,6 +269,10 @@ CELERY_WORKER_POOL = "solo"
 
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
 
+CELERY_TASK_QUEUES = (
+    Queue("empreendimentos"),
+    Queue("mensagens"),
+)
 
 FLOWER_BASIC_AUTH = ["admin:admin"]
 

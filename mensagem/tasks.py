@@ -24,13 +24,22 @@ def enviar_mensagem(numero: str = None, mensagem: str = None, instancia: str = N
 
 
 @shared_task(bind=True, name="mensagem.tasks.enviar_mensagem_task")
-def enviar_mensagem_task(self, numero=None, mensagem=None, instancia=None):
+def enviar_mensagem_task(self, numero: str = None, mensagem: str = None, instancia: str = None):
     """
     Task Celery segura para Signal, delay, apply_async e Beat.
     """
-    logger.debug(
-        "Executando enviar_mensagem_task | numero=%s mensagem=%s instancia=%s",
-        numero, mensagem, instancia
-    )
+    try:
+        resultado = enviar_mensagem(numero, mensagem, instancia)
+        if not resultado.get("success"):
+            raise Exception(f"Falha no envio: {resultado}")
+        return resultado
+    except Exception as e:
+        logger.error(f"❌ Exceção ao enviar mensagem para {numero}: {e}")
+        raise self.retry(exc=e)
 
-    return enviar_mensagem(numero, mensagem, instancia)
+   #logger.debug(
+   #     "Executando enviar_mensagem_task | numero=%s mensagem=%s instancia=%s",
+   #     numero, mensagem, instancia
+   # )
+
+   # return enviar_mensagem(numero, mensagem, instancia)"""

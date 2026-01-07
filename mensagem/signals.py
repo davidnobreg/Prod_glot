@@ -3,7 +3,8 @@ from django.dispatch import receiver
 from empreendimentos.models import Lote
 from vendas.models import RegisterVenda
 from mensagem.tasks import enviar_mensagem_task
-
+from django.conf import settings
+from django.db import models
 
 # =========================
 # Função utilitária
@@ -83,7 +84,7 @@ def post_save_lote(sender, instance, created, **kwargs):
             enviar_mensagem_task.delay(
                 numero=numero,
                 mensagem=mensagem,
-                instancia="David"
+                instancia=settings.INSTANCIA
             )
 
 
@@ -110,7 +111,22 @@ def post_save_venda(sender, instance, created, **kwargs):
     cliente = instance.cliente.name
     usuario = instance.user.first_name
 
-    telefone_cliente = formatar_telefone(instance.cliente.fone)
+    telefone_cliente = formatar_telefone(
+        instance.cliente.telefones.filter(
+            is_ativo=True,
+            tipo__in=["whatsapp", "celular"]
+        )
+        .order_by(
+            models.Case(
+                models.When(tipo="whatsapp", then=0),
+                models.When(tipo="celular", then=1),
+                default=2,
+                output_field=models.IntegerField(),
+            )
+        )
+        .values_list("numero", flat=True)
+        .first()
+    )
     telefone_user = formatar_telefone(instance.user.contato)
     telefone_empr = formatar_telefone(instance.lote.quadra.empr.telefone)
 
@@ -143,5 +159,5 @@ def post_save_venda(sender, instance, created, **kwargs):
             enviar_mensagem_task.delay(
                 numero=numero,
                 mensagem=mensagem,
-                instancia="David"
+                instancia=settings.INSTANCIA
             )

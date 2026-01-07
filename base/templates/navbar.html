@@ -65,23 +65,31 @@
                             </ul>
                         </div>
                     </li>
-
                     <li class="nav-item dropdown">
                         <div class="navbar-text mx-auto text-black me-3">
                             <a class="nav-link dropdown-toggle text-black" href="#" role="button"
                                data-bs-toggle="dropdown"
                                aria-expanded="false">
-                                Gerenciamento
+                                Movimentação
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'lista-cliente' %}">Clientes</a>
-                                </li>
-                                <li><a class="dropdown-item" href="{% url 'lista-empreendimento-tabela' %}">Empreendimentos</a></li>
                                 <li><a class="dropdown-item" href="{% url 'lista-pre-reserva' %}">Pre-Reserva</a></li>
                                 <li><a class="dropdown-item" href="{% url 'lista-reserva' %}">Reserva</a></li>
                                 <li><a class="dropdown-item" href="{% url 'lista-venda' %}">Venda</a></li>
-                                <li><a class="dropdown-item" href="{% url 'lista-usuario' %}">Usuários</a>
-                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <div class="navbar-text mx-auto text-black me-3">
+                            <a class="nav-link dropdown-toggle text-black" href="#" role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                Cadastros
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'lista-cliente' %}">Clientes</a></li>
+                                <li><a class="dropdown-item" href="{% url 'lista-empreendimento-tabela' %}">Empreendimentos</a></li>
+                                <li><a class="dropdown-item" href="{% url 'lista-usuario' %}">Usuários</a></li>
                             </ul>
                         </div>
                     </li>

@@ -57,6 +57,40 @@ class ClienteForm(forms.ModelForm):
         fields = '__all__'
         exclude = ('is_ativo', 'id')
 
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+
+        if not email:
+            return email
+
+        qs = Cliente.objects.filter(email=email)
+
+        # 🔑 ignora o próprio registro no UPDATE
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
+            raise forms.ValidationError("Este e-mail já está cadastrado.")
+
+        return email
+
+    def clean_cpf(self):
+        cpf = self.cleaned_data.get('cpf')
+
+        if not cpf:
+            return cpf
+
+        qs = Cliente.objects.filter(cpf=cpf)
+
+        # 🔑 ignora o próprio registro no UPDATE
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
+            raise forms.ValidationError("Este CPF já está cadastrado.")
+
+        return cpf
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -143,6 +177,151 @@ class ClienteForm(forms.ModelForm):
             except InvalidOperation:
                 raise ValidationError("Valor de renda inválido.")
         return renda
+
+
+# ===================================================================
+# FORM CLIENTE UPDATE
+# ===================================================================
+
+class ClienteUpdateForm(forms.ModelForm):
+    lote_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    origem = forms.CharField(required=False, widget=forms.HiddenInput())
+
+    class Meta:
+        model = Cliente
+        fields = '__all__'
+        exclude = ('is_ativo', 'id')
+
+    # ===============================================================
+    # DESABILITA validação automática de unique=True do Django
+    # ===============================================================
+    def validate_unique(self):
+        pass
+
+    # ===============================================================
+    # EMAIL (unicidade correta no UPDATE)
+    # ===============================================================
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+
+        if not email:
+            return email
+
+        email = email.strip().lower()
+
+        qs = Cliente.objects.filter(email=email)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
+            raise ValidationError("Este e-mail já está cadastrado.")
+
+        return email
+
+    # ===============================================================
+    # DOCUMENTO (CPF / CNPJ + unicidade)
+    # ===============================================================
+    def clean_documento(self):
+        documento = re.sub(r'[^0-9]', '', self.cleaned_data.get('documento', ''))
+
+        # Validação de formato
+        if len(documento) == 11 and not validar_cpf(documento):
+            raise ValidationError("CPF inválido.")
+        elif len(documento) == 14 and not validar_cnpj(documento):
+            raise ValidationError("CNPJ inválido.")
+        elif len(documento) not in (11, 14):
+            raise ValidationError("Documento deve ter 11 dígitos (CPF) ou 14 dígitos (CNPJ).")
+
+        # 🔑 Validação de unicidade ignorando o próprio registro
+        qs = Cliente.objects.filter(documento=documento)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
+            raise ValidationError("Este CPF/CNPJ já está cadastrado.")
+
+        return documento
+
+    # ===============================================================
+    # RENDA
+    # ===============================================================
+    def clean_renda(self):
+        renda = self.cleaned_data.get('renda')
+
+        if renda in [None, '']:
+            return None
+
+        if isinstance(renda, str):
+            renda = renda.replace("R$", "").replace(".", "").replace(",", ".").strip()
+            try:
+                renda = Decimal(renda)
+            except InvalidOperation:
+                raise ValidationError("Valor de renda inválido.")
+
+        return renda
+
+    # ===============================================================
+    # INIT
+    # ===============================================================
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if 'nacionalidade' in self.fields:
+            self.fields['nacionalidade'].initial = "Brasileiro"
+
+        for field in self.fields.values():
+            field.widget.attrs.setdefault('class', 'form-control mb-3')
+
+        left_fields = [
+            'name', 'data_ns', 'documento', 'numero_rg',
+            'orgao_emissor_rg', 'estado_civil', 'observacao'
+        ]
+        right_fields = [
+            'naturalidade', 'nacionalidade',
+            'profissao', 'renda', 'email'
+        ]
+
+        config = {
+            'name': {'placeholder': 'Nome do Cliente'},
+            'data_ns': {'placeholder': 'Data de Nascimento', 'class': 'mask-data'},
+            'documento': {'placeholder': 'CPF ou CNPJ', 'class': 'mask-doc'},
+            'numero_rg': {'placeholder': 'RG', 'class': 'mask-rg'},
+            'orgao_emissor_rg': {'placeholder': 'Órgão Emissor'},
+            'estado_civil': {'class': 'form-select'},
+            'renda': {'placeholder': 'R$ Renda', 'class': 'mask-money', 'inputmode': 'decimal'},
+            'email': {'placeholder': 'Email'},
+            'observacao': {'placeholder': 'Observação', 'style': 'height: 90px;'},
+        }
+
+        for field, attrs in config.items():
+            if field in self.fields:
+                self.fields[field].widget.attrs.update(attrs)
+
+        if 'data_ns' in self.fields:
+            self.fields['data_ns'].widget.input_type = 'text'
+
+        for name in left_fields:
+            if name in self.fields:
+                self.fields[name].widget.attrs['col'] = 'left'
+
+        for name in right_fields:
+            if name in self.fields:
+                self.fields[name].widget.attrs['col'] = 'right'
+
+        if self.instance.pk:
+            if self.instance.documento:
+                doc = self.instance.documento
+                self.initial['documento'] = (
+                    f"{doc[:3]}.{doc[3:6]}.{doc[6:9]}-{doc[9:]}"
+                    if len(doc) == 11
+                    else f"{doc[:2]}.{doc[2:5]}.{doc[5:8]}/{doc[8:12]}-{doc[12:]}"
+                )
+
+            if self.instance.renda is not None:
+                renda = f"{Decimal(self.instance.renda):,.2f}"
+                renda = renda.replace(",", "X").replace(".", ",").replace("X", ".")
+                self.initial['renda'] = f"R$ {renda}"
+
 
 
 # ===================================================================

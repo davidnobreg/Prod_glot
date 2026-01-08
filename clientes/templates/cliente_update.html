@@ -17,7 +17,7 @@
 
             <!-- Formulário -->
             <div class="col-lg-6">
-                <form action="{% url 'criar-cliente' %}" method="POST" class="card p-4 shadow">
+                <form action="{% url 'atualizar-cliente' cliente.id %}" method="POST" class="card p-4 shadow">
                     {% csrf_token %}
                     <input type="hidden" name="conjuge_json" id="conjuge_json">
                     <input type="hidden" name="endereco_json" id="endereco_json">
@@ -229,118 +229,90 @@
         </div>
     </div>
     <!-- Modal do Telefone -->
-    <div class="modal fade" id="modalTelefones" tabindex="-1">
-        <div class="container-fluid">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
+<div class="modal fade" id="modalTelefones" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
 
-                    <div class="modal-header">
-                        <h5 class="modal-title">Cadastrar Contatos</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header">
+                <h5 class="modal-title">Cadastrar Contatos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="row g-2">
+
+                    <!-- COLUNA ESQUERDA -->
+                    <div class="col-12 col-md-3">
+                        <label class="form-label">Telefone</label>
+                        <input
+                            type="text"
+                            id="telefoneNumero"
+                            class="form-control mask-phone"
+                            placeholder="(99) 99999-9999"
+                        >
                     </div>
 
-                    <!-- Mensagens -->
-                    {% if status == '0' %}
-                        <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso!</div>
-                    {% elif status == '1' %}
-                        <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
-                    {% elif status == '2' %}
-                        <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
-                    {% elif status == '3' %}
-                        <div class="alert alert-danger" role="alert">Preencha o telefone corretamente.</div>
-                    {% endif %}
-
-                    <div class="modal-body">
-
-                        <div class="row g-2">
-                            {% for field in form.visible_fields %}
-                            <!-- COLUNA ESQUERDA -->
-                            <div class="col-12 col-md-3">
-                                {% for form in formTelefone %}
-                                    {% if field.field.widget.attrs.col == 'left' %}
-                                        <div class="mb-3">
-                                            {{ field.label_tag }} {{ field }}
-                                            {% if field.errors %}
-                                                <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
-                                            {% endif %}
-                                        </div>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-
-                            <!-- COLUNA CENTRO -->
-                            <div class="col-12 col-md-3">
-
-                                {% if field.field.widget.attrs.col == 'center' %}
-                                    <div class="mb-3">
-                                        {{ field }}
-                                    </div>
-                                {% endif %}
-
-                            </div>
-
-                            <!-- COLUNA DIREITA -->
-                            <div class="col-12 col-md-3">
-
-                                {% if field.field.widget.attrs.col == 'right' %}
-                                    <div class="mb-3">
-                                        {{ field }}
-                                    </div>
-                                {% endif %}
-
-                            </div>
-
-                            <!-- BOTÃO ADD -->
-                            <div class="col-12 col-md-3 d-flex align-items-start">
-                                <button type="button"
-                                        class="btn btn-success py-2 w-100 rounded-pill"
-                                        onclick="addTelefone()">
-                                    ADD
-                                </button>
-                            </div>
-
-                        </div>
-                        {% endfor %}
-                        <hr>
-                    {{ formTelefone.management_form }}
-                        {% for form in formTelefone %}
-                        <!-- LISTA DE TELEFONES -->
-
-
-                            <!--<ul id="listaTelefones" class="list-group">
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span>(83) 99928-4151</span>
-                                    <button type="button" class="btn btn-sm btn-outline-danger"
-                                            onclick="removerTelefone(0)">X
-                                    </button>
-                                </li>
-                            </ul>-->
-                            <ul class="list-group">
-                                {% for field in form.visible_fields %}
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>{{ field }}</span>
-
-                                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                                onclick="removerTelefone(0)">X
-                                        </button>
-
-                                    </li>
-                                {% endfor %}
-                            </ul>
-
-                            {% if form.DELETE %}
-                                <!-- HIDDEN COM TELEFONES JSON PARA ENVIAR AO BACKEND -->
-                                <input type="hidden" name="telefones_json" class="btn btn-sm btn-outline-danger">
-                            {% endif %}
-                        {% endfor %}
+                    <!-- COLUNA CENTRO -->
+                    <div class="col-12 col-md-3">
+                        <label class="form-label">Tipo</label>
+                        <select class="form-select">
+                            <option value="">Selecione</option>
+                            <option>WhatsApp</option>
+                            <option>Residencial</option>
+                            <option>Comercial</option>
+                        </select>
                     </div>
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <!-- COLUNA DIREITA -->
+                    <div class="col-12 col-md-3">
+                        <label class="form-label">Observação</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Ex: Principal"
+                        >
+                    </div>
+
+                    <!-- BOTÃO ADD -->
+                    <div class="col-12 col-md-3 d-flex align-items-end">
+                        <button
+                            type="button"
+                            class="btn btn-success w-100 py-2 rounded-pill"
+                            onclick="addTelefone()"
+                        >
+                            ADD
+                        </button>
                     </div>
 
                 </div>
+
+                <hr>
+
+                <!-- ERRO -->
+                <div id="telefoneErro" style="display:none"></div>
+
+                <!-- LISTA DE TELEFONES -->
+                <ul id="listaTelefones" class="list-group"></ul>
+
+                <!-- HIDDEN JSON -->
+                <input type="hidden" id="telefones_json" name="telefones_json">
+
             </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Fechar
+                </button>
+            </div>
+
         </div>
     </div>
+</div>
+
+    <script>
+        window.telefonesTemp = {{ telefones_json|safe }};
+    </script>
+
+
 {% endblock %}

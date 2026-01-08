@@ -7,7 +7,7 @@ from django.db.models import Q, Prefetch
 from django.forms import modelformset_factory
 from rolepermissions.decorators import has_permission_decorator
 
-from .forms import ClienteForm, ClienteConjugeForm, ClienteEnderecoForm, ClienteTelefoneForm
+from .forms import ClienteForm, ClienteUpdateForm, ClienteConjugeForm, ClienteEnderecoForm, ClienteTelefoneForm
 from .models import Cliente, ClienteConjuge, ClienteEndereco, ClienteTelefone
 
 
@@ -163,110 +163,118 @@ def atualizarCliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
     conjuge = ClienteConjuge.objects.filter(cliente=cliente).first()
     endereco = getattr(cliente, 'endereco', None)
+
     previous = request.META.get('HTTP_REFERER', '')
     veio_da_lista = '/clientes/listar_clientes/' in previous
 
     # =========================
-    # Formset de telefones
-    # =========================
-    TelefoneFormSet = modelformset_factory(ClienteTelefone, form=ClienteTelefoneForm, extra=1, can_delete=True)
-
-    if request.method == 'POST':
-        form = ClienteForm(request.POST, instance=cliente)
-
-        if not form.is_valid():
-            messages.error(request, "Verifique os campos obrigatórios.")
-            formTelefone = TelefoneFormSet(request.POST, queryset=ClienteTelefone.objects.filter(cliente=cliente))
-            formConjuge = ClienteConjugeForm(instance=conjuge or None)
-            formEndereco = ClienteEnderecoForm(instance=endereco or None)
-            return render(request, 'cliente_update.html', {
-                'form': form,
-                'formConjuge': formConjuge,
-                'formEndereco': formEndereco,
-                'formTelefone': formTelefone,
-                'cliente': cliente,
-                'veio_da_lista': veio_da_lista
-            })
-
-        # =========================
-        # 1️⃣ Atualiza Cliente
-        # =========================
-        cliente = form.save()
-
-        # =========================
-        # 2️⃣ ENDEREÇO (JSON)
-        # =========================
-        endereco_json = request.POST.get('endereco_json')
-        if endereco_json:
-            endereco_data = json.loads(endereco_json)
-            endereco, created = ClienteEndereco.objects.get_or_create(cliente=cliente)
-            for campo, valor in endereco_data.items():
-                setattr(endereco, campo, valor)
-            endereco.is_ativo = True
-            endereco.save()
-
-        # =========================
-        # 3️⃣ TELEFONES (Formset)
-        # =========================
-        formTelefone = TelefoneFormSet(request.POST, queryset=ClienteTelefone.objects.filter(cliente=cliente))
-        if formTelefone.is_valid():
-            telefones = formTelefone.save(commit=False)
-            for telefone in telefones:
-                telefone.cliente = cliente
-                telefone.save()
-            for telefone in formTelefone.deleted_objects:
-                telefone.delete()
-        else:
-            messages.error(request, "Verifique os telefones.")
-            formConjuge = ClienteConjugeForm(instance=conjuge or None)
-            formEndereco = ClienteEnderecoForm(instance=endereco or None)
-            return render(request, 'cliente_update.html', {
-                'form': form,
-                'formConjuge': formConjuge,
-                'formEndereco': formEndereco,
-                'formTelefone': formTelefone,
-                'cliente': cliente,
-                'veio_da_lista': veio_da_lista
-            })
-
-        # =========================
-        # 4️⃣ CÔNJUGE (REGRA DE NEGÓCIO)
-        # =========================
-        if cliente.estado_civil != 'casado':
-            ClienteConjuge.objects.filter(cliente=cliente).delete()
-        else:
-            conjuge_json = request.POST.get('conjuge_json')
-            if conjuge_json:
-                conjuge_data = json.loads(conjuge_json)
-                conjuge, created = ClienteConjuge.objects.get_or_create(cliente=cliente, defaults=conjuge_data)
-                if not created:
-                    for campo, valor in conjuge_data.items():
-                        setattr(conjuge, campo, valor)
-                conjuge.is_ativo = True
-                conjuge.save()
-
-        messages.success(request, "Cliente atualizado com sucesso!")
-        return redirect('lista-cliente')
-
-    # =========================
     # GET
     # =========================
-    form = ClienteForm(instance=cliente)
-    formConjuge = ClienteConjugeForm(instance=conjuge or None)
-    formEndereco = ClienteEnderecoForm(instance=endereco or None)
-    telefones_qs = ClienteTelefone.objects.filter(cliente=cliente)
-    formTelefone = TelefoneFormSet(queryset=telefones_qs)
+    if request.method == 'GET':
+        form = ClienteUpdateForm(instance=cliente)
+        formConjuge = ClienteConjugeForm(instance=conjuge)
+        formEndereco = ClienteEnderecoForm(instance=endereco)
 
-    context = {
-        'form': form,
-        'cliente': cliente,
-        'formConjuge': formConjuge,
-        'formEndereco': formEndereco,
-        'formTelefone': formTelefone,
-        'veio_da_lista': veio_da_lista
-    }
+        telefones = list(
+            ClienteTelefone.objects
+            .filter(cliente=cliente)
+            .values_list('numero', flat=True)
+        )
 
-    return render(request, 'cliente_update.html', context)
+        context = {
+            'form': form,
+            'cliente': cliente,
+            'formConjuge': formConjuge,
+            'formEndereco': formEndereco,
+            'telefones_json': json.dumps(telefones),
+            'veio_da_lista': veio_da_lista
+        }
+
+        return render(request, 'cliente_update.html', context)
+
+    # =========================
+    # POST
+    # =========================
+    form = ClienteUpdateForm(request.POST, instance=cliente)
+
+    if not form.is_valid():
+        messages.error(request, "Verifique os campos obrigatórios.")
+
+        context = {
+            'form': form,
+            'cliente': cliente,
+            'formConjuge': ClienteConjugeForm(instance=conjuge),
+            'formEndereco': ClienteEnderecoForm(instance=endereco),
+            'telefones_json': request.POST.get('telefones_json', '[]'),
+            'veio_da_lista': veio_da_lista
+        }
+
+        return render(request, 'cliente_update.html', context)
+
+    # =========================
+    # 1️⃣ CLIENTE
+    # =========================
+    cliente = form.save()
+
+    # =========================
+    # 2️⃣ ENDEREÇO
+    # =========================
+    endereco_json = request.POST.get('endereco_json')
+    if endereco_json:
+        endereco_data = json.loads(endereco_json)
+        endereco, _ = ClienteEndereco.objects.get_or_create(cliente=cliente)
+
+        for campo, valor in endereco_data.items():
+            setattr(endereco, campo, valor)
+
+        endereco.is_ativo = True
+        endereco.save()
+
+    # =========================
+    # 3️⃣ TELEFONES (JSON)
+    # =========================
+    telefones_json = request.POST.get('telefones_json', '[]')
+    telefones_recebidos = json.loads(telefones_json)
+
+    telefones_existentes = list(
+        ClienteTelefone.objects.filter(cliente=cliente)
+    )
+
+    numeros_existentes = {t.numero for t in telefones_existentes}
+    numeros_recebidos = set(telefones_recebidos)
+
+    # ➕ novos
+    for numero in numeros_recebidos - numeros_existentes:
+        ClienteTelefone.objects.create(
+            cliente=cliente,
+            numero=numero
+        )
+
+    # ➖ removidos
+    for telefone in telefones_existentes:
+        if telefone.numero not in numeros_recebidos:
+            telefone.delete()
+
+    # =========================
+    # 4️⃣ CÔNJUGE
+    # =========================
+    if cliente.estado_civil != 'casado':
+        ClienteConjuge.objects.filter(cliente=cliente).delete()
+    else:
+        conjuge_json = request.POST.get('conjuge_json')
+        if conjuge_json:
+            conjuge_data = json.loads(conjuge_json)
+            conjuge, _ = ClienteConjuge.objects.get_or_create(cliente=cliente)
+
+            for campo, valor in conjuge_data.items():
+                setattr(conjuge, campo, valor)
+
+            conjuge.is_ativo = True
+            conjuge.save()
+
+    messages.success(request, "Cliente atualizado com sucesso!")
+    return redirect('lista-cliente')
+
 
 
 

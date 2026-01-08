@@ -1,14 +1,9 @@
 // static/js/telefone.js
 document.addEventListener("DOMContentLoaded", function () {
 
-    // ✅ Se vier do backend usa, senão inicia vazio
-    window.telefonesTemp = Array.isArray(window.telefonesTemp)
-        ? window.telefonesTemp
-        : [];
+    window.telefonesTemp = window.telefonesTemp || [];
 
-    // ===============================
-    // MENSAGEM DE ERRO
-    // ===============================
+    // Elemento para mensagens de erro
     function mostrarErro(msg) {
         let box = document.getElementById("telefoneErro");
         if (!box) {
@@ -27,100 +22,87 @@ document.addEventListener("DOMContentLoaded", function () {
         if (box) box.style.display = "none";
     }
 
-    // ===============================
-    // VALIDA TELEFONE BR
-    // ===============================
+    // Regex para validar telefone brasileiro
     function telefoneValido(numero) {
         const regex = /^(\(?\d{2}\)?\s?)?(\d{4,5})[- ]?(\d{4})$/;
         return regex.test(numero);
     }
 
-    // ===============================
-    // ADICIONAR
-    // ===============================
     window.addTelefone = function () {
         limparErro();
 
         const input = document.getElementById("telefoneNumero");
-        if (!input) return;
+        if (!input) {
+            console.error("input telefoneNumero não encontrado");
+            return;
+        }
 
-        const numero = input.value.trim();
+        let numero = input.value.trim();
         if (!numero) {
             mostrarErro("Digite um número de telefone.");
             return;
         }
 
+        // VALIDA O FORMATO
         if (!telefoneValido(numero)) {
-            mostrarErro("Telefone inválido.");
+            mostrarErro("Número inválido. Digite um telefone válido no formato brasileiro.");
             return;
         }
 
+        // NORMALIZA → remove caracteres antes de comparar
         const normalizado = numero.replace(/\D/g, "");
 
-        const existe = window.telefonesTemp.some(t =>
-            t.replace(/\D/g, "") === normalizado
-        );
+        // IMPEDE DUPLICADOS
+        const existe = window.telefonesTemp.some(t => t.replace(/\D/g, "") === normalizado);
 
         if (existe) {
-            mostrarErro("Este telefone já foi adicionado.");
+            mostrarErro("Este telefone já foi adicionado!");
             return;
         }
 
+        // Adiciona à lista
         window.telefonesTemp.push(numero);
         atualizarLista();
         input.value = "";
-    };
+    }
 
-    // ===============================
-    // LISTAR
-    // ===============================
     window.atualizarLista = function () {
         const ul = document.getElementById("listaTelefones");
-        if (!ul) return;
+        if (!ul) {
+            console.error("listaTelefones não encontrada");
+            return;
+        }
 
         ul.innerHTML = "";
 
         window.telefonesTemp.forEach((tel, index) => {
             const li = document.createElement("li");
-            li.className =
-                "list-group-item d-flex justify-content-between align-items-center";
+            li.className = "list-group-item d-flex justify-content-between align-items-center";
             li.innerHTML = `
                 <span>${tel}</span>
-                <button type="button"
-                        class="btn btn-sm btn-outline-danger"
-                        onclick="removerTelefone(${index})">
-                    ✕
-                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removerTelefone(${index})">X</button>
             `;
             ul.appendChild(li);
         });
 
         const hidden = document.getElementById("telefones_json");
         if (hidden) hidden.value = JSON.stringify(window.telefonesTemp);
-    };
+    }
 
-    // ===============================
-    // REMOVER
-    // ===============================
-    window.removerTelefone = function (index) {
-        window.telefonesTemp.splice(index, 1);
+    window.removerTelefone = function (i) {
+        window.telefonesTemp.splice(i, 1);
         atualizarLista();
-    };
+    }
 
-    // ===============================
-    // FECHAR MODAL
-    // ===============================
     window.fecharModal = function () {
         const modalEl = document.getElementById("modalTelefone");
-        if (!modalEl) return;
-
-        const instance =
-            bootstrap.Modal.getInstance(modalEl) ||
-            new bootstrap.Modal(modalEl);
-
+        if (!modalEl) {
+            console.error("modalTelefone não encontrado");
+            return;
+        }
+        const instance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
         instance.hide();
-    };
+    }
 
-    // ✅ CARREGA AUTOMATICAMENTE AO ABRIR
     atualizarLista();
 });

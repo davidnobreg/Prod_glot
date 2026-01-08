@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function preencherModalCliente(clienteId, data) {
         if (!data || typeof data !== 'object') return;
         document.getElementById('cliente-id').textContent = clienteId;
-        document.getElementById('cliente-id-display').textContent = clienteId;
+        //document.getElementById('cliente-id-display').textContent = clienteId;
         document.getElementById('cliente-name').textContent = data.name || 'Nome não encontrado';
         document.getElementById('cliente-documento').textContent = data.documento || 'Documento não encontrado';
         document.getElementById('cliente-email').textContent = data.email || 'Email não encontrado';

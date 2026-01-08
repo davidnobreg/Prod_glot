@@ -32,18 +32,44 @@ def enviar_mensagem_task(self, numero: str = None, mensagem: str = None, instanc
     """
     Task Celery segura para Signal, delay, apply_async e Beat.
     """
+
+    # 🔒 Validação forte (não faz retry)
+    if not numero or not mensagem:
+        logger.warning(
+            f"🚫 Parâmetros inválidos: numero={numero}, mensagem={mensagem}"
+        )
+        return {
+            "success": False,
+            "error": "Parâmetros inválidos"
+        }
+
     try:
         resultado = enviar_mensagem(numero, mensagem, instancia)
-        if not resultado.get("success"):
-            raise Exception(f"Falha no envio: {resultado}")
-        return resultado
-    except Exception as e:
-        logger.error(f"❌ Exceção ao enviar mensagem para {numero}: {e}")
+
+        # ✅ SUCESSO REAL (flexível)
+        if (
+            resultado.get("success") is True
+            or resultado.get("status") in (200, 201)
+        ):
+            logger.info(
+                f"✅ Mensagem enviada para {numero} | Resultado={resultado}"
+            )
+            return resultado
+
+        # ❌ ERRO REAL (API respondeu, mas falhou)
+        raise Exception(f"Falha no envio: {resultado}")
+
+    except ConnectionError as e:
+        # 🌐 erro transitório → retry
+        logger.error(f"🌐 Erro de conexão ao enviar para {numero}: {e}")
         raise self.retry(exc=e)
 
-   #logger.debug(
-   #     "Executando enviar_mensagem_task | numero=%s mensagem=%s instancia=%s",
-   #     numero, mensagem, instancia
-   # )
+    except TimeoutError as e:
+        # ⏱ erro transitório → retry
+        logger.error(f"⏱ Timeout ao enviar para {numero}: {e}")
+        raise self.retry(exc=e)
 
-   # return enviar_mensagem(numero, mensagem, instancia)"""
+    except Exception as e:
+        # ❌ erro definitivo → NÃO retry infinito
+        logger.error(f"❌ Erro definitivo ao enviar para {numero}: {e}")
+        raise

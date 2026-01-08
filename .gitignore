@@ -1,7 +1,7 @@
 # Byte-compiled / optimized / DLL files
 .idea/
 #static/media/
-#configuration
+configuration
 media/
 #static/
 Pipfile
@@ -109,7 +109,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-#.env
+.env
 .venv
 env/
 venv/

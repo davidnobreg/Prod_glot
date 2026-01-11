@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+
 # Inline Admin para as Quadras dentro de Empreendimento
 class QuadraInlineAdmin(admin.TabularInline):
     model = models.Quadra
@@ -12,8 +13,9 @@ class QuadraInlineAdmin(admin.TabularInline):
 
 # Admin para o modelo Empreendimento
 class EmpreendimentoAdmin(admin.ModelAdmin):
-    inlines = [QuadraInlineAdmin]  # Incluir Quadra como inline no Empreendimento
-    list_display = ['id', 'nome', 'tempo_reserva', 'quantidade_parcela', 'is_ativo']
+    #inlines = [QuadraInlineAdmin]  # Incluir Quadra como inline no Empreendimento
+    list_display = ['id', 'nome', 'tempo_reserva', 'quantidade_parcela', 'codBanco', 'banco', 'agencia', 'conta',
+                    'favorecido', 'is_ativo']
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

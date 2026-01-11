@@ -1,4 +1,5 @@
-
+import json
+import re
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 import pandas as pd
@@ -23,7 +24,7 @@ from datetime import datetime, timedelta
 
 from tornado.http1connection import parse_int
 
-from .forms import EmpreendimentoForm, ArquivoForm, LoteForm
+from .forms import EmpreendimentoForm, ArquivoForm, LoteForm, EmpreendimentoEnderecoForm, EmpreendimentoUpdateForm
 from .models import Empreendimento, Quadra, Lote
 from accounts.models import User, UsuarioEmpreendimento
 
@@ -42,44 +43,93 @@ def selectEmpreendimento(request, empreendimento_id):
 
 @has_permission_decorator('criarEmpreendimento')
 def criarEmpreendimento(request):
-    form = EmpreendimentoForm()
-
     if request.method == 'POST':
         form = EmpreendimentoForm(request.POST, request.FILES)
+        formEndereco = EmpreendimentoEnderecoForm(request.POST)
 
-        if form.is_valid():
-            try:
+        if not form.is_valid():
+            messages.error(request, "Verifique os campos obrigatórios.")
+            return render(request, 'empreendimento.html', {
+                'form': form,
+                'formEndereco': formEndereco,
+            })
+
+        try:
+            with transaction.atomic():
+
+                # =========================
+                # 1️⃣ Salvar Empreendimento
+                # =========================
                 empreendimento = form.save()
-                files = request.FILES.getlist('Empreendimento')
 
-                imagens_criadas = []
+                # =========================
+                # 2️⃣ Salvar Endereço (JSON do Modal)
+                # =========================
+                endereco_json = request.POST.get('endereco_json')
+
+                if endereco_json:
+                    try:
+                        endereco_data = json.loads(endereco_json)
+                    except json.JSONDecodeError:
+                        raise ValidationError("JSON de endereço inválido")
+
+                    endereco = EmpreendimentoEndereco(
+                        empreendimento=empreendimento,
+                        cep=endereco_data.get('cep', ''),
+                        rua=endereco_data.get('rua', ''),
+                        numero=endereco_data.get('numero', ''),
+                        complemento=endereco_data.get('complemento', ''),
+                        bairro=endereco_data.get('bairro', ''),
+                        cidade=endereco_data.get('cidade', ''),
+                        estado=endereco_data.get('estado', ''),
+                        is_ativo=True
+                    )
+                    endereco.full_clean()
+                    endereco.save()
+
+                # =========================
+                # 3️⃣ Salvar Imagens
+                # =========================
+                files = request.FILES.getlist('Empreendimento')
                 erros = []
 
                 for file in files:
-                    if file.content_type.startswith('image/'):
-                        img = ImagemEmpreendimento(empreendimento=empreendimento, imagem=file)
-                        try:
-                            img.full_clean()  # Validações do Django
-                            img.save()
-                            imagens_criadas.append(file.name)
-                        except ValidationError as e:
-                            erros.append(f"Erro ao salvar {file.name}: {e}")
-                    else:
-                        erros.append(f"O arquivo {file.name} não é uma imagem válida.")
+                    if not file.content_type.startswith('image/'):
+                        erros.append(f"{file.name} não é uma imagem válida.")
+                        continue
 
-                # Exibir mensagens apropriadas
-                if imagens_criadas:
-                    messages.success(request,
-                                     f"Empreendimento criado com sucesso! Imagens adicionadas: {', '.join(imagens_criadas)}")
+                    img = ImagemEmpreendimento(
+                        empreendimento=empreendimento,
+                        imagem=file
+                    )
+
+                    try:
+                        img.full_clean()
+                        img.save()
+                    except ValidationError as e:
+                        erros.append(f"Erro na imagem {file.name}: {e}")
+
+                messages.success(request, "Empreendimento criado com sucesso!")
+
                 if erros:
-                    messages.warning(request, "Algumas imagens não foram salvas:\n" + "\n".join(erros))
+                    messages.warning(
+                        request,
+                        "Algumas imagens não foram salvas:\n" + "\n".join(erros)
+                    )
 
                 return redirect('lista-empreendimento-tabela')
 
-            except Exception as e:
-                messages.error(request, f"Ocorreu um erro ao criar o empreendimento: {e}")
+        except Exception as e:
+            messages.error(request, f"Erro ao criar empreendimento: {e}")
 
-    return render(request, 'empreendimento.html', {'form': form})
+    # =========================
+    # GET
+    # =========================
+    return render(request, 'empreendimento.html', {
+        'form': EmpreendimentoForm(),
+        'formEndereco': EmpreendimentoEnderecoForm(),
+    })
+
 
 
 @has_permission_decorator('listaEmpreendimento')
@@ -98,19 +148,58 @@ def listaEmpreendimento(request):
 def alteraEmpreendimento(request, id):
     empreendimento = get_object_or_404(Empreendimento, id=id)
 
-    if request.method == 'POST':
-        form = EmpreendimentoForm(request.POST, request.FILES, instance=empreendimento)
+    # =========================
+    # GET
+    # =========================
+    if request.method == 'GET':
+        form = EmpreendimentoUpdateForm(instance=empreendimento)
+        return render(request, 'update_empreendimento.html', {
+            'form': form,
+            'empreendimento': empreendimento
+        })
 
-        if form.is_valid():
-            form.save()
+    # =========================
+    # POST
+    # =========================
+    form = EmpreendimentoUpdateForm(request.POST, request.FILES, instance=empreendimento)
+
+    if not form.is_valid():
+        messages.error(request, "Verifique os campos obrigatórios.")
+        return render(request, 'update_empreendimento.html', {
+            'form': form,
+            'empreendimento': empreendimento
+        })
+
+    try:
+        with transaction.atomic():
+
+            obj = form.save(commit=False)
+
+            # =========================
+            # NORMALIZAR CNPJ (somente números)
+            # =========================
+            obj.cnpj = re.sub(r'\D', '', obj.cnpj)
+
+            if len(obj.cnpj) != 14:
+                raise ValidationError("CNPJ deve conter 14 números.")
+
+            obj.full_clean()
+            obj.save()
+
+            messages.success(request, "Empreendimento atualizado com sucesso!")
             return redirect('lista-empreendimento-tabela')
-        else:
-            context = {'form': form, 'empreendimento': empreendimento}
-            return render(request, 'update_empreendimento.html', context)
-    else:
-        form = EmpreendimentoForm(instance=empreendimento)
-        context = {'form': form, 'empreendimento': empreendimento}
-        return render(request, 'update_empreendimento.html', context)
+
+    except ValidationError as e:
+        messages.error(request, e.message if hasattr(e, 'message') else str(e))
+
+    except Exception as e:
+        messages.error(request, f"Erro ao atualizar empreendimento: {e}")
+
+    return render(request, 'update_empreendimento.html', {
+        'form': form,
+        'empreendimento': empreendimento
+    })
+
 
 
 @has_permission_decorator('deletarEmpreendimento')
@@ -351,7 +440,7 @@ def relatorioFinanceiro(request, id):
         Q(situacao='DISPONIVEL') | Q(situacao='RESERVADO') | Q(situacao='VENDIDO'))
     lotes_disponiveis = Lote.objects.filter(quadra__empr_id=empreendimento.id).filter(
         Q(situacao='DISPONIVEL') | Q(situacao='RESERVADO')
-        )
+    )
     lotes_vendidos = Lote.objects.filter(quadra__empr_id=id, situacao='VENDIDO')
 
     quantidade_lotes = Lote.objects.filter(quadra__empr_id=id).count()
@@ -449,7 +538,7 @@ def alteraLote(request, id):
     lote = get_object_or_404(Lote, id=id)
     get_tempo = Empreendimento.objects.get(id=lote.quadra.empr_id)
 
-    #print(get_tempo.quantidade_parcela)
+    # print(get_tempo.quantidade_parcela)
 
     try:
         area = float(lote.area)
@@ -489,7 +578,7 @@ def alteraLote(request, id):
             lote.situacao = "EM_RESERVA"
             lote.tempo_reservado = timezone.now().time()
             lote.save()
-            #print("Lote definido como EM_RESERVA.")
+            # print("Lote definido como EM_RESERVA.")
         form = LoteForm(instance=lote)
         context = {'form': form,
                    'lote': lote,
@@ -509,7 +598,7 @@ def alteraLote(request, id):
             lote.save()
             messages.success(request, "Pre-Reservado Salva Com Sucesso!")
             return redirect('listar-quadras', id=lote.quadra.empr_id)
-            #print("Lote salvo como PRE-RESERVA.")
+            # print("Lote salvo como PRE-RESERVA.")
         else:
             context = {'form': form,
                        'lote': lote,
@@ -561,7 +650,7 @@ def listaReservasTemporaria(request):
     return render(request, 'relatorio_de_reservas_temporario.html', context)
 
 
-#@has_permission_decorator('liberaLote')
+# @has_permission_decorator('liberaLote')
 def liberaLote(request, id):
     get_lote = get_object_or_404(Lote, id=id)
 
@@ -570,6 +659,7 @@ def liberaLote(request, id):
         get_lote.save()
         messages.success(request, "Lote liberado com Sucesso!")
     return redirect('listar-quadras', id=get_lote.quadra.empr_id)
+
 
 @has_permission_decorator('cancelarReservadoTemporaria')
 def cancelarReservadoTemporaria(request, id):
@@ -582,6 +672,7 @@ def cancelarReservadoTemporaria(request, id):
         get_lote.save()
         messages.error(request, "Pre-Resevado Cancelada!")
     return redirect('listar-quadras', id=get_lote.quadra.empr_id)
+
 
 @has_permission_decorator('cancelarReservadoTemporariaLista')
 def cancelarReservadoTemporariaLista(request, id):
@@ -605,6 +696,7 @@ def renovaReserva(request, id):
     get_lote.save()
     messages.success(request, "Reserva renovada com sucesso!")
     return redirect('lista-pre-reserva')
+
 
 def gerarRelatorioLotes(request):
     response = HttpResponse(content_type='application/pdf')
@@ -675,6 +767,7 @@ def gerarRelatorioLotes(request):
     elementos.append(tabela)
     doc.build(elementos)
     return response
+
 
 @require_http_methods(["POST"])
 def criarUsuarioEmpreendimento(request):

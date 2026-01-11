@@ -5,6 +5,18 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 
 
+# ==========================================================
+# LISTA DE ESTADOS
+# ==========================================================
+choices_estado = (
+    ('PB', 'Paraíba'), ('AC', 'Acre'), ('AL', 'Alagoas'), ('AP', 'Amapá'), ('AM', 'Amazonas'),
+    ('BA', 'Bahia'), ('CE', 'Ceará'), ('DF', 'Distrito Federal'), ('ES', 'Espírito Santo'), ('GO', 'Goiás'),
+    ('MA', 'Maranhão'), ('MT', 'Mato Grosso'), ('MS', 'Mato Grosso do Sul'), ('MG', 'Minas Gerais'), ('PA', 'Pará'),
+    ('PE', 'Pernambuco'), ('PI', 'Piauí'), ('PR', 'Paraná'), ('RJ', 'Rio de Janeiro'), ('RN', 'Rio Grande do Norte'),
+    ('RS', 'Rio Grande do Sul'), ('RO', 'Rondônia'), ('RR', 'Roraima'), ('SC', 'Santa Catarina'), ('SP', 'São Paulo'),
+    ('SE', 'Sergipe'), ('TO', 'Tocantins')
+)
+
 ## Cadastro de empreendimento
 class Empreendimento(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -16,13 +28,25 @@ class Empreendimento(models.Model):
                 regex=r'^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$',
                 message="Telefone deve estar no formato (99) 99999-9999 ou (99) 9999-9999."
             )
-        ],
-        default=0
+        ]
     )
-    tempo_reserva = models.IntegerField(default=0)
-    quantidade_parcela = models.IntegerField(default=0)
+    tempo_reserva = models.IntegerField()
+    quantidade_parcela = models.IntegerField()
     logo = models.ImageField(verbose_name='Logo',
                              null=True, blank=True)
+    cnpj = models.CharField(max_length=18, unique=True, help_text="Informe CNPJ (apenas números).")
+    codBanco = models.CharField(max_length=10)
+    banco = models.CharField(max_length=50)
+    agencia = models.CharField(max_length=10)
+    conta = models.CharField(max_length=15)
+    favorecido = models.CharField(max_length=100)
+    rua = models.CharField(max_length=100, blank=True)
+    complemento = models.CharField(max_length=50, blank=True)
+    numero = models.CharField(max_length=20, blank=True)
+    bairro = models.CharField(max_length=100, blank=True)
+    cep = models.CharField(max_length=8, blank=True, validators=[RegexValidator(r'^\d{8}$', 'CEP deve ter 8 números')])
+    cidade = models.CharField(max_length=100, blank=True)
+    estado = models.CharField(max_length=2, choices=choices_estado, default='PB', blank=True)
     is_ativo = models.BooleanField(default=False)
 
     def __str__(self):

@@ -110,7 +110,7 @@ class ClienteForm(forms.ModelForm):
         config = {
             'name': {'placeholder': 'Nome do Cliente'},
             'data_ns': {'id': 'id_data_ns', 'placeholder': 'Data de Nascimento', 'class': 'form-control mb-3 mask-data'},
-            'documento': {'placeholder': 'CPF ou CNPJ', 'class': 'form-control mb-3 mask-doc'},
+            'documento': {'placeholder': 'CPF ou CNPJ', 'class': 'form-control mb-3 mask-doc', 'maxlength': '18'},
             'numero_rg': {'placeholder': 'RG', 'class': 'form-control mb-3 mask-rg'},
             'orgao_emissor_rg': {'placeholder': 'Orgão Emissor'},
             'estado_civil': {'id': 'id_estado_civil', 'class': 'form-select mb-3'},

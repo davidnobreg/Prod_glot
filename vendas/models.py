@@ -4,6 +4,7 @@ from clientes.models import Cliente
 from empreendimentos.models import Lote, Empreendimento
 from accounts.models import User
 
+
 class TypeLote(models.TextChoices):
     CANCELADA = 'CANCELADA', 'CANCELADA'
     RESERVADO = 'RESERVADO', 'RESERVADO'

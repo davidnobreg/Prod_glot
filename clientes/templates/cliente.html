@@ -66,8 +66,8 @@
                                     </div>
                                 {% endif %}
                             {% endfor %}
-                        <hr>
-                        <br>
+                            <hr>
+                            <br>
                             <div class="row">
                                 <div class="col">
                                     <a
@@ -90,20 +90,20 @@
                             </div>
                             <br>
                             <div class="row">
-                            {% if veio_da_lista %}
+
                                 <div class="col">
-                                    <button type="submit" class="btn btn-success py-2 w-100 rounded-pill">Salvar</button>
+                                    <button type="submit" class="btn btn-success py-2 w-100 rounded-pill">Salvar
+                                    </button>
                                 </div>
                                 <div class="col">
-                                <a href="{% url 'lista-cliente' %}"
+                                    {% if veio_da_lista %}
+                                        <a href="{% url 'lista-cliente' %}"
                                            class="btn btn-danger py-2 w-100 rounded-pill">Cancelar</a>
                                     {% else %}
-                                        <a href="{% url 'lista-empreendimento' %}" class="btn btn-danger py-2 w-100 rounded-pill">Cancelar</a>
+                                        <a href="{% url 'lista-empreendimento' %}"
+                                           class="btn btn-danger py-2 w-100 rounded-pill">Cancelar</a>
                                     {% endif %}
                                 </div>
-
-
-
                                 {% if lote_id %}
                                     <input type="hidden" name="lote_id" value="{{ lote_id }}">
                                 {% endif %}
@@ -335,7 +335,7 @@
     </div>
 
 
-<script src="{% static 'js/cliente.js' %}"></script>
+    <script src="{% static 'js/cliente.js' %}"></script>
 
 
 

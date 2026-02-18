@@ -140,7 +140,9 @@ body[data-bs-theme="dark"] {
 @media print {
     @page {
         size: A4 portrait;
-        margin: 15mm; /* Margem bem fina pra aproveitar espaço */
+        /*margin: 8mm; /* Margem bem fina pra aproveitar espaço */
+        margin-top: 3mm;
+        margin-bottom: 3mm;
     }
 
     html, body {
@@ -148,7 +150,7 @@ body[data-bs-theme="dark"] {
         padding: 0;
         width: 210mm;
         height: 297mm;
-        font-size: 10pt;
+        font-size: 9pt;
         background: white !important;
         color: black !important;
     }
@@ -169,8 +171,8 @@ body[data-bs-theme="dark"] {
 
     #conteudo {
         position: absolute;
-        top: 1mm;   /* Pequeno espaçamento do topo */
-        left: 1mm;  /* Pequeno espaçamento da esquerda */
+        top: 1mm; /* Pequeno espaçamento do topo */
+        left: 1mm; /* Pequeno espaçamento da esquerda */
         right: 1mm; /* Pequeno espaçamento da direita */
         margin: 0 auto;
         width: calc(210mm - 2mm); /* Ajusta largura para margem reduzida */
@@ -181,12 +183,14 @@ body[data-bs-theme="dark"] {
         box-sizing: border-box;
     }
 
+
+
     /* Remove margin e padding das rows e colunas dentro do conteúdo para economizar espaço */
-    #conteudo .row,
+    /*#conteudo .row,
     #conteudo [class*="col-"] {
         margin: 0 !important;
         padding: 0 !important;
-    }
+    }*/
 
     /* Evita quebra dentro de cartões e linhas */
     .card, .row, .dashboard-box {
@@ -219,12 +223,14 @@ body[data-bs-theme="dark"] {
         font-size: 16pt !important;
         margin: 1px 0 !important;
     }
+
     h2 {
         font-size: 14pt !important;
         margin: 1px 0 !important;
     }
+
     h3, h4, h5, h6, p, span {
-        font-size: 10pt !important;
+        font-size: 8pt !important;
         margin: 1px 0 !important;
         page-break-inside: avoid;
     }
@@ -239,6 +245,21 @@ body[data-bs-theme="dark"] {
     /* Remove espaços vazios que podem gerar quebras */
     #conteudo div:empty {
         display: none !important;
+    }
+
+    /* Espaçamento correto entre data e assinaturas */
+    .data-local {
+        margin-top: 5mm !important;
+        margin-bottom: 5mm !important;
+        font-size: 9pt !important;
+    }
+
+    .assinaturas {
+        margin-top: 8mm !important;
+    }
+
+    .assinaturas .col-6 {
+        padding-top: 4mm !important;
     }
 }
 

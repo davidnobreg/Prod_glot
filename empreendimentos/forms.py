@@ -54,13 +54,19 @@ class EmpreendimentoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields['banco'].choices = [
+                                           ('', 'Selecione o Banco'),
+                                       ] + list(self.fields['banco'].choices)
+
+        self.fields['contrato'].empty_label = 'Selecione o Contrato'
+
         # Classes padrão
         for field_name, field in self.fields.items():
             field.widget.attrs.update({'class': 'form-control mb-3'})
 
         # Campos à esquerda e direita
-        left_fields = ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'cnpj']
-        right_fields = ['codBanco', 'banco', 'agencia', 'conta', 'favorecido']
+        left_fields = ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'cnpj', 'razaoSocial', 'reajuste']
+        right_fields = ['banco', 'agencia', 'conta', 'contrato', 'observacao']
 
         config = {
             'nome': {'placeholder': 'Nome do Empreendimento'},
@@ -69,12 +75,37 @@ class EmpreendimentoForm(forms.ModelForm):
             'tempo_reserva': {'placeholder': 'Tempo de Reservas'},
             'quantidade_parcela': {'placeholder': 'Quantidade de Parcelas'},
             'cnpj': {'placeholder': 'CNPJ (apenas números).', 'class': 'form-control mb-3 mask-doc', 'maxlength': '18'},
-            'codBanco': {'placeholder': 'Codigo do Banco'},
-            'banco': {'placeholder': 'Nome do Banco'},
+            'banco': {'placeholder': 'banco'},
             'agencia': {'placeholder': 'Agência'},
             'conta': {'placeholder': 'Conta'},
-            'favorecido': {'placeholder': 'Favorecido'}
+            'razaoSocial': {'placeholder': 'Razão Social'},
+            #'registroCartorio': {'placeholder': 'Registro em Cartório'},
+            'contrato': {'placeholder': 'contrato'},
+            'observacao': {'placeholder': 'Observação'},
+            'reajuste': {'placeholder': 'reajuste'},
+
         }
+
+        # 🔽 FORÇAR TEXTAREA APENAS NOS CAMPOS NECESSÁRIOS
+        textarea_fields = {
+            'reajuste': 4,
+            'observacao': 4,
+            #'registroCartorio': 4,
+
+        }
+
+        for field_name, rows in textarea_fields.items():
+            if field_name in self.fields:
+                self.fields[field_name].widget = forms.Textarea(
+                    attrs={
+                        'class': 'form-control mb-3',
+                        'rows': rows,
+                        'placeholder': self.fields[field_name].widget.attrs.get('placeholder', ''),
+                        'style': 'resize: vertical;',
+                    }
+                )
+
+
         for field, attrs in config.items():
             if field in self.fields:
                 self.fields[field].widget.attrs.update(attrs)
@@ -93,6 +124,7 @@ class EmpreendimentoForm(forms.ModelForm):
             if doc:
                 if len(doc) == 14:
                     self.initial['cnpj'] = f"{doc[:2]}.{doc[2:5]}.{doc[5:8]}/{doc[8:12]}-{doc[12:]}"
+
 
 
 ## Formulário para upload de arquivos
@@ -145,7 +177,6 @@ class EmpreendimentoUpdateForm(forms.ModelForm):
         fields = '__all__'  # ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'cnpj', 'codBanco', 'banco', 'agencia', 'conta', 'favorecido']
         exclude = ('is_ativo',)
 
-
     def clean_cnpj(self):
         cnpj = self.cleaned_data.get('cnpj')
 
@@ -169,19 +200,24 @@ class EmpreendimentoUpdateForm(forms.ModelForm):
 
         return cnpj
 
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields['banco'].choices = [
+                                           ('', 'Selecione o Banco'),
+                                       ] + list(self.fields['banco'].choices)
+
+        self.fields['contrato'].empty_label = 'Selecione o Contrato'
 
         # Classes padrão
         for field_name, field in self.fields.items():
             field.widget.attrs.update({'class': 'form-control mb-3'})
 
         # Campos à esquerda e direita
-        left_fields = ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'cnpj', 'codBanco', 'banco', 'agencia']
-        right_fields = [ 'conta', 'favorecido', 'cep', 'rua', 'complemento', 'numero', 'bairro', 'cidade', 'estado']
-
-
+        left_fields = ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'cnpj', 'banco',
+                       'agencia', 'reajuste', 'registroCartorio']
+        right_fields = ['conta', 'razaoSocial', 'cep', 'rua', 'complemento', 'numero', 'bairro', 'cidade', 'estado',
+                        'observacao', 'contrato']
 
         config = {
             'nome': {'placeholder': 'Nome do Empreendimento'},
@@ -194,14 +230,38 @@ class EmpreendimentoUpdateForm(forms.ModelForm):
             'banco': {'placeholder': 'Nome do Banco'},
             'agencia': {'placeholder': 'Agência'},
             'conta': {'placeholder': 'Conta'},
-            'favorecido': {'placeholder': 'Favorecido'},
+            'razaoSocial': {'placeholder': 'Razão social'},
             'cep': {'placeholder': 'Digite o CEP'},
             'rua': {'placeholder': 'Rua ou Avenida'},
             'complemento': {'placeholder': 'Complemento'},
             'numero': {'placeholder': 'Número'},
             'bairro': {'placeholder': 'Bairro'},
             'cidade': {'placeholder': 'Cidade'},
+            'registroCartorio': {'placeholder': 'Registro em Cartorio'},
+            'observacao': {'placeholder': 'Observação'},
+            'reajuste': {'placeholder': 'reajuste'},
+            'contrato': {'placeholder': 'contrato'},
         }
+
+        # 🔽 FORÇAR TEXTAREA APENAS NOS CAMPOS NECESSÁRIOS
+        textarea_fields = {
+            'reajuste': 2,
+            'observacao': 4,
+            # 'registroCartorio': 4,
+
+        }
+
+        for field_name, rows in textarea_fields.items():
+            if field_name in self.fields:
+                self.fields[field_name].widget = forms.Textarea(
+                    attrs={
+                        'class': 'form-control mb-3',
+                        'rows': rows,
+                        'placeholder': self.fields[field_name].widget.attrs.get('placeholder', ''),
+                        'style': 'resize: vertical;',
+                    }
+                )
+
         for field, attrs in config.items():
             if field in self.fields:
                 self.fields[field].widget.attrs.update(attrs)

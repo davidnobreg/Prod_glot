@@ -2,6 +2,7 @@ import re
 from decimal import Decimal, InvalidOperation
 
 from django import forms
+from django.forms import TextInput
 from django.core.exceptions import ValidationError
 
 from .models import Cliente, ClienteConjuge, ClienteEndereco, ClienteTelefone, choices_estado
@@ -128,6 +129,13 @@ class ClienteForm(forms.ModelForm):
         # Input type data_ns
         if 'data_ns' in self.fields:
             self.fields['data_ns'].widget.input_type = 'text'
+
+        if 'renda' in self.fields:
+            self.fields['renda'].widget = TextInput(attrs={
+                'class': 'form-control mb-3 mask-money',
+                'placeholder': 'R$ Renda',
+                'inputmode': 'decimal'
+            })
 
         # Atribuir colunas
         for name in left_fields:
@@ -283,12 +291,12 @@ class ClienteUpdateForm(forms.ModelForm):
 
         config = {
             'name': {'placeholder': 'Nome do Cliente'},
-            'data_ns': {'placeholder': 'Data de Nascimento', 'class': 'mask-data'},
-            'documento': {'placeholder': 'CPF ou CNPJ', 'class': 'mask-doc'},
-            'numero_rg': {'placeholder': 'RG', 'class': 'mask-rg'},
+            'data_ns': {'placeholder': 'Data de Nascimento', 'class': 'form-control mb-3 mask-data'},
+            'documento': {'placeholder': 'CPF ou CNPJ', 'class': 'form-control mb-3 mask-doc'},
+            'numero_rg': {'placeholder': 'RG', 'class': 'form-control mb-3 mask-rg'},
             'orgao_emissor_rg': {'placeholder': 'Órgão Emissor'},
             'estado_civil': {'class': 'form-select'},
-            'renda': {'placeholder': 'R$ Renda', 'class': 'mask-money', 'inputmode': 'decimal'},
+            'renda': {'placeholder': 'R$ Renda', 'class': 'form-control mb-3 mask-money', 'inputmode': 'decimal'},
             'email': {'placeholder': 'Email'},
             'observacao': {'placeholder': 'Observação', 'style': 'height: 90px;'},
         }
@@ -299,6 +307,13 @@ class ClienteUpdateForm(forms.ModelForm):
 
         if 'data_ns' in self.fields:
             self.fields['data_ns'].widget.input_type = 'text'
+
+        if 'renda' in self.fields:
+            self.fields['renda'].widget = TextInput(attrs={
+                'class': 'form-control mb-3 mask-money',
+                'placeholder': 'R$ Renda',
+                'inputmode': 'decimal'
+            })
 
         for name in left_fields:
             if name in self.fields:

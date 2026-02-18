@@ -65,16 +65,16 @@ def post_save_lote(sender, instance, created, **kwargs):
 
     if situacao_atual == "PRE-RESERVA":
         mensagens = [
-            (telefone_cliente, f"Senhor *{cliente}*, foi feita a *PRE-RESERVA* do Lote *{nome_lote}*, Quadra *{nome_quadra}*, do Loteamento *{nome_empr}*."),
+            #(telefone_cliente, f"Senhor *{cliente}*, foi feita a *PRE-RESERVA* do Lote *{nome_lote}*, Quadra *{nome_quadra}*, do Loteamento *{nome_empr}*."),
             (telefone_user, f"*{user}*, a *PRE-RESERVA* do Lote *{nome_lote}*, Quadra *{nome_quadra}*, do Loteamento *{nome_empr}* foi registrada."),
             (telefone_empr, f"O Lote *{nome_lote}*, Quadra *{nome_quadra}*, do Loteamento *{nome_empr}* foi *PRE-RESERVADO* por *{user}* para o cliente *{cliente}* (☎️ *{telefone_cliente}*)."),
         ]
 
     elif situacao_atual == "DISPONIVEL":
         mensagens = [
-            (telefone_cliente_antiga, f"Senhor *{cliente_reserva_antiga}*, o Cancelamento da  *RESERVA* do Lote *{nome_lote}*, Quadra *{nome_quadra}*, do Loteamento *{nome_empr}* foi Realizado com Sucesso."),
+            #(telefone_cliente_antiga, f"Senhor *{cliente_reserva_antiga}*, o Cancelamento da  *RESERVA* do Lote *{nome_lote}*, Quadra *{nome_quadra}*, do Loteamento *{nome_empr}* foi Realizado com Sucesso."),
             (telefone_user, f"O Lote *{nome_lote}* na Quadra *{nome_quadra}* voltou a estar *DISPONÍVEL*."),
-            (telefone_empr, f"O Lote *{nome_lote}* na Quadra *{nome_quadra}* do Loteamento *{nome_empr}* voltou ao status *DISPONÍVEL*."),
+            #(telefone_empr, f"O Lote *{nome_lote}* na Quadra *{nome_quadra}* do Loteamento *{nome_empr}* voltou ao status *DISPONÍVEL*."),
         ]
     else:
         return
@@ -139,19 +139,20 @@ def post_save_venda(sender, instance, created, **kwargs):
     if tipo_atual == "RESERVADO":
         mensagens = [
             (telefone_user, f"*{usuario}*, a *RESERVA* do Lote *{nome_lote}*, Quadra *{nome_quadra}*, do Loteamento *{nome_empreendimento}* foi registrada."),
-            (telefone_empr, f"O Lote *{nome_lote}*, Quadra *{nome_quadra}*, do Loteamento *{nome_empreendimento}* foi *RESERVADO* por *{usuario}* para o cliente *{cliente}* (☎️ *{telefone_cliente}*)."),
+            #(telefone_empr, f"O Lote *{nome_lote}*, Quadra *{nome_quadra}*, do Loteamento *{nome_empreendimento}* foi *RESERVADO* por *{usuario}* para o cliente *{cliente}* (☎️ *{telefone_cliente}*)."),
         ]
 
     elif tipo_atual == "VENDIDO":
         mensagens = [
             (telefone_cliente, f"Parabéns *{cliente}*! O lote *{nome_lote}*, Quadra *{nome_quadra}*, do Loteamento *{nome_empreendimento}* foi *VENDIDO* em seu nome."),
             (telefone_user, f"*{usuario}*, a venda do lote *{nome_lote}*, Quadra *{nome_quadra}*, do Loteamento *{nome_empreendimento}* foi concluída."),
-            (telefone_empr, f"O Lote *{nome_lote}*, Quadra *{nome_quadra}*, do Loteamento *{nome_empreendimento}* foi vendido por *{usuario}* ao cliente *{cliente}* (☎️ *{telefone_cliente}*)."),
+            #(telefone_empr, f"O Lote *{nome_lote}*, Quadra *{nome_quadra}*, do Loteamento *{nome_empreendimento}* foi vendido por *{usuario}* ao cliente *{cliente}* (☎️ *{telefone_cliente}*)."),
         ]
 
     elif tipo_atual == "CANCELADA":
         mensagens = [
             (telefone_cliente, f"Senhor *{cliente}*, informamos que a negociação do Lote *{nome_lote}*, Quadra *{nome_quadra}*, foi *CANCELADA*."),
+            (telefone_user, f"*{usuario}*, a venda do lote *{nome_lote}*, Quadra *{nome_quadra}*, do Loteamento *{nome_empreendimento}* foi concluída."),
         ]
 
     for numero, mensagem in mensagens:

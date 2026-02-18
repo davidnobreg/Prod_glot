@@ -78,10 +78,12 @@
                             {{ field }}
                         </div>
                     {% endfor %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success rounded-pill">Salvar</button>
 
-                    <button type="submit" class="btn btn-primary w-100 mt-3">Salvar</button>
+                        <a href="{% url 'cancelar-reservado-cadastro' lote.id %}" class="btn btn-danger rounded-pill">Cancelar</a>
+                    </div>
 
-                    <a href="{% url 'cancelar-reservado-cadastro' lote.id %}" class="btn btn-primary w-100 mt-3">Cancelar</a>
                 </form>
             </div>
         </div>

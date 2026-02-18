@@ -7,17 +7,17 @@
 {% load static %}
 
 {% block content %}
-    <div class="container mt-4">
+    <div class="container-fluid mt-4">
         <div class="row align-items-center g-4">
             <hr/>
-            <!-- Imagem -->
+            <!-- Imagem
             <div class="col-lg-6">
                 <img src="{% static 'images/carlos.jpg' %}" class="img-fluid rounded shadow" alt="Cliente"/>
-            </div>
+            </div>-->
 
             <!-- Formulário -->
-            <div class="col-lg-6">
-                <form action="{% url 'atualizar-cliente' cliente.id %}" method="POST" class="card p-4 shadow">
+            <div class="col-md-10 offset-md-1">
+                <form action="{% url 'atualizar-cliente' cliente.uuid %}" method="POST" class="card p-4 shadow">
                     {% csrf_token %}
                     <input type="hidden" name="conjuge_json" id="conjuge_json">
                     <input type="hidden" name="endereco_json" id="endereco_json">
@@ -66,49 +66,52 @@
                                     </div>
                                 {% endif %}
                             {% endfor %}
-                            <a
-                                    class="btn btn-light py-2 w-100 rounded-pill"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalConjuge"
-                                    data-bs-toggle="tooltip"
-                                    title="Cadastre os Telefones">Cônjuge
-                            </a>
-                            <br>
-                            <br>
-                            <a
-                                    class="btn btn-secondary py-2 w-100 rounded-pill"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalTelefones"
-                                    data-bs-toggle="tooltip"
-                                    title="Cadastre os Telefones">Contatos
-                            </a>
-                            <br>
-                            <br>
-                            <a
-                                    class="btn btn-primary py-2 w-100 rounded-pill"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#enderecoModal"
-                                    data-bs-toggle="tooltip"
-                                    title="Cadastre o Endereço">Endereço
-                            </a>
+                            <div class="row">
+                                <a
+                                        class="btn btn-light py-2 w-100 rounded-pill"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalConjuge"
+                                        data-bs-toggle="tooltip"
+                                        title="Cadastre os Telefones">Cônjuge
+                                </a>
+
+                            </div>
+                        <br>
+                            <div class="row">
+                                <div class="col">
+                                    <a
+                                            class="btn btn-secondary py-2 w-100 rounded-pill"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalTelefones"
+                                            data-bs-toggle="tooltip"
+                                            title="Cadastre os Telefones">Contatos
+                                    </a>
+
+                                </div>
+                                <div class="col">
+                                    <a
+                                            class="btn btn-primary py-2 w-100 rounded-pill"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#enderecoModal"
+                                            data-bs-toggle="tooltip"
+                                            title="Cadastre o Endereço">Endereço
+                                    </a>
+                                </div>
+                            </div>
+                        <br>
+                        <div class="row">
+                            <div class="col">
+                                <button type="submit" class="btn btn-success py-2 w-100 rounded-pill">Salvar</button>
+                            </div>
+                            <div class="col">
+                                <a href="{% url 'lista-cliente' %}" class="btn btn-danger py-2 w-100 rounded-pill">Cancelar</a>
+                            </div>
+                        </div>
                         </div>
                     </div>
 
                     <hr>
 
-                    <!-- Botões -->
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-success rounded-pill">Salvar</button>
-                        {% if veio_da_lista %}
-                            <a href="{% url 'lista-cliente' %}" class="btn btn-danger rounded-pill">Cancelar</a>
-                        {% else %}
-                            <a href="{% url 'lista-empreendimento' %}" class="btn btn-danger rounded-pill">Cancelar</a>
-                        {% endif %}
-
-                    </div>
-                    {% if lote_id %}
-                        <input type="hidden" name="lote_id" value="{{ lote_id }}">
-                    {% endif %}
 
                 </form>
             </div>
@@ -229,90 +232,90 @@
         </div>
     </div>
     <!-- Modal do Telefone -->
-<div class="modal fade" id="modalTelefones" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
+    <div class="modal fade" id="modalTelefones" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
 
-            <div class="modal-header">
-                <h5 class="modal-title">Cadastrar Contatos</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
+                <div class="modal-header">
+                    <h5 class="modal-title">Cadastrar Contatos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
 
-            <div class="modal-body">
+                <div class="modal-body">
 
-                <div class="row g-2">
+                    <div class="row g-2">
 
-                    <!-- COLUNA ESQUERDA -->
-                    <div class="col-12 col-md-3">
-                        <label class="form-label">Telefone</label>
-                        <input
-                            type="text"
-                            id="telefoneNumero"
-                            class="form-control mask-phone"
-                            placeholder="(99) 99999-9999"
-                        >
+                        <!-- COLUNA ESQUERDA -->
+                        <div class="col-12 col-md-3">
+                            <label class="form-label">Telefone</label>
+                            <input
+                                    type="text"
+                                    id="telefoneNumero"
+                                    class="form-control mask-phone"
+                                    placeholder="(99) 99999-9999"
+                            >
+                        </div>
+
+                        <!-- COLUNA CENTRO -->
+                        <div class="col-12 col-md-3">
+                            <label class="form-label">Tipo</label>
+                            <select class="form-select">
+                                <option value="">Selecione</option>
+                                <option>WhatsApp</option>
+                                <option>Residencial</option>
+                                <option>Comercial</option>
+                            </select>
+                        </div>
+
+                        <!-- COLUNA DIREITA -->
+                        <div class="col-12 col-md-3">
+                            <label class="form-label">Observação</label>
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="Ex: Principal"
+                            >
+                        </div>
+
+                        <!-- BOTÃO ADD -->
+                        <div class="col-12 col-md-3 d-flex align-items-end">
+                            <button
+                                    type="button"
+                                    class="btn btn-success w-100 py-2 rounded-pill"
+                                    onclick="addTelefone()"
+                            >
+                                ADD
+                            </button>
+                        </div>
+
                     </div>
 
-                    <!-- COLUNA CENTRO -->
-                    <div class="col-12 col-md-3">
-                        <label class="form-label">Tipo</label>
-                        <select class="form-select">
-                            <option value="">Selecione</option>
-                            <option>WhatsApp</option>
-                            <option>Residencial</option>
-                            <option>Comercial</option>
-                        </select>
-                    </div>
+                    <hr>
 
-                    <!-- COLUNA DIREITA -->
-                    <div class="col-12 col-md-3">
-                        <label class="form-label">Observação</label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            placeholder="Ex: Principal"
-                        >
-                    </div>
+                    <!-- ERRO -->
+                    <div id="telefoneErro" style="display:none"></div>
 
-                    <!-- BOTÃO ADD -->
-                    <div class="col-12 col-md-3 d-flex align-items-end">
-                        <button
-                            type="button"
-                            class="btn btn-success w-100 py-2 rounded-pill"
-                            onclick="addTelefone()"
-                        >
-                            ADD
-                        </button>
-                    </div>
+                    <!-- LISTA DE TELEFONES -->
+                    <ul id="listaTelefones" class="list-group"></ul>
+
+                    <!-- HIDDEN JSON -->
+                    <input type="hidden" id="telefones_json" name="telefones_json">
 
                 </div>
 
-                <hr>
-
-                <!-- ERRO -->
-                <div id="telefoneErro" style="display:none"></div>
-
-                <!-- LISTA DE TELEFONES -->
-                <ul id="listaTelefones" class="list-group"></ul>
-
-                <!-- HIDDEN JSON -->
-                <input type="hidden" id="telefones_json" name="telefones_json">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Fechar
+                    </button>
+                </div>
 
             </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    Fechar
-                </button>
-            </div>
-
         </div>
     </div>
-</div>
 
     <script>
         window.telefonesTemp = {{ telefones_json|safe }};
     </script>
 
-
+<script src="{% static 'js/cliente.js' %}"></script>
 {% endblock %}

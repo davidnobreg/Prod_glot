@@ -138,7 +138,7 @@ def listaEmpreendimento(request):
     empreendimentos_ids = UsuarioEmpreendimento.objects.filter(usuario=request.user, ativo=True).values_list(
         'empreendimento_id',
         flat=True)
-    empreendimentos = Empreendimento.objects.filter(id__in=empreendimentos_ids, is_ativo=False)
+    empreendimentos = Empreendimento.objects.filter(id__in=empreendimentos_ids, is_ativo=True)
 
     context = {'empreendimentos': empreendimentos}
     return render(request, 'lista-empreendimentos.html', context)
@@ -207,7 +207,7 @@ def alteraEmpreendimento(request, id):
 def deleteEmpreendimento(request, empreendimento_Id):
     print(empreendimento_Id)
     empreendimento = Empreendimento.objects.get(id=empreendimento_Id)
-    empreendimento.is_ativo = True
+    empreendimento.is_ativo = False
     empreendimento.save()
     return redirect('lista-empreendimento-tabela')
 
@@ -215,9 +215,16 @@ def deleteEmpreendimento(request, empreendimento_Id):
 @has_permission_decorator('listaEmpreendimentoTabela')
 def listaEmpreendimentoTabela(request):
     # Buscar empreendimentos que estão ativos
-    empreendimentos = Empreendimento.objects.filter(is_ativo=False)
+    empreendimentos = Empreendimento.objects.filter(is_ativo=True)
+
+    #formArquivo = ArquivoForm(request.POST, request.FILES)
 
     get_empreendimento = request.GET.get('empreendimento')
+
+
+
+    #arquivoempreendimento = Empreendimento.objects.get(id=get_empreendimento)
+    #print(arquivoempreendimento)
 
     if get_empreendimento:
         empreendimentos = Empreendimento.objects.filter(nome=get_empreendimento)
@@ -253,7 +260,9 @@ def listaEmpreendimentoTabela(request):
         })
 
     context = {
-        'empreendimentos': empreendimento_info,
+        #'formArquivo': formArquivo,
+        'empreendimentos': empreendimento_info
+        #'arquivoempreendimento': arquivoempreendimento
     }
     return render(request, 'lista-empreendimentos-tabela.html', context)
 
@@ -305,7 +314,7 @@ def listaQuadra(request, id):
         })
 
     # Paginação
-    paginator = Paginator(quadras_info_list, 12)
+    paginator = Paginator(quadras_info_list, 9)
     page = request.GET.get('page')
 
     try:
@@ -791,3 +800,4 @@ def criarUsuarioEmpreendimento(request):
 
     messages.success(request, "Usuários adicionados com sucesso!")
     return redirect('detalhe-empreendimento', id=empreendimento.id)
+

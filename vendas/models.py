@@ -23,10 +23,17 @@ class RegisterVenda(models.Model):
     dt_venda = models.DateField(blank=True, null=True)
     create_at = models.DateField(default=datetime.now, blank=True)
     is_ativo = models.BooleanField(default=False)
+    quantidade_parcelas = models.IntegerField(blank=True, null=True,)
+    quantidade_parcelas_pagas = models.IntegerField(blank=True, null=True,)
+    valor_inicio_contrato = models.CharField('Valor do ínicio do Contato', max_length=50, default=00.00)
+    valor_financiado = models.CharField('Valor do Financiamento', max_length=50, default=00.00)
+    valor_sinal = models.CharField('Valor do Sinal Para Compra', max_length=50, default=00.00)
+    dt_primeira_parcela = models.DateField('Data para primeira parcela', blank=True, null=True)
+
 
     def __str__(self):
-        return "{} - lote {} quadra- {} - {} - status {}".format(self.cliente, self.lote, self.lote.quadra.namequadra,
-                                                     self.lote.quadra.empr, self.tipo_venda)
+        return "{} - lote {} quadra- {} - {} - status {} - valor-sinal{}".format(self.cliente, self.lote, self.lote.quadra.namequadra,
+                                                     self.lote.quadra.empr, self.tipo_venda, self.valor_sinal)
 
     class Meta:
         verbose_name = 'Registrar Venda'

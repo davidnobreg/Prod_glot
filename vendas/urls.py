@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from django.conf import settings
 
 urlpatterns = [
     # Cadastro de cliente
@@ -18,5 +19,10 @@ urlpatterns = [
     path('reservado_delete_lista/<int:id>/', views.deleteResevaLista, name='delete-reservado-lista'),
     path('renova_reserva/<int:id>/', views.renovaReserva, name='renova-reserva'),
     path('select/<int:venda_id>/', views.renovaReserva, name='renova-reserva'),
+    path('proposta/', views.proposta, name='proposta'),
+    path('proposta/pdf/', views.proposta_pdf, name='proposta'),
+    path('documento/<int:venda_id>/', views.visualizar_documento, name='visualizar_documento'),
+    path('documento/pdf/', views.documento_pdf, name='documento_pdf'),
+
 
 ]

@@ -156,13 +156,13 @@ def criarCliente(request):
 
 
 @has_permission_decorator('alterarCliente')
-def atualizarCliente(request, cliente_id):
+def atualizarCliente(request, cliente_uuid):
     # =========================
     # BUSCA CLIENTE E RELACIONADOS
     # =========================
-    cliente = get_object_or_404(Cliente, id=cliente_id)
+    cliente = get_object_or_404(Cliente, uuid=cliente_uuid)
     conjuge = ClienteConjuge.objects.filter(cliente=cliente).first()
-    endereco = getattr(cliente, 'endereco', None)
+    endereco = ClienteEndereco.objects.filter(cliente=cliente).first() #getattr(cliente.id, 'endereco', None)
 
     previous = request.META.get('HTTP_REFERER', '')
     veio_da_lista = '/clientes/listar_clientes/' in previous
@@ -274,11 +274,6 @@ def atualizarCliente(request, cliente_id):
 
     messages.success(request, "Cliente atualizado com sucesso!")
     return redirect('lista-cliente')
-
-
-
-
-
 
 ## Relatório
 

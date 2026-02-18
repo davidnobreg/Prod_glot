@@ -9,6 +9,7 @@
 
 {% block content %}
     <div class="container mt-5">
+
         <h4 class="mt-5 text-center fw-bold">LISTA DE CLIENTES</h4>
         <hr>
 
@@ -17,7 +18,7 @@
             <div class="row g-3 bg-light p-3 rounded shadow-sm">
                 <div class="col-md-6">
                     </br>
-                    <a href="{% url 'criar-cliente' %}" class="btn btn-primary rounded-pill">
+                    <a href="{% url 'criar-cliente' %}" class="btn btn-primary py-2 w-50 rounded-pill">
                         Adicionar Cliente
                     </a>
                 </div>
@@ -69,19 +70,19 @@
                             {% if cliente.telefones_list %}
                                 {% for t in cliente.telefones_list %}
 
-                                        {% if t.tipo == 'whatsapp' %}
-                                            <span class="badge bg-success">WHATSAPP</span>
-                                        {% elif t.tipo == 'celular' %}
-                                            <span class="badge bg-primary">CELULAR</span>
-                                        {% elif t.tipo == 'fixo' %},
-                                            <span class="badge bg-infor">FIXO</span>
-                                        {% elif t.tipo == 'recado' %}
-                                            <span class="badge bg-black">RECADO</span>
-                                        {% elif t.tipo == 'outro' %}
-                                            <span class="badge bg-danger">OUTROS</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">{{ venda.tipo_venda }}</span>
-                                        {% endif %}
+                                    {% if t.tipo == 'whatsapp' %}
+                                        <span class="badge bg-success">WHATSAPP</span>
+                                    {% elif t.tipo == 'celular' %}
+                                        <span class="badge bg-primary">CELULAR</span>
+                                    {% elif t.tipo == 'fixo' %},
+                                        <span class="badge bg-infor">FIXO</span>
+                                    {% elif t.tipo == 'recado' %}
+                                        <span class="badge bg-black">RECADO</span>
+                                    {% elif t.tipo == 'outro' %}
+                                        <span class="badge bg-danger">OUTROS</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ venda.tipo_venda }}</span>
+                                    {% endif %}
 
                                 {% endfor %}
                             {% else %}
@@ -93,7 +94,7 @@
                             <div class="d-flex justify-content-center gap-2 flex-wrap">
 
 
-                                <a href="{% url 'atualizar-cliente' cliente.id %}"
+                                <a href="{% url 'atualizar-cliente' cliente.uuid %}"
                                    class="btn btn-warning w-auto h-auto text-wrap text-center"
                                    title="Editar Cliente" data-bs-toggle="tooltip"
                                    aria-label="Editar Cliente">
@@ -156,39 +157,40 @@
             {% endwith %}
 
         </div>
+    </div>
+    </div>
 
-
-        <div class="modal fade" id="clienteModalDelete" tabindex="-1" aria-labelledby="clienteModalDeleteLabel"
-             aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="clienteModalLabel">Detalhes do Cliente</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form id="clienteModalDelete" method="post">
-                        {% csrf_token %}
-                        <div class="modal-body">
-                            <div id="loading-indicator" style="display: none;">
-                                Carregando...
-                            </div>
-
-                            <input type="hidden" name="id" id="cliente-id">
-
-                            <p><strong>Cliente:</strong> <span id="cliente-name"></span></p>
-                            <p><strong>Documento:</strong> <span id="cliente-documento"></span></p>
-                            <p><strong>Email:</strong> <span id="cliente-email"></span></p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" id="btn-deletar-cliente" class="btn btn-danger">deletar</button>
-                            <button type="button" href="{% url 'lista-cliente' %}" class="btn btn-secondary"
-                                    data-bs-dismiss="modal">Canselar
-                            </button>
-                        </div>
-                    </form>
+    <div class="modal fade" id="clienteModalDelete" tabindex="-1" aria-labelledby="clienteModalDeleteLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="clienteModalLabel">Detalhes do Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                <form id="clienteModalDelete" method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div id="loading-indicator" style="display: none;">
+                            Carregando...
+                        </div>
+
+                        <input type="hidden" name="id" id="cliente-id">
+
+                        <p><strong>Cliente:</strong> <span id="cliente-name"></span></p>
+                        <p><strong>Documento:</strong> <span id="cliente-documento"></span></p>
+                        <p><strong>Email:</strong> <span id="cliente-email"></span></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" id="btn-deletar-cliente" class="btn btn-danger">deletar</button>
+                        <button type="button" href="{% url 'lista-cliente' %}" class="btn btn-secondary"
+                                data-bs-dismiss="modal">Canselar
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-
+    </div>
+    <script src="{% static 'js/cliente.js' %}"></script>
 
 {% endblock %}

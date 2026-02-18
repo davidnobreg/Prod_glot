@@ -1,4 +1,5 @@
 import re
+import uuid
 from decimal import Decimal
 from django.db import models
 from django.core.validators import RegexValidator
@@ -30,6 +31,13 @@ class Cliente(models.Model):
     )
 
     id = models.BigAutoField(primary_key=True)
+    uuid = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+        unique=True,
+        db_index=True
+    )
+
     name = models.CharField(max_length=100)
     data_ns = models.DateField(blank=True, null=True)
     documento = models.CharField(max_length=18, unique=True, help_text="Informe CPF ou CNPJ (apenas números).")
@@ -38,7 +46,7 @@ class Cliente(models.Model):
     email = models.EmailField(max_length=200, unique=True)
     profissao = models.CharField(max_length=100, blank=True)
     estado_civil = models.CharField(max_length=22, choices=choices_estado_civil, default="solteiro")
-    renda = models.DecimalField( max_digits=10, decimal_places=2, blank=True, null=True)
+    renda = models.CharField( max_length=20, blank=True, null=True)
     naturalidade = models.CharField(max_length=50, blank=True)
     nacionalidade = models.CharField(max_length=100, default="Brasileiro")
     observacao = models.TextField(blank=True)

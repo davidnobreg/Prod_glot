@@ -1,10 +1,9 @@
 import os
 from pathlib import Path
 from datetime import timedelta
-#from prettyconf import Configuration
+# from prettyconf import Configuration
 from decouple import Config, Csv, RepositoryEnv
 from kombu import Queue
-
 
 from core.env import get_env
 
@@ -14,8 +13,8 @@ IS_PRODUCTION = DJANGO_ENV == "production"
 
 INSTANCIA = get_env("EVOLUTION_INSTANCE", required=True)
 
-#print("DJANGO_ENV =", DJANGO_ENV)
-#print("IS_PRODUCTION =", IS_PRODUCTION)
+# print("DJANGO_ENV =", DJANGO_ENV)
+# print("IS_PRODUCTION =", IS_PRODUCTION)
 
 N8N_URL = get_env("N8N_WEBHOOK_URL", required=True)
 N8N_INSTANCIA = get_env("N8N_INSTANCIA", default="default")
@@ -54,6 +53,7 @@ DEFAULT_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
 
 ]
 
@@ -64,17 +64,21 @@ THIRD_APPS = [
     'django_celery_results',
     'django_celery_beat',
     'django_filters',
+    #'djrichtextfield',
+    'ckeditor',
+    'ckeditor_uploader',
 
 ]
 
 PROJECT_APPS = [
+    'accounts',
     'base',
     'clientes',
-    'empreendimentos',
-    'vendas',
-    'mensagem',
-    'accounts',
+    'documentos',
     'dashboard',
+    'empreendimentos',
+    'mensagem',
+    'vendas',
 
 ]
 
@@ -131,15 +135,15 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': config('DB_NAME'),
-            'USER': config('DB_USER'),
-            'PASSWORD': config('DB_PASSWORD'),
-            'HOST': config('DB_HOST'),
-            'PORT': config('DB_PORT')
-        }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT')
     }
+}
 """
 if DEBUG:
     DATABASES = {
@@ -207,6 +211,8 @@ MEDIA_URL = '/media/'
 # Caminhos físicos
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')  # usado pelo collectstatic
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # usado para uploads
+
+
 
 # Opcional: desenvolvimento
 # STATICFILES_DIRS = [os.path.join(BASE_DIR, 'base/static')] # onde seus apps guardam static]
@@ -281,7 +287,6 @@ FLOWER_BASIC_AUTH = ["admin:admin"]
 LOG_DIR = BASE_DIR / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-
 # django setting.
 CACHES = {
     'default': {
@@ -331,10 +336,6 @@ if not IS_PRODUCTION:
 
     LOGGING["loggers"]["celery"]["handlers"].append("file")
     LOGGING["loggers"]["django"]["handlers"].append("file")
-
-
-
-
 
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title if absent or None)
@@ -482,3 +483,20 @@ JAZZMIN_SETTINGS = {
     # Add a language dropdown into the admin
     "language_chooser": False,
 }
+
+# ==========================================================
+# CKEDITOR – CONFIGURAÇÕES
+# ==========================================================
+
+CKEDITOR_UPLOAD_PATH = "media/uploads/"
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'width': 650,
+        'height': 400,
+        #'removePlugins': 'elementspath',
+        #'resize_enabled': False,
+    }
+}
+

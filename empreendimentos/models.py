@@ -3,6 +3,9 @@ from datetime import datetime, timedelta
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
+from documentos.models import CadastroDocumento
+
+
 
 
 # ==========================================================
@@ -16,6 +19,14 @@ choices_estado = (
     ('RS', 'Rio Grande do Sul'), ('RO', 'Rondônia'), ('RR', 'Roraima'), ('SC', 'Santa Catarina'), ('SP', 'São Paulo'),
     ('SE', 'Sergipe'), ('TO', 'Tocantins')
 )
+
+class TypeBancos(models.TextChoices):
+    BANCOBRASIL = '001', 'Banco do Brasil',
+    BANCONORDESTE = '004', 'Banco do Nodeste',
+    CAIXAECONOMICA = '104', 'Caixa Economica',
+    SICOOB = '756', 'Sicoob',
+    SINCRED = '748', 'Sincred',
+
 
 ## Cadastro de empreendimento
 class Empreendimento(models.Model):
@@ -34,12 +45,12 @@ class Empreendimento(models.Model):
     quantidade_parcela = models.IntegerField()
     logo = models.ImageField(verbose_name='Logo',
                              null=True, blank=True)
-    cnpj = models.CharField(max_length=18, unique=True, help_text="Informe CNPJ (apenas números).")
+    cnpj = models.CharField(max_length=18, unique=True, null=True, blank=True, help_text="Informe CNPJ (apenas números).")
     codBanco = models.CharField(max_length=10)
-    banco = models.CharField(max_length=50)
+    banco = models.CharField(max_length=100, choices=TypeBancos.choices, blank=True, verbose_name='Banco')
     agencia = models.CharField(max_length=10)
     conta = models.CharField(max_length=15)
-    favorecido = models.CharField(max_length=100)
+    razaoSocial = models.CharField(max_length=100)
     rua = models.CharField(max_length=100, blank=True)
     complemento = models.CharField(max_length=50, blank=True)
     numero = models.CharField(max_length=20, blank=True)
@@ -47,7 +58,16 @@ class Empreendimento(models.Model):
     cep = models.CharField(max_length=8, blank=True, validators=[RegexValidator(r'^\d{8}$', 'CEP deve ter 8 números')])
     cidade = models.CharField(max_length=100, blank=True)
     estado = models.CharField(max_length=2, choices=choices_estado, default='PB', blank=True)
-    is_ativo = models.BooleanField(default=False)
+    reajuste = models.TextField(blank=True, null=True)
+    #registroCartorio = models.TextField(blank=True, null=True)
+    observacao = models.TextField(blank=True, null=True)
+    contrato = models.ForeignKey(
+        CadastroDocumento,
+        on_delete=models.CASCADE,
+        verbose_name='Contrato padrão',
+        blank=True, null=True
+    )
+    is_ativo = models.BooleanField(default=True)
 
     def __str__(self):
         # return self.nome
@@ -109,6 +129,8 @@ class Lote(models.Model):
         ]
     )
     data_termina_reserva = models.DateField(default=datetime.now, blank=True)
+    largura = models.DecimalField(verbose_name="largura", max_digits=5, decimal_places=2, blank=True, null=True)
+    comprimento = models.DecimalField(verbose_name="comprimento", max_digits=5, decimal_places=2, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.tempo_reservado = timezone.localtime(timezone.now()) + timedelta(minutes=1)

@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Proposta de Compra e Venda{% endblock %}
+
+{% block content %}
+    <div class="container my-5" id="conteudo">
+        <div class="table-responsive">
+            {% if venda.lote.quadra.empr.logo %}
+                <div class="text-center mb-4">
+                    <img src="{{ venda.lote.quadra.empr.logo.url }}"
+                         class="img-fluid"
+                         style="max-height: 120px;">
+                </div>
+            {% endif %}
+
+            <h3 class="text-center fw-bold">PROPOSTA DE COMPRA E VENDA</h3>
+            <hr>
+
+            <!-- DADOS DO EMPREENDIMENTO -->
+            <table class="table table-bordered">
+                <tr>
+                    <th colspan="8">EMPREENDIMENTO:</th>
+                    <th colspan="4">ACEITE:</th>
+                </tr>
+                <tr>
+                    <td colspan="8">{{ venda.lote.quadra.empr.nome }}</td>
+                    <td colspan="4"></td>
+                </tr>
+
+
+                <!-- DADOS DO CLIENTE -->
+
+                <tr>
+                    <th colspan="12" class="text-center">DADOS PESSOAIS</th>
+                </tr>
+
+
+                <tr>
+                    <th>Nome:</th>
+                    <td colspan="10">{{ venda.cliente.name }}</td>
+                </tr>
+                <tr>
+                    <th>RG Nº:</th>
+                    <td colspan="2">{{ venda.cliente.numero_rg }}</td>
+                    <th colspan="1">CPF:</th>
+                    <td colspan="6">{{ venda.cliente.documento }}</td>
+                </tr>
+                <tr>
+                    <th colspan="2">End. Residencial:</th>
+                    <td colspan="10">{{ venda.cliente.endereco }}</td>
+                </tr>
+                <tr>
+                    <th>CEP:</th>
+                    <td colspan="2">{{ enderecoCliente.cep }}</td>
+                    <th>Telefone:</th>
+                    <td colspan="6">{{ telefoneCliente.numero }}</td>
+                </tr>
+                <tr>
+                    <th>Email:</th>
+                    <td colspan="10">{{ venda.cliente.email }}</td>
+                </tr>
+                <tr>
+                    <th colspan="1">Corretor:</th>
+                    <td colspan="2">{{ venda.user.last_name }}</td>
+                    <th colspan="2">Nome usual:</th>
+                    <td colspan="7">{{ venda.user.first_name }}</td>
+                </tr>
+
+
+                <!-- CONDIÇÕES DE COMPRA -->
+
+                <tr>
+                    <th colspan="12" class="text-center">CONDIÇÕES DE COMPRA</th>
+                </tr>
+                <tr class="text-center">
+                    <th colspan="1">Quadra:</th>
+                    <td colspan="1">{{ venda.lote.quadra.namequadra }}</td>
+                    <th colspan="1">Lote:</th>
+                    <td colspan="1">{{ venda.lote.lote }}</td>
+                    <th colspan="1">Área&nbsp;do&nbsp;Lote:</th>
+                    <td colspan="7">{{ venda.lote.area }}&nbsp;m²</td>
+
+                </tr>
+
+
+                <!-- QUADRO RESUMO -->
+
+                <tr>
+                    <th colspan="12" class="text-center">QUADRO RESUMO</th>
+                </tr>
+                <tr class="text-center">
+                    <th colspan="3">&nbsp;Sinal&nbsp;(R$)</th>
+                    <th colspan="3">&nbsp;Qtd.&nbsp;Parcelas</th>
+                    <th colspan="3">&nbsp;Valor&nbsp;Parcela&nbsp;(R$)</th>
+                    <th colspan="3">&nbsp;Valor&nbsp;Financiado</th>
+
+                </tr>
+                <tr class="text-center">
+                    <td colspan="3">{{ valor_sinal_formatado|default:"-" }}</td>
+                    <td colspan="3">{{ venda.lote.quadra.empr.quantidade_parcela }}</td>
+                    <td colspan="3">{{ valor_parcela_formatado }}</td>
+                    <td colspan="3">{{ valor_total_formatado }}</td>
+
+                </tr>
+                <tr>
+                    <th>Data 1ª Parcela</th>
+                    <td colspan="10">{{ data_primeira_parcela }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- TEXTO LEGAL -->
+        <div class="mt-4 border p-3" style="font-size: 12px; text-align: justify;">
+            <p class="text-center"><strong>LEIA ANTES DE ASSINAR</strong></p>
+
+            <p>
+                <strong>&nbsp;&nbsp;&nbsp;"AS PARCELAS SERÃO CORRIGIDAS
+                    PELO {{ venda.lote.quadra.empr.reajuste }}</strong>
+                <br>
+                &nbsp;&nbsp;&nbsp;Esta proposta de Compra e Venda está sujeita a aceitação ou não pelo proprietário.
+
+            </p>
+
+            <p>
+                <strong>&nbsp;&nbsp;&nbsp;O VALOR PAGO A TÍTULO DE SINAL DARÁ QUITAÇÃO AOS HONORÁRIOS DO CORRETOR DE
+                    IMÓVEIS DO REFERIDO
+                    NEGÓCIO
+                    NESTE IMÓVEL E ESSE VALOR NÃO HAVERÁ DEVOLUÇÃO TOTAL OU EM PARTE EM CASO DE DESISTÊNCIA POR PARTE DO
+                    COMPRADOR.</strong>
+                <br>
+                &nbsp;&nbsp;&nbsp;O imóvel objeto da presente Proposta de compra e venda, é negociado em caráter “ad –
+                corpos”,
+                sendo meramente enunciativas as dimensões da unidade imobiliária, sem qualquer reflexo financeiro ou
+                econômico,
+                de quaisquer possíveis diferenças para mais ou para menos.
+                <br>
+                &nbsp;&nbsp;&nbsp;O cliente declara ter vistoriado o lote objeto da presente Proposta, conhecendo a sua
+                exata localização,
+                medidas e confrontações, não cabendo reclamação quanto à topografia ou à dimensão da área.
+                <br>
+                &nbsp;&nbsp;&nbsp;A partir da data da assinatura desta proposta os impostos e taxas municipais,
+                estaduais e federais que vierem a incidir sobre o lote serão de responsabilidade do comprador.
+                <br>
+                &nbsp;&nbsp;&nbsp;O Contrato será entregue 10 (dez) dias antes do vencimento da primeira parcela,
+                caso você não compareça para pegá-lo, o seu contrato poderá ser cancelado e colocado à venda.
+                <br>
+                &nbsp;&nbsp;&nbsp;A presente Proposta tem validade provisória e individual, não podendo ser transferida
+                a terceiros.
+                <br>
+                <strong>&nbsp;&nbsp;&nbsp;RECEBI DO CLIENTE ACIMA MENCIONADO O VALOR DE
+                    R$ {{ valor_sinal_formatado|default:"-" }},
+                    REFERENTE A PAGAMENTO DO SINAL DE COMPRA E VENDA DO LOTE INFORMADO NESTA PROPOSTA E ESTOU CIENTE QUE
+                    ESTE VALOR SERÁ REVERTIDO EM PROL DO CORRETOR DE
+                    IMÓVEIS E NÃO HAVERÁ DEVOLUÇÃO EM CASO DE DESISTÊNCIA.
+                </strong>
+            </p>
+        </div>
+
+
+
+
+        <div class="row mt-5 text-center justify-content-end data-local-print">
+            <div class="col align-self-end">
+                <p class="text-end mt-4">
+                    {{ venda.lote.quadra.empr.cidade }}, {{ data_por_extenso }}
+                </p>
+            </div>
+        </div>
+
+        <!-- ASSINATURAS -->
+        <div class="row mt-5 text-center assinaturas-print" style="margin-top: 20mm;">
+            <div class="col-6 assinaturas">
+                _______________________________<br>
+                <strong>COMPRADOR</strong>
+            </div>
+            <div class="col-6 assinaturas">
+                _______________________________<br>
+                <strong>CORRETOR DE IMÓVEIS</strong>
+            </div>
+        </div>
+
+        <!-- BOTÕES -->
+        <div class="row mt-4">
+            <div class="col-6 d-flex justify-content-start align-items-center">
+                <a class="btn btn-warning btn-voltar"
+                   href="{% url 'listar-quadras' venda.lote.quadra.empr.id %}">Voltar</a>
+            </div>
+            <div class="col-6 d-flex justify-content-end align-items-center">
+                <button id="btn-imprimir" class="btn btn-primary" onclick="window.print()">Imprimir Página</button>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

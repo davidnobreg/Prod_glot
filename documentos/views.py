@@ -21,7 +21,7 @@ def contrato_view(request):
 
     return render(
         request,
-        'contratos/contrato.html',
+        'contrato.html',
         {'contrato': contrato}
     )
 

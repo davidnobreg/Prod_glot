@@ -99,7 +99,7 @@
                         <td>{{ venda.lote.quadra.empr.nome }}</td>
                         <td>{{ venda.lote.quadra }}</td>
                         <td>{{ venda.lote }}</td>
-                        <td>{{ venda.user }}</td>
+                        <td>{{ venda.user.first_name }}</td>
                         <td>{{ venda.dt_venda|date:"d/m/Y" }}</td>
                         <td>
                             {% if venda.tipo_venda == 'VENDIDO' %}
@@ -114,7 +114,7 @@
                             <div class="d-flex justify-content-center gap-2">
                                 {% if venda.tipo_venda == 'VENDIDO' %}
 
-                                    <a href="{% url 'reservado' venda.lote.id %}" class="btn btn-primary btn-sm"
+                                    <a href="{% url 'reservado' venda.lote.uuid %}" class="btn btn-primary btn-sm"
                                        title="Detalhes da Venda">
                                         <i class="fas fa-info-circle"></i>
                                     </a>

@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from datetime import datetime
 from clientes.models import Cliente
@@ -15,6 +16,12 @@ class TypeLote(models.TextChoices):
 class RegisterVenda(models.Model):
 
     id = models.BigAutoField(primary_key=True)
+    uuid = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+        unique=True,
+        db_index=True
+    )
     lote = models.OneToOneField(Lote, on_delete=models.SET_NULL, blank=True, null=True, related_name='reg_venda')
     cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, blank=True, null=True)
     tipo_venda = models.CharField(max_length=100, choices=TypeLote.choices)
@@ -32,7 +39,7 @@ class RegisterVenda(models.Model):
 
 
     def __str__(self):
-        return "{} - lote {} quadra- {} - {} - status {} - valor-sinal{}".format(self.cliente, self.lote, self.lote.quadra.namequadra,
+        return "{} - lote {} quadra- {} - {} - status {} - valor-sinal {}".format(self.cliente, self.lote, self.lote.quadra.namequadra,
                                                      self.lote.quadra.empr, self.tipo_venda, self.valor_sinal)
 
     class Meta:

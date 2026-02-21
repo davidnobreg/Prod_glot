@@ -21,7 +21,7 @@
                       enctype="multipart/form-data"
                       class="card p-4 shadow">
                     {% csrf_token %}
-                    <h4 class="mb-3">Altera Empreendimentos</h4>
+                    <h4 class="mb-3 text-center">Altera Empreendimentos</h4>
 
                     <!-- Mensagens -->
                     {% if status == '0' %}
@@ -51,6 +51,7 @@
                                     </div>
                                 {% endif %}
                             {% endfor %}
+
                             <div class="mb-3">
                                 <label for="id_logo" class="form-label">Logo</label>
                                 <input type="file" name="logo" accept="image/*" class="form-control" id="id_logo">
@@ -69,19 +70,36 @@
                                     </div>
                                 {% endif %}
                             {% endfor %}
+
+                            <div class="row">
+
+                                <div class="col">
+                                    <button type="submit" class="btn btn-success py-2 w-100 rounded-pill">Salvar
+                                    </button>
+                                </div>
+                                <div class="col">
+                                    <a href="{% url 'lista-empreendimento-tabela' %}"
+                                       class="btn btn-danger py-2 w-100 rounded-pill">
+                                        Cancelar
+                                    </a>
+
+                                </div>
+
+
+                            </div>
                         </div>
                     </div>
 
 
                     <hr>
 
-                    <!-- Botões -->
+                    <!-- Botões
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-success rounded-pill">Salvar</button>
                         <a href="{% url 'lista-empreendimento-tabela' %}" class="btn btn-danger rounded-pill">
                             Cancelar
                         </a>
-                    </div>
+                    </div>-->
                 </form>
             </div>
             <hr/>

@@ -15,7 +15,7 @@ class QuadraInlineAdmin(admin.TabularInline):
 class EmpreendimentoAdmin(admin.ModelAdmin):
     #inlines = [QuadraInlineAdmin]  # Incluir Quadra como inline no Empreendimento
     list_display = ['id', 'nome', 'tempo_reserva', 'quantidade_parcela', 'codBanco', 'banco', 'agencia', 'conta',
-                    'razaoSocial', 'is_ativo']
+                    'razaoSocial', 'is_ativo', 'contrato']
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -70,8 +70,14 @@ admin.site.register(models.Quadra, QuadraAdmin)
 
 # Admin para o modelo Lote
 class LoteAdmin(admin.ModelAdmin):
-    list_display = ['id', 'quadra', 'lote', 'area', 'situacao', 'tempo_reservado', 'valor_metro_quadrado']  # Exibir esses campos na lista de Lotes
+    list_display = ['id',  'get_empreendimento', 'quadra', 'lote', 'area', 'situacao', 'tempo_reservado', 'valor_metro_quadrado']  # Exibir esses campos na lista de Lotes
     search_fields = ['id', 'lote', 'situacao']  # Permitir busca por 'lote'
+
+    def get_empreendimento(self, obj):
+        return obj.quadra.empr.nome if obj.quadra and obj.quadra.empr else "-"
+
+    get_empreendimento.short_description = "Empreendimento"
+    get_empreendimento.admin_order_field = 'quadra__empr__nome'
 
 admin.site.register(models.Lote, LoteAdmin)
 

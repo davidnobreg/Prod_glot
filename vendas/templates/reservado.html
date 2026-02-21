@@ -9,7 +9,7 @@
 {% block content %}
     <div class="container mt-5">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
+            <div class="col-lg-10">
                 <div class="card shadow-lg">
                     <div class="card-header text-white text-center" style="background-color: rgb(3, 107, 145);">
                         <h3 class="mb-0 display-5">Detalhes da Venda</h3>
@@ -54,7 +54,7 @@
                                 </div>
                             </div>
 
-                            <hr class="my-4"/>
+
 
                             <!-- Corretor -->
                             <div class="row text-center">
@@ -67,6 +67,40 @@
                                     <p class="fs-5 mb-0">{{ reservas.user.contato }}</p>
                                 </div>
                             </div>
+
+                            <hr class="my-4"/>
+
+                            <!-- Corretor -->
+                            <div class="row text-center">
+                                <div class="col-md-6">
+                                    <p class="fw-bold text-primary fs-4 mb-1">Cliente:</p>
+                                    <p class="fs-5 mb-0">{{ reservas.cliente.name }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fw-bold text-primary fs-4 mb-1">Contato do Cliente:</p>
+                                    <p class="fs-5 mb-0">{{ contatoCliente.numero }}</p>
+                                    <p class="fs-5 mb-0">
+
+                                        {% if contatoCliente.tipo %}
+                                            {% if contatoCliente.tipo == 'whatsapp' %}
+                                                <span class="badge bg-success">WHATSAPP</span>
+                                            {% elif contatoCliente.tipo == 'celular' %}
+                                                <span class="badge bg-primary">CELULAR</span>
+                                            {% elif contatoCliente.tipo == 'fixo' %},
+                                                <span class="badge bg-infor">FIXO</span>
+                                            {% elif contatoCliente.tipo == 'recado' %}
+                                                <span class="badge bg-black">RECADO</span>
+                                            {% elif contatoCliente.tipo == 'outro' %}
+                                                <span class="badge bg-danger">OUTROS</span>
+                                            {% endif %}
+
+                                        {% else %}
+                                            <span class="text-muted">Sem Status</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+
                         {% else %}
                             <!-- Bloco sem venda -->
                             <div class="alert alert-warning text-center">
@@ -90,34 +124,40 @@
                         <hr class="my-4"/>
 
                         <!-- Botões de navegação -->
-                        <div class="row text-center">
-                            <div class="col-md-4">
-                                <a href="
+                        <div class="d-flex flex-wrap justify-content-center gap-2">
+                            {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" and reservas %}
+                                <a href="{% url 'proposta' reservas.uuid %}"
+                                   class="btn btn-info px-4 py-2 fw-bold">
+                                    PROPOSTA
+                                </a>
 
+                                <a href="
                                         {% if reservas %}{% url 'listar-quadras' reservas.lote.quadra.empr.id %}{% else %}{% url 'listar-quadras' lote.quadra.empr.id %}{% endif %}"
-                                   class="btn btn-primary text-center py-3 w-50"
-                                   aria-label="Exibir quadras">
-                                    <label class="form-label fw-bold d-block">Quadras</label>
+                                   class="btn btn-success px-4 py-2 fw-bold">
+                                    CONTRATO
                                 </a>
-                            </div>
-                            <div class="col-md-4">
-                                <a href="{% url 'lista-venda' %}"
-                                   class="btn btn-warning text-center py-3 w-50"
-                                   aria-label="Listagem de vendas">
-                                    <label class="form-label fw-bold d-block">Listagem</label>
+
+
+                                <a class="btn btn-danger px-4 py-2 fw-bold"
+                                   data-bs-toggle="modal"
+                                   data-bs-target="#ReservaModalDelete">
+                                    Cancelar
                                 </a>
-                            </div>
-                            {% if user.is_authenticated and user.tipo_usuario == "A" and reservas %}
-                                <div class="col-md-4">
-                                    <a class="btn btn-danger text-center py-3 w-50"
-                                       data-bs-toggle="modal"
-                                       data-bs-target="#ReservaModalDelete"
-                                       title="Excluir Reserva">
-                                        <label class="form-label fw-bold d-block">Cancelar</label>
-                                    </a>
-                                </div>
                             {% endif %}
+
+                            <a href="
+                                    {% if reservas %}{% url 'listar-quadras' reservas.lote.quadra.empr.id %}{% else %}{% url 'listar-quadras' lote.quadra.empr.id %}{% endif %}"
+                               class="btn btn-primary px-4 py-2 fw-bold">
+                                Quadras
+                            </a>
+
+                            <a href="{% url 'lista-venda' %}"
+                               class="btn btn-warning px-4 py-2 fw-bold">
+                                Listagem
+                            </a>
+
                         </div>
+
                     </div>
                 </div>
             </div>

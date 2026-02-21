@@ -215,9 +215,9 @@ class EmpreendimentoUpdateForm(forms.ModelForm):
 
         # Campos à esquerda e direita
         left_fields = ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'cnpj', 'banco',
-                       'agencia', 'reajuste', 'registroCartorio']
-        right_fields = ['conta', 'razaoSocial', 'cep', 'rua', 'complemento', 'numero', 'bairro', 'cidade', 'estado',
-                        'observacao', 'contrato']
+                       'agencia', 'conta', 'reajuste', 'registroCartorio']
+        right_fields = ['razaoSocial', 'cep', 'rua', 'complemento', 'numero', 'bairro', 'cidade', 'estado', 'contrato',
+                        'observacao']
 
         config = {
             'nome': {'placeholder': 'Nome do Empreendimento'},
@@ -240,13 +240,13 @@ class EmpreendimentoUpdateForm(forms.ModelForm):
             'registroCartorio': {'placeholder': 'Registro em Cartorio'},
             'observacao': {'placeholder': 'Observação'},
             'reajuste': {'placeholder': 'reajuste'},
-            'contrato': {'placeholder': 'contrato'},
+            'contrato': {'placeholder': 'contrato', 'class': 'form-select'},
         }
 
         # 🔽 FORÇAR TEXTAREA APENAS NOS CAMPOS NECESSÁRIOS
         textarea_fields = {
             'reajuste': 2,
-            'observacao': 4,
+            'observacao': 2,
             # 'registroCartorio': 4,
 
         }

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ contrato.titulo }}
+{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid mt-4">
+        <div class="row align-items-center g-4">
+            <hr/>
+            <h2 class="text-center">{{ contrato.titulo }}</h2>
+            <hr>
+            <div class="text-center">
+                {{ contrato.texto|safe }}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

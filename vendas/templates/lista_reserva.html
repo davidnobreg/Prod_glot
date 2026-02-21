@@ -101,12 +101,12 @@
                                 <td>
                                     <div class="row g-2">
                                         <div class="col-4">
-                                            <a href="{% url 'renova-reserva' reserva.id %}" class="btn btn-warning" title="Renovar Reserva">
+                                            <a href="{% url 'renova-reserva' reserva.uuid %}" class="btn btn-warning" title="Renovar Reserva">
                                                 <i class="fa fa-refresh"></i>
                                             </a>
                                         </div>
                                         <div class="col-4">
-                                            <a href="{% url 'criar-venda' reserva.id %}" class="btn btn-success" title="Confirmar Venda">
+                                            <a href="{% url 'criar-venda' reserva.uuid %}" class="btn btn-success" title="Confirmar Venda">
                                                 <i class="fa fa-check"></i>
                                             </a>
                                         </div>

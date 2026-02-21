@@ -7,6 +7,7 @@ from django.template import Template, Context
 from django.http import HttpResponse
 
 from django.db.models import Q
+from pygments.styles.dracula import pink
 from rolepermissions.decorators import has_permission_decorator
 from weasyprint import HTML
 
@@ -39,17 +40,21 @@ def selectVenda(request, venda_id):
 
 
 @has_permission_decorator('reservado')
-def reservado(request, id):
-    lote = get_object_or_404(Lote, pk=id)
+def reservado(request, uuid):
+    lote = get_object_or_404(Lote, uuid=uuid)
     venda = RegisterVenda.objects.filter(lote=lote).first()
+    clienteContato = ClienteTelefone.objects.filter(cliente=venda.cliente).first()
+
 
     # Verifica se o lote está marcado como vendido mas não possui venda registrada
     if lote.situacao.lower() == 'vendido' and venda is None:
         return render(request, 'reservado.html', {'lote': lote})
 
     # Caso contrário, segue para o template padrão
-    context = {'reservas': venda,
-               'lote': lote}
+    context = {
+        'contatoCliente': clienteContato,
+        'reservas': venda,
+        'lote': lote}
     return render(request, 'reservado.html', context)
 
 
@@ -419,8 +424,8 @@ def criarReservado(request, id):
 
 
 @has_permission_decorator('criarVenda')
-def criarVenda(request, id):
-    venda = RegisterVenda.objects.get(id=id)
+def criarVenda(request, venda_uuid):
+    venda = RegisterVenda.objects.get(uuid=venda_uuid)
     lote = Lote.objects.get(id=venda.lote.id)
     venda.dt_venda = datetime.now()
     venda.tipo_venda = 'VENDIDO'
@@ -432,8 +437,8 @@ def criarVenda(request, id):
 
 
 @has_permission_decorator('renovarReserva')
-def renovaReserva(request, id):
-    get_venda = RegisterVenda.objects.get(id=id)
+def renovaReserva(request, venda_uuid):
+    get_venda = RegisterVenda.objects.get(uuid=venda_uuid)
     get_tempo = Empreendimento.objects.get(id=get_venda.lote.quadra.empr_id)
 
     get_venda.dt_reserva = datetime.now() + timedelta(days=get_tempo.tempo_reserva)
@@ -482,18 +487,19 @@ def deleteVenda(request, id):
     return redirect('listar-quadras', id=venda.lote.quadra.empr_id)
     # return redirect('lista-venda')
 
-def proposta(request):
-    venda = get_object_or_404(RegisterVenda, id=request.GET.get('venda_id'))
+
+def proposta(request, venda_uuid):
+    venda = get_object_or_404(RegisterVenda, uuid=venda_uuid) #request.GET.get('venda_uuid'))
     enderecoCliente = ClienteEndereco.objects.filter(id=venda.cliente.id)
     contatoCliente = ClienteEndereco.objects.filter(id=venda.cliente.id)
     conjuge = ClienteConjuge.objects.filter(id=venda.cliente.id)
 
-    #if not venda:
-     #   raise Http404("Venda não informada")
+    # if not venda:
+    #   raise Http404("Venda não informada")
 
-    #try:
+    # try:
     #    venda = RegisterVenda.objects.get(id=venda_id)
-    #except RegisterVenda.DoesNotExist:
+    # except RegisterVenda.DoesNotExist:
     #    raise Http404("Venda não encontrada")
 
     locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
@@ -541,8 +547,8 @@ def proposta(request):
 
     documento = get_object_or_404(
         CadastroDocumento,
-        #tipo = 'venda'
-        id=2,  # 🔥 aqui está a mágica
+        # tipo = 'venda'
+        id=1,  # 🔥 aqui está a mágica
         ativo=True
     )
 
@@ -562,18 +568,19 @@ def proposta(request):
 
     return HttpResponse(html_final)
 
+
 def proposta_pdf(request):
     venda = get_object_or_404(RegisterVenda, id=request.GET.get('venda_id'))
     enderecoCliente = ClienteEndereco.objects.filter(id=venda.cliente.id)
     contatoCliente = ClienteEndereco.objects.filter(id=venda.cliente.id)
     conjuge = ClienteConjuge.objects.filter(id=venda.cliente.id)
 
-    #if not venda:
-     #   raise Http404("Venda não informada")
+    # if not venda:
+    #   raise Http404("Venda não informada")
 
-    #try:
+    # try:
     #    venda = RegisterVenda.objects.get(id=venda_id)
-    #except RegisterVenda.DoesNotExist:
+    # except RegisterVenda.DoesNotExist:
     #    raise Http404("Venda não encontrada")
 
     locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
@@ -621,8 +628,8 @@ def proposta_pdf(request):
 
     documento = get_object_or_404(
         CadastroDocumento,
-        #tipo = 'venda'
-        id=2,  # 🔥 aqui está a mágica
+        # tipo = 'venda'
+        id=1,  # 🔥 aqui está a mágica
         ativo=True
     )
 
@@ -658,6 +665,7 @@ def proposta_pdf(request):
 
     HTML(string=html_final).write_pdf(response)
     return response
+
 
 """def proposta(request):
     venda_id = request.GET.get('venda_id')
@@ -758,21 +766,21 @@ def preparar_contrato(request):
     return HttpResponse(texto_processado)
 
 
-def visualizar_documento(request, venda_id):
-    venda = get_object_or_404(RegisterVenda, id=venda_id)
+def visualizar_documento(request, venda_uuid):
+    venda = get_object_or_404(RegisterVenda, uuid=venda_uuid)
     enderecoCliente = ClienteEndereco.objects.filter(id=venda.cliente.id)
     contatoCliente = ClienteEndereco.objects.filter(id=venda.cliente.id)
     conjuge = ClienteConjuge.objects.filter(id=venda.cliente.id)
 
-
     documento = get_object_or_404(
         CadastroDocumento,
-        #tipo = 'venda'
+        #tipo = 'venda',
         id=venda.lote.quadra.empr.contrato.id,  # 🔥 aqui está a mágica
         ativo=True
     )
 
     template = Template(documento.texto)
+
 
     html_final = template.render(Context({
         'empreendimento': venda,
@@ -780,11 +788,11 @@ def visualizar_documento(request, venda_id):
         'enderecoCliente': enderecoCliente,
         'contatoCliente': contatoCliente,
         'conjuge': conjuge,
-        #'cpf': venda.cliente.cpf,
-        #'lote': venda.lote.numero,
-        #'quadra': venda.lote.quadra.nome,
-        #'valor': venda.valor_total,
-        #'data': venda.data_venda.strftime('%d/%m/%Y'),
+        # 'cpf': venda.cliente.cpf,
+        # 'lote': venda.lote.numero,
+        # 'quadra': venda.lote.quadra.nome,
+        # 'valor': venda.valor_total,
+        # 'data': venda.data_venda.strftime('%d/%m/%Y'),
     }))
 
     return HttpResponse(html_final)
@@ -799,7 +807,7 @@ def documento_pdf(request):
     documento = get_object_or_404(
         CadastroDocumento,
         # tipo = 'venda'
-        id=3, #venda.lote.quadra.empr.contrato.id,  # 🔥 aqui está a mágica
+        id=3,  # venda.lote.quadra.empr.contrato.id,  # 🔥 aqui está a mágica
         ativo=True
     )
 

@@ -1,3 +1,4 @@
+import uuid
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.db import models
@@ -46,18 +47,18 @@ class Empreendimento(models.Model):
     logo = models.ImageField(verbose_name='Logo',
                              null=True, blank=True)
     cnpj = models.CharField(max_length=18, unique=True, null=True, blank=True, help_text="Informe CNPJ (apenas números).")
-    codBanco = models.CharField(max_length=10)
-    banco = models.CharField(max_length=100, choices=TypeBancos.choices, blank=True, verbose_name='Banco')
-    agencia = models.CharField(max_length=10)
-    conta = models.CharField(max_length=15)
-    razaoSocial = models.CharField(max_length=100)
-    rua = models.CharField(max_length=100, blank=True)
-    complemento = models.CharField(max_length=50, blank=True)
-    numero = models.CharField(max_length=20, blank=True)
-    bairro = models.CharField(max_length=100, blank=True)
-    cep = models.CharField(max_length=8, blank=True, validators=[RegexValidator(r'^\d{8}$', 'CEP deve ter 8 números')])
-    cidade = models.CharField(max_length=100, blank=True)
-    estado = models.CharField(max_length=2, choices=choices_estado, default='PB', blank=True)
+    codBanco = models.CharField(max_length=10, null=True, blank=True)
+    banco = models.CharField(max_length=100, choices=TypeBancos.choices, verbose_name='Banco', blank=True)
+    agencia = models.CharField(max_length=10, null=True, blank=True)
+    conta = models.CharField(max_length=15, null=True, blank=True)
+    razaoSocial = models.CharField(max_length=100, null=True, blank=True)
+    rua = models.CharField(max_length=100, null=True, blank=True)
+    complemento = models.CharField(max_length=50, null=True, blank=True)
+    numero = models.CharField(max_length=20, null=True, blank=True)
+    bairro = models.CharField(max_length=100, null=True, blank=True)
+    cep = models.CharField(max_length=8, null=True, blank=True, validators=[RegexValidator(r'^\d{8}$', 'CEP deve ter 8 números')])
+    cidade = models.CharField(max_length=100, null=True, blank=True)
+    estado = models.CharField(max_length=2, choices=choices_estado, default='PB', null=True, blank=True)
     reajuste = models.TextField(blank=True, null=True)
     #registroCartorio = models.TextField(blank=True, null=True)
     observacao = models.TextField(blank=True, null=True)
@@ -102,6 +103,12 @@ class TypeLote(models.TextChoices):
 
 class Lote(models.Model):
     id = models.BigAutoField(primary_key=True)
+    uuid = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+        unique=True,
+        db_index=True
+    )
     lote = models.CharField('Nome do Lote', max_length=50)
     area = models.CharField('ÁREA', max_length=50)
     situacao = models.CharField(max_length=100, choices=TypeLote.choices)

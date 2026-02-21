@@ -7,8 +7,8 @@
 {% load static %}
 
 {% block content %}
-    <div class="container mt-4">
-        <h4 class="mt-4 text-center">GERENCIAMENTO DE RESERVAS</h4>
+    <div class="container mt-5">
+        <h4 class="mt-5 text-center">GERENCIAMENTO DE RESERVAS</h4>
         <hr>
 
         <!-- Filtros -->
@@ -95,7 +95,7 @@
                                 <td>{{ reserva.lote.quadra.empr.nome }}</td>
                                 <td>{{ reserva.lote.quadra }}</td>
                                 <td>{{ reserva.lote }}</td>
-                                <td>{{ reserva.user }}</td>
+                                <td>{{ reserva.user.first_name }}</td>
                                 <td>{{ reserva.tipo_venda }}</td>
                                 <td>{{ reserva.dt_reserva }}</td>
                                 <td>

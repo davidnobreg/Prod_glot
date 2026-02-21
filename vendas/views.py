@@ -232,13 +232,13 @@ def cancelarReservado(request, id):
 
 
 @transaction.atomic
-def reserva_temporaria(request, lote_id):
+def reserva_temporaria(request, lote_uuid):
     # 🔒 BUSCA ÚNICA + LOCK
     lote = (
         Lote.objects
         .select_for_update()
         .select_related('quadra__empr')
-        .get(id=lote_id)
+        .get(uuid=lote_uuid)
     )
 
     get_tempo = lote.quadra.empr

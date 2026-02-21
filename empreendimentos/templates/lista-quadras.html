@@ -106,35 +106,35 @@
                                         {{ lote_info.lote.lote }}
                                     </button>
                                 {% elif lote_info.situacao == 'PRE-RESERVA' %}
-                                    <a href="{% url 'reservado-detalhes-pre-reserva-lote' lote_info.lote.id %}"
+                                    <a href="{% url 'reservado-detalhes-pre-reserva-lote' lote_info.lote.uuid %}"
                                        aria-label="Ver detalhes do lote reservado {{ lote_info.lote.lote }}">
                                         <button type="button" class="btn btn-warning botao-quadra-reservada">
                                             {{ lote_info.lote.lote }}
                                         </button>
                                     </a>
                                 {% elif lote_info.situacao == 'RESERVADO' %}
-                                    <a href="{% url 'reservadoDetalhes' lote_info.lote.id %}"
+                                    <a href="{% url 'reservadoDetalhes' lote_info.lote.uuid %}"
                                        aria-label="Ver detalhes do lote reservado {{ lote_info.lote.lote }}">
                                         <button type="button" class="btn btn-info">
                                             {{ lote_info.lote.lote }}
                                         </button>
                                     </a>
                                 {% elif lote_info.situacao == 'VENDIDO' %}
-                                    <a href="{% url 'reservado' lote_info.lote.id %}"
+                                    <a href="{% url 'reservado' lote_info.lote.uuid %}"
                                        aria-label="Ver detalhes do lote vendido {{ lote_info.lote.lote }}">
                                         <button type="button" class="btn btn-primary botao-quadra-vendida">
                                             {{ lote_info.lote.lote }}
                                         </button>
                                     </a>
                                 {% elif lote_info.situacao == 'CONSTRUTORA' %}
-                                    <a href="{% url 'reservado' lote_info.lote.id %}"
+                                    <a href="{% url 'reservado' lote_info.lote.uuid %}"
                                        aria-label="Lote da construtora {{ lote_info.lote.lote }}">
                                         <button type="button" class="btn btn-secondary">
                                             {{ lote_info.lote.lote }}
                                         </button>
                                     </a>
                                 {% elif lote_info.situacao == 'INDISPONIVEL' %}
-                                    <a href="{% url 'reservado' lote_info.lote.id %}"
+                                    <a href="{% url 'reservado' lote_info.lote.uuid %}"
                                        aria-label="Lote indisponível {{ lote_info.lote.lote }}">
                                         <button type="button" class="btn btn-secondary">
                                             {{ lote_info.lote.lote }}

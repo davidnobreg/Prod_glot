@@ -113,7 +113,7 @@
                                         </button>
                                     </a>
                                 {% elif lote_info.situacao == 'RESERVADO' %}
-                                    <a href="{% url 'reservadoDetalhes' lote_info.lote.uuid %}"
+                                    <a href="{% url 'reservadoDetalhes' lote_info.lote.id %}"
                                        aria-label="Ver detalhes do lote reservado {{ lote_info.lote.lote }}">
                                         <button type="button" class="btn btn-info">
                                             {{ lote_info.lote.lote }}

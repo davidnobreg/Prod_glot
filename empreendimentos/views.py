@@ -618,8 +618,8 @@ def alteraLote(request, id):
 
 
 @has_permission_decorator('reservadoDetalheEmpreendimento')
-def reservadoDetalheEmpreendimento(request, id):
-    lote = Lote.objects.filter(id=id).first()
+def reservadoDetalheEmpreendimento(request, preReserva_uuid):
+    lote = Lote.objects.filter(uuid=preReserva_uuid).first()
 
     context = {'lote': lote}
     return render(request, 'detalhes-reserva-lote.html', context)

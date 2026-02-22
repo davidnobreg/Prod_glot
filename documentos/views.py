@@ -252,7 +252,8 @@ def proposta(request, venda_uuid):
 
 
 def proposta_pdf(request, venda_uuid):
-    venda = get_object_or_404(RegisterVenda, lote__uuid=request.GET.get('venda_uuid'))
+    venda = get_object_or_404(RegisterVenda, uuid=venda_uuid)
+   # venda = get_object_or_404(RegisterVenda, lote__uuid=request.GET.get('venda_uuid'))
     RegisterVenda.objects.filter(lote__uuid=reserva_uuid).first()
     enderecoCliente = ClienteEndereco.objects.filter(id=venda.cliente.id)
     contatoCliente = ClienteEndereco.objects.filter(id=venda.cliente.id)
@@ -266,7 +267,7 @@ def proposta_pdf(request, venda_uuid):
     # except RegisterVenda.DoesNotExist:
     #    raise Http404("Venda não encontrada")
 
-    locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
+    #locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
 
     data_atual = timezone.now().date()
 

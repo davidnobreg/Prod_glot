@@ -182,20 +182,13 @@ def bloco_assinaturas():
 
 
 def proposta(request, venda_uuid):
-    venda = get_object_or_404(RegisterVenda, uuid=venda_uuid) #request.GET.get('venda_uuid'))
+    venda = get_object_or_404(RegisterVenda, uuid=venda_uuid)
+
     enderecoCliente = ClienteEndereco.objects.filter(id=venda.cliente.id)
     contatoCliente = ClienteEndereco.objects.filter(id=venda.cliente.id)
     conjuge = ClienteConjuge.objects.filter(id=venda.cliente.id)
 
-    # if not venda:
-    #   raise Http404("Venda não informada")
-
-    # try:
-    #    venda = RegisterVenda.objects.get(id=venda_id)
-    # except RegisterVenda.DoesNotExist:
-    #    raise Http404("Venda não encontrada")
-
-    locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
+    # 🔥 REMOVIDO locale.setlocale
 
     data_atual = timezone.now().date()
 
@@ -207,9 +200,6 @@ def proposta(request, venda_uuid):
 
     get_tempo = venda.lote.quadra.empr
 
-    # ======================
-    # CÁLCULOS
-    # ======================
     try:
         area = float(venda.lote.area)
         valor_metro = float(venda.lote.valor_metro_quadrado)
@@ -226,12 +216,12 @@ def proposta(request, venda_uuid):
 
     try:
         sinal = float(venda.valor_sinal)
-        valor_metro = float(venda.lote.valor_metro_quadrado)
         valor_financiado = (area * valor_metro) - sinal
     except (TypeError, ValueError):
         valor_financiado = 0
 
     valor_parcela = valor / total_parcelas if total_parcelas > 0 else 0
+
     valor_parcela_formatado = f"R$ {valor_parcela:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
     valor_sinal_formatado = f"R$ {float(venda.valor_sinal):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
     valor_financiado_formatado = f"R$ {valor_financiado:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
@@ -240,8 +230,7 @@ def proposta(request, venda_uuid):
 
     documento = get_object_or_404(
         CadastroDocumento,
-        # tipo = 'venda'
-        id=1,  # 🔥 aqui está a mágica
+        id=1,
         ativo=True
     )
 

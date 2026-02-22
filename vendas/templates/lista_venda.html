@@ -63,15 +63,15 @@
                            value="{{ request.GET.data_fim }}">
                 </div>
 
-                    <!-- Botões -->
-                    <div class="col-md-1 d-flex align-items-end justify-content-end">
-                        <button type="submit" class="btn btn-success me-2" title="Filtrar">
-                            <i class="fas fa-filter"></i>
-                        </button>
-                        <a href="{% url 'lista-venda' %}" class="btn btn-danger" title="Limpar filtros">
-                            <i class="fas fa-window-close"></i>
-                        </a>
-                    </div>
+                <!-- Botões -->
+                <div class="col-md-1 d-flex align-items-end justify-content-end">
+                    <button type="submit" class="btn btn-success me-2" title="Filtrar">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                    <a href="{% url 'lista-venda' %}" class="btn btn-danger" title="Limpar filtros">
+                        <i class="fas fa-window-close"></i>
+                    </a>
+                </div>
             </div>
         </form>
 
@@ -118,16 +118,18 @@
                                        title="Detalhes da Venda">
                                         <i class="fas fa-info-circle"></i>
                                     </a>
-                                    <button
-                                            class="btn btn-danger btn-sm"
-                                            data-venda-id="{{ venda.id }}"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#vendaModalDelete"
-                                            data-bs-toggle="tooltip"
-                                            title="Excluir Venda"
-                                            aria-label="Excluir Venda">
-                                        <i class="fas fa-window-close"></i>
-                                    </button>
+                                    {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
+                                        <button
+                                                class="btn btn-danger btn-sm"
+                                                data-venda-id="{{ venda.id }}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#vendaModalDelete"
+                                                data-bs-toggle="tooltip"
+                                                title="Excluir Venda"
+                                                aria-label="Excluir Venda">
+                                            <i class="fas fa-window-close"></i>
+                                        </button>
+                                    {% endif %}
 
                                 {% endif %}
                             </div>
@@ -149,10 +151,7 @@
                     {% if vendas.has_previous %}
                         <li class="page-item">
                             <a class="btn btn-primary"
-                               href="?
-
-
-                                       {% if query_params %}{{ query_params }}&{% endif %}page={{ vendas.previous_page_number }}">
+                               href="?{% if query_params %}{{ query_params }}&{% endif %}page={{ vendas.previous_page_number }}">
                                 Voltar
                             </a>
                         </li>
@@ -167,10 +166,7 @@
                     {% if vendas.has_next %}
                         <li class="page-item">
                             <a class="btn btn-primary"
-                               href="?
-
-
-                                       {% if query_params %}{{ query_params }}&{% endif %}page={{ vendas.next_page_number }}">
+                               href="?{% if query_params %}{{ query_params }}&{% endif %}page={{ vendas.next_page_number }}">
                                 Avançar
                             </a>
                         </li>

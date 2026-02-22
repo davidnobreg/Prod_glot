@@ -73,7 +73,7 @@
                                 <a href="{% url 'listar-quadras' reservas.lote.quadra.empr_id %}"
                                    class="btn btn-primary text-center text-white py-3 w-80">
                                     <label class="form-label fw-bold d-block">Voltar</label>
-                                    <p class="mb-0">{{ total }}</p>
+
                                 </a>
 
                             </div>
@@ -88,29 +88,32 @@
                                        title="Excluir Reserva"
                                        aria-label="Detalhes da Reserva">
                                         <label class="form-label fw-bold d-block">Deletar</label>
-                                        <p class="mb-0">{{ total }}</p>
+
                                     </a>
 
                                 </div>
+                                <!--?venda_uuid="-->
                                 <div class="col-md-2">
-                                    <a href="{% url 'proposta' %}?venda_id={{ reservas.id }}"
-                                       class="btn btn-secondary text-center text-white py-3 w-80">
+                                    <a class="btn btn-secondary text-center text-white py-3 w-80"
+                                       data-venda-id="{{ reservas.uuid }}"
+                                       data-bs-toggle="modal"
+                                       data-bs-target="#propostaModal"
+                                       data-bs-toggle="tooltip">
                                         <label class="form-label fw-bold d-block">Proposta</label>
-                                        <p class="mb-0">{{ total }}</p>
                                     </a>
                                 </div>
                                 <!--<div class="col-md-2">
                                     <a href="{% url 'renova-reserva' reservas.id %}"
                                        class="btn btn-warning text-center text-black py-3 w-80">
                                         <label class="form-label fw-bold d-block">Renovar</label>
-                                        <p class="mb-0">{{ total }}</p>
+
                                     </a>
                                 </div>-->
                                 <div class="col-md-2">
-                                    <a href="{% url 'criar-venda' reservas.id %}"
+                                    <a href="{% url 'criar-venda' reservas.uuid %}"
                                        class="btn btn-success text-center text-white py-3 w-80">
                                         <label class="form-label fw-bold d-block">Vender</label>
-                                        <p class="mb-0">{{ total }}</p>
+
                                     </a>
                                 </div>
                             {% endif %}
@@ -171,6 +174,36 @@
                     <button type="button" href="{% url 'lista-pre-reserva' %}" class="btn btn-secondary"
                             data-bs-dismiss="modal">Canselar
                     </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- MODAL DE TIPO DE PROPOSTA -->
+    <div class="modal fade" id="propostaModal" tabindex="-1" aria-labelledby="propostaModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <h5 class="modal-title" id="propostaModalLabel">Tipos de Porposta</h5>
+                    <br>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <a href="{% url 'proposta' reservas.uuid %}"
+                               class="btn btn-primary py-2 w-100 rounded-pill">Visualizar</a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'proposta_pdf' reservas.uuid %}"
+                               class="btn btn-secondary py-2 w-100 rounded-pill">PDF</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
                 </div>
 
             </div>

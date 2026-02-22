@@ -126,22 +126,10 @@
                         <!-- Botões de navegação -->
                         <div class="d-flex flex-wrap justify-content-center gap-2">
                             {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" and reservas %}
-                                <a href="{% url 'proposta' reservas.uuid %}"
-                                   class="btn btn-info px-4 py-2 fw-bold">
-                                    PROPOSTA
-                                </a>
-
-                                <a href="
-                                        {% if reservas %}{% url 'listar-quadras' reservas.lote.quadra.empr.id %}{% else %}{% url 'listar-quadras' lote.quadra.empr.id %}{% endif %}"
-                                   class="btn btn-success px-4 py-2 fw-bold">
-                                    CONTRATO
-                                </a>
-
-
                                 <a class="btn btn-danger px-4 py-2 fw-bold"
                                    data-bs-toggle="modal"
                                    data-bs-target="#ReservaModalDelete">
-                                    Cancelar
+                                    Deletar
                                 </a>
                             {% endif %}
 
@@ -155,6 +143,15 @@
                                class="btn btn-warning px-4 py-2 fw-bold">
                                 Listagem
                             </a>
+                            {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" and reservas %}
+                                <a class="btn btn-success px-4 py-2 fw-bold"
+                                   data-venda-id="{{ reservas.uuid }}"
+                                   data-bs-toggle="modal"
+                                   data-bs-target="#contratoModal"
+                                   data-bs-toggle="tooltip">
+                                    Contrato
+                                </a>
+                            {% endif %}
 
                         </div>
 
@@ -171,7 +168,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Detalhes da Reserva</h5>
+                        <h5 class="modal-title">Deleta da Venda</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                     </div>
                     {% csrf_token %}
@@ -191,5 +188,35 @@
             </div>
         </div>
     {% endif %}
+
+    <div class="modal fade" id="contratoModal" tabindex="-1" aria-labelledby="contratoModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <h5 class="modal-title" id="contratoModalLabel">Tipos de Contratos</h5>
+                    <br>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <a href="{% url 'contrato' reservas.uuid %}"
+                               class="btn btn-primary py-2 w-100 rounded-pill">Visualizar</a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'contrato_pdf' %}?venda_uuid={{ reservas.uuid }}"
+                               class="btn btn-secondary py-2 w-100 rounded-pill">PDF</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
 {% endblock %}
 

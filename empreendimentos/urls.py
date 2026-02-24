@@ -36,7 +36,7 @@ urlpatterns = [
     path('cancela_reserva_lote/<int:id>/', cancelarReservadoTemporaria, name='cancela-lote-pre-reserva'),
     path('cancela_reserva_lote_lista/<int:id>/', cancelarReservadoTemporariaLista,
          name='cancela-lote-pre-reserva-lista'),
-    path('renova_reserva_lote/<int:id>/', renovaReserva, name='renova-lote-pre-reserva'),
+    path('renova_reserva_lote/<uuid:renova_uuid>/', renovaReserva, name='renova-lote-pre-reserva'),
     path('libera_lote/<int:id>/', liberaLote, name='libera-lote'),
     path('relatorio-lotes/', gerarRelatorioLotes, name='relatorio-lotes'),
 

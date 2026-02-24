@@ -89,6 +89,7 @@ class Corretor(AbstractUserRole):
         'criarVenda': True,
         'renovarReserva': True,
         'cancelarReservado': True,
+        'cancelarReservadoCadastro': True,
 
 
 

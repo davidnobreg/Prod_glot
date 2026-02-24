@@ -197,10 +197,28 @@ def listaVenda(request):
 
 @has_permission_decorator('listaVendaRelatorio')
 def listaVendaRelatorio(request):
-    vendas = RegisterVenda.objects.filter(
+    """vendas = RegisterVenda.objects.filter(
+        Q(user__icontains=request.user.first_name) |
         Q(is_ativo__icontains='False') |
         Q(tipo_venda__icontains='VENDIDO') |
         Q(tipo_venda__icontains='CANCELADA'))
+
+    vendas = RegisterVenda.objects.filter(
+        Q(user=request.user) |
+        Q(is_ativo=False) |
+        Q(tipo_venda__in=['VENDIDO', 'CANCELADA'])
+    )"""
+    if request.user.tipo_usuario == "ADMINISTRADOR":
+        vendas = RegisterVenda.objects.filter(is_ativo=False)
+    else:
+        vendas = RegisterVenda.objects.filter(
+            user=request.user
+        )
+
+    print(vendas)
+
+    #contato = ClienteTelefone.objects.filter(id=vendas.cliente.id)
+
 
     get_data_venda = request.GET.get('venda')
     get_tipo_venda = request.GET.get('tipo_venda')
@@ -211,22 +229,29 @@ def listaVendaRelatorio(request):
             Q(cliente__name__icontains=get_data_venda) |
             Q(cliente__fone__icontains=get_data_venda) |
             Q(lote__quadra__empr__nome__icontains=get_data_venda) |
-            Q(user__username__icontains=get_data_venda))
+            Q(user__username__icontains=get_data_venda)|
+            Q(user=request.user)
+        )
 
     if get_tipo_venda:
-        vendas = RegisterVenda.objects.filter(tipo_venda=get_tipo_venda)
+        vendas = RegisterVenda.objects.filter(tipo_venda=get_tipo_venda, user=request.user)
+
+
 
     paginator = Paginator(vendas.order_by('-id'), 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    context = {'vendas': page_obj}
+    context = {'vendas': page_obj}#,'contato': contato}
+
     return render(request, 'lista_venda_relatorio.html', context)
 
 
 @has_permission_decorator('cancelarReservadoCadastro')
-def cancelarReservadoCadastro(request, id):
-    get_lote = get_object_or_404(Lote, id=id)
+def cancelarReservadoCadastro(request, cancelaReserva_uuid):
+    get_lote = get_object_or_404(Lote, uuid=cancelaReserva_uuid)
+
+    print(get_lote)
 
     if request.method == 'GET':
         get_lote.situacao = "PRE-RESERVA"
@@ -283,7 +308,7 @@ def reserva_temporaria(request, lote_uuid):
     # DEFENSIVO (DENTRO DO LOCK)
     # ======================
     if lote.situacao == "EM_RESERVA" and not lote.user:
-        lote.situacao = "DISPONIVEL"
+        #lote.situacao = "DISPONIVEL"
         lote.tempo_reservado = None
         lote.save()
         messages.error(request, "Pré-reserva cancelada automaticamente.")
@@ -395,7 +420,7 @@ def criarReservado(request, reserva_uuid):
 
     if request.method == 'GET':
         if not reserva_existente:
-            get_lote.situacao = "EM_RESERVA"
+            get_lote.situacao = "PRE-RESERVA"#"EM_RESERVA"
             get_lote.tempo_reservado = timezone.now().time()
             get_lote.save()
             # print("Lote definido como EM_RESERVA.")

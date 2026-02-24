@@ -91,14 +91,14 @@
 
                             <td>
                                 <div class="d-flex justify-content-center gap-2 flex-wrap">
-                                    <a href="{% url 'renova-lote-pre-reserva' lote.id %}"
+                                    <a href="{% url 'renova-lote-pre-reserva' lote.uuid %}"
                                        class="btn btn-warning text-wrap text-center"
                                        title="Renova Reserva" data-bs-toggle="tooltip"
                                        aria-label="Renova Reserva">
                                         <i class="fa fa-refresh"></i>
                                     </a>
 
-                                    <a href="{% url 'reserva-create' lote.id %}"
+                                    <a href="{% url 'reserva-create' lote.uuid %}"
                                        class="btn btn-success text-wrap text-center"
                                        title="Confirmar Venda" data-bs-toggle="tooltip"
                                        aria-label="Confirmar Venda">
@@ -107,7 +107,7 @@
 
                                     <button class="btn btn-danger text-wrap text-center"
                                             data-bs-toggle="modal"
-                                            data-bs-target="#preReservaModalDelete{{ lote.id }}"
+                                            data-bs-target="#preReservaModalDelete{{ lote.uuid }}"
                                             title="Excluir Reserva"
                                             aria-label="Excluir Reserva">
                                         <i class="fas fa-window-close"></i>

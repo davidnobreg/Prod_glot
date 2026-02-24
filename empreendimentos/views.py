@@ -730,8 +730,8 @@ def cancelarReservadoTemporariaLista(request, id):
 
 
 @has_permission_decorator('renovarReservaTemporaria')
-def renovaReserva(request, id):
-    get_lote = Lote.objects.get(id=id)
+def renovaReserva(request, renova_uuid):
+    get_lote = Lote.objects.get(uuid=renova_uuid)
 
     get_lote.data_termina_reserva = datetime.now() + timedelta(days=get_lote.quadra.empr.tempo_reserva)
 

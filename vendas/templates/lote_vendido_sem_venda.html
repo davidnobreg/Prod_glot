@@ -92,7 +92,7 @@
                                 <label class="form-label fw-bold d-block">Listagem</label>
                             </a>
                         </div>
-                        {% if user.is_authenticated and user.tipo_usuario == "A" and reservas %}
+                        {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" and reservas %}
                             <div class="col-md-4">
                                 <a class="btn btn-danger text-center py-3 w-50"
                                    data-bs-toggle="modal"

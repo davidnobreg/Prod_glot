@@ -36,6 +36,7 @@ class RegisterVenda(models.Model):
     valor_financiado = models.CharField('Valor do Financiamento', max_length=50, default=00.00)
     valor_sinal = models.CharField('Valor do Sinal Para Compra', max_length=50, default=00.00)
     dt_primeira_parcela = models.DateField('Data para primeira parcela', blank=True, null=True)
+    
 
 
     def __str__(self):

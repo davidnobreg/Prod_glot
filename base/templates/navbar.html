@@ -59,8 +59,10 @@
                                 Listagem
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'lista-cliente-relatorio' %}">Clientes</a>
-                                </li>
+                                {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
+                                    <li><a class="dropdown-item" href="{% url 'lista-cliente-relatorio' %}">Clientes</a>
+                                    </li>
+                                {% endif %}
                                 <li><a class="dropdown-item" href="{% url 'lista-venda-relatorio' %}">Vendas</a></li>
                             </ul>
                         </div>
@@ -88,7 +90,8 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="{% url 'lista-cliente' %}">Clientes</a></li>
-                                <li><a class="dropdown-item" href="{% url 'lista-empreendimento-tabela' %}">Empreendimentos</a></li>
+                                <li><a class="dropdown-item" href="{% url 'lista-empreendimento-tabela' %}">Empreendimentos</a>
+                                </li>
                                 <li><a class="dropdown-item" href="{% url 'lista-usuario' %}">Usuários</a></li>
                             </ul>
                         </div>

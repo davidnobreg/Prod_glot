@@ -305,6 +305,8 @@ def listaQuadra(request, id):
 
         lotes_info = [{'lote': lote, 'situacao': lote.situacao} for lote in lotes]
 
+
+
         quadras_info_list.append({
             'quadra': quadra,
             'total_livres': total_livres,
@@ -619,7 +621,38 @@ def alteraLote(request, id):
 
 @has_permission_decorator('reservadoDetalheEmpreendimento')
 def reservadoDetalheEmpreendimento(request, preReserva_uuid):
-    lote = Lote.objects.filter(uuid=preReserva_uuid).first()
+    #lote = Lote.objects.filter(uuid=preReserva_uuid).first()
+
+    lote = None
+
+    """if request.user.is_authenticated:
+        if request.user.tipo_usuario == "ADMINISTRADOR":
+            # Admin pode ver qualquer lote
+            lote = Lote.objects.filter(uuid=preReserva_uuid).first()
+        else:
+            # Usuário comum só pode ver o que ele criou
+            lote = Lote.objects.filter(
+                uuid=preReserva_uuid,
+                user=request.user.first_name
+            ).first()"""
+
+    from django.http import HttpResponseForbidden
+
+    if not request.user.is_authenticated:
+        return render(request, 'permissao.html')
+        #return HttpResponseForbidden("Você não tem permissão.")
+
+    if request.user.tipo_usuario == "ADMINISTRADOR":
+        lote = Lote.objects.filter(uuid=preReserva_uuid).first()
+    else:
+        lote = Lote.objects.filter(
+            uuid=preReserva_uuid,
+            user=request.user.first_name
+        ).first()
+
+    if not lote:
+        return render(request, 'permissao.html')
+        #return HttpResponseForbidden("Você não tem permissão para acessar este lote.")
 
     context = {'lote': lote}
     return render(request, 'detalhes-reserva-lote.html', context)

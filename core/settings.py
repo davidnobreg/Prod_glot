@@ -493,10 +493,93 @@ CKEDITOR_UPLOAD_PATH = "media/uploads/"
 CKEDITOR_CONFIGS = {
     'default': {
         'toolbar': 'full',
-        'width': 650,
+        'width': '100%',
         'height': 400,
-        #'removePlugins': 'elementspath',
+        'removePlugins': 'elementspath',
         #'resize_enabled': False,
+
+        'extraPlugins': 'autogrow',
+        'autoGrow_minHeight': 800,
+        'autoGrow_maxHeight': 1200,
+
+         'contentsCss': [
+            'https://fonts.googleapis.com/css2?family=Calibri&display=swap'
+        ],
+
+        'bodyClass': 'document-editor',
+
+        'format_tags': 'p;h1;h2;h3',
+
+        'font_names': 'Calibri/Calibri, sans-serif;Arial/Arial, Helvetica, sans-serif;Times New Roman/Times New Roman, Times, serif',
+
+        'font_defaultLabel': 'Calibri',
     }
 }
 
+# ==========================================================
+# CKEDITOR – CONFIGURAÇÃO A4 PROFISSIONAL
+# ==========================================================
+
+"""CKEDITOR_UPLOAD_PATH = "media/uploads/"
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': [
+            {
+                'name': 'document',
+                'items': ['Source', '-', 'Preview', 'Print']
+            },
+            {
+                'name': 'clipboard',
+                'items': ['Undo', 'Redo']
+            },
+            {
+                'name': 'basicstyles',
+                'items': ['Bold', 'Italic', 'Underline', 'Strike']
+            },
+            {
+                'name': 'paragraph',
+                'items': [
+                    'NumberedList', 'BulletedList',
+                    '-', 'Outdent', 'Indent',
+                    '-', 'JustifyLeft', 'JustifyCenter',
+                    'JustifyRight', 'JustifyBlock'
+                ]
+            },
+            {
+                'name': 'insert',
+                'items': ['Table', 'HorizontalRule']
+            },
+            {
+                'name': 'styles',
+                'items': ['Format', 'Font', 'FontSize']
+            },
+            {
+                'name': 'colors',
+                'items': ['TextColor', 'BGColor']
+            }
+        ],
+
+        'width': '100%',
+        'height': 800,
+
+        'removePlugins': 'elementspath',
+        'resize_enabled': False,
+
+        'extraPlugins': 'autogrow',
+        'autoGrow_minHeight': 800,
+        'autoGrow_maxHeight': 1200,
+
+        'contentsCss': [
+            'https://fonts.googleapis.com/css2?family=Calibri&display=swap'
+        ],
+
+        'bodyClass': 'document-editor',
+
+        'format_tags': 'p;h1;h2;h3',
+
+        'font_names': 'Calibri/Calibri, sans-serif;Arial/Arial, Helvetica, sans-serif;Times New Roman/Times New Roman, Times, serif',
+
+        'font_defaultLabel': 'Calibri',
+    }
+}"""

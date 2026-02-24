@@ -92,6 +92,7 @@
                             </h5>
                         </div>
                         <div class="card-body d-flex flex-wrap gap-3 justify-content-center">
+
                             {% for lote_info in quadra_info.lotes %}
                                 {% if lote_info.situacao == 'DISPONIVEL' %}
                                     <a href="{% url 'reserva_temporaria' lote_info.lote.uuid %}"
@@ -113,12 +114,15 @@
                                         </button>
                                     </a>
                                 {% elif lote_info.situacao == 'RESERVADO' %}
-                                    <a href="{% url 'reservadoDetalhes' lote_info.lote.uuid %}"
-                                       aria-label="Ver detalhes do lote reservado {{ lote_info.lote.lote }}">
-                                        <button type="button" class="btn btn-info">
-                                            {{ lote_info.lote.lote }}
-                                        </button>
-                                    </a>
+
+                                        <a href="{% url 'reservadoDetalhes' lote_info.lote.uuid %}"
+                                           aria-label="Ver detalhes do lote reservado {{ lote_info.lote.lote }}">
+                                            <button type="button" class="btn btn-info">
+                                                {{ lote_info.lote.lote }}
+                                                {{ lote_info.user }}
+                                            </button>
+                                        </a>
+
                                 {% elif lote_info.situacao == 'VENDIDO' %}
                                     <a href="{% url 'reservado' lote_info.lote.uuid %}"
                                        aria-label="Ver detalhes do lote vendido {{ lote_info.lote.lote }}">

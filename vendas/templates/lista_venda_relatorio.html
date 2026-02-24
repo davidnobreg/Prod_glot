@@ -16,7 +16,7 @@
             <!-- Pesquisar pelo empreendimento -->
             <div class="col-md-3">
                 <label for="vendaSearch" class="form-label"></label>
-                <form class="d-flex" action="{% url 'lista-venda' %}">
+                <form class="d-flex" action="{% url 'lista-venda-relatorio' %}">
                     <input name="venda" id="vendaSearch" type="search" class="form-control me-2"
                            placeholder="Digite sua pesquisa..." value="{{ request.GET.venda }}">
                     <button class="btn btn-success" type="submit">
@@ -53,7 +53,7 @@
             <!-- Resetar filtros -->
             <div class="col-md-1">
                 <label for="idReset" class="form-label">Resetar</label>
-                <a class="btn btn-danger" href="{% url 'lista-venda' %}">
+                <a class="btn btn-danger" href="{% url 'lista-venda-relatorio' %}">
                     <i class="fas fa-window-close"></i>
                 </a>
             </div>
@@ -75,7 +75,7 @@
             {% for venda in vendas %}
                 <tr>
                     <td>{{ venda.cliente }}</td>
-                    <td>{{ venda.cliente.fone }}</td>
+                    <td>{{ contato }}</td>
                     <td>{{ venda.lote.quadra.empr.nome }}</td>
                     <td>{{ venda.lote.quadra }}</td>
                     <td>{{ venda.lote }}</td>

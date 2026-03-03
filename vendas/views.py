@@ -75,7 +75,9 @@ def reservado(request, uuid):
 @has_permission_decorator('reservadoDetalhe')
 def reservadoDetalhe(request, reserva_uuid):
     reservas = RegisterVenda.objects.filter(lote__uuid=reserva_uuid).first()
-    context = {'reservas': reservas}
+    contatoCorretor = User.objects.filter(first_name=reservas.corretor).first()
+    context = {'reservas': reservas,
+               'contatoCorretor': contatoCorretor}
     return render(request, 'reservado_detalhe.html', context)
 
 
@@ -473,16 +475,10 @@ def criarReservado(request, reserva_uuid):
             reserva = form.save(commit=False)
 
             reserva.lote = get_lote
-            is_admin = getattr(request.user, 'tipo_usuario', None) == 'ADMINISTRADOR'
-
-            """if is_admin:
-                reserva.user = form.cleaned_data.get('CORRETOR')
-            else:
-                reserva.user = request.user"""
             is_admin = request.user.tipo_usuario == 'ADMINISTRADOR'
 
             if is_admin:
-                reserva.user = form.cleaned_data.get('CORRETOR')
+                reserva.user = form.cleaned_data.get('corretor')
             else:
                 reserva.user = request.user
             reserva.tipo_venda = 'RESERVADO'

@@ -625,21 +625,13 @@ def reservadoDetalheEmpreendimento(request, preReserva_uuid):
 
     lote = None
 
-    """if request.user.is_authenticated:
-        if request.user.tipo_usuario == "ADMINISTRADOR":
-            # Admin pode ver qualquer lote
-            lote = Lote.objects.filter(uuid=preReserva_uuid).first()
-        else:
-            # Usuário comum só pode ver o que ele criou
-            lote = Lote.objects.filter(
-                uuid=preReserva_uuid,
-                user=request.user.first_name
-            ).first()"""
-
     from django.http import HttpResponseForbidden
 
     if not request.user.is_authenticated:
-        return render(request, 'permissao.html')
+        lote = Lote.objects.filter(uuid=preReserva_uuid).first()
+        print(lote)
+        context = {'lote': lote}
+        return render(request, 'permissao.html', context)
         #return HttpResponseForbidden("Você não tem permissão.")
 
     if request.user.tipo_usuario == "ADMINISTRADOR":
@@ -651,7 +643,10 @@ def reservadoDetalheEmpreendimento(request, preReserva_uuid):
         ).first()
 
     if not lote:
-        return render(request, 'permissao.html')
+        lote = Lote.objects.filter(uuid=preReserva_uuid).first()
+
+        context = {'lote': lote}
+        return render(request, 'permissao.html', context)
         #return HttpResponseForbidden("Você não tem permissão para acessar este lote.")
 
     context = {'lote': lote}

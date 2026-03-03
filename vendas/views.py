@@ -137,10 +137,6 @@ def listaReserva(request):
 def listaVenda(request):
     empreendimentos = Empreendimento.objects.filter(is_ativo=True).order_by('id')
 
-    """vendas = RegisterVenda.objects.exclude(tipo_venda='RESERVADO').filter(
-        Q(is_ativo=False) | Q(tipo_venda__in=['VENDIDO', 'CANCELADA'])
-    )"""
-
     vendas = RegisterVenda.objects.filter(
         tipo_venda__in=['VENDIDO', 'CANCELADA'],
         is_ativo=False
@@ -153,6 +149,7 @@ def listaVenda(request):
         'data_inicio': request.GET.get('data_inicio'),
         'data_fim': request.GET.get('data_fim'),
     }
+    #print(venda)
 
     # Filtrar por empreendimento
     if filtros['tipo_empreendimento']:
@@ -165,7 +162,7 @@ def listaVenda(request):
     if filtros['venda']:
         vendas = vendas.filter(
             Q(cliente__name__icontains=filtros['venda']) |
-            Q(cliente__fone__icontains=filtros['venda']) |
+            #Q(cliente__fone__icontains=filtros['venda']) |
             Q(lote__quadra__empr__nome__icontains=filtros['venda']) |
             Q(user__username__icontains=filtros['venda'])
         )

@@ -1,5 +1,6 @@
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
+from clientes.models import Cliente
 from empreendimentos.models import Lote
 from vendas.models import RegisterVenda
 from mensagem.tasks import enviar_mensagem_task

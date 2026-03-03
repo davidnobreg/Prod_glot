@@ -58,7 +58,6 @@
                             {% for field in form %}
                                 {% if field.field.widget.attrs.col == 'right' %}
                                     <div class="mb-3">
-
                                         {{ field }}
                                         {% if field.errors %}
                                             <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
@@ -334,9 +333,11 @@
         </div>
     </div>
 
-
+    <!-- Custom JS -->
     <script src="{% static 'js/cliente.js' %}"></script>
-
+    <script src="{% static 'js/cep.js' %}"></script>
+    <script src="{% static 'js/conjuge.js' %}"></script>
+    <script src="{% static 'js/telefone.js' %}"></script>
 
 
 

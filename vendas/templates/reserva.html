@@ -7,96 +7,167 @@
 {% load static %}
 
 {% block content %}
-    <div class="container mt-4">
+    <div class="container-fluid mt-4">
         <div class="row align-items-center g-4">
             <hr/>
-            <div class="col-lg-6">
-                <div class="card-body">
-                    {% if lote.quadra.empr.logo %}
-                        <img src="{{ lote.quadra.empr.logo.url }}" alt="{{ lote.quadra.empr.nome }}"
-                             width="100%" height="320"/>
-                    {% endif %}
-                    <h5 class="card-title text-center fw-bold">{{ lote.quadra.empr }}</h5>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card-body">
+                        {% if lote.quadra.empr.logo %}
+                            <img src="{{ lote.quadra.empr.logo.url }}" alt="{{ lote.quadra.empr.nome }}"
+                                 width="100%" height="320"/>
+                        {% endif %}
+                        <h5 class="card-title text-center fw-bold">{{ lote.quadra.empr }}</h5>
+                    </div>
                 </div>
-                <div class="col mt-3">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item text-center">
-                            <div class="row">
-                                <div class="col">
-                                    <h5 class="card-title text-center">
-                                        Quadra: {{ lote.quadra.namequadra }}</h5>
-                                </div>
-                                <div class="col">
-                                    <h5 class="card-title text-center">
-                                        Lote: {{ lote.lote }}</h5>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="list-group-item text-center">
-                            <h5 class="card-title text-center fw-bold">
+                <div class="col-lg-6">
+                    <div class="col mt-3">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item text-center">
                                 <div class="row">
                                     <div class="col">
                                         <h5 class="card-title text-center">
-                                            Quantidade de Parcelas: {{ total_parcelas }}</h5>
+                                            Quadra: {{ lote.quadra.namequadra }}</h5>
                                     </div>
                                     <div class="col">
                                         <h5 class="card-title text-center">
-                                            Valor da Parcela: {{ valor_parcela_formatado }}</h5>
+                                            Lote: {{ lote.lote }}</h5>
                                     </div>
                                 </div>
-                            </h5>
-                        </li>
+                            </li>
+                            <li class="list-group-item text-center">
+                                <h5 class="card-title text-center fw-bold">
+                                    <div class="row">
+                                        <div class="col">
+                                            <h5 class="card-title text-center">
+                                                Quantidade de Parcelas: {{ total_parcelas }}</h5>
+                                        </div>
+                                        <div class="col">
+                                            <h5 class="card-title text-center">
+                                                Valor da Parcela: {{ valor_parcela_formatado }}</h5>
+                                        </div>
+                                    </div>
+                                </h5>
+                            </li>
 
-                        <li class="list-group-item text-center">
-                            <h5 class="card-title text-center fw-bold">
-                                Valor Total: {{ valor_formatado }}</h5>
-                        </li>
+                            <li class="list-group-item text-center">
+                                <h5 class="card-title text-center fw-bold">
+                                    Valor Total: {{ valor_formatado }}</h5>
+                            </li>
 
-                    </ul>
+                        </ul>
+                    </div>
                 </div>
             </div>
-            <!-- Formulário -->
-            <div class="col-lg-6">
-                <form action="." method="post" enctype="multipart/form-data" class="card p-4 shadow">
-                    {% csrf_token %}
-                    <div class="row">
+            <br>
+            <div class="row">
+                <!-- Formulário -->
 
-                        <div class="col mt-3">
-                            <h4 class="mb-3">Cadastrar Reserva</h4>
-                        </div>
-                        <div class="col">
+                <form action="{% url 'reserva-create' lote.uuid %}" method="POST" class="card p-4 shadow">
+                    {% csrf_token %}
+                    <h4 class="mb-3 text-center">Cadastrar Reserva</h4>
+                    <!-- Mensagens -->
+                    {% if status == '0' %}
+                        <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso!</div>
+                    {% elif status == '1' %}
+                        <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
+                    {% elif status == '2' %}
+                        <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
+                    {% elif status == '3' %}
+                        <div class="alert alert-danger" role="alert">Preencha o telefone corretamente.</div>
+                    {% endif %}
+                    <div class="row">
+                        <div class="col md-6"></div>
+                        <div class="col md-6">
                             <a href="{% url 'criar-cliente' %}?lote_id={{ lote.id }}"
                                class="btn btn-primary w-100 mt-3">
                                 Add Clientes
                             </a>
                         </div>
                     </div>
+                    <br>
+                    <br>
+                    <div class="row">
+                        <!-- COLUNA ESQUERDA -->
+                        <div class="col-md-6">
+                            {% for field in form %}
+                                {% if field.field.widget.attrs.col == 'left' %}
+                                    <div class="mb-3">
 
-                    {% for field in form %}
-                        <div class="mb-3">
-                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                            {{ field }}
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
                         </div>
-                    {% endfor %}
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-success rounded-pill">Salvar</button>
+                        <!-- COLUNA DIREITA -->
+                        <div class="col-md-6">
+                            {% for field in form %}
+                                {% if field.field.widget.attrs.col == 'right' %}
+                                    <div class="mb-3">
 
-                        <a href="{% url 'cancelar-reservado-cadastro' lote.uuid %}" class="btn btn-danger rounded-pill">Cancelar</a>
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                            <hr>
+                            <br>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-success rounded-pill">Salvar</button>
+
+
+                                    </div>
+
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-grid gap-2">
+                                        <a href="{% url 'cancelar-reservado-cadastro' lote.uuid %}"
+                                           class="btn btn-danger rounded-pill">Cancelar</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
 
                 </form>
+
             </div>
         </div>
-        <hr/>
-        <hr/>
     </div>
+
+
+
+    <hr/>
+
+    <script src="{% static 'js/cliente.js' %}"></script>
     <script>
         $(document).ready(function () {
+
+            // Inicializa Select2
             $('.select2').select2({
                 placeholder: "Selecione ou pesquise o corretor",
                 allowClear: true,
                 width: '100%'
             });
+
+            // Inicializa Flatpickr
+            flatpickr(".datepicker", {
+                dateFormat: "Y-m-d",   // formato que Django recebe
+                altInput: true,
+                altFormat: "d/m/Y",    // formato visível para o usuário
+                locale: "pt",
+                allowInput: true
+            });
+
+
         });
     </script>
 {% endblock %}

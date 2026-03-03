@@ -53,9 +53,6 @@
                                     <p class="fs-5 mb-0">{{ reservas.dt_venda }}</p>
                                 </div>
                             </div>
-
-
-
                             <!-- Corretor -->
                             <div class="row text-center">
                                 <div class="col-md-6">
@@ -106,12 +103,12 @@
                             <div class="alert alert-warning text-center">
                                 <h4 class="fw-bold text-danger">Este lote está marcado como <u>vendido</u>, mas não há
                                     venda registrada.</h4>
-                                <h5 class="fw-bold text-danger">Id do Lote: {{ lote.id }}</h5>
+                                <h5 class="fw-bold text-danger">Id do Lote: {{ lote.uuid }}</h5>
                                 <p class="mb-0">Verifique com o administrador do sistema ou registre a venda
                                     corretamente.</p>
                                 {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
                                     <div class="col-md-12">
-                                        <a href="{% url 'libera-lote' lote.id %}"
+                                        <a href="{% url 'libera-lote' lote.uuid %}"
                                            class="btn btn-dark text-bg-info text-center py-3 w-50"
                                            aria-label="Exibir quadras">
                                             <label class="form-label fw-bold d-block">Libera Lote</label>
@@ -181,7 +178,7 @@
                         <p><strong>Vencimento da Reserva:</strong> {{ reservas.lote.data_termina_reserva }}</p>
                     </div>
                     <div class="modal-footer">
-                        <a href="{% url 'delete-venda' reservas.lote.id %}" class="btn btn-danger">Deletar</a>
+                        <a href="{% url 'delete-venda' reservas.uuid %}" class="btn btn-danger">Deletar</a>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     </div>
                 </div>

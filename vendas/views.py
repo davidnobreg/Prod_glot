@@ -25,6 +25,7 @@ from .models import RegisterVenda
 from documentos.models import CadastroDocumento
 from empreendimentos.models import Lote, Empreendimento
 from empreendimentos.forms import LoteForm
+from accounts.models import User
 
 
 @has_permission_decorator('selectVenda')
@@ -134,8 +135,13 @@ def listaReserva(request):
 def listaVenda(request):
     empreendimentos = Empreendimento.objects.filter(is_ativo=True).order_by('id')
 
-    vendas = RegisterVenda.objects.exclude(tipo_venda='RESERVADO').filter(
+    """vendas = RegisterVenda.objects.exclude(tipo_venda='RESERVADO').filter(
         Q(is_ativo=False) | Q(tipo_venda__in=['VENDIDO', 'CANCELADA'])
+    )"""
+
+    vendas = RegisterVenda.objects.filter(
+        tipo_venda__in=['VENDIDO', 'CANCELADA'],
+        is_ativo=False
     )
 
     filtros = {
@@ -381,6 +387,8 @@ def criarReservado(request, reserva_uuid):
     get_tempo = Empreendimento.objects.get(id=get_lote.quadra.empr_id)
     reserva_existente = RegisterVenda.objects.filter(lote=get_lote).first()
 
+    corretor =  User.objects.filter(first_name=get_lote.user).first()
+
     try:
         area = float(get_lote.area)
         valor_metro = float(get_lote.valor_metro_quadrado)
@@ -418,43 +426,82 @@ def criarReservado(request, reserva_uuid):
         get_lote.save()
         # print("Liberando lote bloqueado sem reserva válida.")
 
-    if request.method == 'GET':
+    """if request.method == 'GET':
         if not reserva_existente:
             get_lote.situacao = "PRE-RESERVA"#"EM_RESERVA"
             get_lote.tempo_reservado = timezone.now().time()
             get_lote.save()
             # print("Lote definido como EM_RESERVA.")
-        form = RegisterVendaForm()  # inicializa form caso não seja post.
+        form = RegisterVendaForm(empreendimento=get_tempo)  # inicializa form caso não seja post."""
+
+    if request.method == 'GET':
+        if not reserva_existente:
+            get_lote.situacao = "PRE-RESERVA"
+            get_lote.tempo_reservado = timezone.now().time()
+            get_lote.save()
+
+        form = RegisterVendaForm(
+            user=request.user,
+            empreendimento=get_tempo,
+            lote=get_lote
+        )
 
     if request.method == 'POST':
-        form = RegisterVendaForm(request.POST, instance=reserva_existente) if reserva_existente else RegisterVendaForm(
-            request.POST)
+
+        # Se existir e estiver cancelada → editar
+        if reserva_existente and reserva_existente.tipo_venda == 'CANCELADA':
+            form = RegisterVendaForm(
+                request.POST,
+                instance=reserva_existente,
+                user=request.user
+            )
+
+        # Se não existir → criar novo
+        elif not reserva_existente:
+            form = RegisterVendaForm(
+                request.POST,
+                user=request.user
+            )
+
+        # Se existir e não estiver cancelada → bloquear
+        else:
+            messages.error(request, "Já existe uma venda ativa para este lote.")
+            return redirect('listar-quadras', id=get_lote.quadra.empr_id)
 
         if form.is_valid():
-            cliente = form.cleaned_data.get('cliente')
-            if not cliente:
-                messages.error(request, "Cliente inválido. Informe um cliente válido.")
-                return redirect('criar-reservado', id=id)
 
-            reserva_form = form.save(commit=False)
-            reserva_form.lote = get_lote
-            reserva_form.user = request.user
-            reserva_form.tipo_venda = 'RESERVADO'
-            reserva_form.is_ativo = False
-            reserva_form.dt_reserva = timezone.now() + timedelta(days=get_tempo.tempo_reserva)
-            reserva_form.quantidade_parcelas = total_parcelas
-            reserva_form.valor_inicio_contrato = valor
-            reserva_form.valor_financiado = valor
-            reserva_form.save()
+            reserva = form.save(commit=False)
+
+            reserva.lote = get_lote
+            is_admin = getattr(request.user, 'tipo_usuario', None) == 'ADMINISTRADOR'
+
+            """if is_admin:
+                reserva.user = form.cleaned_data.get('CORRETOR')
+            else:
+                reserva.user = request.user"""
+            is_admin = request.user.tipo_usuario == 'ADMINISTRADOR'
+
+            if is_admin:
+                reserva.user = form.cleaned_data.get('CORRETOR')
+            else:
+                reserva.user = request.user
+            reserva.tipo_venda = 'RESERVADO'
+            reserva.is_ativo = False
+            reserva.dt_reserva = timezone.now() + timedelta(days=get_tempo.tempo_reserva)
+            reserva.valor_financiado = valor
+            reserva.v = valor
+
+
+            reserva.save()
 
             get_lote.situacao = "RESERVADO"
             get_lote.save()
-            messages.success(request, "Reservado com sucesso!")
+
+            messages.success(request, "Reserva atualizada com sucesso!")
             return redirect('listar-quadras', id=get_lote.quadra.empr_id)
+
         else:
             messages.error(request, "Erro ao registrar reserva.")
-            get_lote.situacao = "PRE-RESERVA"
-            get_lote.save()
 
     context = {'form': form,
                'lote': get_lote,
@@ -516,8 +563,8 @@ def deleteResevaLista(request, id):
 
 
 @has_permission_decorator('cancelarVenda')
-def deleteVenda(request, id):
-    venda = RegisterVenda.objects.get(id=id)
+def deleteVenda(request, delete_uuid):
+    venda = RegisterVenda.objects.get(uuid=delete_uuid)
     loteSituação = Lote.objects.get(id=venda.lote.id)
     loteSituação.situacao = 'DISPONIVEL'
     venda.tipo_venda = 'CANCELADA'
@@ -525,7 +572,7 @@ def deleteVenda(request, id):
     loteSituação.save()
     venda.save()
     messages.success(request, "Venda deletada com sucesso!")
-    return redirect('listar-quadras', id=venda.lote.quadra.empr_id)
+    return redirect('listar-quadras', id=venda.lote.quadra.empr.id)
     # return redirect('lista-venda')
 
 

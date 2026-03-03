@@ -147,7 +147,7 @@ class ClienteEndereco(models.Model):
     is_ativo = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.rua}, {self.numero} - {self.cidade}/{self.estado}"
+        return f"{self.rua}, {self.numero} - {self.bairro} - {self.cep} - {self.cidade}/{self.estado}"
 
 # ==========================================================
 # TELEFONES (FK → Cliente)

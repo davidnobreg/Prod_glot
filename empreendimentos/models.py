@@ -138,6 +138,8 @@ class Lote(models.Model):
     data_termina_reserva = models.DateField(default=datetime.now, blank=True)
     largura = models.DecimalField(verbose_name="largura", max_digits=5, decimal_places=2, blank=True, null=True)
     comprimento = models.DecimalField(verbose_name="comprimento", max_digits=5, decimal_places=2, blank=True, null=True)
+    dimenssoes = models.BooleanField(default=True)
+    medidasConfrontacoes = models.TextField(blank=True)
 
     def save(self, *args, **kwargs):
         self.tempo_reservado = timezone.localtime(timezone.now()) + timedelta(minutes=1)

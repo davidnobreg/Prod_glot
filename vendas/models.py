@@ -32,9 +32,9 @@ class RegisterVenda(models.Model):
     is_ativo = models.BooleanField(default=False)
     quantidade_parcelas = models.IntegerField(blank=True, null=True,)
     quantidade_parcelas_pagas = models.IntegerField(blank=True, null=True,)
-    valor_inicio_contrato = models.CharField('Valor do ínicio do Contato', max_length=50, default=00.00)
+    valor_inicio_contrato = models.CharField('Entrada', max_length=50, default=00.00)
     valor_financiado = models.CharField('Valor do Financiamento', max_length=50, default=00.00)
-    valor_sinal = models.CharField('Valor do Sinal Para Compra', max_length=50, default=00.00)
+    valor_sinal = models.CharField('Valor do Sinal',  blank=True, null=True, max_length=50, default=00.00)
     dt_primeira_parcela = models.DateField('Data para primeira parcela', blank=True, null=True)
     corretor = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="corretor")
     

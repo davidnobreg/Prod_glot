@@ -316,6 +316,9 @@
     <script>
         window.telefonesTemp = {{ telefones_json|safe }};
     </script>
-
-<script src="{% static 'js/cliente.js' %}"></script>
+    <!-- Custom JS -->
+    <script src="{% static 'js/cliente.js' %}"></script>
+    <script src="{% static 'js/cep.js' %}"></script>
+    <script src="{% static 'js/conjuge.js' %}"></script>
+    <script src="{% static 'js/telefone.js' %}"></script>
 {% endblock %}

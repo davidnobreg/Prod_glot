@@ -29,7 +29,7 @@ def selectCliente(request, cliente_id):
 
 @has_permission_decorator('criarCliente')
 def criarCliente(request):
-    lote_id = request.GET.get('lote_id') or request.POST.get('lote_id')
+    lote_uuid = request.GET.get('lote_uuid') or request.POST.get('lote_uuid')
     previous = request.META.get('HTTP_REFERER', '')
     veio_da_lista = '/clientes/listar_clientes/' in previous
 
@@ -44,7 +44,7 @@ def criarCliente(request):
                 'formEndereco': ClienteEnderecoForm(),
                 'formTelefone': ClienteTelefoneForm(),
                 'veio_da_lista': veio_da_lista,
-                'lote_id': lote_id,
+                'lote_uuid': lote_uuid,
             })
 
         # =========================
@@ -128,8 +128,8 @@ def criarCliente(request):
         # =========================
         messages.success(request, "Cliente cadastrado com sucesso!")
 
-        if lote_id:
-            return redirect(f'/vendas/insert_reserva/{lote_id}/')
+        if lote_uuid:
+            return redirect(f'/vendas/insert_reserva/{lote_uuid}/')
         if veio_da_lista:
             return redirect('lista-cliente')
 
@@ -149,7 +149,7 @@ def criarCliente(request):
         'formEndereco': formEndereco,
         'formTelefone': formTelefone,
         'veio_da_lista': veio_da_lista,
-        'lote_id': lote_id,
+        'lote_uuid': lote_uuid,
     }
 
     return render(request, 'cliente.html', context)

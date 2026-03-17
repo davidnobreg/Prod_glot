@@ -688,8 +688,8 @@ def listaReservasTemporaria(request):
 
 
 # @has_permission_decorator('liberaLote')
-def liberaLote(request, id):
-    get_lote = get_object_or_404(Lote, id=id)
+def liberaLote(request, lote_uuid):
+    get_lote = get_object_or_404(Lote, uuid=lote_uuid)
 
     if request.method == 'GET':
         get_lote.situacao = "DISPONIVEL"

@@ -131,6 +131,7 @@
                             {% endif %}
 
                             <a href="
+
                                     {% if reservas %}{% url 'listar-quadras' reservas.lote.quadra.empr.id %}{% else %}{% url 'listar-quadras' lote.quadra.empr.id %}{% endif %}"
                                class="btn btn-primary px-4 py-2 fw-bold">
                                 Quadras
@@ -199,8 +200,16 @@
                     <br>
                     <div class="row g-2">
                         <div class="col-6">
-                            <a href="{% url 'contrato' reservas.uuid %}"
-                               class="btn btn-primary py-2 w-100 rounded-pill">Visualizar</a>
+                            {% if reservas and reservas.uuid %}
+                                <a href="{% url 'contrato' reservas.uuid %}"
+                                   class="btn btn-primary py-2 w-100 rounded-pill">
+                                    Visualizar
+                                </a>
+                            {% else %}
+                                <button class="btn btn-secondary py-2 w-100 rounded-pill" disabled>
+                                    Indisponível
+                                </button>
+                            {% endif %}
                         </div>
                         <div class="col-6">
                             <a href="{% url 'contrato_pdf' %}?venda_uuid={{ reservas.uuid }}"

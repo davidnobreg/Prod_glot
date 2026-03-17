@@ -43,8 +43,8 @@ def selectVenda(request, venda_id):
 
 
 @has_permission_decorator('reservado')
-def reservado(request, uuid):
-    lote = get_object_or_404(Lote, uuid=uuid)
+def reservado(request, lote_uuid):
+    lote = get_object_or_404(Lote, uuid=lote_uuid)
     venda = RegisterVenda.objects.filter(lote=lote).first()
 
     clienteContato = None

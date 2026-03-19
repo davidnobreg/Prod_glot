@@ -17,7 +17,8 @@
 
             <!-- Formulário -->
             <div class="col-md-10 offset-md-1">
-                <form action="{% url 'criar-cliente' %}" method="POST" class="card p-4 shadow">
+                <!--<form action="{% url 'criar-cliente' %}" method="POST" class="card p-4 shadow">-->
+                <form action="{% url 'criar-cliente' %}" method="POST" class="card p-4 shadow" novalidate>
                     {% csrf_token %}
                     <input type="hidden" name="conjuge_json" id="conjuge_json">
                     <input type="hidden" name="endereco_json" id="endereco_json">
@@ -334,10 +335,7 @@
     </div>
 
     <!-- Custom JS -->
-    <script src="{% static 'js/cliente.js' %}"></script>
-    <script src="{% static 'js/cep.js' %}"></script>
-    <script src="{% static 'js/conjuge.js' %}"></script>
-    <script src="{% static 'js/telefone.js' %}"></script>
+
 
 
 

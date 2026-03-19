@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const button = event.relatedTarget;
             const clienteId = button.getAttribute('data-cliente-id');
 
-            fetch(`/clientes/select/${clienteId}/`)
+            fetch(`${clienteId}/`)
                 .then(resp => resp.ok ? resp.json() : Promise.reject(resp.status))
                 .then(data => preencherModalCliente(clienteId, data))
                 .catch(err => console.error('Erro ao buscar dados do cliente:', err));

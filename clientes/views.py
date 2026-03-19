@@ -13,11 +13,11 @@ from .models import Cliente, ClienteConjuge, ClienteEndereco, ClienteTelefone
 
 
 @has_permission_decorator('selectCliente')
-def selectCliente(request, cliente_id):
-    cliente = get_object_or_404(Cliente, id=cliente_id)
+def selectCliente(request, cliente_uuid):
+    cliente = get_object_or_404(Cliente, uuid=cliente_uuid)
 
     data = {
-        "id": cliente.id,
+        "uuid": cliente.uuid,
         "name": cliente.name,
         "documento": cliente.documento,
         "email": cliente.email,
@@ -25,6 +25,22 @@ def selectCliente(request, cliente_id):
 
     return JsonResponse(data)
 
+#@has_permission_decorator('selectClienteEndereco')
+def selectClienteEndereco(request, endereco_id):
+    endereco = get_object_or_404(ClienteEndereco, id=endereco_id)
+
+    data = {
+        "idEndereco": endereco.id,
+        "rua": endereco.rua,
+        "complemento": endereco.complemento,
+        "numero": endereco.numero,
+        "bairro": endereco.bairro,
+        "cep": endereco.cep,
+        "cidade": endereco.cidade,
+        "estado": endereco.estado,
+    }
+
+    return JsonResponse(data)
 
 
 @has_permission_decorator('criarCliente')
@@ -94,15 +110,15 @@ def criarCliente(request):
         # =========================
         conjuge_json = request.POST.get('conjuge_json')
 
-        print("CONJUGE_JSON:", request.POST.get("conjuge_json"))
+        #print("CONJUGE_JSON:", request.POST.get("conjuge_json"))
 
         if conjuge_json:
             try:
                 conjuge_data = json.loads(conjuge_json)
-                print(conjuge_data)
+
 
                 form_conjuge = ClienteConjugeForm(conjuge_data)
-                print(form_conjuge)
+                
 
                 if form_conjuge.is_valid():
                     conjuge = form_conjuge.save(commit=False)
@@ -360,38 +376,22 @@ def listaClienteRelatorio(request):
 
 
 @has_permission_decorator('deletarCliente')
-def deleteCliente(request, id):
+def deleteCliente(request, cliente_uuid):
     try:
-        cliente = Cliente.objects.get(id=id)
+        cliente = get_object_or_404(Cliente, uuid=cliente_uuid)
 
-        # Deletar telefones relacionados
-        if hasattr(cliente, 'telefones'):
-            cliente.telefones.all().delete()
-
-        # Deletar endereços relacionados
-        if hasattr(cliente, 'enderecos'):
-            cliente.enderecos.all().delete()
-
-        # Deletar cônjuge relacionado
-        if hasattr(cliente, 'conjuge') and cliente.conjuge is not None:
-            cliente.conjuge.delete()
-
-        # Marcar como inativo
+        # 🔥 SOFT DELETE (apenas desativa)
         cliente.is_ativo = False
 
-        # Evitar conflito de UNIQUE no email
+        # 🔒 Evita conflito de UNIQUE no email (mantive sua lógica)
         if cliente.email:
-            cliente.email = f"deleted_{cliente.id}@example.com"
+            cliente.email = f"deleted_{cliente.uuid}@example.com"
 
-        # Salvar alterações
         cliente.save()
 
-        return redirect('lista-cliente')
-
-    except Cliente.DoesNotExist:
-        messages.error(request, "Cliente não encontrado.")
+        messages.success(request, "Cliente desativado com sucesso.")
         return redirect('lista-cliente')
 
     except Exception as e:
-        messages.error(request, f"Erro ao deletar cliente: {str(e)}")
+        messages.error(request, f"Erro ao desativar cliente: {str(e)}")
         return redirect('lista-cliente')

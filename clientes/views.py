@@ -109,17 +109,12 @@ def criarCliente(request):
         # 4️⃣ Salvar Cônjuge (JSON)
         # =========================
         conjuge_json = request.POST.get('conjuge_json')
-
         #print("CONJUGE_JSON:", request.POST.get("conjuge_json"))
 
         if conjuge_json:
             try:
                 conjuge_data = json.loads(conjuge_json)
-
-
                 form_conjuge = ClienteConjugeForm(conjuge_data)
-                
-
                 if form_conjuge.is_valid():
                     conjuge = form_conjuge.save(commit=False)
                     conjuge.cliente = cliente
@@ -134,7 +129,6 @@ def criarCliente(request):
             except json.JSONDecodeError:
                 messages.warning(request, "Cônjuge não salvo: JSON inválido")
 
-        print("CONJUGE_JSON:", conjuge_json)
         import logging
         logger = logging.getLogger(__name__)
         logger.warning(conjuge_json)

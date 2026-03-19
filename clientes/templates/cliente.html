@@ -45,7 +45,6 @@
                             {% for field in form %}
                                 {% if field.field.widget.attrs.col == 'left' %}
                                     <div class="mb-3">
-
                                         {{ field }}
                                         {% if field.errors %}
                                             <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>

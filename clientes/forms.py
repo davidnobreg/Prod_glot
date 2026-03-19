@@ -95,6 +95,9 @@ class ClienteForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        for field in self.fields.values():
+            field.required = False  # 🔥 ESSENCIAL
+
         # Configuração inicial
         if 'nacionalidade' in self.fields:
             self.fields['nacionalidade'].initial = "Brasileiro"

@@ -1,7 +1,7 @@
 // ==============================
 // UTILITÁRIOS
 // ==============================
-const somenteNumeros = (valor) => valor.replace(/\D/g, "");
+const somenteNumeros = (valor = "") => valor.replace(/\D/g, "");
 
 const validarCPF = (cpf) => {
     cpf = somenteNumeros(cpf);
@@ -26,29 +26,45 @@ const formatarCPF = (cpf) =>
         .replace(/\.(\d{3})(\d)/, ".$1-$2");
 
 // ==============================
-// MODAL
+// CONTROLE DE CAMPOS
 // ==============================
-let modalConjuge = null;
+const CAMPOS_CONJUGE = [
+    "id_nome_conjuge",
+    "id_documento_conjuge",
+    "id_numero_rg_conjuge",
+    "id_orgao_emissor_rg_conjuge"
+];
+
+const getCampo = (id) => document.getElementById(id);
+
+const toggleCamposConjuge = (ativo) => {
+    CAMPOS_CONJUGE.forEach(id => {
+        const campo = getCampo(id);
+        if (!campo) return;
+
+        campo.required = ativo;
+        campo.disabled = !ativo;
+
+        if (!ativo) campo.value = "";
+    });
+};
 
 // ==============================
-// MONTAR JSON DO CÔNJUGE
+// JSON DO CÔNJUGE
 // ==============================
 const atualizarConjugeJson = () => {
-
-    const nome = document.getElementById("id_nome_conjuge")?.value.trim() || "";
-    const documentoInput = document.getElementById("id_documento_conjuge");
-    const rg = document.getElementById("id_numero_rg_conjuge")?.value.trim() || "";
-    const orgao = document.getElementById("id_orgao_emissor_rg_conjuge")?.value.trim() || "";
+    const nome = getCampo("id_nome_conjuge")?.value.trim() || "";
+    const documentoInput = getCampo("id_documento_conjuge");
+    const rg = getCampo("id_numero_rg_conjuge")?.value.trim() || "";
+    const orgao = getCampo("id_orgao_emissor_rg_conjuge")?.value.trim() || "";
 
     let documento = "";
 
     if (documentoInput) {
         documento = somenteNumeros(documentoInput.value);
 
-        // Formatação visual do CPF
-        if (documento.length <= 11) {
-            documentoInput.value = formatarCPF(documentoInput.value);
-        }
+        // Formatação visual
+        documentoInput.value = formatarCPF(documentoInput.value);
     }
 
     const conjuge = {
@@ -58,47 +74,61 @@ const atualizarConjugeJson = () => {
         orgao_emissor_rg_conjuge: orgao
     };
 
-    const hidden = document.getElementById("conjuge_json");
+    const hidden = getCampo("conjuge_json");
     if (hidden) {
         hidden.value = JSON.stringify(conjuge);
     }
 };
 
 // ==============================
-// EVENTOS
+// INICIALIZAÇÃO
 // ==============================
 document.addEventListener("DOMContentLoaded", () => {
 
-    // Inicializa modal
-    const modalEl = document.getElementById("modalConjuge");
+    const estadoCivil = getCampo("id_estado_civil");
+    const modalEl = getCampo("modalConjuge");
+
+    let modalConjuge = null;
+
     if (modalEl && window.bootstrap) {
         modalConjuge = new bootstrap.Modal(modalEl);
     }
 
-    // Abre modal ao selecionar estado civil CASADO
-    const estadoCivil = document.getElementById("id_estado_civil");
-    if (estadoCivil && modalConjuge) {
-        estadoCivil.addEventListener("change", () => {
-            if (estadoCivil.value?.toLowerCase() === "casado") {
-                modalConjuge.show();
-            }
-        });
+    // ==========================
+    // CONTROLE ESTADO CIVIL
+    // ==========================
+    const atualizarEstadoCivil = () => {
+        const isCasado = estadoCivil?.value?.toLowerCase() === "casado";
+
+        toggleCamposConjuge(isCasado);
+
+        if (isCasado && modalConjuge) {
+            modalConjuge.show();
+        }
+
+        // limpa JSON se não for casado
+        if (!isCasado) {
+            const hidden = getCampo("conjuge_json");
+            if (hidden) hidden.value = "";
+        }
+    };
+
+    if (estadoCivil) {
+        estadoCivil.addEventListener("change", atualizarEstadoCivil);
+
+        // Executa ao carregar (edição de cliente, por exemplo)
+        atualizarEstadoCivil();
     }
 
-    // Atualiza JSON automaticamente (igual endereço)
-    const camposConjuge = [
-        "id_nome_conjuge",
-        "id_documento_conjuge",
-        "id_numero_rg_conjuge",
-        "id_orgao_emissor_rg_conjuge"
-    ];
+    // ==========================
+    // EVENTOS DOS CAMPOS
+    // ==========================
+    CAMPOS_CONJUGE.forEach(id => {
+        const campo = getCampo(id);
+        if (!campo) return;
 
-    camposConjuge.forEach(id => {
-        const campo = document.getElementById(id);
-        if (campo) {
-            campo.addEventListener("change", atualizarConjugeJson);
-            campo.addEventListener("keyup", atualizarConjugeJson);
-            campo.addEventListener("blur", atualizarConjugeJson);
-        }
+        ["input", "change", "blur"].forEach(evento => {
+            campo.addEventListener(evento, atualizarConjugeJson);
+        });
     });
 });

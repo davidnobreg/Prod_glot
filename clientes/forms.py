@@ -96,7 +96,9 @@ class ClienteForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         for field in self.fields.values():
-            field.required = False  # 🔥 ESSENCIAL
+            field.required = False
+            field.widget.attrs.pop('required', None)
+            field.widget.attrs.setdefault('class', 'form-control mb-3')
 
         # Configuração inicial
         if 'nacionalidade' in self.fields:

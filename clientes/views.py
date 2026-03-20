@@ -52,9 +52,6 @@ def criarCliente(request):
     if request.method == 'POST':
         form = ClienteForm(request.POST)
 
-        print("USER:", request.user)
-        print("AUTH:", request.user.is_authenticated)
-
         if not form.is_valid():
             messages.error(request, "Verifique os campos obrigatórios.")
             return render(request, 'cliente.html', {

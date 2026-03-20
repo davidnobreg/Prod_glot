@@ -13,10 +13,10 @@
             <div class="row">
                 <div class="col-lg-6">
                     <div class="card-body">
-                        {% if lote.quadra.empr.logo %}
+                        <!--{% if lote.quadra.empr.logo %}
                             <img src="{{ lote.quadra.empr.logo.url }}" alt="{{ lote.quadra.empr.nome }}"
                                  width="100%" height="320"/>
-                        {% endif %}
+                        {% endif %}-->
                         <h5 class="card-title text-center fw-bold">{{ lote.quadra.empr }}</h5>
                     </div>
                 </div>
@@ -35,7 +35,7 @@
                                     </div>
                                 </div>
                             </li>
-                            <li class="list-group-item text-center">
+                            <!--<li class="list-group-item text-center">
                                 <h5 class="card-title text-center fw-bold">
                                     <div class="row">
                                         <div class="col">
@@ -53,7 +53,7 @@
                             <li class="list-group-item text-center">
                                 <h5 class="card-title text-center fw-bold">
                                     Valor Total: {{ valor_formatado }}</h5>
-                            </li>
+                            </li>-->
 
                         </ul>
                     </div>
@@ -94,7 +94,8 @@
                                 {% if field.field.widget.attrs.col == 'left' %}
                                     <div class="mb-3">
 
-                                        {{ field }}
+                                        {{ field.label_tag }}   <!-- Aqui o label aparece acima -->
+                                        {{ field }}             <!-- Input do campo -->
                                         {% if field.errors %}
                                             <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
                                         {% endif %}
@@ -108,7 +109,8 @@
                                 {% if field.field.widget.attrs.col == 'right' %}
                                     <div class="mb-3">
 
-                                        {{ field }}
+                                        {{ field.label_tag }}   <!-- Aqui o label aparece acima -->
+                                        {{ field }}             <!-- Input do campo -->
                                         {% if field.errors %}
                                             <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
                                         {% endif %}

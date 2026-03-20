@@ -17,11 +17,19 @@ class RegisterVendaForm(forms.ModelForm):
             'corretor'
         )
 
+        labels = {
+            'cliente': 'Cliente',
+            'valor_sinal': 'Valor do Sinal',
+            'valor_inicio_contrato': 'Valor da Entrada',
+            'quantidade_parcelas': 'Quantidade de Parcelas',
+            'dt_primeira_parcela': 'Data da Primeira Parcela',
+            'corretor': 'Corretor'
+        }
+
         widgets = {
             'dt_primeira_parcela': forms.DateInput(attrs={
                 'type': 'text',
                 'class': 'form-control mb-3 datepicker',
-                'placeholder': 'Selecione a data'
             }),
             'cliente': forms.Select(attrs={
                 'class': 'form-control mb-3 select2'

@@ -52,6 +52,9 @@ def criarCliente(request):
     if request.method == 'POST':
         form = ClienteForm(request.POST)
 
+        print("USER:", request.user)
+        print("AUTH:", request.user.is_authenticated)
+
         if not form.is_valid():
             messages.error(request, "Verifique os campos obrigatórios.")
             return render(request, 'cliente.html', {
@@ -71,8 +74,30 @@ def criarCliente(request):
         # =========================
         # 2️⃣ Salvar Endereço (JSON)
         # =========================
-        endereco_json = request.POST.get('endereco_json')
-        if endereco_json:
+        endereco_json = request.POST.get("endereco_json", "{}")
+
+        try:
+            endereco = json.loads(endereco_json)
+        except json.JSONDecodeError:
+            endereco = {}
+            messages.warning(request, "Endereço inválido. Não foi possível salvar.")
+
+        print(request.POST.get("endereco_json"))
+
+        if endereco:
+            ClienteEndereco.objects.create(
+                cliente=cliente,
+                cep=endereco_data.get('cep', ''),
+                rua=endereco_data.get('rua', ''),
+                numero=endereco_data.get('numero', ''),
+                complemento=endereco_data.get('complemento', ''),
+                bairro=endereco_data.get('bairro', ''),
+                cidade=endereco_data.get('cidade', ''),
+                estado=endereco_data.get('estado', ''),
+                is_ativo=True
+            )
+
+        """if endereco_json:
             try:
                 endereco_data = json.loads(endereco_json)
                 ClienteEndereco.objects.create(
@@ -87,7 +112,7 @@ def criarCliente(request):
                     is_ativo=True
                 )
             except json.JSONDecodeError:
-                messages.warning(request, "Endereço inválido. Não foi possível salvar.")
+                messages.warning(request, "Endereço inválido. Não foi possível salvar.")"""
 
         # =========================
         # 3️⃣ Salvar Telefones (JSON)

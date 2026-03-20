@@ -37,17 +37,13 @@ const CAMPOS_CONJUGE = [
 
 const getCampo = (id) => document.getElementById(id);
 
-// 🔥 CORREÇÃO AQUI
-// Não usar required enquanto o campo pode estar oculto
 const toggleCamposConjuge = (ativo) => {
     CAMPOS_CONJUGE.forEach(id => {
         const campo = getCampo(id);
         if (!campo) return;
 
+        campo.required = ativo;
         campo.disabled = !ativo;
-
-        // remove required sempre (evita erro de "not focusable")
-        campo.required = false;
 
         if (!ativo) campo.value = "";
     });
@@ -104,12 +100,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const atualizarEstadoCivil = () => {
         const isCasado = estadoCivil?.value?.toLowerCase() === "casado";
 
+        toggleCamposConjuge(isCasado);
+
         if (isCasado && modalConjuge) {
             modalConjuge.show();
-        } else {
-            toggleCamposConjuge(false);
+        }
 
-            // limpa JSON se não for casado
+        // limpa JSON se não for casado
+        if (!isCasado) {
             const hidden = getCampo("conjuge_json");
             if (hidden) hidden.value = "";
         }
@@ -118,15 +116,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (estadoCivil) {
         estadoCivil.addEventListener("change", atualizarEstadoCivil);
 
-        // Executa ao carregar (edição)
+        // Executa ao carregar (edição de cliente, por exemplo)
         atualizarEstadoCivil();
-    }
-
-    // 🔥 ATIVA CAMPOS SOMENTE QUANDO MODAL ABRIR
-    if (modalEl) {
-        modalEl.addEventListener('shown.bs.modal', () => {
-            toggleCamposConjuge(true);
-        });
     }
 
     // ==========================
@@ -140,25 +131,4 @@ document.addEventListener("DOMContentLoaded", () => {
             campo.addEventListener(evento, atualizarConjugeJson);
         });
     });
-
-    // ==========================
-    // VALIDAÇÃO NO SUBMIT (🔥 NOVO)
-    // ==========================
-    const form = document.querySelector("form");
-
-    if (form) {
-        form.addEventListener("submit", (e) => {
-            const isCasado = estadoCivil?.value?.toLowerCase() === "casado";
-
-            if (isCasado) {
-                const nome = getCampo("id_nome_conjuge")?.value.trim();
-
-                if (!nome) {
-                    e.preventDefault();
-                    alert("Informe o nome do cônjuge.");
-                    return;
-                }
-            }
-        });
-    }
 });

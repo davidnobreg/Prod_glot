@@ -1,5 +1,10 @@
 from django.contrib import admin
-from .models import RegisterVenda
+from .models import RegisterVenda, RegisterVendaIntercalada
+
+
+class RegisterVendaIntercaladaInline(admin.TabularInline):
+    model = RegisterVendaIntercalada
+    extra = 1
 
 @admin.register(RegisterVenda)
 class RegisterVendaAdmin(admin.ModelAdmin):
@@ -19,3 +24,8 @@ class RegisterVendaAdmin(admin.ModelAdmin):
         'tipo_venda',
         'is_ativo',
     )
+
+    # aqui colocamos TODOS os inlines juntos
+    inlines = [
+        RegisterVendaIntercaladaInline
+    ]

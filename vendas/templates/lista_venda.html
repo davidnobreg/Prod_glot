@@ -113,11 +113,15 @@
                         <td>
                             <div class="d-flex justify-content-center gap-2">
                                 {% if venda.tipo_venda == 'VENDIDO' %}
+                                    {% if venda.lote and venda.lote.uuid %}
+                                        <a href="{% url 'reservado' venda.lote.uuid %}" class="btn btn-primary btn-sm"
+                                           title="Detalhes da Venda">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                    {% else %}
+                                        <span>Lote indisponível</span>
+                                    {% endif %}
 
-                                    <a href="{% url 'reservado' venda.lote.uuid %}" class="btn btn-primary btn-sm"
-                                       title="Detalhes da Venda">
-                                        <i class="fas fa-info-circle"></i>
-                                    </a>
                                     {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
                                         <button
                                                 class="btn btn-danger btn-sm"
@@ -151,7 +155,9 @@
                     {% if vendas.has_previous %}
                         <li class="page-item">
                             <a class="btn btn-primary"
-                               href="?{% if query_params %}{{ query_params }}&{% endif %}page={{ vendas.previous_page_number }}">
+                               href="?
+
+                                       {% if query_params %}{{ query_params }}&{% endif %}page={{ vendas.previous_page_number }}">
                                 Voltar
                             </a>
                         </li>
@@ -166,7 +172,9 @@
                     {% if vendas.has_next %}
                         <li class="page-item">
                             <a class="btn btn-primary"
-                               href="?{% if query_params %}{{ query_params }}&{% endif %}page={{ vendas.next_page_number }}">
+                               href="?
+
+                                       {% if query_params %}{{ query_params }}&{% endif %}page={{ vendas.next_page_number }}">
                                 Avançar
                             </a>
                         </li>

@@ -8,18 +8,13 @@ class RegisterVendaForm(forms.ModelForm):
 
     class Meta:
         model = RegisterVenda
-        fields = (
-            'cliente',
-            'valor_sinal',
-            'valor_inicio_contrato',
-            'quantidade_parcelas',
-            'dt_primeira_parcela',
-            'corretor'
-        )
+        fields = '__all__'
+        exclude = ('is_ativo', 'id')
 
         labels = {
             'cliente': 'Cliente',
             'valor_sinal': 'Valor do Sinal',
+            #'valor_sinal': 'Valor do Sinal',
             'valor_inicio_contrato': 'Valor da Entrada',
             'quantidade_parcelas': 'Quantidade de Parcelas',
             'dt_primeira_parcela': 'Data da Primeira Parcela',
@@ -39,7 +34,7 @@ class RegisterVendaForm(forms.ModelForm):
             }),
         }
 
-    def __init__(self, *args, empreendimento=None, lote=None, **kwargs):
+    def __init__(self, *args, empreendimento=None, venda=None, lote=None, **kwargs):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
@@ -69,6 +64,9 @@ class RegisterVendaForm(forms.ModelForm):
         if not self.instance.pk and empreendimento and 'quantidade_parcelas' in self.fields:
             self.fields['quantidade_parcelas'].initial = empreendimento.quantidade_parcela
 
+        if not self.instance.pk and venda and 'quantidade_parcelas_intercalada' in self.fields:
+            self.fields['quantidade_parcelas_intercalada'].initial = venda.quantidade_parcelas_intercalada
+
         # Se estiver criando nova venda e campo existir
         if not self.instance.pk and lote and 'corretor' in self.fields:
             self.fields['corretor'].initial = lote.user
@@ -85,8 +83,8 @@ class RegisterVendaForm(forms.ModelForm):
             field.widget.attrs.setdefault('class', 'form-control mb-3')
 
         # -------- Organização visual --------
-        left_fields = ['cliente', 'corretor']
-        right_fields = ['valor_sinal', 'valor_inicio_contrato', 'quantidade_parcelas', 'dt_primeira_parcela']
+        left_fields = ['cliente', 'corretor', 'valor_entrada', 'valor_sinal', 'valor_inicio_contrato',]
+        right_fields = ['quantidade_parcelas', 'dt_primeira_parcela', 'quantidade_parcelas_intercalada',]
 
         for name in left_fields:
             if name in self.fields:

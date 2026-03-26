@@ -24,6 +24,7 @@ class RegisterVenda(models.Model):
     )
     lote = models.OneToOneField(Lote, on_delete=models.SET_NULL, blank=True, null=True, related_name='reg_venda')
     cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, blank=True, null=True)
+    corretor = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="corretor")
     tipo_venda = models.CharField(max_length=100, choices=TypeLote.choices)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="vendas")
     dt_reserva = models.DateField(default=datetime.now, blank=True)
@@ -32,11 +33,12 @@ class RegisterVenda(models.Model):
     is_ativo = models.BooleanField(default=False)
     quantidade_parcelas = models.IntegerField(blank=True, null=True,)
     quantidade_parcelas_pagas = models.IntegerField(blank=True, null=True,)
-    valor_inicio_contrato = models.CharField('Entrada', max_length=50, default=00.00)
+    valor_inicio_contrato = models.CharField('Valor do Contrato', max_length=50, default=00.00)
     valor_financiado = models.CharField('Valor do Financiamento', max_length=50, default=00.00)
     valor_sinal = models.CharField('Valor do Sinal',  blank=True, null=True, max_length=50, default=00.00)
+    valor_entrada = models.CharField('Valor do entrada', blank=True, null=True, max_length=50, default=00.00)
     dt_primeira_parcela = models.DateField('Data para primeira parcela', blank=True, null=True)
-    corretor = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="corretor")
+
     
 
 
@@ -48,3 +50,10 @@ class RegisterVenda(models.Model):
         verbose_name = 'Registrar Venda'
         verbose_name_plural = 'Registrar Venda'
         ordering = ['-id']
+
+
+class RegisterVendaIntercalada(models.Model):
+
+    venda = models.ForeignKey(RegisterVenda, on_delete=models.CASCADE, blank=True, null=True, related_name='intercaladas')
+    quantidade_parcelas_intercalada = models.IntegerField('quantidade de intercaladas', blank=True, null=True)
+    valor_intercalada = models.CharField('Valor da intercalada', blank=True, null=True, max_length=50, default=00.00)

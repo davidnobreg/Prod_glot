@@ -140,7 +140,8 @@ def listaVenda(request):
     vendas = RegisterVenda.objects.filter(
         tipo_venda__in=['VENDIDO', 'CANCELADA'],
         is_ativo=False
-    )
+    ).select_related('lote')
+
 
     filtros = {
         'venda': request.GET.get('venda'),

@@ -454,10 +454,15 @@ def relatorioFinanceiro(request, id):
     )
     lotes_vendidos = Lote.objects.filter(quadra__empr_id=id, situacao='VENDIDO')
 
+    lotes_indisponivel = Lote.objects.filter(quadra__empr_id=empreendimento.id).filter(
+        Q(situacao='CONSTRUTORA') | Q(situacao='INDISPONIVEL')
+    )
+
     quantidade_lotes = Lote.objects.filter(quadra__empr_id=id).count()
     quantidade_lotes_disponivel = Lote.objects.filter(quadra__empr_id=id).filter(
         Q(situacao='DISPONIVEL') | Q(situacao='RESERVADO')).count()
     quantidade_lotes_vendidos = Lote.objects.filter(quadra__empr_id=id, situacao='VENDIDO').count()
+
     quantidade_lotes_indisponivel = Lote.objects.filter(quadra__empr_id=id).filter(
         Q(situacao='CONSTRUTORA') | Q(situacao='INDISPONIVEL')).count()
 
@@ -524,6 +529,29 @@ def relatorioFinanceiro(request, id):
                                                                                                         ",").replace(
         "X", ".")
 
+    #LOTES INDISPONIVEL
+
+    valor_total_indisponivel = 0
+
+    for lote in lotes_indisponivel:
+        try:
+            area = float(lote.area)
+            valor_metro = float(lote.valor_metro_quadrado)
+            valor_lote = area * valor_metro
+        except (TypeError, ValueError, AttributeError):
+            valor_lote = 0
+
+        valor_total_indisponivel += valor_lote
+
+    parcelas_total_indisponivel = valor_total_indisponivel / empreendimento.quantidade_parcela
+
+    valor_total_indisponivel_formatado = f"R$ {valor_total_indisponivel:,.2f}".replace(",", "X").replace(".", ",").replace(
+        "X", ".")
+
+    parcelas_total_indisponivel_formatado = f"R$ {parcelas_total_indisponivel :,.2f}".replace(",", "X").replace(".",
+                                                                                                        ",").replace(
+        "X", ".")
+
     # Exemplo de retorno ou envio para o template
 
     context = {
@@ -539,6 +567,8 @@ def relatorioFinanceiro(request, id):
         'parcelas_total_disponivel_formatado': parcelas_total_disponivel_formatado,
         'valor_total_vendidos_formatado': valor_total_vendidos_formatado,
         'parcelas_total_vendidos_formatado': parcelas_total_vendidos_formatado,
+        'valor_total_indisponivel_formatado': valor_total_indisponivel_formatado,
+        'parcelas_total_indisponivel_formatado': parcelas_total_indisponivel_formatado
     }
 
     return render(request, template_name, context)

@@ -104,7 +104,7 @@ class RegisterVendaForm(forms.ModelForm):
 
         if 'valor_inicio_contrato' in self.fields:
             self.fields['valor_inicio_contrato'].widget.attrs.update({
-                'placeholder': 'R$ Valor da Entrada',
+                'placeholder': 'R$ Valor Inicio do Contrato',
                 'class': 'form-control mb-3 mask-money',
                 'inputmode': 'decimal'
             })

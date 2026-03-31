@@ -1,0 +1,80 @@
+from django.views import View
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from django.utils.decorators import method_decorator
+from django.db import transaction
+from rolepermissions.decorators import has_permission_decorator
+
+
+from empreendimentos.models import Lote
+from vendas.models import RegisterVenda
+
+@method_decorator(has_permission_decorator('cancelarVenda'), name='dispatch')
+class CancelarVendaView(View):
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+
+        venda = get_object_or_404(RegisterVenda, uuid=kwargs.get('delete_uuid'))
+
+        lote = venda.lote
+
+        # 🔄 Atualiza lote
+        if lote:
+            lote.situacao = 'DISPONIVEL'
+            lote.save(update_fields=['situacao'])
+
+        # 🔄 Atualiza venda
+        venda.tipo_venda = 'CANCELADA'
+        venda.is_ativo = True
+        venda.save(update_fields=['tipo_venda', 'is_ativo'])
+
+        messages.success(request, "Venda cancelada com sucesso!")
+
+        return redirect('listar-quadras', id=lote.quadra.empr.id)
+
+
+
+
+@method_decorator(
+    [has_permission_decorator('cancelarReservadoCadastro'), transaction.atomic],
+    name='dispatch'
+)
+class CancelarReservadoCadastroView(View):
+
+    def get_lote(self, cancelaReserva_uuid):
+        return get_object_or_404(Lote, uuid=cancelaReserva_uuid)
+
+    def get(self, request, *args, **kwargs):
+        lote = self.get_lote(kwargs.get('cancelaReserva_uuid'))
+
+        # 🔄 Atualiza situação
+        lote.situacao = "PRE-RESERVA"
+        lote.save(update_fields=['situacao'])
+
+        messages.success(request, "Reserva cancelada com sucesso!")
+        return redirect('lista-empreendimento')
+
+
+@method_decorator(has_permission_decorator('cancelarReservado'), name='dispatch')
+class CancelarReservaView(View):
+
+    def post(self, request, reserva_uuid, *args, **kwargs):
+        venda = get_object_or_404(RegisterVenda, uuid=reserva_uuid)
+
+        lote = venda.lote
+
+        # 🔥 Atualiza lote
+        lote.situacao = 'DISPONIVEL'
+        lote.save(update_fields=['situacao'])
+
+        # 🔥 Atualiza venda
+        venda.is_ativo = False
+        venda.tipo_venda = 'CANCELADA'
+        venda.save(update_fields=['is_ativo', 'tipo_venda'])
+
+        messages.error(request, "Reserva cancelada com sucesso!")
+
+        return redirect('lista-reserva')
+
+

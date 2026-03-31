@@ -268,8 +268,8 @@ def listaEmpreendimentoTabela(request):
 
 
 @has_permission_decorator('listaQuadra')
-def listaQuadra(request, id):
-    empreendimento = get_object_or_404(Empreendimento, id=id)
+def listaQuadra(request, empreendimento_uuid):
+    empreendimento = get_object_or_404(Empreendimento, uuid=empreendimento_uuid)
     situacao_filtro = request.GET.get('situacao')
 
     # Inicializa a consulta de quadras
@@ -638,7 +638,7 @@ def alteraLote(request, id):
             lote.telefone_user = request.user.contato
             lote.save()
             messages.success(request, "Pre-Reservado Salva Com Sucesso!")
-            return redirect('listar-quadras', id=lote.quadra.empr_id)
+            return redirect('listar-quadras', uuid=lote.quadra.empr_uuid)
             # print("Lote salvo como PRE-RESERVA.")
         else:
             context = {'form': form,
@@ -680,6 +680,7 @@ def reservadoDetalheEmpreendimento(request, preReserva_uuid):
         #return HttpResponseForbidden("Você não tem permissão para acessar este lote.")
 
     context = {'lote': lote}
+
     return render(request, 'detalhes-reserva-lote.html', context)
 
 
@@ -729,8 +730,8 @@ def liberaLote(request, lote_uuid):
 
 
 @has_permission_decorator('cancelarReservadoTemporaria')
-def cancelarReservadoTemporaria(request, id):
-    get_lote = get_object_or_404(Lote, id=id)
+def cancelarReservadoTemporaria(request, lote_uuid):
+    get_lote = get_object_or_404(Lote, uuid=lote_uuid)
 
     if request.method == 'GET':
         get_lote.situacao = "DISPONIVEL"
@@ -738,12 +739,12 @@ def cancelarReservadoTemporaria(request, id):
         get_lote.telefone = ""
         get_lote.save()
         messages.error(request, "Pre-Resevado Cancelada!")
-    return redirect('listar-quadras', id=get_lote.quadra.empr_id)
+    return redirect('listar-quadras', empreendimento_uuid=get_lote.quadra.empr.uuid)
 
 
 @has_permission_decorator('cancelarReservadoTemporariaLista')
-def cancelarReservadoTemporariaLista(request, id):
-    get_lote = get_object_or_404(Lote, id=id)
+def cancelarReservadoTemporariaLista(request, lote_uuid):
+    get_lote = get_object_or_404(Lote, uuid=lote_uuid)
 
     if request.method == 'GET':
         get_lote.situacao = "DISPONIVEL"

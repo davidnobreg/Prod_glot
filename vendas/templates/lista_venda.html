@@ -1,219 +1,215 @@
 {% extends 'base.html' %}
-
-{% block title %}
-    Lista de Vendas
-{% endblock %}
-
 {% load static %}
 
+{% block title %}
+Lista de Vendas
+{% endblock %}
+
 {% block content %}
-    <div class="container mt-5">
-        <h4 class="mt-5 text-center fw-bold">LISTA DE VENDAS</h4>
+<div class="container mt-5">
+
+    <!-- 🔹 TÍTULO -->
+    <div class="text-center mb-4">
+        <h4 class="fw-bold">LISTA DE VENDAS</h4>
         <hr>
+    </div>
 
-        <!-- 🔹 FILTROS -->
-        <form method="get" action="{% url 'lista-venda' %}" class="mb-4">
-            <div class="row g-3 bg-light p-3 rounded shadow-sm">
-                <!-- Pesquisa geral -->
-                <div class="col-md-4">
-                    <label for="vendaSearch" class="form-label fw-semibold">Pesquisar</label>
-                    <input name="venda" id="vendaSearch" type="search" class="form-control"
-                           placeholder="Cliente, corretor..." value="{{ request.GET.venda }}">
-                </div>
+    <!-- 🔹 FILTROS -->
+    <form method="get" class="mb-4">
+        <div class="row g-3 bg-light p-3 rounded shadow-sm">
 
-                <!-- Empreendimento -->
-                <div class="col-md-3">
-                    <label for="tipo_empreendimento" class="form-label fw-semibold">Empreendimento</label>
-                    <select name="tipo_empreendimento" id="tipo_empreendimento" class="form-select">
-                        <option value="">Todos</option>
-                        {% for empreendimento in empreendimentos %}
-                            <option value="{{ empreendimento.id }}"
-                                    {% if request.GET.tipo_empreendimento == empreendimento.id|stringformat:"s" %}selected{% endif %}>
-                                {{ empreendimento.nome }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- Status da Venda -->
-                <div class="col-md-2">
-                    <label for="tipo_venda" class="form-label fw-semibold">Status</label>
-                    <select name="tipo_venda" id="tipo_venda" class="form-select">
-                        <option value="">Todos</option>
-                        <option value="VENDIDO" {% if request.GET.tipo_venda == 'VENDIDO' %}selected{% endif %}>
-                            Vendido
-                        </option>
-                        <option value="CANCELADA" {% if request.GET.tipo_venda == 'CANCELADA' %}selected{% endif %}>
-                            Cancelada
-                        </option>
-                    </select>
-                </div>
-
-                <!-- Data início -->
-                <div class="col-md-1">
-                    <label for="data_inicio" class="form-label fw-semibold">Início</label>
-                    <input name="data_inicio" id="data_inicio" type="date" class="form-control"
-                           value="{{ request.GET.data_inicio }}">
-                </div>
-
-                <!-- Data fim -->
-                <div class="col-md-1">
-                    <label for="data_fim" class="form-label fw-semibold">Fim</label>
-                    <input name="data_fim" id="data_fim" type="date" class="form-control"
-                           value="{{ request.GET.data_fim }}">
-                </div>
-
-                <!-- Botões -->
-                <div class="col-md-1 d-flex align-items-end justify-content-end">
-                    <button type="submit" class="btn btn-success me-2" title="Filtrar">
-                        <i class="fas fa-filter"></i>
-                    </button>
-                    <a href="{% url 'lista-venda' %}" class="btn btn-danger" title="Limpar filtros">
-                        <i class="fas fa-window-close"></i>
-                    </a>
-                </div>
+            <!-- Pesquisa -->
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Pesquisar</label>
+                <input name="venda" type="search" class="form-control"
+                       placeholder="Cliente, empreendimento, corretor..."
+                       value="{{ filtros.venda }}">
             </div>
-        </form>
 
-        <!-- 🔹 TABELA DE VENDAS -->
-        <div class="table-responsive shadow-sm">
-            <table class="table table-striped table-hover align-middle">
-                <thead class="table-dark text-center">
+            <!-- Empreendimento -->
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Empreendimento</label>
+                <select name="tipo_empreendimento" class="form-select">
+                    <option value="">Todos</option>
+                    {% for emp in empreendimentos %}
+                        <option value="{{ emp.id }}"
+                            {% if filtros.tipo_empreendimento == emp.id|stringformat:"s" %}selected{% endif %}>
+                            {{ emp.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Status -->
+            <div class="col-md-2">
+                <label class="form-label fw-semibold">Status</label>
+                <select name="tipo_venda" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="VENDIDO" {% if filtros.tipo_venda == 'VENDIDO' %}selected{% endif %}>Vendido</option>
+                    <option value="CANCELADA" {% if filtros.tipo_venda == 'CANCELADA' %}selected{% endif %}>Cancelada</option>
+
+                </select>
+            </div>
+
+            <!-- Datas -->
+            <div class="col-md-1">
+                <label class="form-label fw-semibold">Início</label>
+                <input name="data_inicio" type="date" class="form-control"
+                       value="{{ filtros.data_inicio }}">
+            </div>
+
+            <div class="col-md-1">
+                <label class="form-label fw-semibold">Fim</label>
+                <input name="data_fim" type="date" class="form-control"
+                       value="{{ filtros.data_fim }}">
+            </div>
+
+            <!-- Botões -->
+            <div class="col-md-1 d-flex align-items-end justify-content-end">
+                <button type="submit" class="btn btn-success me-2" title="Filtrar">
+                    <i class="fas fa-filter"></i>
+                </button>
+                <a href="{% url 'lista-venda' %}" class="btn btn-danger" title="Limpar">
+                    <i class="fas fa-times"></i>
+                </a>
+            </div>
+
+        </div>
+    </form>
+
+    <!-- 🔹 TABELA -->
+    <div class="table-responsive shadow-sm">
+        <table class="table table-striped table-hover align-middle">
+
+            <thead class="table-dark text-center">
                 <tr>
                     <th>Cliente</th>
                     <th>Contato</th>
-                    <th>Loteamento</th>
+                    <th>Empreendimento</th>
                     <th>Quadra</th>
                     <th>Lote</th>
                     <th>Corretor</th>
-                    <th>Data da Venda</th>
+                    <th>Data</th>
                     <th>Status</th>
                     <th>Ações</th>
                 </tr>
-                </thead>
-                <tbody class="text-center">
-                {% for venda in vendas %}
-                    <tr>
-                        <td>{{ venda.cliente }}</td>
-                        <td>{{ venda.cliente.fone }}</td>
-                        <td>{{ venda.lote.quadra.empr.nome }}</td>
-                        <td>{{ venda.lote.quadra }}</td>
-                        <td>{{ venda.lote }}</td>
-                        <td>{{ venda.user.first_name }}</td>
-                        <td>{{ venda.dt_venda|date:"d/m/Y" }}</td>
-                        <td>
-                            {% if venda.tipo_venda == 'VENDIDO' %}
-                                <span class="badge bg-success">VENDIDO</span>
-                            {% elif venda.tipo_venda == 'CANCELADA' %}
-                                <span class="badge bg-danger">CANCELADA</span>
-                            {% else %}
-                                <span class="badge bg-secondary">{{ venda.tipo_venda }}</span>
+            </thead>
+
+            <tbody class="text-center">
+                {% for venda in reservas %}
+                <tr>
+                    <td>{{ venda.cliente }}</td>
+                    <td>{{ venda.cliente.fone }}</td>
+                    <td>{{ venda.lote.quadra.empr.nome }}</td>
+                    <td>{{ venda.lote.quadra }}</td>
+                    <td>{{ venda.lote }}</td>
+                    <td>{{ venda.corretor.first_name|default:"-" }}</td>
+                    <td>{{ venda.dt_venda|date:"d/m/Y" }}</td>
+
+                    <!-- Status -->
+                    <td>
+                        {% if venda.tipo_venda == 'VENDIDO' %}
+                            <span class="badge bg-success">VENDIDO</span>
+                        {% elif venda.tipo_venda == 'CANCELADA' %}
+                            <span class="badge bg-danger">CANCELADA</span>
+                        {% elif venda.tipo_venda == 'RESERVADO' %}
+                            <span class="badge bg-warning text-dark">RESERVADO</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ venda.tipo_venda }}</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Ações -->
+                    <td>
+                        <div class="d-flex justify-content-center gap-2">
+
+                            {% if venda.lote and venda.lote.uuid %}
+                                <a href="{% url 'reservado' venda.lote.uuid %}"
+                                   class="btn btn-primary btn-sm"
+                                   title="Detalhes">
+                                    <i class="fas fa-eye"></i>
+                                </a>
                             {% endif %}
-                        </td>
-                        <td>
-                            <div class="d-flex justify-content-center gap-2">
-                                {% if venda.tipo_venda == 'VENDIDO' %}
-                                    {% if venda.lote and venda.lote.uuid %}
-                                        <a href="{% url 'reservado' venda.lote.uuid %}" class="btn btn-primary btn-sm"
-                                           title="Detalhes da Venda">
-                                            <i class="fas fa-info-circle"></i>
-                                        </a>
-                                    {% else %}
-                                        <span>Lote indisponível</span>
-                                    {% endif %}
 
-                                    {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
-                                        <button
-                                                class="btn btn-danger btn-sm"
-                                                data-venda-id="{{ venda.id }}"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#vendaModalDelete"
-                                                data-bs-toggle="tooltip"
-                                                title="Excluir Venda"
-                                                aria-label="Excluir Venda">
-                                            <i class="fas fa-window-close"></i>
-                                        </button>
-                                    {% endif %}
+                            {% if user.tipo_usuario == "ADMINISTRADOR" %}
+                                <button class="btn btn-danger btn-sm"
+                                        data-venda-id="{{ venda.id }}"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalDelete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            {% endif %}
 
-                                {% endif %}
-                            </div>
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="9" class="text-center text-muted py-3">Nenhuma venda encontrada.</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- 🔹 PAGINAÇÃO -->
-        {% with request.GET.urlencode|cut:"page={{ vendas.number }}" as query_params %}
-            <nav aria-label="Navegação de páginas">
-                <ul class="pagination justify-content-center mt-4">
-                    {% if vendas.has_previous %}
-                        <li class="page-item">
-                            <a class="btn btn-primary"
-                               href="?
-
-                                       {% if query_params %}{{ query_params }}&{% endif %}page={{ vendas.previous_page_number }}">
-                                Voltar
-                            </a>
-                        </li>
-                    {% endif %}
-
-                    <li class="page-item disabled">
-                <span class="page-link">
-                    Página {{ vendas.number }} de {{ vendas.paginator.num_pages }}
-                </span>
-                    </li>
-
-                    {% if vendas.has_next %}
-                        <li class="page-item">
-                            <a class="btn btn-primary"
-                               href="?
-
-                                       {% if query_params %}{{ query_params }}&{% endif %}page={{ vendas.next_page_number }}">
-                                Avançar
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        {% endwith %}
-    </div>
-
-
-    <div class="modal fade" id="vendaModalDelete" tabindex="-1" aria-labelledby="vendaModalDeleteLabel"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="vendaModalLabel">Detalhes da venda</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="vendaModalDelete" method="post">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        <div id="loading-indicator" style="display: none;">
-                            Carregando...
                         </div>
+                    </td>
 
-                        <input type="hidden" name="id" id="venda-id">
-                        <p><strong>ID:</strong> <span id="cliente-id-display"></span></p>
-                        <p><strong>Cliente:</strong> <span id="cliente-name"></span></p>
-                        <p><strong>Documento:</strong> <span id="cliente-documento"></span></p>
-                        <p><strong>Email:</strong> <span id="cliente-email"></span></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" id="btn-deletar-cliente" class="btn btn-danger">deletar</button>
-                        <button type="button" href="{% url 'lista-cliente' %}" class="btn btn-secondary"
-                                data-bs-dismiss="modal">Canselar
-                        </button>
-                    </div>
-                </form>
-            </div>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-muted py-4">
+                        Nenhuma venda encontrada.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+    <!-- 🔹 PAGINAÇÃO -->
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+
+            {% if reservas.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ reservas.previous_page_number }}">Anterior</a>
+                </li>
+            {% endif %}
+
+            <li class="page-item disabled">
+                <span class="page-link">
+                    Página {{ reservas.number }} de {{ reservas.paginator.num_pages }}
+                </span>
+            </li>
+
+            {% if reservas.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ reservas.next_page_number }}">Próxima</a>
+                </li>
+            {% endif %}
+
+        </ul>
+    </nav>
+
+</div>
+
+<!-- 🔹 MODAL DELETE -->
+<div class="modal fade" id="modalDelete" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar exclusão</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    Tem certeza que deseja excluir esta venda?
+                    <input type="hidden" name="id" id="venda-id">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Excluir</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+
+            </form>
+
         </div>
     </div>
+</div>
+
 {% endblock %}

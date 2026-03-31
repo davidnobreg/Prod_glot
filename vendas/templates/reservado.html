@@ -132,7 +132,7 @@
 
                             <a href="
 
-                                    {% if reservas %}{% url 'listar-quadras' reservas.lote.quadra.empr.id %}{% else %}{% url 'listar-quadras' lote.quadra.empr.id %}{% endif %}"
+                                    {% if reservas %}{% url 'listar-quadras' reservas.lote.quadra.empr.uuid %}{% else %}{% url 'listar-quadras' lote.quadra.empr.uuid %}{% endif %}"
                                class="btn btn-primary px-4 py-2 fw-bold">
                                 Quadras
                             </a>

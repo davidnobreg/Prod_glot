@@ -31,6 +31,12 @@ class TypeBancos(models.TextChoices):
 
 ## Cadastro de empreendimento
 class Empreendimento(models.Model):
+    uuid = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+        unique=True,
+        db_index=True
+    )
     id = models.BigAutoField(primary_key=True)
     nome = models.CharField(max_length=100)
     telefone = models.CharField(

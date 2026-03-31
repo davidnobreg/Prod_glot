@@ -22,19 +22,17 @@ urlpatterns = [
 
     path('listar_empreendimento/', listaEmpreendimentoTabela, name='lista-empreendimento-tabela'),
 
-    path('listar_quadras/<int:id>/', listaQuadra, name='listar-quadras'),
+    path('listar_quadras/<uuid:empreendimento_uuid>/', listaQuadra, name='listar-quadras'),
 
     path('detalhe_empreendimento/<int:id>/', detalheEmpreendimento, name='detalhe-empreendimento'),
 
     path('relatorio_financeiro/<int:id>/', relatorioFinanceiro, name='relatorio-financeiro'),
 
-    #path('reserva_temporario/<int:id>/', alteraLote, name='alterar-lote'),
-
     path('reservado_detalhes_pre_reserva_lote/<uuid:preReserva_uuid>/', reservadoDetalheEmpreendimento,
          name='reservado-detalhes-pre-reserva-lote'),
     path('listar_pre_reserva/', listaReservasTemporaria, name='lista-pre-reserva'),
-    path('cancela_reserva_lote/<int:id>/', cancelarReservadoTemporaria, name='cancela-lote-pre-reserva'),
-    path('cancela_reserva_lote_lista/<int:id>/', cancelarReservadoTemporariaLista,
+    path('cancela_reserva_lote/<uuid:lote_uuid>/', cancelarReservadoTemporaria, name='cancela-lote-pre-reserva'),
+    path('cancela_reserva_lote_lista/<uuid:lote_uuid>/', cancelarReservadoTemporariaLista,
          name='cancela-lote-pre-reserva-lista'),
     path('renova_reserva_lote/<uuid:renova_uuid>/', renovaReserva, name='renova-lote-pre-reserva'),
     path('libera_lote/<uuid:lote_uuid>/', liberaLote, name='libera-lote'),

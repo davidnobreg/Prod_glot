@@ -8,14 +8,22 @@ class RegisterVendaForm(forms.ModelForm):
 
     class Meta:
         model = RegisterVenda
-        fields = '__all__'
+        fields = [
+            'cliente',
+            'corretor',
+            'valor_entrada',
+            'valor_sinal',
+            'valor_inicio_contrato',
+            'quantidade_parcelas',
+            'dt_primeira_parcela'
+        ]
         exclude = ('is_ativo', 'id')
 
         labels = {
             'cliente': 'Cliente',
+            'valor_entrada': 'Valor da Entrada',
             'valor_sinal': 'Valor do Sinal',
-            #'valor_sinal': 'Valor do Sinal',
-            'valor_inicio_contrato': 'Valor da Entrada',
+            'valor_inicio_contrato': 'Valor do Inicio do Contrato',
             'quantidade_parcelas': 'Quantidade de Parcelas',
             'dt_primeira_parcela': 'Data da Primeira Parcela',
             'corretor': 'Corretor'
@@ -95,6 +103,13 @@ class RegisterVendaForm(forms.ModelForm):
                 self.fields[name].widget.attrs['col'] = 'right'
 
         # -------- Placeholders e máscaras --------
+        if 'valor_entrada' in self.fields:
+            self.fields['valor_entrada'].widget.attrs.update({
+                'placeholder': 'R$ Valor da Entrada',
+                'class': 'form-control mb-3 mask-money',
+                'inputmode': 'decimal'
+            })
+
         if 'valor_sinal' in self.fields:
             self.fields['valor_sinal'].widget.attrs.update({
                 'placeholder': 'R$ Valor do Sinal',

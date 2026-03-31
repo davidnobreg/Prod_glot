@@ -1,25 +1,43 @@
 from django.urls import path
-from . import views
-from django.conf import settings
+from .views.create_views import (
+    CriarReservadoView,
+    CriarVendaView,
+    ReservaTemporariaView,
+    RenovaReservaView
+)
+from .views.delete_views import (
+    CancelarVendaView,
+    CancelarReservadoCadastroView,
+    CancelarReservaView,
+
+)
+from .views.detail_views import (
+    ReservadoView,
+    ReservadoDetalheView
+)
+from .views.list_views import (
+    ListarendaRelatorioView,
+    ListaVendaView,
+    RelatorioReservaView
+)
 
 urlpatterns = [
-    # Cadastro de cliente
-    path('insert_venda/<uuid:venda_uuid>/', views.criarVenda, name='criar-venda'),
-    path('insert_reserva/<uuid:reserva_uuid>/', views.criarReservado, name='reserva-create'),
-    path('listar_reserva/', views.listaReserva, name='lista-reserva'),
-    path('listar_venda/', views.listaVenda, name='lista-venda'),
-    path('listar_venda_relatorio/', views.listaVendaRelatorio, name='lista-venda-relatorio'),
-    path('reservado/<uuid:lote_uuid>/', views.reservado, name='reservado'),
-    path('reservado_detalhes/<uuid:reserva_uuid>/', views.reservadoDetalhe, name='reservadoDetalhes'),
-    path('reservado_cancelada/<int:id>/', views.cancelarReservado, name='cancelar-reservado'),
-    path('reservado_cancelada_cadastro/<uuid:cancelaReserva_uuid>/', views.cancelarReservadoCadastro, name='cancelar-reservado-cadastro'),
-    path('reserva_temporario/<uuid:lote_uuid>/', views.reserva_temporaria, name='reserva_temporaria'),
-    path('venda_delete/<uuid:delete_uuid>/', views.deleteVenda, name='delete-venda'),
-    path('reservado_delete/<int:id>/', views.deleteReseva, name='delete-reservado'),
-    path('reservado_delete_lista/<int:id>/', views.deleteResevaLista, name='delete-reservado-lista'),
-    path('renova_reserva/<uuid:venda_uuid>/', views.renovaReserva, name='renova-reserva'),
-    path('select/<int:venda_id>/', views.renovaReserva, name='renova-reserva'),
+    path('insert_venda/<uuid:venda_uuid>/', CriarVendaView.as_view(), name='criar-venda'),  # 11
+    path('insert_reserva/<uuid:reserva_uuid>/', CriarReservadoView.as_view(), name='reserva-create'),  # 1
+    path('reservado/<uuid:lote_uuid>/', ReservadoView.as_view(), name='reservado'),  # 5
+    path('reservado_detalhes/<uuid:reserva_uuid>/', ReservadoDetalheView.as_view(), name='reservadoDetalhes'),  # 9
+    path('reserva_temporario/<uuid:lote_uuid>/', ReservaTemporariaView.as_view(), name='reserva_temporaria'),  # 7
+    path('select/<uuid:venda_uuid>/', RenovaReservaView.as_view(), name='renova-reserva-select'),  # 10
+    path('renova_reserva/<uuid:venda_uuid>/', RenovaReservaView.as_view(), name='renova-reserva'),#14
 
+    path('listar_venda_relatorio/', ListarendaRelatorioView.as_view(), name='lista-venda-relatorio'),  # 2
+    path('listar_reserva/', RelatorioReservaView.as_view(), name='lista-reserva'),  # 3
+    path('listar_venda/', ListaVendaView.as_view(), name='lista-venda'),  # 4
 
-
+    path('venda_delete/<uuid:delete_uuid>/', CancelarVendaView.as_view(), name='delete-venda'),  # 6
+    path('reservado_cancelada_cadastro/<uuid:cancelaReserva_uuid>/', CancelarReservadoCadastroView.as_view(),
+         name='cancelar-reservado-cadastro'),  # 8
+    path('reservado_delete_lista/<uuid:reserva_uuid>/', CancelarReservaView.as_view(), name='delete-reservado-lista'),
+    # 12
+    path('reservado_delete/<uuid:reserva_uuid>/', CancelarReservaView.as_view(), name='delete-reservado'),#13
 ]

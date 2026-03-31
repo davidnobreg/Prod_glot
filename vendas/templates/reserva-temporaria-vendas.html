@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Cadastrar Reserva
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="row g-4">
+        <hr/>
+
+        <!-- INFO DO LOTE -->
+        <div class="col-lg-6">
+
+            <div class="card shadow p-3">
+
+                {% if lote.quadra.empr.logo %}
+                    <img src="{{ lote.quadra.empr.logo.url }}"
+                         alt="{{ lote.quadra.empr.nome }}"
+                         class="img-fluid"
+                         style="max-height: 320px; object-fit: cover;">
+                {% endif %}
+
+                <hr/>
+
+                <h5 class="text-center fw-bold">
+                    {{ lote.quadra.empr }}
+                </h5>
+
+                <hr/>
+
+                <ul class="list-group list-group-flush">
+
+                    <li class="list-group-item text-center">
+                        <div class="row">
+                            <div class="col">
+                                <strong>Quadra:</strong> {{ lote.quadra.namequadra }}
+                            </div>
+                            <div class="col">
+                                <strong>Lote:</strong> {{ lote.lote }}
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="list-group-item text-center">
+                        <div class="row">
+                            <div class="col">
+                                <strong>Parcelas:</strong> {{ total_parcelas }}
+                            </div>
+                            <div class="col">
+                                <strong>Valor Parcela:</strong> {{ valor_parcela_formatado }}
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="list-group-item text-center">
+                        <strong>Valor Total:</strong> {{ valor_formatado }}
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+        <!-- FORMULÁRIO -->
+        <div class="col-lg-6">
+            <form method="post"
+                  enctype="multipart/form-data"
+                  class="card p-4 shadow">
+
+                {% csrf_token %}
+
+                <h4 class="mb-3 text-center fw-bold">
+                    Cadastrar Pré-Reserva
+                </h4>
+
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">
+                            {{ field.label }}
+                        </label>
+
+                        {{ field }}
+
+                        {% if field.errors %}
+                            <div class="text-danger small">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="btn btn-primary w-100 mt-3">
+                    Salvar
+                </button>
+
+                <!-- 🔥 CORREÇÃO PRINCIPAL AQUI -->
+                <a href="{% url 'cancela-lote-pre-reserva' lote.uuid %}"
+                   class="btn btn-danger w-100 mt-3">
+                    Cancelar
+                </a>
+
+            </form>
+        </div>
+
+    </div>
+
+    <hr/>
+</div>
+{% endblock %}

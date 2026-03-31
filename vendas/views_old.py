@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.template import Template, Context
 from django.http import HttpResponse
+from decimal import Decimal, InvalidOperation
 
 from django.db.models import Q
 from pygments.styles.dracula import pink
@@ -27,6 +28,12 @@ from empreendimentos.models import Lote, Empreendimento
 from empreendimentos.forms import LoteForm
 from accounts.models import User
 
+
+def formatar_moeda(valor):
+    try:
+        return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    except Exception:
+        return "R$ 0,00"
 
 @has_permission_decorator('selectVenda')
 def selectVenda(request, venda_id):
@@ -150,7 +157,7 @@ def listaVenda(request):
         'data_inicio': request.GET.get('data_inicio'),
         'data_fim': request.GET.get('data_fim'),
     }
-    #print(venda)
+
 
     # Filtrar por empreendimento
     if filtros['tipo_empreendimento']:
@@ -203,17 +210,7 @@ def listaVenda(request):
 
 @has_permission_decorator('listaVendaRelatorio')
 def listaVendaRelatorio(request):
-    """vendas = RegisterVenda.objects.filter(
-        Q(user__icontains=request.user.first_name) |
-        Q(is_ativo__icontains='False') |
-        Q(tipo_venda__icontains='VENDIDO') |
-        Q(tipo_venda__icontains='CANCELADA'))
 
-    vendas = RegisterVenda.objects.filter(
-        Q(user=request.user) |
-        Q(is_ativo=False) |
-        Q(tipo_venda__in=['VENDIDO', 'CANCELADA'])
-    )"""
     if request.user.tipo_usuario == "ADMINISTRADOR":
         vendas = RegisterVenda.objects.filter(is_ativo=False)
     else:
@@ -383,125 +380,106 @@ def reserva_temporaria(request, lote_uuid):
 @has_permission_decorator('criarReservado')
 @transaction.atomic
 def criarReservado(request, reserva_uuid):
-    get_lote = get_object_or_404(Lote, uuid=reserva_uuid)
-    get_tempo = Empreendimento.objects.get(id=get_lote.quadra.empr_id)
-    reserva_existente = RegisterVenda.objects.filter(lote=get_lote).first()
 
-    corretor =  User.objects.filter(first_name=get_lote.user).first()
+    # 🔒 Lock no lote (evita dupla reserva)
+    lote = get_object_or_404(
+        Lote.objects.select_for_update(),
+        uuid=reserva_uuid
+    )
 
+    empreendimento = lote.quadra.empr
+    reserva_existente = RegisterVenda.objects.filter(lote=lote).first()
+
+    # ---------------------- Cálculo de valores ----------------------
     try:
-        area = float(get_lote.area)
-        valor_metro = float(get_lote.valor_metro_quadrado)
-        valor = area * valor_metro
+        area = float(lote.area or 0)
+        valor_metro = float(lote.valor_metro_quadrado or 0)
+        valor_total = area * valor_metro
     except (TypeError, ValueError):
-        valor = 0
+        valor_total = 0
 
-    # Formatação para moeda brasileira
-    valor_formatado = f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    valor_formatado = formatar_moeda(valor_total)
 
-    # Pegando a quantidade de parcelas (ajuste o nome conforme seu modelo)
     try:
-        total_parcelas = int(get_tempo.quantidade_parcela)
-    except (TypeError, ValueError, AttributeError):
+        total_parcelas = int(empreendimento.quantidade_parcela or 0)
+    except (TypeError, ValueError):
         total_parcelas = 0
 
-    # Cálculo do valor da parcela
-    if total_parcelas > 0:
-        valor_parcela = valor / total_parcelas
-    else:
-        valor_parcela = 0
+    valor_parcela = (valor_total / total_parcelas) if total_parcelas > 0 else 0
+    valor_parcela_formatado = formatar_moeda(valor_parcela)
 
-    # Formatação do valor da parcela
-    valor_parcela_formatado = f"R$ {valor_parcela:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    # ---------------------- Liberação automática ----------------------
+    if lote.situacao == "EM_RESERVA" and not reserva_existente:
+        lote.situacao = "PRE-RESERVA"
+        lote.save(update_fields=['situacao'])
 
-    # Exibir os valores formatados
-    # print(f"Valor total: {valor}")
-    # print(f"Valor total: {valor_formatado}")
-    # print(f"Valor da parcela: {valor_parcela_formatado}")
-    # print(f"Lote ID: {id}, Situação Inicial: {get_lote.situacao}")
-
-    #  Libera automaticamente um lote travado em "EM_RESERVA" se não tiver reserva válida
-    if get_lote.situacao == "EM_RESERVA" and not reserva_existente:
-        get_lote.situacao = "PRE-RESERVA"
-        get_lote.save()
-        # print("Liberando lote bloqueado sem reserva válida.")
-
-    """if request.method == 'GET':
-        if not reserva_existente:
-            get_lote.situacao = "PRE-RESERVA"#"EM_RESERVA"
-            get_lote.tempo_reservado = timezone.now().time()
-            get_lote.save()
-            # print("Lote definido como EM_RESERVA.")
-        form = RegisterVendaForm(empreendimento=get_tempo)  # inicializa form caso não seja post."""
-
+    # ---------------------- GET ----------------------
     if request.method == 'GET':
+
         if not reserva_existente:
-            get_lote.situacao = "PRE-RESERVA"
-            get_lote.tempo_reservado = timezone.now().time()
-            get_lote.save()
+            lote.situacao = "PRE-RESERVA"
+            lote.tempo_reservado = timezone.now().time()
+            lote.save(update_fields=['situacao', 'tempo_reservado'])
 
         form = RegisterVendaForm(
             user=request.user,
-            empreendimento=get_tempo,
-            lote=get_lote
+            empreendimento=empreendimento,
+            lote=lote,
+            instance=reserva_existente if reserva_existente else None
         )
 
-    if request.method == 'POST':
+    # ---------------------- POST ----------------------
+    else:
 
-        # Se existir e estiver cancelada → editar
-        if reserva_existente and reserva_existente.tipo_venda == 'CANCELADA':
-            form = RegisterVendaForm(
-                request.POST,
-                instance=reserva_existente,
-                user=request.user
-            )
-
-        # Se não existir → criar novo
-        elif not reserva_existente:
-            form = RegisterVendaForm(
-                request.POST,
-                user=request.user
-            )
-
-        # Se existir e não estiver cancelada → bloquear
-        else:
+        # 🚫 Bloqueia se já existir venda ativa
+        if reserva_existente and reserva_existente.tipo_venda != 'CANCELADA':
             messages.error(request, "Já existe uma venda ativa para este lote.")
-            return redirect('listar-quadras', id=get_lote.quadra.empr_id)
+            return redirect('listar-quadras', id=lote.quadra.empr_id)
+
+        form = RegisterVendaForm(
+            request.POST,
+            instance=reserva_existente if reserva_existente else None,
+            user=request.user
+        )
 
         if form.is_valid():
 
+
             reserva = form.save(commit=False)
 
-            reserva.lote = get_lote
-            is_admin = request.user.tipo_usuario == 'ADMINISTRADOR'
+            # ---------------------- Regras de negócio ----------------------
+            reserva.lote = lote
 
-            if is_admin:
+            if request.user.tipo_usuario == 'ADMINISTRADOR':
                 reserva.user = form.cleaned_data.get('corretor')
             else:
                 reserva.user = request.user
+
             reserva.tipo_venda = 'RESERVADO'
             reserva.is_ativo = False
-            reserva.dt_reserva = timezone.now() + timedelta(days=get_tempo.tempo_reserva)
-            reserva.valor_financiado = valor
-            reserva.v = valor
-
+            reserva.dt_reserva = timezone.now() + timedelta(days=empreendimento.tempo_reserva)
+            reserva.valor_financiado = valor_total
 
             reserva.save()
 
-            get_lote.situacao = "RESERVADO"
-            get_lote.save()
+            # Atualiza lote
+            lote.situacao = "RESERVADO"
+            lote.save(update_fields=['situacao'])
 
-            messages.success(request, "Reserva atualizada com sucesso!")
-            return redirect('listar-quadras', id=get_lote.quadra.empr_id)
+            messages.success(request, "Reserva realizada com sucesso!")
+            return redirect('listar-quadras', id=lote.quadra.empr_id)
 
-        else:
-            messages.error(request, "Erro ao registrar reserva.")
+        messages.error(request, "Erro ao registrar reserva.")
 
-    context = {'form': form,
-               'lote': get_lote,
-               'valor_formatado': valor_formatado,
-               'valor_parcela_formatado': valor_parcela_formatado,
-               'total_parcelas': total_parcelas}
+    # ---------------------- CONTEXTO ----------------------
+    context = {
+        'form': form,
+        'lote': lote,
+        'valor_formatado': valor_formatado,
+        'valor_parcela_formatado': valor_parcela_formatado,
+        'total_parcelas': total_parcelas,
+    }
+
     return render(request, 'reserva.html', context)
 
 

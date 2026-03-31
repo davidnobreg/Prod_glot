@@ -70,7 +70,7 @@
 
                         <div class="d-flex justify-content-center gap-2 flex-wrap">
                             <div class="col-md-2">
-                                <a href="{% url 'listar-quadras' reservas.lote.quadra.empr_id %}"
+                                <a href="{% url 'listar-quadras' reservas.lote.quadra.empr.uuid %}"
                                    class="btn btn-primary text-center text-white py-3 w-80">
                                     <label class="form-label fw-bold d-block">Voltar</label>
 
@@ -79,10 +79,10 @@
                             </div>
                             {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
                                 <div class="col-md-2">
-                                    <a href="{% url 'delete-reservado' reservas.id %}"
+                                    <a href="{% url 'delete-reservado' reservas.uuid %}"
                                        class="btn btn-danger text-center text-white py-3 w-80"
                                        name="pre-reserva"
-                                       data-cliente-id="{{ lote.id }}"
+                                       data-cliente-id="{{ lote.uuid }}"
                                        data-bs-toggle="modal"
                                        data-bs-target="#ReservaModalDelete"
                                        title="Excluir Reserva"
@@ -103,7 +103,7 @@
                                     </a>
                                 </div>
                                 <!--<div class="col-md-2">
-                                    <a href="{% url 'renova-reserva' reservas.id %}"
+                                    <a href="{% url 'renova-reserva' reservas.uuid %}"
                                        class="btn btn-warning text-center text-black py-3 w-80">
                                         <label class="form-label fw-bold d-block">Renovar</label>
 
@@ -170,7 +170,7 @@
                 </div>
                 <div class="modal-footer">
 
-                    <a href="{% url 'delete-reservado' reservas.id %}" class="btn btn-danger">deletar</a>
+                    <a href="{% url 'delete-reservado' reservas.uuid %}" class="btn btn-danger">deletar</a>
                     <button type="button" href="{% url 'lista-pre-reserva' %}" class="btn btn-secondary"
                             data-bs-dismiss="modal">Canselar
                     </button>

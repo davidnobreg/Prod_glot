@@ -27,6 +27,17 @@ from tornado.http1connection import parse_int
 from .forms import EmpreendimentoForm, ArquivoForm, LoteForm, EmpreendimentoEnderecoForm, EmpreendimentoUpdateForm
 from .models import Empreendimento, Quadra, Lote
 from accounts.models import User, UsuarioEmpreendimento
+from vendas.models import RegisterVenda
+
+
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Table,
+    TableStyle,
+    Paragraph,
+    Spacer
+)
+
 
 
 @has_permission_decorator('selectEmpreendimento')
@@ -765,8 +776,179 @@ def renovaReserva(request, renova_uuid):
     messages.success(request, "Reserva renovada com sucesso!")
     return redirect('lista-pre-reserva')
 
-
 def gerarRelatorioLotes(request):
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = (
+        'attachment; filename="relatorio_lotes.pdf"'
+    )
+
+    doc = SimpleDocTemplate(
+        response,
+        pagesize=A4,
+        leftMargin=30,
+        rightMargin=30,
+        topMargin=40,
+        bottomMargin=40
+    )
+
+    styles = getSampleStyleSheet()
+    elementos = []
+
+    # filtros
+    situacao = request.GET.get('situacao', 'TODOS')
+    loteamento_uuid = request.GET.get('loteamento_uuid')
+
+    # consulta inicial
+    lotes = Lote.objects.all()
+
+    if loteamento_uuid:
+        lotes = lotes.filter(
+            quadra__empr__uuid=loteamento_uuid
+        )
+
+    # filtra situação se não for TODOS
+    if situacao != 'TODOS':
+        lotes = lotes.filter(situacao=situacao)
+
+    # nome empreendimento
+    primeiro_lote = lotes.first()
+
+    nome_empreendimento = (
+        primeiro_lote.quadra.empr.nome
+        if primeiro_lote
+        else 'Empreendimento não identificado'
+    )
+
+    # título
+    titulo = Paragraph(
+        f'Relatório de Lotes - '
+        f'<b>{nome_empreendimento}</b>',
+        styles['Title']
+    )
+
+    elementos.append(titulo)
+    elementos.append(Spacer(1, 12))
+
+    # subtítulo
+    subtitulo = Paragraph(
+        f'Situação dos Lotes: <b>{situacao}</b>',
+        styles['Heading2']
+    )
+
+    elementos.append(subtitulo)
+    elementos.append(Spacer(1, 12))
+
+    # cabeçalho tabela
+    dados = [[
+        'Quadra',
+        'Lote',
+        'Situação',
+        'Vencimento Reserva',
+        'Corretor'
+    ]]
+
+    # percorre lotes
+    for lote in lotes:
+
+        corretor = ''
+
+        # PRE-VENDA → pega usuário do lote
+        if lote.situacao == 'PRE-VENDA':
+
+            if lote.user:
+                if hasattr(lote.user, 'first_name'):
+                    corretor = lote.user.first_name
+                else:
+                    corretor = str(lote.user)
+
+        # RESERVADO / VENDIDO → pega usuário da venda
+        elif lote.situacao in ['RESERVADO', 'VENDIDO']:
+
+            venda = RegisterVenda.objects.filter(
+                lote=lote
+            ).order_by('-id').first()
+
+            if venda and venda.user:
+                corretor = venda.user.first_name
+
+        # TODOS → tenta venda primeiro, senão lote
+        else:
+
+            venda = RegisterVenda.objects.filter(
+                lote=lote
+            ).order_by('-id').first()
+
+            if venda and venda.user:
+                corretor = venda.user.first_name
+
+            elif lote.user:
+                if hasattr(lote.user, 'first_name'):
+                    corretor = lote.user.first_name
+                else:
+                    corretor = str(lote.user)
+
+        dados.append([
+            lote.quadra.namequadra,
+            lote.lote,
+            lote.situacao,
+            lote.data_termina_reserva.strftime('%d/%m/%Y')
+            if lote.data_termina_reserva else '',
+            corretor
+        ])
+
+    # tabela
+    tabela = Table(
+        dados,
+        colWidths=[100, 90, 120, 140, 140]
+    )
+
+    tabela.setStyle(TableStyle([
+
+        # cabeçalho
+        ('BACKGROUND', (0, 0), (-1, 0),
+         colors.HexColor('#036B91')),
+
+        ('TEXTCOLOR', (0, 0), (-1, 0),
+         colors.white),
+
+        ('FONTNAME', (0, 0), (-1, 0),
+         'Helvetica-Bold'),
+
+        ('FONTSIZE', (0, 0), (-1, 0),
+         11),
+
+        # corpo
+        ('FONTSIZE', (0, 1), (-1, -1),
+         9),
+
+        ('ALIGN', (0, 0), (-1, -1),
+         'CENTER'),
+
+        ('VALIGN', (0, 0), (-1, -1),
+         'MIDDLE'),
+
+        ('GRID', (0, 0), (-1, -1),
+         0.5, colors.grey),
+
+        ('BOTTOMPADDING', (0, 0), (-1, 0),
+         10),
+
+        ('TOPPADDING', (0, 1), (-1, -1),
+         6),
+
+        ('BOTTOMPADDING', (0, 1), (-1, -1),
+         6),
+
+    ]))
+
+    elementos.append(tabela)
+
+    doc.build(elementos)
+
+    return response
+
+"""def gerarRelatorioLotes(request):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="relatorio_lotes.pdf"'
 
@@ -784,12 +966,12 @@ def gerarRelatorioLotes(request):
 
     # Filtros
     situacao = request.GET.get('situacao', 'TODOS')
-    loteamento_id = request.GET.get('loteamento_id')
+    loteamento_uuid = request.GET.get('loteamento_uuid')
 
     # Aplica os filtros
     lotes = Lote.objects.all()
-    if loteamento_id:
-        lotes = lotes.filter(quadra__empr__id=loteamento_id)
+    if loteamento_uuid:
+        lotes = lotes.filter(quadra__empr__uuid=loteamento_uuid)
     if situacao != 'TODOS':
         lotes = lotes.filter(situacao=situacao)
 
@@ -808,14 +990,15 @@ def gerarRelatorioLotes(request):
     elementos.append(Spacer(1, 12))
 
     # Cabeçalho da tabela
-    dados = [['Quadra', 'Lote', 'Situação', 'Vencimento da Reserva']]
+    dados = [['Quadra', 'Lote', 'Situação', 'Vencimento da Reserva', 'Corretor']]
 
     for lote in lotes:
         dados.append([
             lote.quadra.namequadra,
             lote.lote,
             lote.situacao,
-            lote.data_termina_reserva.strftime('%d/%m/%Y') if lote.data_termina_reserva else ''
+            lote.data_termina_reserva.strftime('%d/%m/%Y') if lote.data_termina_reserva else '',
+            lote.user
         ])
 
     # Tabela formatada
@@ -834,7 +1017,7 @@ def gerarRelatorioLotes(request):
 
     elementos.append(tabela)
     doc.build(elementos)
-    return response
+    return response"""
 
 
 @require_http_methods(["POST"])

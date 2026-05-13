@@ -64,7 +64,7 @@
                 <br>
                 <div class="row g-3">
                     <div class="col-md-6 g-4">
-                        <a href="{% url 'relatorio-lotes' %}?situacao={{ request.GET.situacao|default:'TODOS' }}&loteamento_id={{ empreendimento.id }}"
+                        <a href="{% url 'relatorio-lotes' %}?situacao={{ request.GET.situacao|default:'TODOS' }}&loteamento_uuid={{ empreendimento.uuid }}"
                            class="btn btn-danger text-center py-3 w-100" target="_blank">
                             Baixar Relatório em PDF
                         </a>

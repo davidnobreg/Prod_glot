@@ -262,7 +262,11 @@ CELERY_BROKER_URL = os.getenv(
     "CELERY_BROKER",
     f"amqp://{user}:{password}@{host}:{port}/{vhost}"
 )
-CELERY_RESULT_BACKEND = "rpc://"
+
+redis_host = config("REDIS_HOST")
+redis_port = config("REDIS_PORT")
+
+CELERY_RESULT_BACKEND = f"redis://{redis_host}:{redis_port}/0"
 
 CELERY_TIMEZONE = "America/Sao_Paulo"
 
@@ -281,6 +285,7 @@ CELERY_TASK_QUEUES = (
 )
 
 CELERY_TASK_DEFAULT_QUEUE = "empreendimentos"
+
 
 FLOWER_BASIC_AUTH = ["admin:admin"]
 

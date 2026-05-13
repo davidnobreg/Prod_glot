@@ -132,8 +132,10 @@
                     <h5 class="modal-title" id="clienteModalLabel">Detalhes da Reserva</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                {% csrf_token %}
-                <div class="modal-body">
+
+
+                <form class="modal-body" method="post" action="{% url 'delete-reservado' reservas.uuid %}">
+                    {% csrf_token %}
                     <div class="row">
                         <div class="col-12">
                             <strong>Cliente:</strong>
@@ -167,17 +169,17 @@
                         <strong>Vencimento da Reserva:</strong>
                         <span>{{ reservas.lote.data_termina_reserva }}</span>
                     </p>
-                </div>
-                <div class="modal-footer">
-
-                    <a href="{% url 'delete-reservado' reservas.uuid %}" class="btn btn-danger">deletar</a>
-                    <button type="button" href="{% url 'lista-pre-reserva' %}" class="btn btn-secondary"
-                            data-bs-dismiss="modal">Canselar
-                    </button>
-                </div>
-
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-danger">deletar</button>
+                        <button type="button" href="{% url 'lista-pre-reserva' %}" class="btn btn-secondary"
+                                data-bs-dismiss="modal">Canselar
+                        </button>
+                    </div>
+                </form>
             </div>
+
         </div>
+    </div>
     </div>
     <!-- MODAL DE TIPO DE PROPOSTA -->
     <div class="modal fade" id="propostaModal" tabindex="-1" aria-labelledby="propostaModalLabel"

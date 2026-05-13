@@ -4,7 +4,6 @@ from django.conf import settings
 from django.template import Template, Context
 from django.utils.timezone import now
 
-
 from django.utils import timezone
 from babel.dates import format_date
 
@@ -22,6 +21,7 @@ from reportlab.lib.enums import TA_JUSTIFY
 from .models import CadastroDocumento
 from clientes.models import ClienteEndereco, ClienteTelefone, ClienteConjuge
 from vendas.models import RegisterVenda
+from weasyprint import HTML
 
 
 def contrato_view(request):
@@ -32,6 +32,7 @@ def contrato_view(request):
         'contrato.html',
         {'contrato': contrato}
     )
+
 
 def contrato_pdf(request):
     contrato = CadastroDocumento.objects.first()
@@ -47,7 +48,7 @@ def contrato_pdf(request):
         pagesize=A4,
         leftMargin=2 * cm,
         rightMargin=2 * cm,
-        topMargin=4 * cm,     # espaço para cabeçalho
+        topMargin=4 * cm,  # espaço para cabeçalho
         bottomMargin=3 * cm  # espaço para rodapé
     )
 
@@ -154,6 +155,7 @@ def draw_header_footer(canvas, doc):
 
     canvas.restoreState()
 
+
 def bloco_assinaturas():
     tabela = Table(
         [
@@ -182,13 +184,23 @@ def bloco_assinaturas():
 
 
 def proposta(request, venda_uuid):
-    venda = get_object_or_404(RegisterVenda, uuid=venda_uuid)
 
-    enderecoCliente = ClienteEndereco.objects.filter(id=venda.cliente.id)
-    contatoCliente = ClienteEndereco.objects.filter(id=venda.cliente.id)
-    conjuge = ClienteConjuge.objects.filter(id=venda.cliente.id)
+    venda = get_object_or_404(
+        RegisterVenda,
+        uuid=venda_uuid
+    )
 
-    # 🔥 REMOVIDO locale.setlocale
+    endereco_cliente = ClienteEndereco.objects.filter(
+        cliente=venda.cliente
+    ).first()
+
+    contato_cliente = ClienteTelefone.objects.filter(
+        cliente=venda.cliente
+    ).first()
+
+    conjuge = ClienteConjuge.objects.filter(
+        cliente=venda.cliente
+    ).first()
 
     data_atual = timezone.now().date()
 
@@ -207,24 +219,51 @@ def proposta(request, venda_uuid):
     except (TypeError, ValueError):
         valor = 0
 
-    valor_total_formatado = f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    valor_total_formatado = (
+        f"R$ {valor:,.2f}"
+        .replace(",", "X")
+        .replace(".", ",")
+        .replace("X", ".")
+    )
 
     try:
-        total_parcelas = int(get_tempo.quantidade_parcela)
+        total_parcelas = int(
+            get_tempo.quantidade_parcela
+        )
     except (TypeError, ValueError, AttributeError):
         total_parcelas = 0
 
     try:
         sinal = float(venda.valor_sinal)
-        valor_financiado = (area * valor_metro) - sinal
+        valor_financiado = valor - sinal
     except (TypeError, ValueError):
         valor_financiado = 0
 
-    valor_parcela = valor / total_parcelas if total_parcelas > 0 else 0
+    valor_parcela = (
+        valor / total_parcelas
+        if total_parcelas > 0 else 0
+    )
 
-    valor_parcela_formatado = f"R$ {valor_parcela:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-    valor_sinal_formatado = f"R$ {float(venda.valor_sinal):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-    valor_financiado_formatado = f"R$ {valor_financiado:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    valor_parcela_formatado = (
+        f"R$ {valor_parcela:,.2f}"
+        .replace(",", "X")
+        .replace(".", ",")
+        .replace("X", ".")
+    )
+
+    valor_sinal_formatado = (
+        f"R$ {float(venda.valor_sinal):,.2f}"
+        .replace(",", "X")
+        .replace(".", ",")
+        .replace("X", ".")
+    )
+
+    valor_financiado_formatado = (
+        f"R$ {valor_financiado:,.2f}"
+        .replace(",", "X")
+        .replace(".", ",")
+        .replace("X", ".")
+    )
 
     data_primeira_parcela = venda.dt_primeira_parcela
 
@@ -237,15 +276,32 @@ def proposta(request, venda_uuid):
     template = Template(documento.texto)
 
     html_final = template.render(Context({
+
         'venda': venda,
+
+        'endereco_cliente': endereco_cliente,
+
+        'contato_cliente': contato_cliente,
+
+        'conjuge': conjuge,
+
         'data_por_extenso': data_por_extenso,
-        'enderecoCliente': enderecoCliente,
-        'telefoneCliente': contatoCliente,
-        'valor_sinal_formatado': valor_sinal_formatado,
-        'valor_total_formatado': valor_total_formatado,
-        'valor_parcela_formatado': valor_parcela_formatado,
-        'valor_financiado_formatado': valor_financiado_formatado,
-        'data_primeira_parcela': data_primeira_parcela
+
+        'valor_sinal_formatado':
+            valor_sinal_formatado,
+
+        'valor_total_formatado':
+            valor_total_formatado,
+
+        'valor_parcela_formatado':
+            valor_parcela_formatado,
+
+        'valor_financiado_formatado':
+            valor_financiado_formatado,
+
+        'data_primeira_parcela':
+            data_primeira_parcela,
+
     }))
 
     return HttpResponse(html_final)
@@ -253,8 +309,8 @@ def proposta(request, venda_uuid):
 
 def proposta_pdf(request, venda_uuid):
     venda = get_object_or_404(RegisterVenda, uuid=venda_uuid)
-   # venda = get_object_or_404(RegisterVenda, lote__uuid=request.GET.get('venda_uuid'))
-    RegisterVenda.objects.filter(lote__uuid=reserva_uuid).first()
+    # venda = get_object_or_404(RegisterVenda, lote__uuid=request.GET.get('venda_uuid'))
+    RegisterVenda.objects.filter(lote__uuid=venda_uuid).first()
     enderecoCliente = ClienteEndereco.objects.filter(id=venda.cliente.id)
     contatoCliente = ClienteEndereco.objects.filter(id=venda.cliente.id)
     conjuge = ClienteConjuge.objects.filter(id=venda.cliente.id)
@@ -267,7 +323,7 @@ def proposta_pdf(request, venda_uuid):
     # except RegisterVenda.DoesNotExist:
     #    raise Http404("Venda não encontrada")
 
-    #locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
+    # locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
 
     data_atual = timezone.now().date()
 
@@ -458,13 +514,12 @@ def contrato(request, venda_uuid):
 
     documento = get_object_or_404(
         CadastroDocumento,
-        #tipo = 'venda',
+        # tipo = 'venda',
         id=venda.lote.quadra.empr.contrato.id,  # 🔥 aqui está a mágica
         ativo=True
     )
 
     template = Template(documento.texto)
-
 
     html_final = template.render(Context({
         'empreendimento': venda,

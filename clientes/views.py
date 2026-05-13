@@ -94,22 +94,6 @@ def criarCliente(request):
                 is_ativo=True
             )
 
-        """if endereco_json:
-            try:
-                endereco_data = json.loads(endereco_json)
-                ClienteEndereco.objects.create(
-                    cliente=cliente,
-                    cep=endereco_data.get('cep', ''),
-                    rua=endereco_data.get('rua', ''),
-                    numero=endereco_data.get('numero', ''),
-                    complemento=endereco_data.get('complemento', ''),
-                    bairro=endereco_data.get('bairro', ''),
-                    cidade=endereco_data.get('cidade', ''),
-                    estado=endereco_data.get('estado', ''),
-                    is_ativo=True
-                )
-            except json.JSONDecodeError:
-                messages.warning(request, "Endereço inválido. Não foi possível salvar.")"""
 
         # =========================
         # 3️⃣ Salvar Telefones (JSON)

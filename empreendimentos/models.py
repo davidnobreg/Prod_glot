@@ -65,7 +65,6 @@ class Empreendimento(models.Model):
     cep = models.CharField(max_length=8, null=True, blank=True, validators=[RegexValidator(r'^\d{8}$', 'CEP deve ter 8 números')])
     cidade = models.CharField(max_length=100, null=True, blank=True)
     estado = models.CharField(max_length=2, choices=choices_estado, default='PB', null=True, blank=True)
-    reajuste = models.TextField(blank=True, null=True)
     #registroCartorio = models.TextField(blank=True, null=True)
     observacao = models.TextField(blank=True, null=True)
     contrato = models.ForeignKey(
@@ -74,6 +73,8 @@ class Empreendimento(models.Model):
         verbose_name='Contrato padrão',
         blank=True, null=True
     )
+    tipo_correcao = models.CharField(max_length=10, null=True, blank=True, default='IGPM')
+    desconto = models.CharField(verbose_name='Desconto', max_length=2, null=True, blank=True, default='0')
     is_ativo = models.BooleanField(default=True)
 
     def __str__(self):

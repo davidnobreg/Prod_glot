@@ -262,3 +262,22 @@ body[data-bs-theme="dark"] {
         padding-top: 4mm !important;
     }
 }
+
+/* =========================
+   RADIO INLINE
+========================= */
+.radio-inline {
+    display: flex;
+
+    gap: 20px;
+
+    align-items: center;
+}
+
+.radio-inline div {
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+}

@@ -65,8 +65,8 @@ class EmpreendimentoForm(forms.ModelForm):
             field.widget.attrs.update({'class': 'form-control mb-3'})
 
         # Campos à esquerda e direita
-        left_fields = ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'cnpj', 'razaoSocial', 'reajuste']
-        right_fields = ['banco', 'agencia', 'conta', 'contrato', 'observacao']
+        left_fields = ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'tipo_correcao', 'desconto']
+        right_fields = ['cnpj', 'razaoSocial', 'banco', 'agencia', 'conta', 'contrato', 'observacao']
 
         config = {
             'nome': {'placeholder': 'Nome do Empreendimento'},
@@ -79,10 +79,11 @@ class EmpreendimentoForm(forms.ModelForm):
             'agencia': {'placeholder': 'Agência'},
             'conta': {'placeholder': 'Conta'},
             'razaoSocial': {'placeholder': 'Razão Social'},
-            #'registroCartorio': {'placeholder': 'Registro em Cartório'},
+            'tipo_correcao': {'placeholder': 'Tipo de Correção'},
+            'desconto': {'placeholder': 'Desconto'},
             'contrato': {'placeholder': 'contrato'},
             'observacao': {'placeholder': 'Observação'},
-            'reajuste': {'placeholder': 'reajuste'},
+
 
         }
 
@@ -214,10 +215,13 @@ class EmpreendimentoUpdateForm(forms.ModelForm):
             field.widget.attrs.update({'class': 'form-control mb-3'})
 
         # Campos à esquerda e direita
-        left_fields = ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'cnpj', 'banco',
-                       'agencia', 'conta', 'reajuste', 'registroCartorio']
+        left_fields = ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'tipo_correcao', 'cnpj', 'banco',
+                       'agencia', 'conta', 'reajuste', 'desconto']
         right_fields = ['razaoSocial', 'cep', 'rua', 'complemento', 'numero', 'bairro', 'cidade', 'estado', 'contrato',
                         'observacao']
+
+        #left_fields = ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'tipo_correcao']
+        #right_fields = ['cnpj', 'razaoSocial', 'banco', 'agencia', 'conta', 'contrato', 'observacao']
 
         config = {
             'nome': {'placeholder': 'Nome do Empreendimento'},
@@ -240,6 +244,7 @@ class EmpreendimentoUpdateForm(forms.ModelForm):
             'registroCartorio': {'placeholder': 'Registro em Cartorio'},
             'observacao': {'placeholder': 'Observação'},
             'reajuste': {'placeholder': 'reajuste'},
+            'desconto': {'placeholder': 'desconto'},
             'contrato': {'placeholder': 'contrato', 'class': 'form-select'},
         }
 

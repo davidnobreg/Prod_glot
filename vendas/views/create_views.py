@@ -106,6 +106,8 @@ class CriarReservadoView(UpdateView):
         valor_parcela = (valor_total / total) if total > 0 else 0
         return total, valor_parcela
 
+
+
     # ======================
     # 🧠 CONTEXTO
     # ======================
@@ -240,10 +242,25 @@ class ReservaTemporariaView(UpdateView):
         valor_parcela = valor / total_parcelas if total_parcelas > 0 else 0
         valor_parcela_formatado = f"R$ {valor_parcela:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
+        try:
+            valor_desconto = float(empreendimento.desconto or 0)
+            valor_com_desconto = valor - (valor * (valor_desconto / 100))
+        except (TypeError, ValueError):
+            valor_com_desconto = 0
+
+        valor_avista_formatado = f"R$ {valor_com_desconto:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+        print(valor)
+        print(empreendimento.desconto)
+        print(valor_com_desconto)
+
+        print(valor_avista_formatado)
+
         context.update({
             'valor_formatado': valor_formatado,
             'valor_parcela_formatado': valor_parcela_formatado,
             'total_parcelas': total_parcelas,
+            'total_avista': valor_avista_formatado,
         })
 
         return context

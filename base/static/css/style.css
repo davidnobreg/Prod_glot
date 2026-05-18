@@ -136,130 +136,197 @@ body[data-bs-theme="dark"] {
     margin: 0 auto;
 }
 
-/* ---------- Impressão: Página A4 ---------- */
+/* =========================
+   IMPRESSÃO A4 - 1 PÁGINA
+========================= */
+
 @media print {
+
     @page {
         size: A4 portrait;
-        /*margin: 8mm; /* Margem bem fina pra aproveitar espaço */
-        margin-top: 3mm;
-        margin-bottom: 3mm;
+        margin: 4mm;
     }
 
-    html, body {
-        margin: 0;
-        padding: 0;
-        width: 210mm;
-        height: 297mm;
-        font-size: 9pt;
-        background: white !important;
-        color: black !important;
-    }
+    /* =========================
+       RESET GERAL
+    ========================= */
 
+    html,
     body {
-        margin: 0;
-        padding: 0;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 210mm;
+        font-size: 9pt;
+        background: #fff !important;
+        color: #000 !important;
+        overflow: hidden;
     }
 
-    /* Oculta tudo exceto conteúdo */
+    /* =========================
+       ESCONDE TUDO
+    ========================= */
+
     body * {
         visibility: hidden;
     }
 
-    #conteudo, #conteudo * {
+    /* =========================
+       MOSTRA SOMENTE CONTEÚDO
+    ========================= */
+
+    #conteudo,
+    #conteudo * {
         visibility: visible;
     }
 
+    /* =========================
+       ÁREA PRINCIPAL
+    ========================= */
+
     #conteudo {
-        position: absolute;
-        top: 1mm; /* Pequeno espaçamento do topo */
-        left: 1mm; /* Pequeno espaçamento da esquerda */
-        right: 1mm; /* Pequeno espaçamento da direita */
+        position: relative;
+        width: 100%;
         margin: 0 auto;
-        width: calc(210mm - 2mm); /* Ajusta largura para margem reduzida */
-        max-width: 100%;
         padding: 0 !important;
-        background-color: white;
-        overflow: visible;
+        background: #fff !important;
         box-sizing: border-box;
+        overflow: hidden;
     }
 
+    /* =========================
+       REMOVE ESPAÇOS EXTRAS
+    ========================= */
 
-
-    /* Remove margin e padding das rows e colunas dentro do conteúdo para economizar espaço */
-    /*#conteudo .row,
-    #conteudo [class*="col-"] {
+    .row,
+    .card,
+    .card-body,
+    .card-footer,
+    .dashboard-box,
+    .container,
+    .container-fluid,
+    [class*="col-"] {
         margin: 0 !important;
-        padding: 0 !important;
-    }*/
-
-    /* Evita quebra dentro de cartões e linhas */
-    .card, .row, .dashboard-box {
-        page-break-inside: avoid !important;
+        padding: 2px !important;
+        box-shadow: none !important;
     }
 
-    /* Esconder elementos desnecessários */
-    #btn-imprimir,
-    .btn-voltar,
+    /* =========================
+       EVITA QUEBRAS
+    ========================= */
+
+    .card,
+    .row,
+    .dashboard-box,
+    table,
+    tr,
+    td,
+    img {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* =========================
+       ESCONDER ELEMENTOS
+    ========================= */
+
     nav,
+    footer,
+    header,
     .navbar,
     .sidebar,
-    header,
-    footer {
+    #btn-imprimir,
+    .btn,
+    .btn-voltar {
         display: none !important;
     }
 
-    /* Remove sombras para impressão */
-    .shadow, .card, .card-footer {
-        box-shadow: none !important;
-    }
+    /* =========================
+       IMAGENS
+    ========================= */
 
     img {
         max-width: 100% !important;
         height: auto !important;
-        max-height: 100px !important;
+        max-height: 90px !important;
     }
 
+    /* =========================
+       TEXTOS
+    ========================= */
+
     h1 {
-        font-size: 16pt !important;
-        margin: 1px 0 !important;
+        font-size: 15pt !important;
+        margin: 2px 0 !important;
     }
 
     h2 {
-        font-size: 14pt !important;
-        margin: 1px 0 !important;
+        font-size: 13pt !important;
+        margin: 2px 0 !important;
     }
 
-    h3, h4, h5, h6, p, span {
+    h3,
+    h4,
+    h5,
+    h6,
+    p,
+    span,
+    label,
+    strong,
+    small {
         font-size: 8pt !important;
         margin: 1px 0 !important;
-        page-break-inside: avoid;
+        line-height: 1.2 !important;
     }
 
+    /* =========================
+       TÍTULO
+    ========================= */
+
     .titulo-vgm {
-        font-size: 1rem !important;
+        font-size: 10pt !important;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
-    /* Remove espaços vazios que podem gerar quebras */
-    #conteudo div:empty {
+    /* =========================
+       REMOVE DIVS VAZIAS
+    ========================= */
+
+    div:empty {
         display: none !important;
     }
 
-    /* Espaçamento correto entre data e assinaturas */
+    /* =========================
+       ASSINATURAS
+    ========================= */
+
     .data-local {
-        margin-top: 5mm !important;
-        margin-bottom: 5mm !important;
-        font-size: 9pt !important;
+        margin-top: 3mm !important;
+        margin-bottom: 3mm !important;
     }
 
     .assinaturas {
-        margin-top: 8mm !important;
+        margin-top: 4mm !important;
     }
 
     .assinaturas .col-6 {
-        padding-top: 4mm !important;
+        padding-top: 2mm !important;
+    }
+
+    /* =========================
+       TABELAS
+    ========================= */
+
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+
+    th,
+    td {
+        padding: 2px !important;
+        font-size: 8pt !important;
     }
 }
 

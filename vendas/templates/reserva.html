@@ -1,175 +1,434 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}
     Cadastrar Reserva
 {% endblock %}
 
-{% load static %}
-
 {% block content %}
-    <div class="container-fluid mt-4">
-        <div class="row align-items-center g-4">
-            <hr/>
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="card-body">
-                        <!--{% if lote.quadra.empr.logo %}
-                            <img src="{{ lote.quadra.empr.logo.url }}" alt="{{ lote.quadra.empr.nome }}"
-                                 width="100%" height="320"/>
-                        {% endif %}-->
-                        <h5 class="card-title text-center fw-bold">{{ lote.quadra.empr }}</h5>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="col mt-3">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item text-center">
-                                <div class="row">
-                                    <div class="col">
-                                        <h5 class="card-title text-center">
-                                            Quadra: {{ lote.quadra.namequadra }}</h5>
-                                    </div>
-                                    <div class="col">
-                                        <h5 class="card-title text-center">
-                                            Lote: {{ lote.lote }}</h5>
-                                    </div>
-                                </div>
-                            </li>
-                            <!--<li class="list-group-item text-center">
-                                <h5 class="card-title text-center fw-bold">
-                                    <div class="row">
-                                        <div class="col">
-                                            <h5 class="card-title text-center">
-                                                Quantidade de Parcelas: {{ total_parcelas }}</h5>
-                                        </div>
-                                        <div class="col">
-                                            <h5 class="card-title text-center">
-                                                Valor da Parcela: {{ valor_parcela_formatado }}</h5>
-                                        </div>
-                                    </div>
-                                </h5>
-                            </li>
 
-                            <li class="list-group-item text-center">
-                                <h5 class="card-title text-center fw-bold">
-                                    Valor Total: {{ valor_formatado }}</h5>
-                            </li>-->
+    <div class="container-fluid mt-4">
+
+        <!-- ===================================================== -->
+        <!-- CABEÇALHO -->
+        <!-- ===================================================== -->
+
+        <div class="card shadow-sm border-0 mb-4">
+
+            <div class="card-body">
+
+                <div class="row align-items-center">
+
+                    <!-- EMPREENDIMENTO -->
+                    <div class="col-lg-6 text-center">
+
+                        {% if lote.quadra.empr.logo %}
+                            <img
+                                    src="{{ lote.quadra.empr.logo.url }}"
+                                    alt="{{ lote.quadra.empr.nome }}"
+                                    class="img-fluid mb-3"
+                                    style="max-height: 180px;"
+                            >
+                        {% endif %}
+
+                        <h3 class="fw-bold">
+                            {{ lote.quadra.empr.nome }}
+                        </h3>
+
+                    </div>
+
+                    <!-- INFORMAÇÕES -->
+                    <div class="col-lg-6">
+
+                        <ul class="list-group list-group-flush">
+
+                            <li class="list-group-item">
+
+                                <div class="row text-center">
+
+                                    <div class="col">
+                                        <strong>Quadra</strong>
+                                        <div>{{ lote.quadra.namequadra }}</div>
+                                    </div>
+
+                                    <div class="col">
+                                        <strong>Lote</strong>
+                                        <div>{{ lote.lote }}</div>
+                                    </div>
+
+                                </div>
+
+                            </li>
 
                         </ul>
+
                     </div>
+
                 </div>
-            </div>
-            <br>
-            <div class="row">
-                <!-- Formulário -->
-
-                <form action="{% url 'reserva-create' lote.uuid %}" method="POST" class="card p-4 shadow">
-                    {% csrf_token %}
-                    <h4 class="mb-3 text-center">Cadastrar Reserva</h4>
-                    <!-- Mensagens -->
-                    {% if status == '0' %}
-                        <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso!</div>
-                    {% elif status == '1' %}
-                        <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
-                    {% elif status == '2' %}
-                        <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
-                    {% elif status == '3' %}
-                        <div class="alert alert-danger" role="alert">Preencha o telefone corretamente.</div>
-                    {% endif %}
-                    <div class="row">
-                        <div class="col md-6"></div>
-                        <div class="col md-6">
-                            <a href="{% url 'criar-cliente' %}?lote_id={{ lote.uuid }}"
-                               class="btn btn-primary w-100 mt-3">
-                                Add Clientes
-                            </a>
-                        </div>
-                    </div>
-                    <br>
-                    <br>
-                    <div class="row">
-                        <!-- COLUNA ESQUERDA -->
-                        <div class="col-md-6">
-                            {% for field in form %}
-                                {% if field.field.widget.attrs.col == 'left' %}
-                                    <div class="mb-3">
-
-                                        {{ field.label_tag }}   <!-- Aqui o label aparece acima -->
-                                        {{ field }}             <!-- Input do campo -->
-                                        {% if field.errors %}
-                                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                        <!-- COLUNA DIREITA -->
-                        <div class="col-md-6">
-                            {% for field in form %}
-                                {% if field.field.widget.attrs.col == 'right' %}
-                                    <div class="mb-3">
-
-                                        {{ field.label_tag }}   <!-- Aqui o label aparece acima -->
-                                        {{ field }}             <!-- Input do campo -->
-                                        {% if field.errors %}
-                                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                            <hr>
-                            <br>
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="d-grid gap-2">
-                                        <button type="submit" class="btn btn-success rounded-pill">Salvar</button>
-
-
-                                    </div>
-
-                                </div>
-                                <div class="col-6">
-                                    <div class="d-grid gap-2">
-                                        <a href="{% url 'cancelar-reservado-cadastro' lote.uuid %}"
-                                           class="btn btn-danger rounded-pill">Cancelar</a>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                </form>
 
             </div>
+
         </div>
+
+        <!-- ===================================================== -->
+        <!-- FORMULÁRIO -->
+        <!-- ===================================================== -->
+
+        <form
+                action="{% url 'reserva-create' lote.uuid %}"
+                method="POST"
+                class="card shadow border-0"
+        >
+
+            {% csrf_token %}
+
+            <div class="card-body p-4">
+
+                <h3 class="text-center mb-4">
+                    Cadastrar Reserva
+                </h3>
+
+                <!-- ============================================= -->
+                <!-- ALERTAS -->
+                <!-- ============================================= -->
+
+                {% if status == '0' %}
+                    <div class="alert alert-success">
+                        Cliente cadastrado com sucesso!
+                    </div>
+                {% elif status == '1' %}
+                    <div class="alert alert-danger">
+                        Preencha o nome corretamente.
+                    </div>
+                {% elif status == '2' %}
+                    <div class="alert alert-danger">
+                        Preencha o e-mail corretamente.
+                    </div>
+                {% elif status == '3' %}
+                    <div class="alert alert-danger">
+                        Preencha o telefone corretamente.
+                    </div>
+                {% endif %}
+
+                <!-- ============================================= -->
+                <!-- BOTÃO CLIENTE -->
+                <!-- ============================================= -->
+
+                <div class="row mb-4">
+
+                    <div class="col-md-6 ms-auto">
+
+                        <a
+                                href="{% url 'criar-cliente' %}?lote_id={{ lote.uuid }}"
+                                class="btn btn-primary w-100"
+                        >
+                            Adicionar Cliente
+                        </a>
+
+                    </div>
+
+                </div>
+
+                <!-- ============================================= -->
+                <!-- CAMPOS -->
+                <!-- ============================================= -->
+
+                <div class="row">
+
+                    <!-- COLUNA ESQUERDA -->
+                    <div class="col-md-6">
+
+                        {% for field in form %}
+
+                            {% if field.field.widget.attrs.col == 'left' %}
+
+                                <div class="mb-3">
+
+                                    <label
+                                            for="{{ field.id_for_label }}"
+                                            class="form-label fw-semibold"
+                                    >
+                                        {{ field.label }}
+                                    </label>
+
+                                    {{ field }}
+
+                                    {% if field.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ field.errors|striptags }}
+                                        </div>
+                                    {% endif %}
+
+                                </div>
+
+                            {% endif %}
+
+                        {% endfor %}
+
+                    </div>
+
+                    <!-- COLUNA DIREITA -->
+                    <div class="col-md-6">
+
+                        {% for field in form %}
+
+                            {% if field.field.widget.attrs.col == 'right' %}
+
+                                <div class="mb-3">
+
+                                    <label
+                                            for="{{ field.id_for_label }}"
+                                            class="form-label fw-semibold"
+                                    >
+                                        {{ field.label }}
+                                    </label>
+
+                                    {{ field }}
+
+                                    {% if field.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ field.errors|striptags }}
+                                        </div>
+                                    {% endif %}
+
+                                </div>
+
+                            {% endif %}
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+                <!-- ============================================= -->
+                <!-- BOTÕES -->
+                <!-- ============================================= -->
+
+                <hr class="my-4">
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-2">
+
+                        <button
+                                type="submit"
+                                class="btn btn-success w-100 rounded-pill"
+                        >
+                            Salvar
+                        </button>
+
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+
+                        <a
+                                href="{% url 'cancelar-reservado-cadastro' lote.uuid %}"
+                                class="btn btn-danger w-100 rounded-pill"
+                        >
+                            Cancelar
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+
     </div>
 
-
-
-    <hr/>
+    <!-- ===================================================== -->
+    <!-- SCRIPTS -->
+    <!-- ===================================================== -->
 
     <script src="{% static 'js/cliente.js' %}"></script>
+
     <script>
+
         $(document).ready(function () {
 
-            // Inicializa Select2
+            // =====================================================
+            // SELECT2
+            // =====================================================
+
             $('.select2').select2({
-                placeholder: "Selecione ou pesquise o corretor",
+                placeholder: 'Selecione',
                 allowClear: true,
                 width: '100%'
             });
 
-            // Inicializa Flatpickr
-            flatpickr(".datepicker", {
-                dateFormat: "Y-m-d",   // formato que Django recebe
+            // =====================================================
+            // FLATPICKR
+            // =====================================================
+
+            flatpickr('.datepicker', {
+
+                dateFormat: 'Y-m-d',
                 altInput: true,
-                altFormat: "d/m/Y",    // formato visível para o usuário
-                locale: "pt",
+                altFormat: 'd/m/Y',
+                locale: 'pt',
                 allowInput: true
+
             });
 
+        });
+
+
+        // =========================================================
+        // CALCULAR PARCELAS
+        // =========================================================
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // =====================================================
+            // ELEMENTOS
+            // =====================================================
+
+            const tipoVenda = document.querySelectorAll(
+                'input[name="tipo_venda_form"]'
+            );
+
+            const campoParcelas = document.getElementById(
+                'id_quantidade_parcelas'
+            );
+
+            const campoValorParcela = document.getElementById(
+                'id_valor_parcela'
+            );
+
+            const campoValorFinanciado = document.getElementById(
+                'id_valor_financiado'
+            );
+
+            // =====================================================
+            // FORMATAR VALORES
+            // =====================================================
+
+            function parseMoney(value) {
+
+                if (!value) {
+                    return 0;
+                }
+
+                return parseFloat(
+                    value
+                        .replace('R$', '')
+                        .replace(/\./g, '')
+                        .replace(',', '.')
+                        .trim()
+                ) || 0;
+            }
+
+            function moneyBR(value) {
+
+                return value.toLocaleString(
+                    'pt-BR',
+                    {
+                        style: 'currency',
+                        currency: 'BRL'
+                    }
+                );
+            }
+
+            // =====================================================
+            // ATUALIZAR VALORES
+            // =====================================================
+
+            function atualizarParcelas() {
+
+                let valorTotal = parseMoney(
+                    campoValorFinanciado.value
+                );
+
+                let quantidadeParcelas = parseInt(
+                    campoParcelas.value || 1
+                );
+
+                if (quantidadeParcelas <= 0) {
+                    quantidadeParcelas = 1;
+                }
+
+                let tipoSelecionado = 'False';
+
+                tipoVenda.forEach(radio => {
+
+                    if (radio.checked) {
+                        tipoSelecionado = radio.value;
+                    }
+
+                });
+
+                // =================================================
+                // À VISTA
+                // =================================================
+
+                if (tipoSelecionado === 'True') {
+
+                    campoParcelas.value = 1;
+
+                    campoParcelas.setAttribute(
+                        'readonly',
+                        true
+                    );
+
+                    campoValorParcela.value = moneyBR(
+                        valorTotal
+                    );
+
+                    return;
+                }
+
+                // =================================================
+                // PARCELADO
+                // =================================================
+
+                campoParcelas.removeAttribute(
+                    'readonly'
+                );
+
+                let valorParcela = (
+                    valorTotal / quantidadeParcelas
+                );
+
+                campoValorParcela.value = moneyBR(
+                    valorParcela
+                );
+            }
+
+            // =====================================================
+            // EVENTOS
+            // =====================================================
+
+            tipoVenda.forEach(radio => {
+
+                radio.addEventListener(
+                    'change',
+                    atualizarParcelas
+                );
+
+            });
+
+            campoParcelas.addEventListener(
+                'input',
+                atualizarParcelas
+            );
+
+            campoValorFinanciado.addEventListener(
+                'input',
+                atualizarParcelas
+            );
+
+            // =====================================================
+            // INIT
+            // =====================================================
+
+            atualizarParcelas();
 
         });
+
     </script>
+
 {% endblock %}

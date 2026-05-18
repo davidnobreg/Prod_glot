@@ -210,10 +210,8 @@ def proposta(request, venda_uuid):
     # ======================
     # VALOR PARCELA
     # ======================
-    valor_parcela = (
-        valor_financiado / total_parcelas
-        if total_parcelas > 0 else 0
-    )
+    valor_parcela = venda.valor_parcela
+
 
     # ======================
     # REAJUSTE

@@ -39,6 +39,7 @@ class RegisterVenda(models.Model):
     valor_entrada = models.CharField('Valor do entrada', blank=True, null=True, max_length=50, default=00.00)
     dt_primeira_parcela = models.DateField('Data para primeira parcela', blank=True, null=True)
     reajuste = models.BooleanField(default=True)
+    valor_parcela = models.CharField('Valor da parcela', blank=True, null=True, max_length=50, default=00.00)
 
     
 

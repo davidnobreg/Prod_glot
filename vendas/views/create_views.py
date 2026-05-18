@@ -250,11 +250,6 @@ class ReservaTemporariaView(UpdateView):
 
         valor_avista_formatado = f"R$ {valor_com_desconto:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
-        print(valor)
-        print(empreendimento.desconto)
-        print(valor_com_desconto)
-
-        print(valor_avista_formatado)
 
         context.update({
             'valor_formatado': valor_formatado,

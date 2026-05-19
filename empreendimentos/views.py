@@ -353,6 +353,7 @@ def listaQuadra(request, empreendimento_uuid):
         'prereserva': all_lotes.filter(situacao='PRE-RESERVA').count(),
         'reservado': all_lotes.filter(situacao='RESERVADO').count(),
         'vendido': all_lotes.filter(situacao='VENDIDO').count(),
+        'analise': all_lotes.filter(situacao='ANALISE').count(),
         'outros': all_lotes.filter(
             Q(situacao='CONSTRUTORA') |
             Q(situacao='INDISPONIVEL')
@@ -670,7 +671,6 @@ def reservadoDetalheEmpreendimento(request, preReserva_uuid):
 
     if not request.user.is_authenticated:
         lote = Lote.objects.filter(uuid=preReserva_uuid).first()
-        print(lote)
         context = {'lote': lote}
         return render(request, 'permissao.html', context)
         #return HttpResponseForbidden("Você não tem permissão.")

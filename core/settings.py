@@ -54,6 +54,7 @@ DEFAULT_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'django.contrib.humanize',
 
 ]
 
@@ -64,7 +65,7 @@ THIRD_APPS = [
     'django_celery_results',
     'django_celery_beat',
     'django_filters',
-    #'djrichtextfield',
+    # 'djrichtextfield',
     'ckeditor',
     'ckeditor_uploader',
 
@@ -196,6 +197,8 @@ USE_I18N = True
 
 USE_L10N = True
 
+USE_THOUSAND_SEPARATOR = True
+
 LOCALE_PATHS = (os.path.join(BASE_DIR, "locale"),)
 
 # English default
@@ -211,8 +214,6 @@ MEDIA_URL = '/media/'
 # Caminhos físicos
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')  # usado pelo collectstatic
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # usado para uploads
-
-
 
 # Opcional: desenvolvimento
 # STATICFILES_DIRS = [os.path.join(BASE_DIR, 'base/static')] # onde seus apps guardam static]
@@ -285,7 +286,6 @@ CELERY_TASK_QUEUES = (
 )
 
 CELERY_TASK_DEFAULT_QUEUE = "empreendimentos"
-
 
 FLOWER_BASIC_AUTH = ["admin:admin"]
 
@@ -501,13 +501,13 @@ CKEDITOR_CONFIGS = {
         'width': '100%',
         'height': 400,
         'removePlugins': 'elementspath',
-        #'resize_enabled': False,
+        # 'resize_enabled': False,
 
         'extraPlugins': 'autogrow',
         'autoGrow_minHeight': 800,
         'autoGrow_maxHeight': 1200,
 
-         'contentsCss': [
+        'contentsCss': [
             'https://fonts.googleapis.com/css2?family=Calibri&display=swap'
         ],
 

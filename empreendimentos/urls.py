@@ -28,7 +28,7 @@ urlpatterns = [
 
     path('relatorio_financeiro/<int:id>/', relatorioFinanceiro, name='relatorio-financeiro'),
 
-    path('reservado_detalhes_pre_reserva_lote/<uuid:preReserva_uuid>/', reservadoDetalheEmpreendimento,
+    path('insert_reserva_pre_reserva_lote/<uuid:preReserva_uuid>/', reservadoDetalheEmpreendimento,
          name='reservado-detalhes-pre-reserva-lote'),
     path('listar_pre_reserva/', listaReservasTemporaria, name='lista-pre-reserva'),
     path('cancela_reserva_lote/<uuid:lote_uuid>/', cancelarReservadoTemporaria, name='cancela-lote-pre-reserva'),
@@ -39,5 +39,6 @@ urlpatterns = [
     path('relatorio-lotes/', gerarRelatorioLotes, name='relatorio-lotes'),
 
     path('usuariosempreendimento/', criarUsuarioEmpreendimento, name='criar-usuario-empreendimento'),
+
 
 ]

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Permissão
+{% endblock %}
+
+{% block content %}
+
+<div class="container my-auto mb-md-5 mt-md-4 pb-5">
+
+    <div class="card shadow-sm">
+
+        <div class="container-fluid">
+
+            <!-- HEADER -->
+            <div class="card-header pt-5 pb-5"
+                 style="background-color: rgb(3, 107, 145);">
+            </div>
+
+            <!-- BODY -->
+            <div class="card-body">
+
+                <div class="card_servico">
+
+                    <h1 class="text-center">
+                        Você não tem permissão para acessar este lote.
+                    </h1>
+
+                    <h2 class="text-center">
+                        Este lote está reservado para outro corretor.
+                    </h2>
+
+                    <hr class="my-4"/>
+
+                    <!-- CORRETOR -->
+                    <div class="row text-center">
+
+                        <!-- NOME -->
+                        <div class="col-md-6">
+
+                            <p class="fw-bold fs-4 mb-1">
+                                Corretor
+                            </p>
+
+                            <p class="fs-5 mb-0">
+                                {{ contatoNome }}
+                            </p>
+
+                        </div>
+
+                        <!-- CONTATO -->
+                        <div class="col-md-6">
+
+                            <p class="fw-bold fs-4 mb-1">
+                                Contato
+                            </p>
+
+                            <p class="fs-5 mb-0">
+                                {{ contatoCorretor }}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

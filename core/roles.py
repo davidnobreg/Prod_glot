@@ -41,6 +41,8 @@ class Administrador(AbstractUserRole):
 
 
         # MODULO VENDA
+        'aceitaReserva': True,
+        'analiseReserva': True,
         'reservado': True,
         'reservadoDetalhe': True,
         'relatorioReserva': True,

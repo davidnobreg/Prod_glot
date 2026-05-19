@@ -106,6 +106,7 @@ class TypeLote(models.TextChoices):
     PRE_RESERVA = 'PRE-RESERVA', 'PRE-RESERVA'
     RESERVADO = 'RESERVADO', 'RESERVADO'
     VENDIDO = 'VENDIDO', 'VENDIDO'
+    ANALISE = 'ANALISE', 'ANALISE'
 
 
 class Lote(models.Model):

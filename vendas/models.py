@@ -10,6 +10,7 @@ class TypeLote(models.TextChoices):
     CANCELADA = 'CANCELADA', 'CANCELADA'
     RESERVADO = 'RESERVADO', 'RESERVADO'
     VENDIDO = 'VENDIDO', 'VENDIDO'
+    ANALISE = 'ANALISE', 'ANALISE'
 
 ## Registrar Venda
 
@@ -40,6 +41,12 @@ class RegisterVenda(models.Model):
     dt_primeira_parcela = models.DateField('Data para primeira parcela', blank=True, null=True)
     reajuste = models.BooleanField(default=True)
     valor_parcela = models.CharField('Valor da parcela', blank=True, null=True, max_length=50, default=00.00)
+    valor_desconto = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        verbose_name='Desconto'
+    )
 
     
 

@@ -10,6 +10,7 @@ from babel.dates import format_date
 from reportlab.platypus import Table, TableStyle, Spacer
 from reportlab.lib import colors
 from reportlab.lib.units import cm
+from num2words import num2words
 
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
@@ -22,8 +23,6 @@ from .models import CadastroDocumento
 from clientes.models import ClienteEndereco, ClienteTelefone, ClienteConjuge
 from vendas.models import RegisterVenda
 from weasyprint import HTML
-
-
 
 
 def draw_header_footer(canvas, doc):
@@ -94,8 +93,8 @@ def bloco_assinaturas():
 
     return tabela
 
-def proposta(request, venda_uuid):
 
+def proposta(request, venda_uuid):
     venda = get_object_or_404(
         RegisterVenda,
         uuid=venda_uuid
@@ -149,12 +148,12 @@ def proposta(request, venda_uuid):
         )
 
         valor = (
-            area * valor_metro
+                area * valor_metro
         )
 
     except (
-        TypeError,
-        ValueError
+            TypeError,
+            ValueError
     ):
 
         valor = 0
@@ -169,9 +168,9 @@ def proposta(request, venda_uuid):
         )
 
     except (
-        TypeError,
-        ValueError,
-        AttributeError
+            TypeError,
+            ValueError,
+            AttributeError
     ):
 
         total_parcelas = 0
@@ -186,15 +185,15 @@ def proposta(request, venda_uuid):
         )
 
     except (
-        TypeError,
-        ValueError,
-        AttributeError
+            TypeError,
+            ValueError,
+            AttributeError
     ):
 
         correcao = 0
 
     valor_corrigido = valor + (
-        valor * (correcao / 100)
+            valor * (correcao / 100)
     )
 
     # ======================
@@ -207,11 +206,29 @@ def proposta(request, venda_uuid):
         )
 
     except (
-        TypeError,
-        ValueError
+            TypeError,
+            ValueError
     ):
 
         sinal = 0
+
+    # ======================
+    # SINAL EXTENSO
+    # ======================
+    try:
+
+        valor_extenso = num2words(
+            sinal,
+            lang='pt_BR',
+            to='currency'
+        ).upper()
+
+    except (
+            TypeError,
+            ValueError
+    ):
+
+        valor_extenso = 0
 
     # ======================
     # ENTRADA
@@ -223,8 +240,8 @@ def proposta(request, venda_uuid):
         )
 
     except (
-        TypeError,
-        ValueError
+            TypeError,
+            ValueError
     ):
 
         entrada = 0
@@ -239,8 +256,8 @@ def proposta(request, venda_uuid):
         )
 
     except (
-        TypeError,
-        ValueError
+            TypeError,
+            ValueError
     ):
 
         valor_desconto = 0
@@ -249,10 +266,9 @@ def proposta(request, venda_uuid):
     # VALOR FINANCIADO
     # ======================
     valor_financiado = (
-        valor_corrigido
-        - sinal
-        - entrada
-        - valor_desconto
+            valor_corrigido
+            - entrada
+            - valor_desconto
     )
 
     # ======================
@@ -265,8 +281,8 @@ def proposta(request, venda_uuid):
         )
 
     except (
-        TypeError,
-        ValueError
+            TypeError,
+            ValueError
     ):
 
         valor_parcela = 0
@@ -360,6 +376,9 @@ def proposta(request, venda_uuid):
         'valor_sinal_formatado':
             valor_sinal_formatado,
 
+        'valor_extenso':
+            valor_extenso,
+
         'valor_desconto_formatado':
             valor_desconto_formatado,
 
@@ -387,6 +406,9 @@ def proposta(request, venda_uuid):
         'frase_reajuste':
             frase_reajuste,
 
+        'observacao':
+            venda.observacao,
+
     }))
 
     return HttpResponse(
@@ -395,7 +417,6 @@ def proposta(request, venda_uuid):
 
 
 def proposta_pdf(request, venda_uuid):
-
     venda = get_object_or_404(
         RegisterVenda,
         uuid=venda_uuid
@@ -481,9 +502,9 @@ def proposta_pdf(request, venda_uuid):
         )
 
     except (
-        TypeError,
-        ValueError,
-        AttributeError
+            TypeError,
+            ValueError,
+            AttributeError
     ):
 
         total_parcelas = 0
@@ -498,15 +519,15 @@ def proposta_pdf(request, venda_uuid):
         )
 
     except (
-        TypeError,
-        ValueError,
-        AttributeError
+            TypeError,
+            ValueError,
+            AttributeError
     ):
 
         correcao = 0
 
     valor_corrigido = valor + (
-        valor * (correcao / 100)
+            valor * (correcao / 100)
     )
 
     # ======================
@@ -517,7 +538,13 @@ def proposta_pdf(request, venda_uuid):
     )
 
     valor_financiado = (
-        valor_corrigido - sinal
+            valor_corrigido - sinal
+    )
+
+    valor_extenso = num2words(
+        sinal,
+        lang='pt_BR',
+        to='currency'
     )
 
     # ======================
@@ -672,6 +699,9 @@ def proposta_pdf(request, venda_uuid):
         'valor_sinal_formatado':
             valor_sinal_formatado,
 
+        'valor_sinal_extenso':
+            valor_sinal_extenso,
+
         'valor_total_formatado':
             valor_total_formatado,
 
@@ -717,6 +747,7 @@ def proposta_pdf(request, venda_uuid):
     ).write_pdf(response)
 
     return response
+
 
 def preparar_contrato(request):
     # 1. Buscar contrato ativo

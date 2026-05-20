@@ -129,7 +129,7 @@ class ReservadoDetalheView(TemplateView):
         # =========================================
         return queryset.filter(
             lote__uuid=reserva_uuid,
-            user=self.request.user.first_name
+            user=self.request.user
         ).first()
 
     # ======================

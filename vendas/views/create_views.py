@@ -317,7 +317,7 @@ class CriarReservadoView(UpdateView):
 
             and
 
-            reserva_existente.tipo_venda != 'CANCELADA'
+            reserva_existente.tipo_venda not in ['CANCELADA', 'NAO_ACEITE']
 
         ):
 
@@ -392,22 +392,22 @@ class CriarReservadoView(UpdateView):
         # TIPO VENDA
         # =================================================
 
-        if desconto > Decimal('0.00'):
+        #if desconto > Decimal('0.00'):
 
-            reserva.tipo_venda = (
-                'ANALISE'
-            )
+        reserva.tipo_venda = (
+              'ANALISE'
+        )
 
-            lote.situacao = (
-                'ANALISE'
-            )
+        lote.situacao = (
+            'ANALISE'
+        )
 
-            mensagem = (
-                'Reserva enviada '
-                'para análise.'
-            )
+        mensagem = (
+            'Reserva enviada '
+            'para análise.'
+        )
 
-        else:
+        """else:
 
             reserva.tipo_venda = (
                 'RESERVADO'
@@ -420,7 +420,7 @@ class CriarReservadoView(UpdateView):
             mensagem = (
                 'Reserva realizada '
                 'com sucesso!'
-            )
+            )"""
 
         # =================================================
         # STATUS

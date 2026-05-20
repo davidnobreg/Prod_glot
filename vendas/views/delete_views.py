@@ -65,16 +65,38 @@ class CancelarReservaView(View):
         lote = venda.lote
 
         # 🔥 Atualiza lote
+        lote.situacao = 'PRE-RESERVA'
+        lote.save(update_fields=['situacao'])
+
+        # 🔥 Atualiza venda
+        venda.is_ativo = False
+        venda.tipo_venda = 'NAO_ACEITE'
+        venda.save(update_fields=['is_ativo', 'tipo_venda'])
+
+        messages.error(request, "Reserva não aceita!")
+
+        return redirect('lista-empreendimento')
+
+
+@method_decorator(has_permission_decorator('cancelarAceiteReservado'), name='dispatch')
+class CancelarAceiteReservaView(View):
+
+    def post(self, request, reserva_uuid, *args, **kwargs):
+        venda = get_object_or_404(RegisterVenda, uuid=reserva_uuid)
+
+        lote = venda.lote
+
+        # 🔥 Atualiza lote
         lote.situacao = 'DISPONIVEL'
         lote.save(update_fields=['situacao'])
 
         # 🔥 Atualiza venda
         venda.is_ativo = False
-        venda.tipo_venda = 'CANCELADA'
+        venda.tipo_venda = 'NAO_ACEITE'
         venda.save(update_fields=['is_ativo', 'tipo_venda'])
 
-        messages.error(request, "Reserva cancelada com sucesso!")
+        messages.error(request, "Reserva não aceita!")
 
-        return redirect('lista-reserva')
+        return redirect('lista-empreendimento')
 
 

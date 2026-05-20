@@ -7,6 +7,7 @@ from .models import RegisterVenda
 
 
 class RegisterVendaForm(forms.ModelForm):
+
     # =========================================================
     # CORREÇÃO
     # =========================================================
@@ -20,7 +21,7 @@ class RegisterVendaForm(forms.ModelForm):
     )
 
     # =========================================================
-    # VALOR TOTAL (SOMENTE LEITURA)
+    # VALOR TOTAL
     # =========================================================
 
     valor_total = forms.CharField(
@@ -39,14 +40,46 @@ class RegisterVendaForm(forms.ModelForm):
     valor_desconto = forms.CharField(
         label='Desconto',
         required=False,
+        initial='R$ 0,00',
         widget=forms.TextInput(attrs={
             'class': 'form-control mb-3 mask-money',
             'placeholder': 'R$ 0,00',
+            'data-prefix': 'R$ ',
         })
     )
 
     # =========================================================
-    # VALOR PARCELA (SOMENTE LEITURA)
+    # ENTRADA
+    # =========================================================
+
+    valor_entrada = forms.CharField(
+        label='Entrada',
+        required=False,
+        initial='R$ 0,00',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control mb-3 mask-money',
+            'placeholder': 'R$ 0,00',
+            'data-prefix': 'R$ ',
+        })
+    )
+
+    # =========================================================
+    # SINAL
+    # =========================================================
+
+    valor_sinal = forms.CharField(
+        label='Sinal',
+        required=False,
+        initial='R$ 0,00',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control mb-3 mask-money',
+            'placeholder': 'R$ 0,00',
+            'data-prefix': 'R$ ',
+        })
+    )
+
+    # =========================================================
+    # VALOR PARCELA
     # =========================================================
 
     valor_parcela = forms.CharField(
@@ -93,20 +126,6 @@ class RegisterVendaForm(forms.ModelForm):
             }),
 
             # =====================================================
-            # MONEY
-            # =====================================================
-
-            'valor_entrada': forms.TextInput(attrs={
-                'class': 'form-control mb-3 mask-money',
-                'placeholder': 'R$ 0,00',
-            }),
-
-            'valor_sinal': forms.TextInput(attrs={
-                'class': 'form-control mb-3 mask-money',
-                'placeholder': 'R$ 0,00',
-            }),
-
-            # =====================================================
             # PARCELAS
             # =====================================================
 
@@ -138,7 +157,6 @@ class RegisterVendaForm(forms.ModelForm):
         self.empreendimento = empreendimento
 
         self._configure_fields()
-
         self._set_initial_values()
 
     # =========================================================
@@ -146,10 +164,6 @@ class RegisterVendaForm(forms.ModelForm):
     # =========================================================
 
     def _configure_fields(self):
-
-        # =====================================================
-        # REMOVE CORRETOR PARA USUÁRIO COMUM
-        # =====================================================
 
         if not self.user or self.user.tipo_usuario != 'ADMINISTRADOR':
 
@@ -162,19 +176,11 @@ class RegisterVendaForm(forms.ModelForm):
             if self.lote and not self.instance.pk:
                 self.fields['corretor'].initial = self.lote.user
 
-        # =====================================================
-        # CLIENTE
-        # =====================================================
-
         self.fields['cliente'].empty_label = 'Selecione o Cliente'
-
-        # =====================================================
-        # PARCELAS PADRÃO
-        # =====================================================
 
         if self.empreendimento and not self.instance.pk:
             self.fields['quantidade_parcelas'].initial = (
-                    self.empreendimento.quantidade_parcela or 1
+                self.empreendimento.quantidade_parcela or 1
             )
 
     # =========================================================
@@ -196,11 +202,11 @@ class RegisterVendaForm(forms.ModelForm):
         )
 
         parcelas = (
-                self.fields['quantidade_parcelas'].initial or 1
+            self.fields['quantidade_parcelas'].initial or 1
         )
 
         valor_parcela = (
-                valor_total / Decimal(str(parcelas))
+            valor_total / Decimal(str(parcelas))
         ).quantize(Decimal('0.01'))
 
         self.fields['valor_parcela'].initial = (
@@ -209,6 +215,16 @@ class RegisterVendaForm(forms.ModelForm):
             .replace('.', ',')
             .replace('X', '.')
         )
+
+
+
+        # =====================================================
+        # DEFAULTS MONEY
+        # =====================================================
+
+        self.fields['valor_desconto'].initial = 'R$ 0,00'
+        self.fields['valor_entrada'].initial = 'R$ 0,00'
+        self.fields['valor_sinal'].initial = 'R$ 0,00'
 
     # =========================================================
     # MONEY PARSER
@@ -281,16 +297,8 @@ class RegisterVendaForm(forms.ModelForm):
 
         cleaned = super().clean()
 
-        # =====================================================
-        # DEFINE CORRETOR AUTOMÁTICO
-        # =====================================================
-
         if self.user and self.user.tipo_usuario != 'ADMINISTRADOR':
             cleaned['corretor'] = self.user
-
-        # =====================================================
-        # VALIDA FINANCIAMENTO
-        # =====================================================
 
         total = self._calcular_valor_total()
 
@@ -307,7 +315,7 @@ class RegisterVendaForm(forms.ModelForm):
         )
 
         valor_financiado = (
-                total - desconto - entrada - sinal
+            total - desconto - entrada - sinal
         )
 
         if valor_financiado < 0:
@@ -325,16 +333,8 @@ class RegisterVendaForm(forms.ModelForm):
 
         instance = super().save(commit=False)
 
-        # =====================================================
-        # CORRETOR
-        # =====================================================
-
         if self.user and self.user.tipo_usuario != 'ADMINISTRADOR':
             instance.corretor = self.user
-
-        # =====================================================
-        # VALORES
-        # =====================================================
 
         instance.valor_total = (
             self._calcular_valor_total()
@@ -368,9 +368,9 @@ class RegisterVendaForm(forms.ModelForm):
     def _calcular_valor_total(self):
 
         return (
-                Decimal(str(self.lote.area or 0))
-                *
-                Decimal(str(self.lote.valor_metro_quadrado or 0))
+            Decimal(str(self.lote.area or 0))
+            *
+            Decimal(str(self.lote.valor_metro_quadrado or 0))
         ).quantize(Decimal('0.01'))
 
     def _calcular_valor_financiado(self):
@@ -390,7 +390,7 @@ class RegisterVendaForm(forms.ModelForm):
         )
 
         return (
-                total - desconto - entrada - sinal
+            total - desconto - entrada - sinal
         ).quantize(Decimal('0.01'))
 
     def _calcular_valor_parcela(self):
@@ -409,5 +409,5 @@ class RegisterVendaForm(forms.ModelForm):
         )
 
         return (
-                valor_financiado / Decimal(str(parcelas))
+            valor_financiado / Decimal(str(parcelas))
         ).quantize(Decimal('0.01'))

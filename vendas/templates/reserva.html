@@ -3,84 +3,91 @@
 {% load static %}
 
 {% block title %}
-    Cadastrar Reserva
+    Cadastro de Reserva
 {% endblock %}
 
 {% block content %}
 
-    <div class="container-fluid mt-4">
+<div class="container-fluid py-4">
 
-        <!-- ===================================================== -->
-        <!-- HEADER -->
-        <!-- ===================================================== -->
+    <!-- ===================================================== -->
+    <!-- CABEÇALHO -->
+    <!-- ===================================================== -->
 
-        <div class="card border-0 shadow-sm mb-4">
+    <div class="card border-0 shadow-sm mb-4">
 
-            <div class="card-body">
+        <div class="card-body">
 
-                <div class="row align-items-center">
+            <div class="row align-items-center g-4">
 
-                    <!-- LOGO -->
-                    <div class="col-md-4 text-center">
+                <!-- EMPREENDIMENTO -->
+                <div class="col-lg-4 text-center">
 
-                        {% if lote.quadra.empr.logo %}
-                            <img
-                                    src="{{ lote.quadra.empr.logo.url }}"
-                                    class="img-fluid mb-3"
-                                    style="max-height: 180px;"
-                            >
-                        {% endif %}
+                    {% if lote.quadra.empr.logo %}
+                        <img
+                            src="{{ lote.quadra.empr.logo.url }}"
+                            class="img-fluid mb-3"
+                            style="max-height: 170px;"
+                            alt="Logo empreendimento"
+                        >
+                    {% endif %}
 
-                        <h3 class="fw-bold">
-                            {{ lote.quadra.empr.nome }}
-                        </h3>
+                    <h3 class="fw-bold mb-0">
+                        {{ lote.quadra.empr.nome }}
+                    </h3>
 
-                    </div>
+                </div>
 
-                    <!-- DADOS LOTE -->
-                    <div class="col-md-8">
+                <!-- DADOS DO LOTE -->
+                <div class="col-lg-8">
 
-                        <div class="row text-center">
+                    <div class="row text-center g-3">
 
-                            <div class="col-md-3">
-                                <h6 class="text-muted">
+                        <div class="col-md-4">
+
+                            <div class="border rounded p-3 h-100">
+
+                                <small class="text-muted d-block">
                                     Quadra
-                                </h6>
+                                </small>
 
-                                <h4>
+                                <h4 class="mb-0">
                                     {{ lote.quadra.namequadra }}
                                 </h4>
+
                             </div>
 
-                            <div class="col-md-3">
-                                <h6 class="text-muted">
-                                    Lote
-                                </h6>
+                        </div>
 
-                                <h4>
+                        <div class="col-md-4">
+
+                            <div class="border rounded p-3 h-100">
+
+                                <small class="text-muted d-block">
+                                    Lote
+                                </small>
+
+                                <h4 class="mb-0">
                                     {{ lote.lote }}
                                 </h4>
+
                             </div>
 
-                            <div class="col-md-3">
-                                <h6 class="text-muted">
-                                    Área
-                                </h6>
+                        </div>
 
-                                <h4>
+                        <div class="col-md-4">
+
+                            <div class="border rounded p-3 h-100">
+
+                                <small class="text-muted d-block">
+                                    Área
+                                </small>
+
+                                <h4 class="mb-0">
                                     {{ lote.area }}m²
                                 </h4>
+
                             </div>
-
-                           <!-- <div class="col-md-3">
-                                <h6 class="text-muted">
-                                    Valor m²
-                                </h6>
-
-                                <h4>
-                                    R$ {{ lote.valor_metro_quadrado }}
-                                </h4>
-                            </div>-->
 
                         </div>
 
@@ -92,368 +99,86 @@
 
         </div>
 
-        <!-- ===================================================== -->
-        <!-- FORM -->
-        <!-- ===================================================== -->
+    </div>
 
-        <form
-                method="POST"
-                action="{% url 'reserva-create' lote.uuid %}"
-                class="card border-0 shadow"
-        >
+    <!-- ===================================================== -->
+    <!-- FORMULÁRIO -->
+    <!-- ===================================================== -->
 
-            {% csrf_token %}
+    <form
+        method="POST"
+        action="{% url 'reserva-create' lote.uuid %}"
+        class="card border-0 shadow"
+    >
 
-            <div class="card-body p-4">
+        {% csrf_token %}
 
-                <h3 class="text-center mb-4">
+        <div class="card-body p-4">
+
+            <!-- ================================================= -->
+            <!-- TOPO -->
+            <!-- ================================================= -->
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+
+                <h3 class="fw-bold mb-2">
                     Cadastro de Reserva
                 </h3>
 
-                <!-- ================================================= -->
-                <!-- BOTÃO CLIENTE -->
-                <!-- ================================================= -->
+                <a
+                    href="{% url 'criar-cliente' %}?lote_id={{ lote.uuid }}"
+                    class="btn btn-primary rounded-pill"
+                >
+                    + Adicionar Cliente
+                </a>
 
-                <div class="row mb-4">
+            </div>
 
-                    <div class="col-md-4 ms-auto">
+            <!-- ================================================= -->
+            <!-- DADOS DA RESERVA -->
+            <!-- ================================================= -->
 
-                        <a
-                                href="{% url 'criar-cliente' %}?lote_id={{ lote.uuid }}"
-                                class="btn btn-primary w-100"
-                        >
-                            Adicionar Cliente
-                        </a>
+            <div class="card border-0 bg-light mb-4">
 
-                    </div>
+                <div class="card-body">
 
-                </div>
+                    <h5 class="fw-semibold mb-4">
+                        Dados da Reserva
+                    </h5>
 
-                <!-- ================================================= -->
-                <!-- DADOS PESSOAIS -->
-                <!-- ================================================= -->
+                    <div class="row g-3">
 
-                <div class="card border-0 bg-light mb-4">
+                        <div class="col-md-6">
 
-                    <div class="card-body">
+                            <label class="form-label">
+                                Cliente
+                            </label>
 
-                        <h5 class="mb-4">
-                            Dados da Reserva
-                        </h5>
+                            {{ form.cliente }}
 
-                        <div class="row">
+                            <div class="text-danger small mt-1">
+                                {{ form.cliente.errors }}
+                            </div>
+
+                        </div>
+
+                        {% if form.corretor %}
 
                             <div class="col-md-6">
 
                                 <label class="form-label">
-                                    Cliente
+                                    Corretor
                                 </label>
 
-                                {{ form.cliente }}
+                                {{ form.corretor }}
 
-                                <div class="text-danger small">
-                                    {{ form.cliente.errors }}
+                                <div class="text-danger small mt-1">
+                                    {{ form.corretor.errors }}
                                 </div>
 
                             </div>
 
-                            {% if form.corretor %}
-
-                                <div class="col-md-6">
-
-                                    <label class="form-label">
-                                        Corretor
-                                    </label>
-
-                                    {{ form.corretor }}
-
-                                    <div class="text-danger small">
-                                        {{ form.corretor.errors }}
-                                    </div>
-
-                                </div>
-
-                            {% endif %}
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <!-- ================================================= -->
-                <!-- FINANCEIRO -->
-                <!-- ================================================= -->
-
-                <div class="card border-0 bg-light mb-4">
-
-                    <div class="card-body">
-
-                        <h5 class="mb-4">
-                            Financeiro
-                        </h5>
-
-                        <div class="row">
-
-                            <!-- VALOR TOTAL -->
-                            <div class="col-md-4">
-
-                                <label class="form-label">
-                                    Valor Total
-                                </label>
-
-                                {{ form.valor_total }}
-
-                            </div>
-
-                            <!-- DESCONTO -->
-                            <div class="col-md-4">
-
-                                <label class="form-label">
-                                    Desconto
-                                </label>
-
-                                {{ form.valor_desconto }}
-
-                                <div class="text-danger small">
-                                    {{ form.valor_desconto.errors }}
-                                </div>
-
-                            </div>
-
-                            <!-- ENTRADA -->
-                            <div class="col-md-4">
-
-                                <label class="form-label">
-                                    Entrada
-                                </label>
-
-                                {{ form.valor_entrada }}
-
-                                <div class="text-danger small">
-                                    {{ form.valor_entrada.errors }}
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        <div class="row mt-3">
-
-                            <!-- SINAL -->
-                            <div class="col-md-4">
-
-                                <label class="form-label">
-                                    Sinal
-                                </label>
-
-                                {{ form.valor_sinal }}
-
-                                <div class="text-danger small">
-                                    {{ form.valor_sinal.errors }}
-                                </div>
-
-                            </div>
-
-                            <!-- PARCELAS -->
-                            <div class="col-md-4">
-
-                                <label class="form-label">
-                                    Quantidade Parcelas
-                                </label>
-
-                                {{ form.quantidade_parcelas }}
-
-                                <div class="text-danger small">
-                                    {{ form.quantidade_parcelas.errors }}
-                                </div>
-
-                            </div>
-
-                            <!-- VALOR PARCELA -->
-                            <div class="col-md-4">
-
-                                <label class="form-label">
-                                    Valor Parcela
-                                </label>
-
-                                {{ form.valor_parcela }}
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-                <!-- ================================================= -->
-                <!-- RESUMO FINANCEIRO -->
-                <!-- ================================================= -->
-
-                <div class="card border-0 bg-dark text-white mb-4">
-
-                    <div class="card-body">
-
-                        <h5 class="mb-4">
-                            Resumo Financeiro
-                        </h5>
-
-                        <div class="row">
-
-                            <div class="col-md-6">
-
-                                <p class="mb-2">
-                                    Valor Financiado:
-                                </p>
-
-                            </div>
-
-                            <div class="col-md-6 text-end">
-
-                                <strong id="resumo-financiado">
-                                    R$ 0,00
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-                        <div class="row">
-
-                            <div class="col-md-6">
-
-                                <p class="mb-2">
-                                    Valor da Parcela:
-                                </p>
-
-                            </div>
-
-                            <div class="col-md-6 text-end">
-
-                                <strong id="resumo-parcela">
-                                    R$ 0,00
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-                        <div class="row">
-
-                            <div class="col-md-6">
-
-                                <p class="mb-0">
-                                    Total Parcelado:
-                                </p>
-
-                            </div>
-
-                            <div class="col-md-6 text-end">
-
-                                <strong
-                                        class="fs-4"
-                                        id="resumo-total"
-                                >
-                                    R$ 0,00
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <!-- ================================================= -->
-                <!-- CONFIGURAÇÕES -->
-                <!-- ================================================= -->
-
-                <div class="card border-0 bg-light mb-4">
-
-                    <div class="card-body">
-
-                        <h5 class="mb-4">
-                            Configurações
-                        </h5>
-
-                        <div class="row">
-
-                            <div class="col-md-6">
-
-                                <label class="form-label">
-                                    Primeira Parcela
-                                </label>
-
-                                {{ form.dt_primeira_parcela }}
-
-                                <div class="text-danger small">
-                                    {{ form.dt_primeira_parcela.errors }}
-                                </div>
-
-                            </div>
-
-                            <div class="col-md-6">
-
-                                <label class="form-label d-block">
-                                    Correção
-                                </label>
-
-                                {{ form.reajuste }}
-
-                                <div class="text-danger small">
-                                    {{ form.reajuste.errors }}
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <!-- ================================================= -->
-                <!-- ERROS GLOBAIS -->
-                <!-- ================================================= -->
-
-                {% if form.non_field_errors %}
-
-                    <div class="alert alert-danger">
-
-                        {{ form.non_field_errors }}
-
-                    </div>
-
-                {% endif %}
-
-                <!-- ================================================= -->
-                <!-- BOTÕES -->
-                <!-- ================================================= -->
-
-                <hr>
-
-                <div class="row">
-
-                    <div class="col-md-6 mb-2">
-
-                        <button
-                                type="submit"
-                                class="btn btn-success w-100 rounded-pill"
-                        >
-                            Salvar Reserva
-                        </button>
-
-                    </div>
-
-                    <div class="col-md-6 mb-2">
-
-                        <a
-                                href="{% url 'cancelar-reservado-cadastro' lote.uuid %}"
-                                class="btn btn-danger w-100 rounded-pill"
-                        >
-                            Cancelar
-                        </a>
+                        {% endif %}
 
                     </div>
 
@@ -461,216 +186,558 @@
 
             </div>
 
-        </form>
+            <!-- ================================================= -->
+            <!-- FINANCEIRO -->
+            <!-- ================================================= -->
 
-    </div>
+            <div class="card border-0 bg-light mb-4">
 
-    <!-- ========================================================= -->
-    <!-- SCRIPTS -->
-    <!-- ========================================================= -->
+                <div class="card-body">
 
-    <script src="{% static 'js/cliente.js' %}"></script>
+                    <h5 class="fw-semibold mb-4">
+                        Financeiro
+                    </h5>
 
-    <script>
+                    <div class="row g-3">
 
-        document.addEventListener('DOMContentLoaded', function () {
+                        <!-- VALOR TOTAL -->
+                        <div class="col-md-4">
 
-            // =====================================================
-            // CAMPOS
-            // =====================================================
+                            <label class="form-label">
+                                Valor Total
+                            </label>
 
-            const campoTotal = document.getElementById(
-                'id_valor_total'
-            );
+                            {{ form.valor_total }}
 
-            const campoDesconto = document.getElementById(
-                'id_valor_desconto'
-            );
+                        </div>
 
-            const campoEntrada = document.getElementById(
-                'id_valor_entrada'
-            );
+                        <!-- DESCONTO -->
+                        <div class="col-md-4">
 
-            const campoSinal = document.getElementById(
-                'id_valor_sinal'
-            );
+                            <label class="form-label">
+                                Desconto
+                            </label>
 
-            const campoParcelas = document.getElementById(
-                'id_quantidade_parcelas'
-            );
+                            {{ form.valor_desconto }}
 
-            const campoValorParcela = document.getElementById(
-                'id_valor_parcela'
-            );
+                            <div class="text-danger small mt-1">
+                                {{ form.valor_desconto.errors }}
+                            </div>
 
-            // =====================================================
-            // MONEY PARSER
-            // =====================================================
+                        </div>
 
-            function parseMoney(value) {
+                        <!-- ENTRADA -->
+                        <div class="col-md-4">
 
-                if (!value) {
-                    return 0;
-                }
+                            <label class="form-label">
+                                Entrada
+                            </label>
 
-                value = value.toString();
+                            {{ form.valor_entrada }}
 
-                return parseFloat(
-                    value
-                        .replace('R$', '')
-                        .replace(/\s/g, '')
-                        .replace(/\./g, '')
-                        .replace(',', '.')
-                ) || 0;
+                            <div class="text-danger small mt-1">
+                                {{ form.valor_entrada.errors }}
+                            </div>
+
+                        </div>
+
+                        <!-- SINAL -->
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Sinal
+                            </label>
+
+                            {{ form.valor_sinal }}
+
+                            <div class="text-danger small mt-1">
+                                {{ form.valor_sinal.errors }}
+                            </div>
+
+                        </div>
+
+                        <!-- PARCELAS -->
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Quantidade de Parcelas
+                            </label>
+
+                            {{ form.quantidade_parcelas }}
+
+                            <div class="text-danger small mt-1">
+                                {{ form.quantidade_parcelas.errors }}
+                            </div>
+
+                        </div>
+
+                        <!-- VALOR PARCELA -->
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Valor da Parcela
+                            </label>
+
+                            {{ form.valor_parcela }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ================================================= -->
+            <!-- RESUMO FINANCEIRO -->
+            <!-- ================================================= -->
+
+            <div class="card border-0 bg-dark text-white mb-4">
+
+                <div class="card-body">
+
+                    <h5 class="fw-semibold mb-4">
+                        Resumo Financeiro
+                    </h5>
+
+                    <div class="row gy-3">
+
+                        <!-- QUANTIDADE -->
+                        <div class="col-md-6 d-flex justify-content-between">
+
+                            <span>
+                                Quantidade de Parcelas
+                            </span>
+
+                            <strong id="resumo-quantidade">
+                                0
+                            </strong>
+
+                        </div>
+
+                        <!-- VALOR PARCELA -->
+                        <div class="col-md-6 d-flex justify-content-between">
+
+                            <span>
+                                Valor da Parcela
+                            </span>
+
+                            <strong id="resumo-parcela">
+                                R$ 0,00
+                            </strong>
+
+                        </div>
+
+                        <!-- DESCONTO -->
+                        <div class="col-md-6 d-flex justify-content-between">
+
+                            <span>
+                                Desconto
+                            </span>
+
+                            <strong id="resumo-desconto">
+                                R$ 0,00
+                            </strong>
+
+                        </div>
+
+                        <!-- ENTRADA -->
+                        <div class="col-md-6 d-flex justify-content-between">
+
+                            <span>
+                                Entrada
+                            </span>
+
+                            <strong id="resumo-entrada">
+                                R$ 0,00
+                            </strong>
+
+                        </div>
+
+                        <!-- SINAL -->
+                        <div class="col-md-6 d-flex justify-content-between">
+
+                            <span>
+                                Sinal
+                            </span>
+
+                            <strong id="resumo-sinal">
+                                R$ 0,00
+                            </strong>
+
+                        </div>
+
+                        <!-- TOTAL LOTE -->
+                        <div class="col-md-6 d-flex justify-content-between">
+
+                            <span>
+                                Valor Total do Lote
+                            </span>
+
+                            <strong id="resumo-lote">
+                                R$ 0,00
+                            </strong>
+
+                        </div>
+
+                        <!-- VALOR FINANCIADO -->
+                        <div class="col-12 border-top pt-3 d-flex justify-content-between align-items-center">
+
+                            <span class="fs-5">
+                                Valor Financiado
+                            </span>
+
+                            <strong
+                                class="fs-3"
+                                id="resumo-financiado"
+                            >
+                                R$ 0,00
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ================================================= -->
+            <!-- CONFIGURAÇÕES -->
+            <!-- ================================================= -->
+
+            <div class="card border-0 bg-light mb-4">
+
+                <div class="card-body">
+
+                    <h5 class="fw-semibold mb-4">
+                        Configurações
+                    </h5>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Primeira Parcela
+                            </label>
+
+                            {{ form.dt_primeira_parcela }}
+
+                            <div class="text-danger small mt-1">
+                                {{ form.dt_primeira_parcela.errors }}
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Correção
+                            </label>
+
+                            {{ form.reajuste }}
+
+                            <div class="text-danger small mt-1">
+                                {{ form.reajuste.errors }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ================================================= -->
+            <!-- ERROS -->
+            <!-- ================================================= -->
+
+            {% if form.non_field_errors %}
+
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+
+            {% endif %}
+
+            <!-- ================================================= -->
+            <!-- BOTÕES -->
+            <!-- ================================================= -->
+
+            <div class="border-top pt-4">
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+
+                        <a
+                            href="{% url 'cancelar-reservado-cadastro' lote.uuid %}"
+                            class="btn btn-outline-danger w-100 rounded-pill"
+                        >
+                            Cancelar
+                        </a>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <button
+                            type="submit"
+                            class="btn btn-success w-100 rounded-pill"
+                        >
+                            Salvar Reserva
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+<!-- ========================================================= -->
+<!-- SCRIPTS -->
+<!-- ========================================================= -->
+
+<script src="{% static 'js/cliente.js' %}"></script>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    // =====================================================
+    // CAMPOS
+    // =====================================================
+
+    const campoTotal = document.getElementById(
+        'id_valor_total'
+    );
+
+    const campoDesconto = document.getElementById(
+        'id_valor_desconto'
+    );
+
+    const campoEntrada = document.getElementById(
+        'id_valor_entrada'
+    );
+
+    const campoSinal = document.getElementById(
+        'id_valor_sinal'
+    );
+
+    const campoParcelas = document.getElementById(
+        'id_quantidade_parcelas'
+    );
+
+    const campoValorParcela = document.getElementById(
+        'id_valor_parcela'
+    );
+
+    // =====================================================
+    // RESUMO
+    // =====================================================
+
+    const resumoQuantidade = document.getElementById(
+        'resumo-quantidade'
+    );
+
+    const resumoDesconto = document.getElementById(
+        'resumo-desconto'
+    );
+
+    const resumoEntrada = document.getElementById(
+        'resumo-entrada'
+    );
+
+    const resumoSinal = document.getElementById(
+        'resumo-sinal'
+    );
+
+    const resumoFinanciado = document.getElementById(
+        'resumo-financiado'
+    );
+
+    const resumoParcela = document.getElementById(
+        'resumo-parcela'
+    );
+
+    const resumoLote = document.getElementById(
+        'resumo-lote'
+    );
+
+    // =====================================================
+    // FORMATADOR
+    // =====================================================
+
+    function parseMoney(valor) {
+
+        if (!valor) {
+            return 0;
+        }
+
+        return parseFloat(
+            valor
+                .toString()
+                .replace('R$', '')
+                .replace(/\s/g, '')
+                .replace(/\./g, '')
+                .replace(',', '.')
+        ) || 0;
+
+    }
+
+    function formatMoney(valor) {
+
+        return valor.toLocaleString(
+            'pt-BR',
+            {
+                style: 'currency',
+                currency: 'BRL'
             }
+        );
 
-            // =====================================================
-            // FORMATADOR
-            // =====================================================
+    }
 
-            function formatMoney(value) {
+    // =====================================================
+    // ATUALIZAR RESUMO
+    // =====================================================
 
-                return value.toLocaleString(
-                    'pt-BR',
-                    {
-                        style: 'currency',
-                        currency: 'BRL'
-                    }
-                );
+    function atualizarResumo() {
 
-            }
+        let total = parseMoney(
+            campoTotal.value
+        );
 
-            // =====================================================
-            // CÁLCULO
-            // =====================================================
+        let desconto = parseMoney(
+            campoDesconto.value
+        );
 
-            const resumoFinanciado = document.getElementById(
-                'resumo-financiado'
+        let entrada = parseMoney(
+            campoEntrada.value
+        );
+
+        let sinal = parseMoney(
+            campoSinal.value
+        );
+
+        let parcelas = parseInt(
+            campoParcelas.value
+        );
+
+        if (!parcelas || parcelas <= 0) {
+            parcelas = 1;
+        }
+
+        // =================================================
+        // FINANCIADO
+        // =================================================
+
+        let financiado = (
+            total - desconto - entrada - sinal
+        );
+
+        if (financiado < 0) {
+            financiado = 0;
+        }
+
+        // =================================================
+        // VALOR PARCELA
+        // =================================================
+
+        let valorParcela = (
+            financiado / parcelas
+        );
+
+        // =================================================
+        // TOTAL PARCELADO
+        // =================================================
+
+        let totalParcelado = (
+            valorParcela * parcelas
+        );
+
+        // =================================================
+        // UPDATE INPUT
+        // =================================================
+
+        campoValorParcela.value = formatMoney(
+            valorParcela
+        );
+
+        // =================================================
+        // UPDATE RESUMO
+        // =================================================
+
+        resumoQuantidade.innerHTML = parcelas;
+
+        resumoDesconto.innerHTML = formatMoney(
+            desconto
+        );
+
+        resumoEntrada.innerHTML = formatMoney(
+            entrada
+        );
+
+        resumoSinal.innerHTML = formatMoney(
+            sinal
+        );
+
+        resumoFinanciado.innerHTML = formatMoney(
+            financiado
+        );
+
+        resumoParcela.innerHTML = formatMoney(
+            valorParcela
+        );
+
+        resumoLote.innerHTML = formatMoney(
+            total
+        );
+
+    }
+
+    // =====================================================
+    // EVENTOS
+    // =====================================================
+
+    [
+        campoDesconto,
+        campoEntrada,
+        campoSinal,
+        campoParcelas
+    ].forEach(function (campo) {
+
+        if (campo) {
+
+            campo.addEventListener(
+                'keyup',
+                atualizarResumo
             );
 
-            const resumoParcela = document.getElementById(
-                'resumo-parcela'
+            campo.addEventListener(
+                'change',
+                atualizarResumo
             );
 
-            const resumoTotal = document.getElementById(
-                'resumo-total'
-            );
+        }
 
-            function atualizarValores() {
+    });
 
-                let total = parseMoney(
-                    campoTotal.value
-                );
+    // =====================================================
+    // INIT
+    // =====================================================
 
-                let desconto = parseMoney(
-                    campoDesconto.value
-                );
+    atualizarResumo();
 
-                let entrada = parseMoney(
-                    campoEntrada.value
-                );
+});
 
-                let sinal = parseMoney(
-                    campoSinal.value
-                );
-
-                let parcelas = parseInt(
-                    campoParcelas.value
-                );
-
-                // ================================================
-                // VALIDAR
-                // ================================================
-
-                if (!parcelas || parcelas <= 0) {
-                    parcelas = 1;
-                }
-
-                // ================================================
-                // FINANCIADO
-                // ================================================
-
-                let financiado = (
-                    total - desconto - entrada - sinal
-                );
-
-                if (financiado < 0) {
-                    financiado = 0;
-                }
-
-                // ================================================
-                // VALOR PARCELA
-                // ================================================
-
-                let valorParcela = (
-                    financiado / parcelas
-                );
-
-                // ================================================
-                // UPDATE
-                // ================================================
-
-                campoValorParcela.value = formatMoney(
-                    valorParcela
-                );
-
-                // =================================================
-                // RESUMO
-                // =================================================
-
-                let totalParcelado = (
-                    valorParcela * parcelas
-                );
-
-                resumoFinanciado.innerHTML = formatMoney(
-                    financiado
-                );
-
-                resumoParcela.innerHTML = formatMoney(
-                    valorParcela
-                );
-
-                resumoTotal.innerHTML = formatMoney(
-                    totalParcelado
-                );
-
-            }
-
-            // =====================================================
-            // EVENTOS
-            // =====================================================
-
-            [
-                campoDesconto,
-                campoEntrada,
-                campoSinal,
-                campoParcelas
-            ].forEach(function (campo) {
-
-                if (campo) {
-
-                    campo.addEventListener(
-                        'keyup',
-                        atualizarValores
-                    );
-
-                    campo.addEventListener(
-                        'change',
-                        atualizarValores
-                    );
-
-                }
-
-            });
-
-            // =====================================================
-            // INIT
-            // =====================================================
-
-            atualizarValores();
-
-        });
-
-    </script>
+</script>
 
 {% endblock %}

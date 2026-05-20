@@ -108,128 +108,163 @@
                             {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
 
 
-                                <div class="card border-0 bg-dark text-white mb-4">
+                                <!-- ================================================= -->
+                                <!-- RESUMO FINANCEIRO -->
+                                <!-- ================================================= -->
 
-                                    <div class="card-body">
+                                <div class="card border-0 shadow-sm mb-4 bg-dark text-white">
 
-                                        <h5 class="mb-4">
-                                            Resumo Financeiro
-                                        </h5>
+                                    <div class="card-body p-4">
 
-                                        <div class="row">
+                                        <div class="d-flex justify-content-between align-items-center mb-4">
 
+                                            <h4 class="fw-bold mb-0">
+                                                Resumo Financeiro
+                                            </h4>
+
+                                            <span class="badge bg-success fs-6 px-3 py-2">
+                Reserva
+            </span>
+
+                                        </div>
+
+                                        <!-- ========================================= -->
+                                        <!-- GRID -->
+                                        <!-- ========================================= -->
+
+                                        <div class="row g-3">
+
+                                            <!-- ENTRADA -->
                                             <div class="col-md-6">
 
-                                                <p class="mb-2">
-                                                    Entrada:
-                                                </p>
+                                                <div class="bg-secondary bg-opacity-25 rounded p-3 h-100">
+
+                                                    <small class="text-light text-opacity-75 d-block mb-1">
+                                                        Entrada
+                                                    </small>
+
+                                                    <h5 class="fw-bold mb-0">
+                                                        R$ {{ reservas.valor_entrada|floatformat:2|intcomma }}
+                                                    </h5>
+
+                                                </div>
 
                                             </div>
 
-                                            <div class="col-md-6 text-end">
+                                            <!-- SINAL -->
+                                            <div class="col-md-6">
 
-                                                <strong id="resumo-financiado">
-                                                    R$ {{ reservas.valor_entrada|floatformat:2|intcomma }}
-                                                </strong>
+                                                <div class="bg-secondary bg-opacity-25 rounded p-3 h-100">
+
+                                                    <small class="text-light text-opacity-75 d-block mb-1">
+                                                        Sinal
+                                                    </small>
+
+                                                    <h5 class="fw-bold mb-0">
+                                                        R$ {{ reservas.valor_sinal|floatformat:2|intcomma }}
+                                                    </h5>
+
+                                                </div>
+
+                                            </div>
+
+                                            <!-- DESCONTO -->
+                                            <div class="col-md-6">
+
+                                                <div class="bg-secondary bg-opacity-25 rounded p-3 h-100">
+
+                                                    <small class="text-light text-opacity-75 d-block mb-1">
+                                                        Desconto
+                                                    </small>
+
+                                                    <h5 class="fw-bold mb-0 text-warning">
+                                                        R$ {{ reservas.valor_desconto|floatformat:2|intcomma }}
+                                                    </h5>
+
+                                                </div>
+
+                                            </div>
+
+                                            <!-- PARCELAS -->
+                                            <div class="col-md-6">
+
+                                                <div class="bg-secondary bg-opacity-25 rounded p-3 h-100">
+
+                                                    <small class="text-light text-opacity-75 d-block mb-1">
+                                                        Quantidade de Parcelas
+                                                    </small>
+
+                                                    <h5 class="fw-bold mb-0">
+                                                        {{ reservas.quantidade_parcelas }}x
+                                                    </h5>
+
+                                                </div>
+
+                                            </div>
+
+                                            <!-- VALOR PARCELA -->
+                                            <div class="col-md-6">
+
+                                                <div class="bg-secondary bg-opacity-25 rounded p-3 h-100">
+
+                                                    <small class="text-light text-opacity-75 d-block mb-1">
+                                                        Valor da Parcela
+                                                    </small>
+
+                                                    <h5 class="fw-bold mb-0">
+                                                        R$ {{ reservas.valor_parcela|floatformat:2|intcomma }}
+                                                    </h5>
+
+                                                </div>
+
+                                            </div>
+
+                                            <!-- VALOR DO LOTE -->
+                                            <div class="col-md-6">
+
+                                                <div class="bg-secondary bg-opacity-25 rounded p-3 h-100">
+
+                                                    <small class="text-light text-opacity-75 d-block mb-1">
+                                                        Valor do Lote
+                                                    </small>
+
+                                                    <h5 class="fw-bold mb-0">
+                                                        R$ {{ valor_lote|floatformat:2|intcomma }}
+                                                    </h5>
+
+                                                </div>
 
                                             </div>
 
                                         </div>
-                                        <div class="row">
 
-                                            <div class="col-md-6">
+                                        <!-- ========================================= -->
+                                        <!-- TOTAL -->
+                                        <!-- ========================================= -->
 
-                                                <p class="mb-2">
-                                                    Sinal:
-                                                </p>
+                                        <div class="border-top border-light border-opacity-25 mt-4 pt-4">
 
-                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center flex-wrap">
 
-                                            <div class="col-md-6 text-end">
+                                                <div>
 
-                                                <strong id="resumo-financiado">
-                                                    R$ {{ reservas.valor_sinal|floatformat:2|intcomma }}
-                                                </strong>
 
-                                            </div>
 
-                                        </div>
-                                        <div class="row">
+                                                </div>
 
-                                            <div class="col-md-6">
+                                                <div class="text-end">
 
-                                                <p class="mb-2">
-                                                    Desconto:
-                                                </p>
+                                                    <small class="text-light text-opacity-75">
+                                                        Valor Financiado
+                                                    </small>
 
-                                            </div>
+                                                    <h2 class="fw-bold mb-0 mt-1 text-warning">
 
-                                            <div class="col-md-6 text-end">
+                                                        R$ {{ reservas.valor_financiado|floatformat:2|intcomma }}
 
-                                                <strong id="resumo-financiado">
-                                                    R$ {{ reservas.valor_desconto|floatformat:2|intcomma }}
-                                                </strong>
+                                                    </h2>
 
-                                            </div>
-
-                                        </div>
-                                        <div class="row">
-
-                                            <div class="col-md-6">
-
-                                                <p class="mb-2">
-                                                    Quantidade de Parcelas:
-                                                </p>
-
-                                            </div>
-
-                                            <div class="col-md-6 text-end">
-
-                                                <strong id="resumo-financiado">
-                                                    {{ reservas.quantidade_parcelas }}
-                                                </strong>
-
-                                            </div>
-
-                                        </div>
-                                        <div class="row">
-
-                                            <div class="col-md-6">
-
-                                                <p class="mb-2">
-                                                    Valor da Parcelas:
-                                                </p>
-
-                                            </div>
-
-                                            <div class="col-md-6 text-end">
-
-                                                <strong id="resumo-financiado">
-                                                    R$ {{ reservas.valor_parcela|floatformat:2|intcomma }}
-                                                </strong>
-
-                                            </div>
-
-                                        </div>
-
-                                        <div class="row">
-
-                                            <div class="col-md-6">
-
-                                                <p class="mb-0">
-                                                    Total Parcelado:
-                                                </p>
-
-                                            </div>
-
-                                            <div class="col-md-6 text-end">
-
-                                                <strong
-                                                        class="fs-4"
-                                                        id="resumo-total"
-                                                >
-                                                    R$ {{ reservas.valor_financiado|floatformat:2|intcomma }}
-                                                </strong>
+                                                </div>
 
                                             </div>
 
@@ -238,6 +273,8 @@
                                     </div>
 
                                 </div>
+
+
                                 <div class="row">
                                     <div class="col-md-6">
                                         <a href="#"
@@ -251,13 +288,13 @@
                                     <div class="col-md-6">
                                         <form method="post" action="{% url 'aceita-analise' reservas.uuid %}">
                                             {% csrf_token %}
-                                        <!--<a href=""
-                                           class="btn btn-success text-center py-3 w-50"
-                                           aria-label="Exibir quadras">
-                                            <label class="form-label fw-bold d-block">Aceita Reserva</label>
-                                        </a>-->
+                                            <!--<a href=""
+                                               class="btn btn-success text-center py-3 w-50"
+                                               aria-label="Exibir quadras">
+                                                <label class="form-label fw-bold d-block">Aceita Reserva</label>
+                                            </a>-->
                                             <button type="submit" class="btn btn-success text-center py-3 w-50"
-                                            aria-label="Exibir quadras">
+                                                    aria-label="Exibir quadras">
                                                 <label class="form-label fw-bold d-block">Aceita Reserva</label>
                                             </button>
                                         </form>
@@ -265,16 +302,16 @@
                                 </div>
 
                             {% endif %}
-                        </div>
-
-
-                        <hr class="my-4"/>
-
-
                     </div>
+
+
+                    <hr class="my-4"/>
+
+
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <!-- ================= MODAL DELETE ================= -->

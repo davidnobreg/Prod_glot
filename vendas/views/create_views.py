@@ -20,6 +20,7 @@ from core.utils import formatar_moeda
 from decimal import Decimal
 
 
+
 @method_decorator(has_permission_decorator('criarVenda'), name='dispatch')
 class CriarVendaView(UpdateView):
 
@@ -391,9 +392,13 @@ class CriarReservadoView(UpdateView):
         # TIPO VENDA
         # =================================================
 
-        if desconto > 0:
+        if desconto > Decimal('0.00'):
 
             reserva.tipo_venda = (
+                'ANALISE'
+            )
+
+            lote.situacao = (
                 'ANALISE'
             )
 
@@ -405,6 +410,10 @@ class CriarReservadoView(UpdateView):
         else:
 
             reserva.tipo_venda = (
+                'RESERVADO'
+            )
+
+            lote.situacao = (
                 'RESERVADO'
             )
 
@@ -438,12 +447,8 @@ class CriarReservadoView(UpdateView):
         reserva.save()
 
         # =================================================
-        # LOTE
+        # SAVE LOTE
         # =================================================
-
-        lote.situacao = (
-            'ANALISE'
-        )
 
         lote.save(
             update_fields=['situacao']

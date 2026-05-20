@@ -24,6 +24,8 @@ from vendas.models import RegisterVenda
 from weasyprint import HTML
 
 
+
+
 def draw_header_footer(canvas, doc):
     canvas.saveState()
 
@@ -92,8 +94,8 @@ def bloco_assinaturas():
 
     return tabela
 
-
 def proposta(request, venda_uuid):
+
     venda = get_object_or_404(
         RegisterVenda,
         uuid=venda_uuid
@@ -124,22 +126,8 @@ def proposta(request, venda_uuid):
     # ======================
     # HELPERS
     # ======================
-    def moeda_para_float(valor):
-        if not valor:
-            return 0
-
-        try:
-            return float(
-                str(valor)
-                .replace('R$', '')
-                .replace('.', '')
-                .replace(',', '.')
-                .strip()
-            )
-        except (TypeError, ValueError):
-            return 0
-
     def formatar_moeda_br(valor):
+
         return (
             f"R$ {float(valor):,.2f}"
             .replace(",", "X")
@@ -151,67 +139,137 @@ def proposta(request, venda_uuid):
     # VALOR TOTAL
     # ======================
     try:
-        area = float(venda.lote.area or 0)
+
+        area = float(
+            venda.lote.area or 0
+        )
 
         valor_metro = float(
             venda.lote.valor_metro_quadrado or 0
         )
 
-        valor = area * valor_metro
+        valor = (
+            area * valor_metro
+        )
 
-    except (TypeError, ValueError):
+    except (
+        TypeError,
+        ValueError
+    ):
+
         valor = 0
 
     # ======================
     # PARCELAS
     # ======================
     try:
+
         total_parcelas = int(
             venda.quantidade_parcelas or 0
         )
 
     except (
-            TypeError,
-            ValueError,
-            AttributeError
+        TypeError,
+        ValueError,
+        AttributeError
     ):
+
         total_parcelas = 0
 
     # ======================
     # CORREÇÃO
     # ======================
     try:
+
         correcao = float(
             get_tempo.correcao or 0
         )
 
     except (
-            TypeError,
-            ValueError,
-            AttributeError
+        TypeError,
+        ValueError,
+        AttributeError
     ):
+
         correcao = 0
 
     valor_corrigido = valor + (
-            valor * (correcao / 100)
+        valor * (correcao / 100)
     )
 
     # ======================
     # SINAL
     # ======================
-    sinal = moeda_para_float(
-        venda.valor_sinal
-    )
+    try:
 
+        sinal = float(
+            venda.valor_sinal or 0
+        )
+
+    except (
+        TypeError,
+        ValueError
+    ):
+
+        sinal = 0
+
+    # ======================
+    # ENTRADA
+    # ======================
+    try:
+
+        entrada = float(
+            venda.valor_entrada or 0
+        )
+
+    except (
+        TypeError,
+        ValueError
+    ):
+
+        entrada = 0
+
+    # ======================
+    # DESCONTO
+    # ======================
+    try:
+
+        valor_desconto = float(
+            venda.valor_desconto or 0
+        )
+
+    except (
+        TypeError,
+        ValueError
+    ):
+
+        valor_desconto = 0
+
+    # ======================
+    # VALOR FINANCIADO
+    # ======================
     valor_financiado = (
-            valor_corrigido - sinal
+        valor_corrigido
+        - sinal
+        - entrada
+        - valor_desconto
     )
 
     # ======================
     # VALOR PARCELA
     # ======================
-    valor_parcela = venda.valor_parcela
+    try:
 
+        valor_parcela = float(
+            venda.valor_parcela or 0
+        )
+
+    except (
+        TypeError,
+        ValueError
+    ):
+
+        valor_parcela = 0
 
     # ======================
     # REAJUSTE
@@ -242,11 +300,15 @@ def proposta(request, venda_uuid):
     )
 
     valor_entrada_formatado = (
-        formatar_moeda_br(sinal)
+        formatar_moeda_br(entrada)
     )
 
     valor_sinal_formatado = (
         formatar_moeda_br(sinal)
+    )
+
+    valor_desconto_formatado = (
+        formatar_moeda_br(valor_desconto)
     )
 
     valor_parcela_formatado = (
@@ -297,6 +359,9 @@ def proposta(request, venda_uuid):
 
         'valor_sinal_formatado':
             valor_sinal_formatado,
+
+        'valor_desconto_formatado':
+            valor_desconto_formatado,
 
         'valor_total_formatado':
             valor_total_formatado,

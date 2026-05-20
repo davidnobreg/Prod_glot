@@ -7,7 +7,6 @@ from .models import RegisterVenda
 
 
 class RegisterVendaForm(forms.ModelForm):
-
     # =========================================================
     # CORREÇÃO
     # =========================================================
@@ -109,13 +108,11 @@ class RegisterVendaForm(forms.ModelForm):
 
             'dt_primeira_parcela',
             'reajuste',
+
+            'observacao',
         ]
 
         widgets = {
-
-            # =====================================================
-            # SELECTS
-            # =====================================================
 
             'cliente': forms.Select(attrs={
                 'class': 'form-control mb-3 select2'
@@ -125,22 +122,20 @@ class RegisterVendaForm(forms.ModelForm):
                 'class': 'form-control mb-3 select2'
             }),
 
-            # =====================================================
-            # PARCELAS
-            # =====================================================
-
             'quantidade_parcelas': forms.NumberInput(attrs={
                 'class': 'form-control mb-3',
                 'min': 1,
             }),
 
-            # =====================================================
-            # DATA
-            # =====================================================
-
             'dt_primeira_parcela': forms.DateInput(attrs={
                 'class': 'form-control mb-3 datepicker',
                 'autocomplete': 'off',
+            }),
+
+            'observacao': forms.Textarea(attrs={
+                'class': 'form-control mb-3',
+                'style': 'height:150px;',
+                'placeholder': 'Digite uma observação...',
             }),
         }
 
@@ -180,7 +175,7 @@ class RegisterVendaForm(forms.ModelForm):
 
         if self.empreendimento and not self.instance.pk:
             self.fields['quantidade_parcelas'].initial = (
-                self.empreendimento.quantidade_parcela or 1
+                    self.empreendimento.quantidade_parcela or 1
             )
 
     # =========================================================
@@ -202,11 +197,11 @@ class RegisterVendaForm(forms.ModelForm):
         )
 
         parcelas = (
-            self.fields['quantidade_parcelas'].initial or 1
+                self.fields['quantidade_parcelas'].initial or 1
         )
 
         valor_parcela = (
-            valor_total / Decimal(str(parcelas))
+                valor_total / Decimal(str(parcelas))
         ).quantize(Decimal('0.01'))
 
         self.fields['valor_parcela'].initial = (
@@ -215,8 +210,6 @@ class RegisterVendaForm(forms.ModelForm):
             .replace('.', ',')
             .replace('X', '.')
         )
-
-
 
         # =====================================================
         # DEFAULTS MONEY
@@ -315,7 +308,7 @@ class RegisterVendaForm(forms.ModelForm):
         )
 
         valor_financiado = (
-            total - desconto - entrada - sinal
+                total - desconto - entrada - sinal
         )
 
         if valor_financiado < 0:
@@ -368,9 +361,9 @@ class RegisterVendaForm(forms.ModelForm):
     def _calcular_valor_total(self):
 
         return (
-            Decimal(str(self.lote.area or 0))
-            *
-            Decimal(str(self.lote.valor_metro_quadrado or 0))
+                Decimal(str(self.lote.area or 0))
+                *
+                Decimal(str(self.lote.valor_metro_quadrado or 0))
         ).quantize(Decimal('0.01'))
 
     def _calcular_valor_financiado(self):
@@ -390,7 +383,7 @@ class RegisterVendaForm(forms.ModelForm):
         )
 
         return (
-            total - desconto - entrada - sinal
+                total - desconto - entrada
         ).quantize(Decimal('0.01'))
 
     def _calcular_valor_parcela(self):
@@ -409,5 +402,5 @@ class RegisterVendaForm(forms.ModelForm):
         )
 
         return (
-            valor_financiado / Decimal(str(parcelas))
+                valor_financiado / Decimal(str(parcelas))
         ).quantize(Decimal('0.01'))

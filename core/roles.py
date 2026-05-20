@@ -84,14 +84,15 @@ class Corretor(AbstractUserRole):
 
         # MODULO VENDA
 
-        'reservado': True,
-        'reservadoDetalhe': True,
-        'listaVendaRelatorio': True,
+        'analiseReserva': True,
+        'cancelarAceiteReservado': True,
+        'cancelarReservadoCadastro': True,
         'criarReservado': True,
         'criarVenda': True,
+        'listaVendaRelatorio': True,
         'renovarReserva': True,
-        'cancelarReservado': True,
-        'cancelarReservadoCadastro': True,
+        'reservado': True,
+        'reservadoDetalhe': True,
 
 
 

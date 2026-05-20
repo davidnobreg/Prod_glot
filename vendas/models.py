@@ -11,6 +11,7 @@ class TypeLote(models.TextChoices):
     RESERVADO = 'RESERVADO', 'RESERVADO'
     VENDIDO = 'VENDIDO', 'VENDIDO'
     ANALISE = 'ANALISE', 'ANALISE'
+    NAO_ACEITE = 'NAO-ACEITE','NAO-ACEITE'
 
 ## Registrar Venda
 
@@ -47,6 +48,7 @@ class RegisterVenda(models.Model):
         default=0,
         verbose_name='Desconto'
     )
+    observacao = models.TextField(blank=True)
 
     
 

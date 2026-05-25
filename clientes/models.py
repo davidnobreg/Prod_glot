@@ -39,6 +39,7 @@ class Cliente(models.Model):
     )
 
     name = models.CharField(max_length=100)
+    nome_usual = models.CharField(max_length=50, blank=True, null=True)
     data_ns = models.DateField(blank=True, null=True)
     documento = models.CharField(max_length=18, unique=True, help_text="Informe CPF ou CNPJ (apenas números).")
     numero_rg = models.CharField(max_length=20, blank=True)

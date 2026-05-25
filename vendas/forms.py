@@ -326,8 +326,24 @@ class RegisterVendaForm(forms.ModelForm):
 
         instance = super().save(commit=False)
 
+        # ==========================================
+        # USUÁRIO QUE ACEITOU A PROPOSTA
+        # ==========================================
+
+        instance.aceite_proposta = self.user
+        print(self.user)
+        print(instance.aceite_proposta)
+
+        # ==========================================
+        # CORRETOR
+        # ==========================================
+
         if self.user and self.user.tipo_usuario != 'ADMINISTRADOR':
             instance.corretor = self.user
+
+        # ==========================================
+        # VALORES
+        # ==========================================
 
         instance.valor_total = (
             self._calcular_valor_total()
@@ -348,6 +364,10 @@ class RegisterVendaForm(forms.ModelForm):
         instance.valor_parcela = (
             self._calcular_valor_parcela()
         )
+
+        # ==========================================
+        # SAVE
+        # ==========================================
 
         if commit:
             instance.save()

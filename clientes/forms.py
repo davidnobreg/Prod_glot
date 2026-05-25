@@ -109,12 +109,13 @@ class ClienteForm(forms.ModelForm):
             field.widget.attrs.setdefault('class', 'form-control mb-3')
 
         # Campos à esquerda e direita
-        left_fields = ['name', 'data_ns', 'documento', 'numero_rg', 'orgao_emissor_rg', 'estado_civil', 'observacao']
+        left_fields = ['name', 'nome_usual', 'data_ns', 'documento', 'numero_rg', 'orgao_emissor_rg', 'estado_civil', 'observacao']
         right_fields = ['naturalidade', 'nacionalidade', 'profissao', 'renda', 'email']
 
         # Configurações extras de placeholder, classes e estilos
         config = {
             'name': {'placeholder': 'Nome do Cliente'},
+            'nome_usual': {'placeholder': 'Nome do Usual'},
             'data_ns': {'id': 'id_data_ns', 'placeholder': 'Data de Nascimento', 'class': 'form-control mb-3 mask-data'},
             'documento': {'placeholder': 'CPF ou CNPJ', 'class': 'form-control mb-3 mask-doc', 'maxlength': '18'},
             'numero_rg': {'placeholder': 'RG', 'class': 'form-control mb-3 mask-rg'},
@@ -286,7 +287,7 @@ class ClienteUpdateForm(forms.ModelForm):
             field.widget.attrs.setdefault('class', 'form-control mb-3')
 
         left_fields = [
-            'name', 'data_ns', 'documento', 'numero_rg',
+            'name', 'nome_usual', 'data_ns', 'documento', 'numero_rg',
             'orgao_emissor_rg', 'estado_civil', 'observacao'
         ]
         right_fields = [
@@ -296,6 +297,7 @@ class ClienteUpdateForm(forms.ModelForm):
 
         config = {
             'name': {'placeholder': 'Nome do Cliente'},
+            'nome_usual': {'placeholder': 'Nome do Usual'},
             'data_ns': {'placeholder': 'Data de Nascimento', 'class': 'form-control mb-3 mask-data'},
             'documento': {'placeholder': 'CPF ou CNPJ', 'class': 'form-control mb-3 mask-doc'},
             'numero_rg': {'placeholder': 'RG', 'class': 'form-control mb-3 mask-rg'},

@@ -29,6 +29,7 @@ class RegisterVenda(models.Model):
     corretor = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="corretor")
     tipo_venda = models.CharField(max_length=100, choices=TypeLote.choices)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="vendas")
+    aceite_proposta = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="aceite_proposta")
     dt_reserva = models.DateField(default=datetime.now, blank=True)
     dt_venda = models.DateField(blank=True, null=True)
     create_at = models.DateField(default=datetime.now, blank=True)

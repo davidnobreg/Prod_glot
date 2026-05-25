@@ -416,7 +416,22 @@ def proposta(request, venda_uuid):
     )
 
 
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.template import Context, Template
+from django.utils import timezone
+
+from babel.dates import format_date
+from num2words import num2words
+
+from weasyprint import HTML, CSS
+
+
 def proposta_pdf(request, venda_uuid):
+    # =====================================================
+    # VENDA
+    # =====================================================
+
     venda = get_object_or_404(
         RegisterVenda,
         uuid=venda_uuid
@@ -434,6 +449,10 @@ def proposta_pdf(request, venda_uuid):
         cliente=venda.cliente
     ).first()
 
+    # =====================================================
+    # DATA
+    # =====================================================
+
     data_atual = timezone.now().date()
 
     data_por_extenso = format_date(
@@ -442,40 +461,34 @@ def proposta_pdf(request, venda_uuid):
         locale='pt_BR'
     )
 
-    get_tempo = venda.lote.quadra.empr
+    empreendimento = venda.lote.quadra.empr
 
-    # ======================
+    # =====================================================
     # HELPERS
-    # ======================
-    def moeda_para_float(valor):
-
-        if not valor:
-            return 0
-
-        try:
-            return float(
-                str(valor)
-                .replace('R$', '')
-                .replace('.', '')
-                .replace(',', '.')
-                .strip()
-            )
-
-        except (TypeError, ValueError):
-            return 0
+    # =====================================================
 
     def formatar_moeda_br(valor):
 
-        return (
-            f"R$ {float(valor):,.2f}"
-            .replace(",", "X")
-            .replace(".", ",")
-            .replace("X", ".")
-        )
+        try:
 
-    # ======================
+            return (
+                f"R$ {float(valor):,.2f}"
+                .replace(",", "X")
+                .replace(".", ",")
+                .replace("X", ".")
+            )
+
+        except (
+                TypeError,
+                ValueError
+        ):
+
+            return "R$ 0,00"
+
+    # =====================================================
     # VALOR TOTAL
-    # ======================
+    # =====================================================
+
     try:
 
         area = float(
@@ -486,15 +499,21 @@ def proposta_pdf(request, venda_uuid):
             venda.lote.valor_metro_quadrado or 0
         )
 
-        valor = area * valor_metro
+        valor_total = (
+                area * valor_metro
+        )
 
-    except (TypeError, ValueError):
+    except (
+            TypeError,
+            ValueError
+    ):
 
-        valor = 0
+        valor_total = 0
 
-    # ======================
+    # =====================================================
     # PARCELAS
-    # ======================
+    # =====================================================
+
     try:
 
         total_parcelas = int(
@@ -509,13 +528,14 @@ def proposta_pdf(request, venda_uuid):
 
         total_parcelas = 0
 
-    # ======================
+    # =====================================================
     # CORREÇÃO
-    # ======================
+    # =====================================================
+
     try:
 
         correcao = float(
-            get_tempo.correcao or 0
+            empreendimento.correcao or 0
         )
 
     except (
@@ -526,71 +546,152 @@ def proposta_pdf(request, venda_uuid):
 
         correcao = 0
 
-    valor_corrigido = valor + (
-            valor * (correcao / 100)
+    valor_corrigido = (
+            valor_total +
+            (
+                    valor_total *
+                    (correcao / 100)
+            )
     )
 
-    # ======================
+    # =====================================================
     # SINAL
-    # ======================
-    sinal = moeda_para_float(
-        venda.valor_sinal
-    )
+    # =====================================================
+
+    try:
+
+        sinal = float(
+            venda.valor_sinal or 0
+        )
+
+    except (
+            TypeError,
+            ValueError
+    ):
+
+        sinal = 0
+
+    # =====================================================
+    # ENTRADA
+    # =====================================================
+
+    try:
+
+        entrada = float(
+            venda.valor_entrada or 0
+        )
+
+    except (
+            TypeError,
+            ValueError
+    ):
+
+        entrada = 0
+
+    # =====================================================
+    # DESCONTO
+    # =====================================================
+
+    try:
+
+        valor_desconto = float(
+            venda.valor_desconto or 0
+        )
+
+    except (
+            TypeError,
+            ValueError
+    ):
+
+        valor_desconto = 0
+
+    # =====================================================
+    # VALOR FINANCIADO
+    # =====================================================
 
     valor_financiado = (
-            valor_corrigido - sinal
+            valor_corrigido
+            - entrada
+            - valor_desconto
     )
 
-    valor_extenso = num2words(
-        sinal,
-        lang='pt_BR',
-        to='currency'
-    )
-
-    # ======================
+    # =====================================================
     # VALOR PARCELA
-    # ======================
-    valor_parcela = (
-        valor_financiado / total_parcelas
-        if total_parcelas > 0 else 0
-    )
+    # =====================================================
 
-    # ======================
+    try:
+
+        valor_parcela = float(
+            venda.valor_parcela or 0
+        )
+
+    except (
+            TypeError,
+            ValueError
+    ):
+
+        valor_parcela = 0
+
+    # =====================================================
+    # VALOR EXTENSO
+    # =====================================================
+
+    try:
+
+        valor_extenso = num2words(
+            sinal,
+            lang='pt_BR',
+            to='currency'
+        ).upper()
+
+    except (
+            TypeError,
+            ValueError
+    ):
+
+        valor_extenso = ''
+
+    # =====================================================
     # REAJUSTE
-    # ======================
+    # =====================================================
+
     if venda.reajuste:
 
         tipo_reajuste = (
-            venda.lote.quadra.empr.tipo_correcao
-            if venda.lote.quadra.empr.tipo_correcao
-            else "IGPM"
+            empreendimento.tipo_correcao
+            if empreendimento.tipo_correcao
+            else 'IGPM'
         )
 
         frase_reajuste = (
-            f"AS PARCELAS SERÃO CORRIGIDAS "
-            f"PELO {tipo_reajuste}."
+            f'AS PARCELAS SERÃO CORRIGIDAS '
+            f'PELO {tipo_reajuste}.'
         )
 
     else:
 
         frase_reajuste = (
-            "AS PARCELAS NÃO SERÃO "
-            "CORRIGIDAS."
+            'AS PARCELAS SERÃO FIXAS.'
         )
 
-    # ======================
+    # =====================================================
     # FORMATADOS
-    # ======================
+    # =====================================================
+
     valor_total_formatado = (
-        formatar_moeda_br(valor)
+        formatar_moeda_br(valor_total)
     )
 
     valor_entrada_formatado = (
-        formatar_moeda_br(sinal)
+        formatar_moeda_br(entrada)
     )
 
     valor_sinal_formatado = (
         formatar_moeda_br(sinal)
+    )
+
+    valor_desconto_formatado = (
+        formatar_moeda_br(valor_desconto)
     )
 
     valor_parcela_formatado = (
@@ -605,9 +706,9 @@ def proposta_pdf(request, venda_uuid):
         formatar_moeda_br(valor_corrigido)
     )
 
-    data_primeira_parcela = (
-        venda.dt_primeira_parcela
-    )
+    # =====================================================
+    # DOCUMENTO HTML
+    # =====================================================
 
     documento = get_object_or_404(
         CadastroDocumento,
@@ -619,11 +720,12 @@ def proposta_pdf(request, venda_uuid):
         documento.texto
     )
 
-    html_final = template.render(Context({
+    contexto = {
 
-        # ======================
+        # =================================================
         # OBJETOS
-        # ======================
+        # =================================================
+
         'venda':
             venda,
 
@@ -636,74 +738,34 @@ def proposta_pdf(request, venda_uuid):
         'conjuge':
             conjuge,
 
-        # ======================
-        # EMPREENDIMENTO
-        # ======================
-        'nome_do_empreendimento':
-            venda.lote.quadra.empr.nome,
-
-        'cidade':
-            venda.lote.quadra.empr.cidade,
-
-        # ======================
-        # LOTE
-        # ======================
-        'quadra':
-            venda.lote.quadra.namequadra,
-
-        'lote':
-            venda.lote.lote,
-
-        'area':
-            venda.lote.area,
-
-        # ======================
-        # CLIENTE
-        # ======================
-        'cliente_nome':
-            venda.cliente.name,
-
-        'cliente_rg':
-            venda.cliente.numero_rg,
-
-        'cliente_rg_emissor':
-            venda.cliente.orgao_emissor_rg,
-
-        'cliente_cpf':
-            venda.cliente.documento,
-
-        'cliente_email':
-            venda.cliente.email,
-
-        # ======================
-        # CORRETOR
-        # ======================
-        'corretor_nome':
-            venda.user.first_name,
-
-        # ======================
+        # =================================================
         # DATAS
-        # ======================
+        # =================================================
+
         'data_por_extenso':
             data_por_extenso,
 
         'data_primeira_parcela':
-            data_primeira_parcela,
+            venda.dt_primeira_parcela,
 
-        # ======================
+        # =================================================
         # VALORES
-        # ======================
+        # =================================================
+
+        'valor_total_formatado':
+            valor_total_formatado,
+
         'valor_entrada_formatado':
             valor_entrada_formatado,
 
         'valor_sinal_formatado':
             valor_sinal_formatado,
 
-        'valor_sinal_extenso':
-            valor_sinal_extenso,
+        'valor_extenso':
+            valor_extenso,
 
-        'valor_total_formatado':
-            valor_total_formatado,
+        'valor_desconto_formatado':
+            valor_desconto_formatado,
 
         'valor_parcela_formatado':
             valor_parcela_formatado,
@@ -714,25 +776,39 @@ def proposta_pdf(request, venda_uuid):
         'valor_corrigido_formatado':
             valor_corrigido_formatado,
 
-        # ======================
+        # =================================================
         # PARCELAS
-        # ======================
+        # =================================================
+
         'total_parcelas':
             total_parcelas,
 
-        'quantidade_parcelas':
-            total_parcelas,
-
-        # ======================
+        # =================================================
         # CORREÇÃO
-        # ======================
+        # =================================================
+
         'correcao':
             correcao,
 
         'frase_reajuste':
             frase_reajuste,
 
-    }))
+        # =================================================
+        # OBSERVAÇÃO
+        # =================================================
+
+        'observacao':
+            venda.observacao,
+
+    }
+
+    html_final = template.render(
+        Context(contexto)
+    )
+
+    # =====================================================
+    # RESPONSE PDF
+    # =====================================================
 
     response = HttpResponse(
         content_type='application/pdf'
@@ -740,11 +816,64 @@ def proposta_pdf(request, venda_uuid):
 
     response[
         'Content-Disposition'
-    ] = 'inline; filename="documento.pdf"'
+    ] = (
+        f'attachment; '
+        f'filename="proposta_{venda.cliente.name}.pdf"'
+    )
+
+    # =====================================================
+    # GERA PDF
+    # =====================================================
 
     HTML(
         string=html_final
-    ).write_pdf(response)
+    ).write_pdf(
+
+        response,
+
+        stylesheets=[
+
+            CSS(
+                string='''
+
+                    @page {
+                        size: A4;
+                        margin: 4mm;
+                    }
+
+                    body {
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        width: 210mm;
+                        font-size: 9pt;
+                        background: #fff !important;
+                        color: #000 !important;
+                        overflow: hidden;
+                    }                    
+
+                    p{
+                        margin:0 0 5px 0;
+                        text-align:justify;
+                    }
+
+                    table{
+                        width:100%;
+                        border-collapse:collapse;
+                    }
+
+                    .evitar-quebra{
+                        page-break-inside: avoid;
+                    }
+
+                    .quebra{
+                        page-break-before: always;
+                    }
+
+                '''
+            )
+
+        ]
+    )
 
     return response
 

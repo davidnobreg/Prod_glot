@@ -14,13 +14,13 @@ class Command(BaseCommand):
             total += 1
             clear_roles(user)
 
-            if user.tipo_usuario == 'A':
+            if user.tipo_usuario == 'ADMINISTRADOR':
                 assign_role(user, 'administrador')
                 atualizados += 1
-            elif user.tipo_usuario == 'C':
+            elif user.tipo_usuario == 'CORRETOR':
                 assign_role(user, 'corretor')
                 atualizados += 1
-            elif user.tipo_usuario == 'P':
+            elif user.tipo_usuario == 'PROPRIETARIO':
                 assign_role(user, 'proprietario')
                 atualizados += 1
 

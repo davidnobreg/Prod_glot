@@ -1,5 +1,4 @@
 from django.db import models
-from ckeditor_uploader.fields import RichTextUploadingField
 
 # Create your models here.
 class CadastroDocumento(models.Model):
@@ -8,7 +7,7 @@ class CadastroDocumento(models.Model):
         verbose_name="Título do Contrato"
     )
 
-    texto = RichTextUploadingField(
+    texto = models.TextField(
         verbose_name="Texto do Contrato"
     )
     tipo = models.CharField(

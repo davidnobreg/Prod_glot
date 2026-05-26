@@ -1,103 +1,39 @@
 {% extends 'base.html' %}
 
-
 {% block title %}
-    Cadastro de Usuário
+    Cadastro de Usuario
 {% endblock %}
-
-{% load static %}
 
 {% block content %}
     <div class="container mt-4">
-        <div class="row align-items-center g-4">
-            <!-- Imagem -->
-            <div class="col-lg-6">
-                <img src="{% static 'images/carlos.jpg' %}" class="img-fluid rounded shadow" alt="Cliente"/>
-            </div>
-
-            <!-- Formulário -->
-            <div class="col-lg-6">
-                <form action="{% url 'criar-cadastro' %}" method="POST" class="card  p-4 shadow">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <form action="{% url 'criar-cadastro' %}" method="POST" class="card p-4 shadow" novalidate>
                     {% csrf_token %}
                     <h4 class="mb-3 text-center">Cadastrar Usuario</h4>
-
-                    <!-- Mensagens de status -->
-                    {% if status == '0' %}
-                        <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso!</div>
-                    {% elif status == '1' %}
-                        <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
-                    {% elif status == '2' %}
-                        <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
-                    {% elif status == '3' %}
-                        <div class="alert alert-danger" role="alert">Preencha o telefone corretamente.</div>
-                    {% endif %}
-
-                    <hr/>
-                    <!-- Campos do formulário -->
-                    <div class="mb-3">
-                        {{ form.as_p }}
-
-                        <div class="form-floating mb-3">
-                            <input type="text" name="first_name" class="form-control" id="id_first_name"
-                                   placeholder="Nome Usual">
-                            <label for="floatingInput">Digite o nome usual</label>
-                        </div>
-                        <div class="form-floating mb-3">
-                            <input type="text" name="last_name" class="form-control" id="id_last_name"
-                                   placeholder="Nome completo">
-                            <label for="floatingInput">Digite o nome completo</label>
-                        </div>
-                        <div class="form-floating mb-3">
-                            <input type="email" name="email" class="form-control" id="id_email"
-                                   placeholder="name@example.com">
-                            <label for="floatingInput">Digite seu email</label>
-                        </div>
-                        <div class="form-floating mb-3">
-                            <input type="password" name="senha" class="form-control" id="id_senha"
-                                   placeholder="Password">
-                            <label for="floatingInput">Digite sua senha</label>
-                        </div>
-                        <div class="form-floating mb-3">
-                            <input type="text" name="creci" class="form-control" id="id_creci"
-                                   placeholder="creci">
-                            <label for="floatingInput">Digite seu creci</label>
-                        </div>
-                        <div class="form-floating mb-3">
-                            <input id="telefone" type="text" name="contato" class="form-control mb-3 sp-telefone" id="id_contato"
-                                   placeholder="contato">
-                            <label for="floatingInput">Digite seu contato</label>
-                        </div>
-                        <div class="form-floating">
-                            <select class="form-select" name="tipo_usuario" id="id_tipo_usuario"
-                                    aria-label="Floating label select example">
-                                <option selected>Tipo de Usuario</option>
-                                <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-                                <option value="CORRETOR">CORRETOR</option>
-                                <option value="PROPRIETARIO">PROPIETÁRIO</option>
-                            </select>
-                            <label for="floatingSelect">Informe o grupo</label>
-                        </div>
-                    </div>
-
-                    <hr/>
+                    <hr>
 
                     {{ form.non_field_errors }}
 
-                    {{ field.label_tag }}
+                    {% for field in form %}
+                        <div class="mb-3">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
 
-                    {{ field.errors }}
-                    <!-- Botões -->
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary">Salvar</button>
-                        <a href="{% url 'lista-usuario' %}" class="btn btn-secondary">
-                            Cancelar
-                        </a>
+                        <a href="{% url 'lista-usuario' %}" class="btn btn-secondary">Cancelar</a>
                     </div>
-
                 </form>
             </div>
-
         </div>
-    </div>
     </div>
 {% endblock %}

@@ -1,16 +1,16 @@
-from django.http import HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth import authenticate, login as login_django, logout as logout_django
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views.decorators.http import require_POST
+from rolepermissions.decorators import has_permission_decorator
 
-from .models import User, UsuarioEmpreendimento
 from empreendimentos.models import Empreendimento
 
-from .forms import UserCreationForm, UserChangeForm
-from django.contrib.auth import authenticate, login as login_django
-from django.db.models import Q
-from django.core.paginator import Paginator
-from rolepermissions.decorators import has_permission_decorator
+from .forms import UserChangeForm, UserCreationForm
+from .models import User, UsuarioEmpreendimento
 
 
 def login(request):
@@ -19,24 +19,22 @@ def login(request):
             return redirect(reverse('lista-empreendimento'))
         return render(request, 'login.html')
 
-    elif request.method == 'POST':
-        login = request.POST.get('email')
-        senha = request.POST.get('senha')
+    email = request.POST.get('email', '').strip().lower()
+    senha = request.POST.get('senha')
 
-        user = authenticate(username=login, password=senha, is_active=True)
+    user = authenticate(request, username=email, password=senha)
 
-        if not user:
-            # TODO: Redirecionar com mensagem de erro
-            messages.error(request, "Usuário inválido! Tente novamente.")
-            return redirect(reverse('login'))
+    if not user:
+        messages.error(request, "Usuario invalido! Tente novamente.")
+        return redirect(reverse('login'))
 
-        login_django(request, user)
-        messages.success(request, "Usuário Logado com sucesso.!")
-        return redirect(reverse('lista-empreendimento'))
+    login_django(request, user)
+    messages.success(request, "Usuario logado com sucesso.")
+    return redirect(reverse('lista-empreendimento'))
 
 
 def logout(request):
-    request.session.flush()
+    logout_django(request)
     return redirect(reverse('login'))
 
 
@@ -44,41 +42,29 @@ def logout(request):
 def listarUsuario(request):
     usuarios = User.objects.all().order_by('first_name')
 
-    # Mapeamento dos tipos de usuário
-    tipo_usuario_map = {
-        'ADMINISTRADOR': 'ADMINISTRADOR',
-        'CORRETOR': 'CORRETOR',
-        'PROPRIETARIO': 'PROPRIETARIO',
-    }
-
-    # Filtros vindos da query string
     get_user = request.GET.get('user', '').strip()
     get_tipo_user = request.GET.get('tipo_user', '').strip()
     get_is_active = request.GET.get('is_active', '').strip()
 
-    # Aplicação dos filtros
     if get_user:
         usuarios = usuarios.filter(
             Q(username__icontains=get_user)
+            | Q(first_name__icontains=get_user)
+            | Q(last_name__icontains=get_user)
             | Q(email__icontains=get_user)
-            | Q(contato__icontains=get_user)  # alterei 'phone' → 'contato' (como no seu form)
+            | Q(creci__icontains=get_user)
+            | Q(contato__icontains=get_user)
         )
 
     if get_tipo_user:
         usuarios = usuarios.filter(tipo_usuario=get_tipo_user)
 
     if get_is_active:
-        # Filtra explicitamente True/False
         if get_is_active.lower() in ['true', '1', 'ativo']:
             usuarios = usuarios.filter(is_active=True)
         elif get_is_active.lower() in ['false', '0', 'inativo']:
             usuarios = usuarios.filter(is_active=False)
 
-    # Adicionando o display legível para tipo_usuario
-    for usuario in usuarios:
-        usuario.tipo_usuario_display = tipo_usuario_map.get(usuario.tipo_usuario, '—')
-
-    # Paginação
     paginator = Paginator(usuarios, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -90,7 +76,8 @@ def listarUsuario(request):
             'user': get_user,
             'tipo_user': get_tipo_user,
             'is_active': get_is_active,
-        }
+        },
+        'tipo_usuario_choices': User.choices_tipo_usuario,
     }
 
     return render(request, 'lista_usuarios.html', context)
@@ -101,34 +88,16 @@ def criarUsuario(request):
     template_name = 'usuario.html'
 
     if request.method == 'GET':
-        return render(request, template_name)
+        return render(request, template_name, {'form': UserCreationForm()})
 
-    if request.method == 'POST':
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        email = request.POST.get('email')
-        senha = request.POST.get('senha')
-        contato = request.POST.get('contato')
-        creci = request.POST.get('creci')
-        tipo_usuario = request.POST.get('tipo_usuario')
-
-        user = User.objects.filter(email=email)
-
-        if user.exists():
-            # TODO: Utilizar messages do Django
-            return HttpResponse('Email já existe! Tente novamente.')
-
-        user = User.objects.create_user(first_name=first_name, last_name=last_name ,username=email, email=email, password=senha, contato=contato, creci=creci,
-                                        tipo_usuario=tipo_usuario)
-
-        messages.success(request, "Usuario criada com sucesso!")
-        # TODO: Redirecionar com uma mensagem
+    form = UserCreationForm(request.POST)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Usuario criado com sucesso!")
         return redirect('lista-usuario')
 
-    context = {
-        'form': form
-    }
-    return render(request, template_name, context)
+    messages.error(request, "Verifique os dados do usuario.")
+    return render(request, template_name, {'form': form})
 
 
 @has_permission_decorator('alterarUsuario')
@@ -137,60 +106,63 @@ def alteraUsuario(request, id):
     template_name = 'update_usuario.html'
 
     if request.method == 'GET':
-        form = UserChangeForm(instance=usuario)  # Preenche o formulário com os dados do usuario
-        context = {'form': form, 'usuario': usuario}  # adiciona o usuario no contexto
-        return render(request, template_name, context)
+        form = UserChangeForm(instance=usuario)
+        return render(request, template_name, {'form': form, 'usuario': usuario})
 
-    if request.method == 'POST':  # Use POST para formulários HTML
-        form = UserChangeForm(request.POST, instance=usuario)  # Passa os dados e a instância para o formulário
+    if request.method == 'POST':
+        form = UserChangeForm(request.POST, instance=usuario)
 
         if form.is_valid():
             form.save()
-            return redirect('lista-usuario')  # Redireciona para a lista de usuarios
+            messages.success(request, "Usuario atualizado com sucesso!")
+            return redirect('lista-usuario')
 
-        context = {'form': form, 'usuario': usuario}  # adiciona o usuario no contexto
-        return render(request, template_name, context)  # retorna o form com os erros.
+        messages.error(request, "Verifique os dados do usuario.")
+        return render(request, template_name, {'form': form, 'usuario': usuario})
 
-    # Se não for GET nem POST, retorna um erro (ou redireciona, dependendo do caso)
-    return redirect('lista-cliente')  # redireciona para a lista de usuarios, caso o metodo não seja get nem post
+    return redirect('lista-usuario')
 
 
 @has_permission_decorator('deletarUsuario')
+@require_POST
 def deleteUsuario(request, id):
-    usuario = User.objects.get(id=id)
+    usuario = get_object_or_404(User, id=id)
     usuario.is_active = False
-    usuario.save()
+    usuario.save(update_fields=['is_active'])
+    messages.success(request, "Usuario desativado com sucesso.")
     return redirect('lista-usuario')
+
 
 @has_permission_decorator('criarUsuarioEmpreendimento')
 def criarUsuariosEmpreendimento(request):
-    if request.method == 'POST':
-        ids_usuarios = request.POST.getlist('usuarios_selecionados')
-        id_empreendimento = request.POST.get('empreendimento')
+    if request.method != 'POST':
+        return redirect('lista-empreendimento-tabela')
 
-        empreendimento = get_object_or_404(Empreendimento, id=id_empreendimento)
+    ids_usuarios = request.POST.getlist('usuarios_selecionados')
+    id_empreendimento = request.POST.get('empreendimento')
 
-        for user_id in ids_usuarios:
-            usuario = User.objects.get(id=user_id)
-            relacao, created = UsuarioEmpreendimento.objects.get_or_create(
-                usuario=usuario,
-                empreendimento=empreendimento,
-                defaults={'ativo': True}
-            )
+    empreendimento = get_object_or_404(Empreendimento, id=id_empreendimento)
 
-            if not created:
-                relacao.ativo = True
-                relacao.save()
+    for user_id in ids_usuarios:
+        usuario = get_object_or_404(User, id=user_id, is_active=True)
+        relacao, created = UsuarioEmpreendimento.objects.get_or_create(
+            usuario=usuario,
+            empreendimento=empreendimento,
+            defaults={'ativo': True},
+        )
 
-        messages.success(request, "Usuários associados com sucesso.")
-        return redirect('detalhe-empreendimento', id=empreendimento.id)
+        if not created:
+            relacao.ativo = True
+            relacao.save(update_fields=['ativo'])
 
-    return redirect('lista-empreendimento-tabela')
+    messages.success(request, "Usuarios associados com sucesso.")
+    return redirect('detalhe-empreendimento', id=empreendimento.id)
 
 
 @has_permission_decorator('deleteUsuarioEmpreendimento')
+@require_POST
 def deleteUsuarioEmpreendimento(request, id):
-    usuario = UsuarioEmpreendimento.objects.get(id=id)
+    usuario = get_object_or_404(UsuarioEmpreendimento, id=id)
     usuario.ativo = False
-    usuario.save()
+    usuario.save(update_fields=['ativo'])
     return redirect('detalhe-empreendimento', id=usuario.empreendimento.id)

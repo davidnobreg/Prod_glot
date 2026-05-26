@@ -1,80 +1,44 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Altera Usuario
+    Alterar Usuario
 {% endblock %}
-
-{% load static %}
 
 {% block content %}
     <div class="container mt-4">
-        <div class="row align-items-center g-4">
-            <hr/>
-            <!-- Imagem -->
-            <div class="col-lg-6">
-                <img src="{% static 'images/carlos.jpg' %}" class="img-fluid rounded shadow" alt="Cliente"/>
-            </div>
-            <!-- Formulário -->
-            <div class="col-lg-6">
-                <form method="post" class="card  p-4 shadow">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <form method="post" class="card p-4 shadow" novalidate>
                     {% csrf_token %}
-                    <h4 class="mb-3 text-center">Cadastrar Usuario</h4>
-                    <!-- Mensagens de status -->
-                    {% if status == '0' %}
-                        <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso!</div>
-                    {% elif status == '1' %}
-                        <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
-                    {% elif status == '2' %}
-                        <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
-                    {% elif status == '3' %}
-                        <div class="alert alert-danger" role="alert">Preencha o telefone corretamente.</div>
-                    {% endif %}
+                    <h4 class="mb-3 text-center">Alterar Usuario</h4>
+                    <hr>
 
-                    <hr/>
-                    <div class="mb-3">
-                        {{ form.username.label_tag }} {{ form.username }}
-                    </div>
-                    <!--<div class="mb-3">
-                        {{ form.first_name.label_tag }} {{ form.first_name }}
-                    </div>-->
-                    <div class="mb-3">
-                        {{ form.last_name.label_tag }} {{ form.last_name }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.email.label_tag }} {{ form.email }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.creci.label_tag }} {{ form.creci }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.contato.label_tag }} {{ form.contato }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.tipo_usuario.label_tag }} {{ form.tipo_usuario }}
-                    </div>
-                    <div class="form-check mb-3">
-                        {{ form.is_active }}
-                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
-                            {{ form.is_active.label }}
-                        </label>
-                    </div>
-                    <div class="mb-3">
-                        {{ form.password1.label_tag }} {{ form.password1 }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.password2.label_tag }} {{ form.password2 }}
-                    </div>
+                    {{ form.non_field_errors }}
+
+                    {% for field in form %}
+                        <div class="{% if field.field.widget.input_type == 'checkbox' %}form-check mb-3{% else %}mb-3{% endif %}">
+                            {% if field.field.widget.input_type == 'checkbox' %}
+                                {{ field }}
+                                <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {% else %}
+                                {{ field.label_tag }}
+                                {{ field }}
+                            {% endif %}
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
 
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary">Salvar</button>
-                        <a href="{% url 'lista-usuario' %}" class="btn btn-secondary">
-                            Cancelar
-                        </a>
+                        <a href="{% url 'lista-usuario' %}" class="btn btn-secondary">Cancelar</a>
                     </div>
                 </form>
-
             </div>
-            <hr/>
         </div>
     </div>
 {% endblock %}

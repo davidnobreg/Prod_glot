@@ -64,7 +64,8 @@ class ClienteForm(forms.ModelForm):
         if not email:
             return email
 
-        qs = Cliente.objects.filter(email=email)
+        email = email.strip().lower()
+        qs = Cliente.objects.filter(email__iexact=email)
 
         # 🔑 ignora o próprio registro no UPDATE
         if self.instance and self.instance.pk:
@@ -99,6 +100,10 @@ class ClienteForm(forms.ModelForm):
             field.required = False
             field.widget.attrs.pop('required', None)
             field.widget.attrs.setdefault('class', 'form-control mb-3')
+
+        for name in ('name', 'documento', 'email'):
+            if name in self.fields:
+                self.fields[name].required = True
 
         # Configuração inicial
         if 'nacionalidade' in self.fields:
@@ -135,6 +140,7 @@ class ClienteForm(forms.ModelForm):
         # Input type data_ns
         if 'data_ns' in self.fields:
             self.fields['data_ns'].widget.input_type = 'text'
+            self.fields['data_ns'].input_formats = ['%d/%m/%Y', '%Y-%m-%d']
 
         if 'renda' in self.fields:
             self.fields['renda'].widget = TextInput(attrs={
@@ -314,6 +320,7 @@ class ClienteUpdateForm(forms.ModelForm):
 
         if 'data_ns' in self.fields:
             self.fields['data_ns'].widget.input_type = 'text'
+            self.fields['data_ns'].input_formats = ['%d/%m/%Y', '%Y-%m-%d']
 
         if 'renda' in self.fields:
             self.fields['renda'].widget = TextInput(attrs={
@@ -400,7 +407,7 @@ class ClienteConjugeForm(forms.ModelForm):
     def clean_documento_conjuge(self):
         documento = re.sub(r'[^0-9]', '', self.cleaned_data.get('documento_conjuge', ''))
         if not documento:
-            return ''
+            return None
         if len(documento) == 11 and not validar_cpf(documento):
             raise ValidationError("CPF do cônjuge inválido.")
         elif len(documento) == 14 and not validar_cnpj(documento):

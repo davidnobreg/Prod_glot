@@ -73,6 +73,20 @@ class UserCreationForm(BaseUserCreationForm, FormMixin):
 
 
 class UserChangeForm(BaseUserChangeForm, FormMixin):
+    password = None
+
+    nova_senha1 = forms.CharField(
+        label="Nova senha",
+        required=False,
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+        help_text="Deixe em branco para manter a senha atual.",
+    )
+    nova_senha2 = forms.CharField(
+        label="Confirmar nova senha",
+        required=False,
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+    )
+
     class Meta(BaseUserChangeForm.Meta):
         model = User
         fields = ['first_name', 'last_name', 'username', 'email', 'creci', 'contato', 'tipo_usuario', 'is_active']
@@ -98,10 +112,28 @@ class UserChangeForm(BaseUserChangeForm, FormMixin):
 
         return email
 
+    def clean(self):
+        cleaned_data = super().clean()
+        senha1 = cleaned_data.get('nova_senha1')
+        senha2 = cleaned_data.get('nova_senha2')
+
+        if senha1 or senha2:
+            if senha1 != senha2:
+                self.add_error('nova_senha2', "As senhas nao conferem.")
+            elif len(senha1) < 8:
+                self.add_error('nova_senha1', "A senha deve ter no minimo 8 caracteres.")
+
+        return cleaned_data
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
         user.username = user.email
+
+        nova_senha = self.cleaned_data.get('nova_senha1')
+        if nova_senha:
+            user.set_password(nova_senha)
+
         if commit:
             user.save()
             self.save_m2m()

@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login as login_django, logout as logout_django
+from django.contrib.auth import authenticate, login as login_django, logout as logout_django, update_session_auth_hash
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -114,6 +114,8 @@ def alteraUsuario(request, id):
 
         if form.is_valid():
             form.save()
+            if form.cleaned_data.get('nova_senha1') and request.user.pk == usuario.pk:
+                update_session_auth_hash(request, usuario)
             messages.success(request, "Usuario atualizado com sucesso!")
             return redirect('lista-usuario')
 

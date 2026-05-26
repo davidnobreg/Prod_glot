@@ -57,7 +57,13 @@
                                 <td>{{ cliente.name }}</td>
                                 <td>{{ cliente.documento }}</td>
                                 <td>{{ cliente.email }}</td>
-                                <td>{{ cliente.fone }}</td>
+                                <td>
+                                    {% for telefone in cliente.telefones.all %}
+                                        <div>{{ telefone.numero }}</div>
+                                    {% empty %}
+                                        <span class="text-muted">Sem telefone</span>
+                                    {% endfor %}
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -66,5 +72,4 @@
             </div>
         </div>
     </div>
-<script src="{% static 'js/cliente.js' %}"></script>
 {% endblock %}

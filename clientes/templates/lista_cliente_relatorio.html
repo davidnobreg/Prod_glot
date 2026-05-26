@@ -23,7 +23,7 @@
             <div class="col-md-5">
 
                 <label for="clientSearch" class="form-label">Nome do Cliente, Cpf ou E-mail</label>
-                <form class="d-flex" action="{% url 'lista-cliente' %}">
+                <form class="d-flex" action="{% url 'lista-cliente-relatorio' %}">
                     <input name="client" id="clientSearch" type="search" class="form-control me-2"
                            placeholder="Pesquisar cliente..." value="{{ request.GET.client }}">
                     <button class="btn btn-success" type="submit">
@@ -35,7 +35,7 @@
             <!-- Resetar filtros -->
             <div class="col-md-1">
                 <label for="idReset" class="form-label">Resetar</label>
-                <a class="btn btn-danger" href="{% url 'lista-cliente' %}">
+                <a class="btn btn-danger" href="{% url 'lista-cliente-relatorio' %}">
                     <i class="fas fa-window-close"></i>
                 </a>
             </div>
@@ -57,7 +57,15 @@
                                 <td>{{ cliente.name }}</td>
                                 <td>{{ cliente.documento }}</td>
                                 <td>{{ cliente.email }}</td>
-                                <td>{{ cliente.fone }}</td>
+                                <td>
+                                    {% if cliente.telefones_list %}
+                                        {% for telefone in cliente.telefones_list %}
+                                            <div>{{ telefone.numero }}</div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="text-muted">Sem telefone</span>
+                                    {% endif %}
+                                </td>
 
                             </tr>
                         {% endfor %}
@@ -96,6 +104,4 @@
             </div>
         </div>
     </div>
-
-    <script src="{% static 'js/cliente.js' %}"></script>
 {% endblock %}

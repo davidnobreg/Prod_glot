@@ -298,9 +298,6 @@
                     <!-- LISTA DE TELEFONES -->
                     <ul id="listaTelefones" class="list-group"></ul>
 
-                    <!-- HIDDEN JSON -->
-                    <input type="hidden" id="telefones_json" name="telefones_json">
-
                 </div>
 
                 <div class="modal-footer">
@@ -316,9 +313,4 @@
     <script>
         window.telefonesTemp = {{ telefones_json|safe }};
     </script>
-    <!-- Custom JS -->
-    <script src="{% static 'js/cliente.js' %}"></script>
-    <script src="{% static 'js/cep.js' %}"></script>
-    <script src="{% static 'js/conjuge.js' %}"></script>
-    <script src="{% static 'js/telefone.js' %}"></script>
 {% endblock %}

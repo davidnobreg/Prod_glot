@@ -166,7 +166,7 @@
                     <h5 class="modal-title" id="clienteModalLabel">Detalhes do Cliente</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="clienteModalDelete" method="post">
+                <form id="clienteModalDeleteForm" method="post">
                     {% csrf_token %}
                     <div class="modal-body">
                         <div id="loading-indicator" style="display: none;">
@@ -189,6 +189,4 @@
             </div>
         </div>
     </div>
-    <script src="{% static 'js/cliente.js' %}"></script>
-
 {% endblock %}

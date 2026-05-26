@@ -838,21 +838,24 @@ def proposta_pdf(request, venda_uuid):
 
                     @page {
                         size: A4;
-                        margin: 4mm;
+                        margin: 5mm;
                     }
 
-                    body {
-                        margin: 0 !important;
-                        padding: 0 !important;
-                        width: 210mm;
-                        font-size: 9pt;
-                        background: #fff !important;
-                        color: #000 !important;
-                        overflow: hidden;
-                    }                    
+                    html,
+                    body{
+                        margin:0;
+                        padding:0;
+                    }
+
+                    body{
+                        font-family: Arial, sans-serif;
+                        font-size: 9px;
+                        line-height: 1.1;
+                        color:#000;
+                    }
 
                     p{
-                        margin:0 0 5px 0;
+                        margin:0 0 2px 0;
                         text-align:justify;
                     }
 
@@ -861,12 +864,38 @@ def proposta_pdf(request, venda_uuid):
                         border-collapse:collapse;
                     }
 
+                    td,
+                    th{
+                        padding:2px;
+                    }
+
+                    h1,
+                    h2,
+                    h3,
+                    h4,
+                    h5,
+                    h6{
+                        margin:0 0 5px 0;
+                        padding:0;
+                    }
+
+                    .titulo{
+                        text-align:center;
+                        font-size:14px;
+                        font-weight:bold;
+                        margin-bottom:10px;
+                    }
+
                     .evitar-quebra{
                         page-break-inside: avoid;
                     }
 
                     .quebra{
                         page-break-before: always;
+                    }
+
+                    br{
+                        display:none;
                     }
 
                 '''

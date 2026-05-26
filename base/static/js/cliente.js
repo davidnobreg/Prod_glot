@@ -195,9 +195,10 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        document.getElementById(
-            'cliente-id'
-        ).textContent = clienteId;
+        const clienteIdInput = document.getElementById('cliente-id');
+        if (clienteIdInput) {
+            clienteIdInput.value = clienteId;
+        }
 
         document.getElementById(
             'cliente-name'
@@ -255,11 +256,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
             btnDeletarCliente.addEventListener(
                 "click",
-                () => {
+                (event) => {
+
+                    event.preventDefault();
 
                     const clienteId = document.getElementById(
                         "cliente-id"
-                    ).textContent;
+                    ).value;
+
+                    if (!clienteId) {
+                        return;
+                    }
 
                     window.location.href =
                         `/clientes/delete_cliente/${clienteId}/`;
@@ -334,6 +341,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 const enderecoId = button.getAttribute(
                     'data-endereco-id'
                 );
+
+                if (!enderecoId) {
+                    return;
+                }
 
                 fetch(`/clientes/select_endereco/${enderecoId}/`)
                     .then(resp => (

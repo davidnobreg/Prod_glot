@@ -504,8 +504,6 @@ class ReservaTemporariaView(UpdateView):
     slug_field = 'uuid'
     slug_url_kwarg = 'lote_uuid'
 
-    print(context_object_name)
-
 
     # 🔒 LOCK + SELECT RELATED
     def get_queryset(self):

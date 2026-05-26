@@ -331,8 +331,6 @@ class RegisterVendaForm(forms.ModelForm):
         # ==========================================
 
         instance.aceite_proposta = self.user
-        print(self.user)
-        print(instance.aceite_proposta)
 
         # ==========================================
         # CORRETOR

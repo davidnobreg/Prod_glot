@@ -216,7 +216,6 @@ def alteraEmpreendimento(request, id):
 @has_permission_decorator('deletarEmpreendimento')
 @require_POST
 def deleteEmpreendimento(request, empreendimento_Id):
-    print(empreendimento_Id)
     empreendimento = Empreendimento.objects.get(id=empreendimento_Id)
     empreendimento.is_ativo = False
     empreendimento.save()
@@ -228,14 +227,7 @@ def listaEmpreendimentoTabela(request):
     # Buscar empreendimentos que estão ativos
     empreendimentos = Empreendimento.objects.filter(is_ativo=True)
 
-    #formArquivo = ArquivoForm(request.POST, request.FILES)
-
     get_empreendimento = request.GET.get('empreendimento')
-
-
-
-    #arquivoempreendimento = Empreendimento.objects.get(id=get_empreendimento)
-    #print(arquivoempreendimento)
 
     if get_empreendimento:
         empreendimentos = Empreendimento.objects.filter(nome=get_empreendimento)
@@ -591,8 +583,6 @@ def alteraLote(request, id):
     lote = get_object_or_404(Lote, id=id)
     get_tempo = Empreendimento.objects.get(id=lote.quadra.empr_id)
 
-    # print(get_tempo.quantidade_parcela)
-
     try:
         area = float(lote.area)
         valor_metro = float(lote.valor_metro_quadrado)
@@ -623,7 +613,6 @@ def alteraLote(request, id):
         lote.situacao = "DISPONIVEL"
         lote.save()
         messages.error(request, "Pre-Reservado Cancelada!")
-        # print("Liberando lote bloqueado sem reserva válida.")
 
     if request.method == 'GET':
         # Ao acessar, define como EM_RESERVA
@@ -631,7 +620,6 @@ def alteraLote(request, id):
             lote.situacao = "EM_RESERVA"
             lote.tempo_reservado = timezone.now().time()
             lote.save()
-            # print("Lote definido como EM_RESERVA.")
         form = LoteForm(instance=lote)
         context = {'form': form,
                    'lote': lote,
@@ -651,7 +639,7 @@ def alteraLote(request, id):
             lote.save()
             messages.success(request, "Pre-Reservado Salva Com Sucesso!")
             return redirect('listar-quadras', uuid=lote.quadra.empr_uuid)
-            # print("Lote salvo como PRE-RESERVA.")
+
         else:
             context = {'form': form,
                        'lote': lote,

@@ -115,10 +115,14 @@
                                             <td>{{ corretore.usuario.email }}</td>
                                             <td>{{ corretore.usuario.contato }}</td>
                                             <td>
-                                                <a class="btn btn-danger"
-                                                   href="{% url 'delete-usuario-empreendimento' corretore.id %}">
-                                                    <i class="fas fa-window-close" aria-hidden="true"></i>
-                                                </a>
+                                                <form action="{% url 'delete-usuario-empreendimento' corretore.id %}"
+                                                      method="post"
+                                                      class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-danger">
+                                                        <i class="fas fa-window-close" aria-hidden="true"></i>
+                                                    </button>
+                                                </form>
                                             </td>
                                         </tr>
                                     {% endfor %}

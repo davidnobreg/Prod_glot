@@ -47,11 +47,29 @@ class FormMixin:
 class UserCreationForm(BaseUserCreationForm, FormMixin):
     class Meta(BaseUserCreationForm.Meta):
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'creci', 'contato', 'tipo_usuario', 'is_active']
+        fields = ['first_name', 'last_name', 'email', 'creci', 'contato', 'tipo_usuario', 'is_active']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['email'].required = True
         self.apply_bootstrap()
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '').strip().lower()
+        if not email:
+            raise ValidationError("Informe o e-mail.")
+        if User.objects.filter(email__iexact=email).exists():
+            raise ValidationError("Este e-mail ja esta cadastrado.")
+        return email
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
+        user.username = user.email
+        if commit:
+            user.save()
+            self.save_m2m()
+        return user
 
 
 class UserChangeForm(BaseUserChangeForm, FormMixin):
@@ -61,4 +79,30 @@ class UserChangeForm(BaseUserChangeForm, FormMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['email'].required = True
+        if 'username' in self.fields:
+            self.fields['username'].disabled = True
+            self.fields['username'].required = False
         self.apply_bootstrap()
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '').strip().lower()
+        if not email:
+            raise ValidationError("Informe o e-mail.")
+
+        qs = User.objects.filter(email__iexact=email)
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise ValidationError("Este e-mail ja esta cadastrado.")
+
+        return email
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
+        user.username = user.email
+        if commit:
+            user.save()
+            self.save_m2m()
+        return user

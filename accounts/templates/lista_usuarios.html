@@ -36,14 +36,14 @@
                     <form action="">
                         <select name="tipo_user" id="typeFilter" class="form-select" onchange="this.form.submit()">
                             <option value="">Status</option>
-                            <option value="A"
+                            <option value="ADMINISTRADOR"
                                     {% if request.GET.tipo_user == 'ADMINISTRADOR' %}selected{% endif %}>
                                 Administrador
                             </option>
-                            <option value="C" {% if request.GET.tipo_user == 'CORRETOR' %}selected{% endif %}>
+                            <option value="CORRETOR" {% if request.GET.tipo_user == 'CORRETOR' %}selected{% endif %}>
                                 Corretor
                             </option>
-                            <option value="P" {% if request.GET.tipo_user == 'PROPRIETARIO' %}selected{% endif %}>
+                            <option value="PROPRIETARIO" {% if request.GET.tipo_user == 'PROPRIETARIO' %}selected{% endif %}>
                                 Proprietário
                             </option>
                         </select>
@@ -221,7 +221,10 @@
 
                     <!-- Rodapé do modal -->
                     <div class="modal-footer">
-                        <a href="{% url 'delete-usuario' usuario.id %}" class="btn btn-danger">Deletar</a>
+                        <form action="{% url 'delete-usuario' usuario.id %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Deletar</button>
+                        </form>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     </div>
                 </div>

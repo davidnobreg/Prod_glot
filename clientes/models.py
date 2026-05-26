@@ -72,17 +72,6 @@ class Cliente(models.Model):
     # ======================================================
     # SALVAR COM AJUSTES AUTOMÁTICOS
     # ======================================================
-    """def save(self, *args, **kwargs):
-        if self.name:
-            self.name = self.name.strip().upper()
-        if self.email:
-            self.email = self.email.strip().lower()
-        if self.documento:
-            self.documento = re.sub(r'\D', '', self.documento)
-        if self.renda is not None and isinstance(self.renda, str):
-            self.renda = Decimal(self.renda.replace(',', '.'))
-
-        super().save(*args, **kwargs)"""
 
     def save(self, *args, **kwargs):
         if self.name:
@@ -92,7 +81,7 @@ class Cliente(models.Model):
             self.email = self.email.strip().lower()
 
         if self.documento:
-            self.documento = re.sub(r'\D', '', self.documento)
+            self.documento = re.sub(r"[^0-9]", "", self.documento)
 
         super().save(*args, **kwargs)
 

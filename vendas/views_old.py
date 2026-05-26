@@ -218,11 +218,6 @@ def listaVendaRelatorio(request):
             user=request.user
         )
 
-    print(vendas)
-
-    #contato = ClienteTelefone.objects.filter(id=vendas.cliente.id)
-
-
     get_data_venda = request.GET.get('venda')
     get_tipo_venda = request.GET.get('tipo_venda')
 
@@ -253,8 +248,6 @@ def listaVendaRelatorio(request):
 @has_permission_decorator('cancelarReservadoCadastro')
 def cancelarReservadoCadastro(request, cancelaReserva_uuid):
     get_lote = get_object_or_404(Lote, uuid=cancelaReserva_uuid)
-
-    print(get_lote)
 
     if request.method == 'GET':
         get_lote.situacao = "PRE-RESERVA"

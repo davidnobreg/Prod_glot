@@ -41,7 +41,7 @@ jobs:
 
           STACK=$(curl -s \
             -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
-            "${{ secrets.PORTAINER_URL }}/api/stacks/48")
+            "${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.PORTAINER_STACK_ID }}")
 
           ENV_VARS=$(echo "$STACK" | python3 -c \
             "import sys,json; print(json.dumps(json.load(sys.stdin).get('Env', [])))")
@@ -50,7 +50,8 @@ jobs:
 
           STACK_FILE=$(curl -s \
             -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
-            "${{ secrets.PORTAINER_URL }}/api/stacks/48/file")
+            "${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.PORTAINER_STACK_ID }}/file" | \
+            python3 -c "import sys,json; print(json.load(sys.stdin)['StackFileContent'])")
 
           echo "Conteúdo retornado pelo endpoint /file:"
           echo "$STACK_FILE"
@@ -63,7 +64,7 @@ jobs:
           RESPONSE=$(curl -s -i -X PUT \
             -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
             -H "Content-Type: application/json" \
-            "${{ secrets.PORTAINER_URL }}/api/stacks/48?endpointId=1" \
+            "${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.PORTAINER_STACK_ID }}?endpointId=1" \
             -d "{
               \"stackFileContent\": $STACK_FILE_JSON,
               \"env\": $ENV_VARS,

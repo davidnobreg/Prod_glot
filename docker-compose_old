@@ -1,0 +1,67 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+
+    image: davidnobrega/glot:latest
+    # ou use "build: ." se quiser construir localmente
+
+    command: /bin/sh -c "\
+      cd /app && \
+      git pull || echo 'Falha no pull' && \
+      pip install --no-cache-dir -r /app/requirements.txt && \
+      python manage.py migrate && \
+      python manage.py collectstatic --noinput --ignore=admin && \
+      celery -A core flower & \
+      celery -A core worker -n worker_critical@%h -Q critical --pool=solo -l info & \
+      celery -A core beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler & \
+      gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 120"
+
+    ports:
+      - 8000:8000
+      - 5555:5555
+
+    volumes:
+      - configuration:/app/configuration
+      - media_compartilhada:/app/media
+      - static_volume:/app/static
+
+
+    networks:
+      - app_network
+      - npm_public
+
+    depends_on:
+      - postgres
+      - rabbitmq
+
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  configuration:
+    external: true
+
+  media_compartilhada:
+    external: true
+
+  static_volume:
+    external: true
+
+networks:
+
+  app_network:
+    external: true
+  npm_public:
+    external: true

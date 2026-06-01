@@ -79,46 +79,46 @@ jobs:
               -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
               "${{ secrets.PORTAINER_URL }}/api/endpoints/1/docker/services" | \
               python3 -c "
-  import sys, json
-  services = json.load(sys.stdin)
-  name = 'django_glot_$SERVICE'
+import sys, json
+services = json.load(sys.stdin)
+name = 'django_glot_$SERVICE'
 for s in services:
-  if s.get('Spec', {}).get('Name', '') == name:
-    print(s['ID'])
-    break
-  ")
+    if s.get('Spec', {}).get('Name', '') == name:
+        print(s['ID'])
+        break
+")
 
             if [ -z "$SERVICE_ID" ]; then
-  echo "⚠️ Serviço $SERVICE não encontrado, pulando..."
-  continue
-  fi
+              echo "⚠️ Serviço $SERVICE não encontrado, pulando..."
+              continue
+            fi
 
-echo "ID do serviço $SERVICE: $SERVICE_ID"
+            echo "ID do serviço $SERVICE: $SERVICE_ID"
 
-# Busca spec atual do serviço
-  SERVICE_SPEC=$(curl -s \
--H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
-  "${{ secrets.PORTAINER_URL }}/api/endpoints/1/docker/services/$SERVICE_ID")
-  
-  VERSION=$(echo "$SERVICE_SPEC" | python3 -c "import sys,json; print(json.load(sys.stdin)['Version']['Index'])")
-  SPEC=$(echo "$SERVICE_SPEC" | python3 -c "import sys,json; d=json.load(sys.stdin); print(json.dumps(d['Spec']))")
-  
-  # Força update incrementando ForceUpdate
-  FORCE_SPEC=$(echo "$SPEC" | python3 -c "
-  import sys, json
-  spec = json.load(sys.stdin)
-  spec.setdefault('TaskTemplate', {})
-  spec['TaskTemplate']['ForceUpdate'] = spec['TaskTemplate'].get('ForceUpdate', 0) + 1
-  print(json.dumps(spec))
-  ")
+            # Busca spec atual do serviço
+            SERVICE_SPEC=$(curl -s \
+              -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
+              "${{ secrets.PORTAINER_URL }}/api/endpoints/1/docker/services/$SERVICE_ID")
+
+            VERSION=$(echo "$SERVICE_SPEC" | python3 -c "import sys,json; print(json.load(sys.stdin)['Version']['Index'])")
+            SPEC=$(echo "$SERVICE_SPEC" | python3 -c "import sys,json; d=json.load(sys.stdin); print(json.dumps(d['Spec']))")
+
+            # Força update incrementando ForceUpdate
+            FORCE_SPEC=$(echo "$SPEC" | python3 -c "
+import sys, json
+spec = json.load(sys.stdin)
+spec.setdefault('TaskTemplate', {})
+spec['TaskTemplate']['ForceUpdate'] = spec['TaskTemplate'].get('ForceUpdate', 0) + 1
+print(json.dumps(spec))
+")
 
             UPDATE_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
--H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
--H "Content-Type: application/json" \
-  "${{ secrets.PORTAINER_URL }}/api/endpoints/1/docker/services/$SERVICE_ID/update?version=$VERSION" \
-  -d "$FORCE_SPEC")
+              -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              "${{ secrets.PORTAINER_URL }}/api/endpoints/1/docker/services/$SERVICE_ID/update?version=$VERSION" \
+              -d "$FORCE_SPEC")
 
-echo "Status update $SERVICE: $UPDATE_RESPONSE"
-  done
-  
-  echo "✅ Deploy e reinício dos serviços concluído!"
+            echo "Status update $SERVICE: $UPDATE_RESPONSE"
+          done
+
+          echo "✅ Deploy e reinício dos serviços concluído!"

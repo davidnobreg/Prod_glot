@@ -37,15 +37,6 @@ jobs:
         run: |
           set -e
 
-          echo "Obtendo informações da stack..."
-
-          STACK=$(curl -s \
-            -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
-            "${{ secrets.PORTAINER_URL }}/api/stacks/48")
-
-          ENV_VARS=$(echo "$STACK" | python3 -c \
-            "import sys,json; print(json.dumps(json.load(sys.stdin).get('Env', [])))")
-
           echo "Obtendo docker-compose da stack..."
 
           STACK_FILE=$(curl -s \
@@ -53,33 +44,81 @@ jobs:
             "${{ secrets.PORTAINER_URL }}/api/stacks/48/file" | \
             python3 -c "import sys,json; print(json.load(sys.stdin)['StackFileContent'])")
 
-          echo "Conteúdo retornado pelo endpoint /file:"
-          echo "$STACK_FILE"
-
           STACK_FILE_JSON=$(echo "$STACK_FILE" | python3 -c \
             "import sys,json; print(json.dumps(sys.stdin.read()))")
 
-          echo "Executando redeploy..."
+          echo "Atualizando stack com pullImage e prune..."
 
-          RESPONSE=$(curl -s -i -X PUT \
+          RESPONSE=$(curl -s -o /tmp/portainer_response.json -w "%{http_code}" -X PUT \
             -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
             -H "Content-Type: application/json" \
             "${{ secrets.PORTAINER_URL }}/api/stacks/48?endpointId=1" \
             -d "{
               \"stackFileContent\": $STACK_FILE_JSON,
-              \"env\": $ENV_VARS,
-              \"pullImage\": true
+              \"env\": [],
+              \"pullImage\": true,
+              \"prune\": true
             }")
 
-          echo "$RESPONSE"
+          echo "Status PUT stack: $RESPONSE"
+          cat /tmp/portainer_response.json
 
-          STATUS=$(echo "$RESPONSE" | grep HTTP | tail -1 | awk '{print $2}')
-
-          echo "Status da resposta: $STATUS"
-
-          if [ "$STATUS" = "200" ]; then
-            echo "✅ Deploy realizado com sucesso!"
-          else
-            echo "❌ Erro no deploy. Status: $STATUS"
+          if [ "$RESPONSE" != "200" ]; then
+            echo "❌ Erro ao atualizar stack. Status: $RESPONSE"
             exit 1
           fi
+
+          echo "Forçando redeploy dos serviços..."
+
+          # Reinicia cada serviço individualmente para forçar pull da nova imagem
+          for SERVICE in web worker_empreendimentos worker_mensagens beat flower; do
+            echo "Reiniciando serviço: $SERVICE"
+
+            # Busca o ID do serviço pelo nome
+            SERVICE_ID=$(curl -s \
+              -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
+              "${{ secrets.PORTAINER_URL }}/api/endpoints/1/docker/services" | \
+              python3 -c "
+  import sys, json
+  services = json.load(sys.stdin)
+  name = 'django_glot_$SERVICE'
+for s in services:
+  if s.get('Spec', {}).get('Name', '') == name:
+    print(s['ID'])
+    break
+  ")
+
+            if [ -z "$SERVICE_ID" ]; then
+  echo "⚠️ Serviço $SERVICE não encontrado, pulando..."
+  continue
+  fi
+
+echo "ID do serviço $SERVICE: $SERVICE_ID"
+
+# Busca spec atual do serviço
+  SERVICE_SPEC=$(curl -s \
+-H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
+  "${{ secrets.PORTAINER_URL }}/api/endpoints/1/docker/services/$SERVICE_ID")
+  
+  VERSION=$(echo "$SERVICE_SPEC" | python3 -c "import sys,json; print(json.load(sys.stdin)['Version']['Index'])")
+  SPEC=$(echo "$SERVICE_SPEC" | python3 -c "import sys,json; d=json.load(sys.stdin); print(json.dumps(d['Spec']))")
+  
+  # Força update incrementando ForceUpdate
+  FORCE_SPEC=$(echo "$SPEC" | python3 -c "
+  import sys, json
+  spec = json.load(sys.stdin)
+  spec.setdefault('TaskTemplate', {})
+  spec['TaskTemplate']['ForceUpdate'] = spec['TaskTemplate'].get('ForceUpdate', 0) + 1
+  print(json.dumps(spec))
+  ")
+
+            UPDATE_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+-H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
+-H "Content-Type: application/json" \
+  "${{ secrets.PORTAINER_URL }}/api/endpoints/1/docker/services/$SERVICE_ID/update?version=$VERSION" \
+  -d "$FORCE_SPEC")
+
+echo "Status update $SERVICE: $UPDATE_RESPONSE"
+  done
+  
+  echo "✅ Deploy e reinício dos serviços concluído!"

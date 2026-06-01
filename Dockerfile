@@ -36,7 +36,10 @@ RUN apt-get update && \
 # ===================================
 # Clona projeto
 # ===================================
-RUN git clone --branch main https://github.com/davidnobreg/glot.git /app
+
+COPY . .
+
+#RUN git clone --branch main https://github.com/davidnobreg/glot.git /app
 
 # ===================================
 # Atualiza pip

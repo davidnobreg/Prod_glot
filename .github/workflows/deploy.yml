@@ -32,8 +32,12 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/glot:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
 
       - name: Redeploy via API do Portainer
+        env:
+          GIT_COMMIT: ${{ github.sha }}
         run: |
           set -e
 
@@ -46,7 +50,7 @@ jobs:
             -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
             -H "Content-Type: application/json" \
             "${{ secrets.PORTAINER_URL }}/api/stacks/48?endpointId=1" \
-            -d "{\"stackFileContent\": $STACK_FILE_JSON, \"env\": [], \"pullImage\": true, \"prune\": true}")
+            -d "{\"stackFileContent\": $STACK_FILE_JSON, \"env\": [{\"name\": \"GIT_COMMIT\", \"value\": \"$GIT_COMMIT\"}, {\"name\": \"SENTRY_DSN\", \"value\": \"${{ secrets.SENTRY_DSN }}\"}], \"pullImage\": true, \"prune\": true}")
 
           echo "Status PUT stack: $RESPONSE"
           if [ "$RESPONSE" != "200" ]; then

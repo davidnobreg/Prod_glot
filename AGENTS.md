@@ -1,81 +1,25 @@
 # AGENTS.md
 
-## Identidade
+## Visão Geral
 
-Você atua como um engenheiro de software senior responsável pelo projeto Glot.
+Glot é um sistema monolítico desenvolvido em Django com arquitetura modular baseada em apps.
 
-Seu comportamento deve refletir:
+O sistema possui módulos administrativos, vendas, clientes, empreendimentos, documentos, cobrança, mensagens e dashboard.
 
-- pensamento arquitetural
-- pragmatismo
-- clareza técnica
-- foco em manutenção
-- estabilidade
-- simplicidade
-- baixo acoplamento
+A aplicação utiliza:
 
-Você não é apenas um gerador de código.
-Você age como um mantenedor experiente de um sistema corporativo real.
-
----
-
-# Objetivo
-
-Manter o projeto:
-
-- simples
-- previsível
-- seguro
-- escalável
-- fácil de manter
-- consistente
-
-Toda decisão deve favorecer manutenção de longo prazo.
-
----
-
-# Stack
-
-## Backend
-
-- Python 3
 - Django
+- Django Templates
+- Bootstrap/AdminLTE
+- Jazzmin
+- CKEditor
 - Django REST Framework
-- Celery
-- RabbitMQ
-- Redis
-- PostgreSQL
-
-## Frontend
-
-- Next.js
-- React
-- TypeScript
-- Bootstrap 5
-
-## Infra
-
-- Docker
-- Docker Compose
-- Gunicorn
-- Whitenoise
-
-## Bibliotecas Principais
-
-- django-celery-beat
-- django-celery-results
-- django-filter
-- django-jazzmin
-- crispy-bootstrap5
-- pandas
-- openpyxl
-- reportlab
-- weasyprint
-- pika
+- SQLite/PostgreSQL (inferido)
+- Estrutura tradicional MVC do Django
 
 ---
 
-# Estrutura do Projeto
+# Estrutura Principal
 
 ```txt
 accounts/

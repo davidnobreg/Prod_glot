@@ -353,3 +353,19 @@ body[data-bs-theme="dark"] {
     margin-top: 0;
     margin-bottom: 2px;
 }
+
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu .submenu {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 100%;
+    margin-top: -1px;
+}
+
+.dropdown-submenu:hover .submenu {
+    display: block;
+}

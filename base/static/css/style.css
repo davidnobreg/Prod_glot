@@ -1,4 +1,9 @@
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+body{
+    font-family: 'Poppins', sans-serif;
+}
 
 /* Estilos gerais - claro e escuro */
 body[data-bs-theme="light"] {
@@ -352,4 +357,20 @@ body[data-bs-theme="dark"] {
 .ck-content p {
     margin-top: 0;
     margin-bottom: 2px;
+}
+
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu .submenu {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 100%;
+    margin-top: -1px;
+}
+
+.dropdown-submenu:hover .submenu {
+    display: block;
 }

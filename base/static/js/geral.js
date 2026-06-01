@@ -109,3 +109,19 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
+
+document.querySelectorAll('.dropend .dropdown-toggle')
+    .forEach(function(element) {
+
+        element.addEventListener('click', function(e) {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            let submenu = bootstrap.Dropdown.getOrCreateInstance(this);
+
+            submenu.toggle();
+
+        });
+
+    });

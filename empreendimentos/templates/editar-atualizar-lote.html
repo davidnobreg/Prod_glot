@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Editar Lote
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <form method="post" class="card p-4 shadow">
+                    {% csrf_token %}
+                    <input type="hidden" name="querystring" value="{{ querystring }}">
+
+                    <h4 class="mb-3 text-center">EDITAR LOTE</h4>
+                    <hr>
+
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <p class="mb-1 text-muted">Empreendimento</p>
+                            <strong>{{ lote.quadra.empr.nome }}</strong>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1 text-muted">Quadra</p>
+                            <strong>{{ lote.quadra.namequadra }}</strong>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1 text-muted">Lote</p>
+                            <strong>{{ lote.lote }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.medidasConfrontacoes.id_for_label }}" class="form-label fw-semibold">
+                            {{ form.medidasConfrontacoes.label }}
+                        </label>
+                        {{ form.medidasConfrontacoes }}
+                        {% if form.medidasConfrontacoes.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.medidasConfrontacoes.errors|striptags }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-check mb-4">
+                        {{ form.dimenssoes }}
+                        <label for="{{ form.dimenssoes.id_for_label }}" class="form-check-label fw-semibold">
+                            {{ form.dimenssoes.label }}
+                        </label>
+                        {% if form.dimenssoes.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.dimenssoes.errors|striptags }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <button type="submit" class="btn btn-success py-2 w-100 rounded-pill">
+                                Salvar
+                            </button>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <a href="{% url 'atualizar-lotes' %}{% if querystring %}?{{ querystring }}{% endif %}"
+                               class="btn btn-danger py-2 w-100 rounded-pill">
+                                Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

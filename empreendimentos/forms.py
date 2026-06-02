@@ -313,3 +313,23 @@ class LoteForm(forms.ModelForm):
                 self.initial['telefone'] = f"({tel[:2]}) {tel[2:7]}-{tel[7:]}"
             elif len(tel) == 10:
                 self.initial['telefone'] = f"({tel[:2]}) {tel[2:6]}-{tel[6:]}"
+
+
+class AtualizarLoteForm(forms.ModelForm):
+    class Meta:
+        model = Lote
+        fields = ('medidasConfrontacoes', 'dimenssoes')
+        labels = {
+            'medidasConfrontacoes': 'Medidas e confrontacoes',
+            'dimenssoes': 'Marcar dimensoes',
+        }
+        widgets = {
+            'medidasConfrontacoes': forms.Textarea(attrs={
+                'class': 'form-control mb-3',
+                'rows': 6,
+                'style': 'resize: vertical;',
+            }),
+            'dimenssoes': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+            }),
+        }

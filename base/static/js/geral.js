@@ -37,9 +37,15 @@ tooltipTriggerList.forEach(function (tooltipTriggerEl) {
 async function compartilharRelatorio() {
     const params = new URLSearchParams(window.location.search);
     const situacao = params.get('situacao') || 'TODOS';
-    const loteamento_id = document.body.dataset.loteamentoId || '';
+    const botaoCompartilhar = document.querySelector('[data-loteamento-uuid]');
+    const loteamento_uuid = botaoCompartilhar ? botaoCompartilhar.dataset.loteamentoUuid : '';
 
-    const url = `/empreendimentos/relatorio-lotes/?situacao=${encodeURIComponent(situacao)}&loteamento_id=${encodeURIComponent(loteamento_id)}`;
+    if (!loteamento_uuid) {
+        alert('Empreendimento nao identificado para gerar o relatorio.');
+        return;
+    }
+
+    const url = `/empreendimentos/relatorio-lotes/?situacao=${encodeURIComponent(situacao)}&loteamento_uuid=${encodeURIComponent(loteamento_uuid)}`;
 
     try {
         const response = await fetch(url);
@@ -80,13 +86,8 @@ async function compartilharRelatorio() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    // Oculta o botão se não suportar compartilhamento de arquivos
-    if (!navigator.canShare || !navigator.canShare({ files: [new File([""], "teste.pdf", { type: "application/pdf" })] })) {
-        const botao = document.querySelector('button[onclick="compartilharRelatorio()"]');
-        if (botao) botao.style.display = 'none';
-    }
-});
+window.compartilharRelatorio = compartilharRelatorio;
+
 document.addEventListener("DOMContentLoaded", () => {
     const cpfInputs = document.querySelectorAll(".mask-cpf");
 

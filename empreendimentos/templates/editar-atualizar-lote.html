@@ -61,7 +61,7 @@
                             </button>
                         </div>
                         <div class="col-md-6 mb-2">
-                            <a href="{% url 'atualizar-lotes' %}{% if querystring %}?{{ querystring }}{% endif %}"
+                            <a href="{% url 'atualizar-lotes' lote.quadra.empr.uuid %}{% if querystring %}?{{ querystring }}{% endif %}"
                                class="btn btn-danger py-2 w-100 rounded-pill">
                                 Cancelar
                             </a>

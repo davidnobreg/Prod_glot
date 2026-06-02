@@ -15,7 +15,7 @@ class QuadraInlineAdmin(admin.TabularInline):
 class EmpreendimentoAdmin(admin.ModelAdmin):
     #inlines = [QuadraInlineAdmin]  # Incluir Quadra como inline no Empreendimento
     list_display = ['id', 'nome', 'tempo_reserva', 'quantidade_parcela', 'codBanco', 'banco', 'agencia', 'conta',
-                    'razaoSocial', 'is_ativo', 'contrato']
+                    'razaoSocial', 'is_ativo', 'contrato', 'uuid']
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

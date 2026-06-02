@@ -360,27 +360,24 @@ def listaQuadra(request, empreendimento_uuid):
 
 
 @has_permission_decorator('atualizarLotes')
-def atualizarLotes(request):
-    empreendimento_id = request.GET.get('empreendimento')
-    empreendimento_id_int = None
+def atualizarLotes(request, empreendimento_uuid):
+    empreendimento = get_object_or_404(Empreendimento, uuid=empreendimento_uuid)
     quadra = request.GET.get('quadra', '').strip()
     lote = request.GET.get('lote', '').strip()
 
-    lotes = Lote.objects.select_related('quadra', 'quadra__empr').all().order_by(
-        'quadra__empr__nome',
+    lotes = Lote.objects.select_related('quadra', 'quadra__empr').filter(
+        quadra__empr=empreendimento
+    ).order_by(
+        'id',
         'quadra__namequadra',
         'lote'
     )
 
-    if empreendimento_id and empreendimento_id.isdigit():
-        empreendimento_id_int = int(empreendimento_id)
-        lotes = lotes.filter(quadra__empr_id=empreendimento_id_int)
-
     if quadra:
-        lotes = lotes.filter(quadra__namequadra__icontains=quadra)
+        lotes = lotes.filter(quadra__namequadra__iexact=quadra)
 
     if lote:
-        lotes = lotes.filter(lote__icontains=lote)
+        lotes = lotes.filter(lote__iexact=lote)
 
     paginator = Paginator(lotes, 20)
     page_number = request.GET.get('page')
@@ -392,8 +389,7 @@ def atualizarLotes(request):
     context = {
         'lotes': page_obj,
         'page_obj': page_obj,
-        'empreendimentos': Empreendimento.objects.filter(is_ativo=True).order_by('nome'),
-        'filtro_empreendimento': empreendimento_id_int,
+        'empreendimento': empreendimento,
         'filtro_quadra': quadra,
         'filtro_lote': lote,
         'querystring': querydict.urlencode(),
@@ -413,7 +409,7 @@ def editarAtualizarLote(request, lote_uuid):
         if form.is_valid():
             form.save()
             messages.success(request, "Lote atualizado com sucesso!")
-            url = reverse('atualizar-lotes')
+            url = reverse('atualizar-lotes', args=[lote.quadra.empr.uuid])
             if querystring:
                 url = f'{url}?{querystring}'
             return redirect(url)

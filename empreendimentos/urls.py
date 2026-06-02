@@ -37,8 +37,8 @@ urlpatterns = [
     path('renova_reserva_lote/<uuid:renova_uuid>/', renovaReserva, name='renova-lote-pre-reserva'),
     path('libera_lote/<uuid:lote_uuid>/', liberaLote, name='libera-lote'),
     path('relatorio-lotes/', gerarRelatorioLotes, name='relatorio-lotes'),
-    path('atualizar-lotes/', atualizarLotes, name='atualizar-lotes'),
-    path('atualizar-lotes/<uuid:lote_uuid>/', editarAtualizarLote, name='editar-atualizar-lote'),
+    path('atualizar-lotes/<uuid:empreendimento_uuid>/', atualizarLotes, name='atualizar-lotes'),
+    path('atualizar-lotes/editar/<uuid:lote_uuid>/', editarAtualizarLote, name='editar-atualizar-lote'),
 
     path('usuariosempreendimento/', criarUsuarioEmpreendimento, name='criar-usuario-empreendimento'),
 

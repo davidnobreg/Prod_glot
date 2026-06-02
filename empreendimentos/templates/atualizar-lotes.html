@@ -7,30 +7,18 @@
 {% block content %}
     <div class="container mt-5">
         <h4 class="mt-5 text-center fw-bold">ATUALIZAR LOTES</h4>
+        <h5 class="text-center text-muted">{{ empreendimento.nome }}</h5>
         <hr>
 
-        <form method="get" action="{% url 'atualizar-lotes' %}" class="mb-4">
+        <form method="get" action="{% url 'atualizar-lotes' empreendimento.uuid %}" class="mb-4">
             <div class="row g-3 bg-light p-3 rounded shadow-sm">
-                <div class="col-md-4">
-                    <label for="empreendimento" class="form-label fw-semibold">Empreendimento</label>
-                    <select name="empreendimento" id="empreendimento" class="form-control">
-                        <option value="">Todos</option>
-                        {% for empreendimento in empreendimentos %}
-                            <option value="{{ empreendimento.id }}"
-                                    {% if empreendimento.id == filtro_empreendimento %}selected{% endif %}>
-                                {{ empreendimento.nome }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="col-md-3">
+                <div class="col-md-5">
                     <label for="quadra" class="form-label fw-semibold">Quadra</label>
                     <input name="quadra" id="quadra" type="search" class="form-control"
                            placeholder="Pesquisar quadra..." value="{{ filtro_quadra }}">
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-5">
                     <label for="lote" class="form-label fw-semibold">Lote</label>
                     <input name="lote" id="lote" type="search" class="form-control"
                            placeholder="Pesquisar lote..." value="{{ filtro_lote }}">
@@ -40,7 +28,7 @@
                     <button type="submit" class="btn btn-success me-2" title="Filtrar">
                         <i class="fas fa-filter"></i>
                     </button>
-                    <a href="{% url 'atualizar-lotes' %}" class="btn btn-danger" title="Limpar filtros">
+                    <a href="{% url 'atualizar-lotes' empreendimento.uuid %}" class="btn btn-danger" title="Limpar filtros">
                         <i class="fas fa-window-close"></i>
                     </a>
                 </div>

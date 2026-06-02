@@ -39,6 +39,7 @@ async function compartilharRelatorio() {
     const situacao = params.get('situacao') || 'TODOS';
     const botaoCompartilhar = document.querySelector('[data-loteamento-uuid]');
     const loteamento_uuid = botaoCompartilhar ? botaoCompartilhar.dataset.loteamentoUuid : '';
+    const textoOriginal = botaoCompartilhar ? botaoCompartilhar.innerText : '';
 
     if (!loteamento_uuid) {
         alert('Empreendimento nao identificado para gerar o relatorio.');
@@ -48,24 +49,28 @@ async function compartilharRelatorio() {
     const url = `/empreendimentos/relatorio-lotes/?situacao=${encodeURIComponent(situacao)}&loteamento_uuid=${encodeURIComponent(loteamento_uuid)}`;
 
     try {
+        if (botaoCompartilhar) {
+            botaoCompartilhar.disabled = true;
+            botaoCompartilhar.innerText = 'Gerando PDF...';
+        }
+
         const response = await fetch(url);
 
         if (!response.ok) {
-            alert('Erro ao gerar o relatório');
+            alert('Erro ao gerar o relatorio');
             return;
         }
 
         const blob = await response.blob();
-        const file = new File([blob], "relatorio_lotes.pdf", { type: "application/pdf" });
+        const file = new File([blob], 'relatorio_lotes.pdf', { type: 'application/pdf' });
 
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
             await navigator.share({
-                title: "Relatório de Lotes",
-                text: "Segue o relatório de lotes gerado.",
+                title: 'Relatorio de Lotes',
+                text: 'Segue o relatorio de lotes gerado.',
                 files: [file]
             });
         } else {
-            // Fallback: download
             const urlBlob = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = urlBlob;
@@ -78,15 +83,92 @@ async function compartilharRelatorio() {
                 document.body.removeChild(a);
             }, 1000);
 
-            alert("Este navegador não suporta compartilhamento direto. O relatório foi baixado.");
+            alert('Este navegador nao suporta compartilhamento direto. O relatorio foi baixado.');
         }
     } catch (err) {
-        console.error("Erro ao compartilhar:", err);
-        alert("Ocorreu um erro ao gerar ou compartilhar o relatório.");
+        console.error('Erro ao compartilhar:', err);
+        alert('Ocorreu um erro ao gerar ou compartilhar o relatorio.');
+    } finally {
+        if (botaoCompartilhar) {
+            botaoCompartilhar.disabled = false;
+            botaoCompartilhar.innerText = textoOriginal;
+        }
     }
 }
 
 window.compartilharRelatorio = compartilharRelatorio;
+
+// ==============================
+// Compartilhar proposta (PDF)
+// ==============================
+async function compartilharProposta(botao) {
+    const url = botao.dataset.propostaUrl;
+    const nomeArquivo = botao.dataset.propostaNome || 'proposta.pdf';
+    const textoOriginal = botao.innerText;
+
+    if (!url) {
+        alert('Proposta nao identificada para gerar o PDF.');
+        return;
+    }
+
+    const baixarPdf = (blob, fileName) => {
+        const urlBlob = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = urlBlob;
+        a.download = fileName;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+
+        setTimeout(() => {
+            URL.revokeObjectURL(urlBlob);
+            document.body.removeChild(a);
+        }, 1000);
+    };
+
+    botao.disabled = true;
+    botao.innerText = 'Gerando PDF...';
+
+    try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            alert('Erro ao gerar a proposta.');
+            return;
+        }
+
+        const blob = await response.blob();
+        const file = new File([blob], nomeArquivo, { type: 'application/pdf' });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+                botao.innerText = 'Abrindo compartilhamento...';
+                await navigator.share({
+                    title: 'Proposta',
+                    text: 'Segue a proposta em PDF.',
+                    files: [file]
+                });
+            } catch (shareErr) {
+                if (shareErr && shareErr.name === 'AbortError') {
+                    return;
+                }
+
+                console.warn('Compartilhamento indisponivel, baixando PDF:', shareErr);
+                baixarPdf(blob, file.name);
+            }
+        } else {
+            baixarPdf(blob, file.name);
+        }
+    } catch (err) {
+        console.error('Erro ao gerar proposta:', err);
+        alert('Ocorreu um erro ao gerar a proposta.');
+    } finally {
+        botao.disabled = false;
+        botao.innerText = textoOriginal;
+    }
+}
+
+window.compartilharProposta = compartilharProposta;
 
 document.addEventListener("DOMContentLoaded", () => {
     const cpfInputs = document.querySelectorAll(".mask-cpf");

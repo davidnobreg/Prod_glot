@@ -1,5 +1,6 @@
 import locale
 import os
+import re
 from django.conf import settings
 from django.template import Template, Context
 from django.utils.timezone import now
@@ -22,13 +23,13 @@ from reportlab.lib.enums import TA_JUSTIFY
 from .models import CadastroDocumento
 from clientes.models import ClienteEndereco, ClienteTelefone, ClienteConjuge
 from vendas.models import RegisterVenda
-from weasyprint import HTML
+from weasyprint import HTML, CSS
 
 
 def draw_header_footer(canvas, doc):
     canvas.saveState()
 
-    # 🔹 LOGO (opcional)
+    """# 🔹 LOGO (opcional)
     logo_path = os.path.join(settings.MEDIA_ROOT, 'logo.png')
     if os.path.exists(logo_path):
         canvas.drawImage(
@@ -38,7 +39,7 @@ def draw_header_footer(canvas, doc):
             width=3 * cm,
             preserveAspectRatio=True,
             mask='auto'
-        )
+        )"""
 
     # 🔹 TÍTULO
     canvas.setFont('Helvetica-Bold', 12)
@@ -57,14 +58,14 @@ def draw_header_footer(canvas, doc):
     )
 
     # 🔹 RODAPÉ — PÁGINA
-    canvas.setFont('Helvetica', 8)
+    """canvas.setFont('Helvetica', 8)
     canvas.drawCentredString(
         A4[0] / 2,
         1.5 * cm,
         f"Página {doc.page}"
     )
 
-    canvas.restoreState()
+    canvas.restoreState()"""
 
 
 def bloco_assinaturas():
@@ -96,7 +97,13 @@ def bloco_assinaturas():
 
 def proposta(request, venda_uuid):
     venda = get_object_or_404(
-        RegisterVenda,
+        RegisterVenda.objects.select_related(
+            'cliente',
+            'lote',
+            'lote__quadra',
+            'lote__quadra__empr',
+            'user',
+        ),
         uuid=venda_uuid
     )
 
@@ -416,24 +423,19 @@ def proposta(request, venda_uuid):
     )
 
 
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django.template import Context, Template
-from django.utils import timezone
-
-from babel.dates import format_date
-from num2words import num2words
-
-from weasyprint import HTML, CSS
-
-
 def proposta_pdf(request, venda_uuid):
     # =====================================================
     # VENDA
     # =====================================================
 
     venda = get_object_or_404(
-        RegisterVenda,
+        RegisterVenda.objects.select_related(
+            'cliente',
+            'lote',
+            'lote__quadra',
+            'lote__quadra__empr',
+            'user',
+        ),
         uuid=venda_uuid
     )
 
@@ -806,6 +808,18 @@ def proposta_pdf(request, venda_uuid):
         Context(contexto)
     )
 
+    for texto_rodape in [
+        '© 2025 David Nóbrega - Todos os direitos reservados',
+        '© 2025 David Nóbrega - Todos os direitos reservadose',
+        'Â© 2025 David NÃ³brega - Todos os direitos reservados',
+        'Â© 2025 David NÃ³brega - Todos os direitos reservadose',
+    ]:
+        html_final = html_final.replace(texto_rodape, '')
+
+    html_final = re.sub(r'<nav[\s\S]*?</nav>', '', html_final, flags=re.IGNORECASE)
+    html_final = re.sub(r'<footer[\s\S]*?</footer>', '', html_final, flags=re.IGNORECASE)
+    html_final = re.sub(r'<header[\s\S]*?</header>', '', html_final, flags=re.IGNORECASE)
+
     # =====================================================
     # RESPONSE PDF
     # =====================================================
@@ -837,25 +851,56 @@ def proposta_pdf(request, venda_uuid):
                 string='''
 
                     @page {
-                        size: A4;
-                        margin: 5mm;
+                        size: A4 portrait;
+                        margin: 2mm;
                     }
 
                     html,
                     body{
                         margin:0;
                         padding:0;
+                        width:100%;
                     }
 
                     body{
                         font-family: Arial, sans-serif;
-                        font-size: 9px;
-                        line-height: 1.1;
+                        font-size: 7px;
+                        line-height: 1;
                         color:#000;
                     }
 
+                    nav,
+                    header,
+                    footer,
+                    .navbar,
+                    .btn,
+                    .btn-voltar,
+                    #btn-imprimir{
+                        display:none !important;
+                    }
+
+                    .container,
+                    .container-fluid,
+                    .table-responsive,
+                    .row,
+                    [class*="col-"]{
+                        width:100% !important;
+                        max-width:100% !important;
+                        margin:0 !important;
+                        padding:0 !important;
+                    }
+
+                    .my-5,
+                    .mt-5,
+                    .mt-4,
+                    .mb-4,
+                    .p-3{
+                        margin:0 !important;
+                        padding:0 !important;
+                    }
+
                     p{
-                        margin:0 0 2px 0;
+                        margin:0;
                         text-align:justify;
                     }
 
@@ -866,7 +911,9 @@ def proposta_pdf(request, venda_uuid):
 
                     td,
                     th{
-                        padding:2px;
+                        padding:1px;
+                        font-size:7px;
+                        line-height:1;
                     }
 
                     h1,
@@ -875,15 +922,32 @@ def proposta_pdf(request, venda_uuid):
                     h4,
                     h5,
                     h6{
-                        margin:0 0 5px 0;
+                        margin:0 0 2px 0;
                         padding:0;
+                    }
+
+                    h3{
+                        font-size:9px;
+                    }
+
+                    hr{
+                        margin:1px 0;
+                    }
+
+                    img{
+                        max-height:35px !important;
+                        width:auto !important;
+                    }
+
+                    .border{
+                        border:0 !important;
                     }
 
                     .titulo{
                         text-align:center;
-                        font-size:14px;
+                        font-size:9px;
                         font-weight:bold;
-                        margin-bottom:10px;
+                        margin-bottom:2px;
                     }
 
                     .evitar-quebra{
@@ -896,6 +960,16 @@ def proposta_pdf(request, venda_uuid):
 
                     br{
                         display:none;
+                    }
+
+                    .data-local-print,
+                    .assinaturas-print{
+                        margin-top:3mm !important;
+                    }
+
+                    .assinaturas{
+                        font-size:7px;
+                        line-height:1;
                     }
 
                 '''

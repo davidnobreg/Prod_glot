@@ -857,7 +857,10 @@ def gerarRelatorioLotes(request):
     loteamento_uuid = request.GET.get('loteamento_uuid')
 
     # consulta inicial
-    lotes = Lote.objects.all()
+    lotes = Lote.objects.select_related(
+        'quadra',
+        'quadra__empr'
+    ).all()
 
     if loteamento_uuid:
         lotes = lotes.filter(
@@ -905,6 +908,15 @@ def gerarRelatorioLotes(request):
         'Corretor'
     ]]
 
+    lotes = list(lotes)
+    vendas_por_lote = {}
+    lote_ids = [lote.id for lote in lotes]
+
+    for venda in RegisterVenda.objects.select_related('user').filter(
+        lote_id__in=lote_ids
+    ).order_by('lote_id', '-id'):
+        vendas_por_lote.setdefault(venda.lote_id, venda)
+
     # percorre lotes
     for lote in lotes:
 
@@ -922,9 +934,7 @@ def gerarRelatorioLotes(request):
         # RESERVADO / VENDIDO → pega usuário da venda
         elif lote.situacao in ['RESERVADO', 'VENDIDO']:
 
-            venda = RegisterVenda.objects.filter(
-                lote=lote
-            ).order_by('-id').first()
+            venda = vendas_por_lote.get(lote.id)
 
             if venda and venda.user:
                 corretor = venda.user.first_name
@@ -932,9 +942,7 @@ def gerarRelatorioLotes(request):
         # TODOS → tenta venda primeiro, senão lote
         else:
 
-            venda = RegisterVenda.objects.filter(
-                lote=lote
-            ).order_by('-id').first()
+            venda = vendas_por_lote.get(lote.id)
 
             if venda and venda.user:
                 corretor = venda.user.first_name

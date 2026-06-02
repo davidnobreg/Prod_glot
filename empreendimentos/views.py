@@ -1,6 +1,7 @@
 import json
 import re
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib import messages
 import pandas as pd
 from django.http import JsonResponse, HttpResponse
@@ -24,7 +25,8 @@ from datetime import datetime, timedelta
 
 from tornado.http1connection import parse_int
 
-from .forms import EmpreendimentoForm, ArquivoForm, LoteForm, EmpreendimentoEnderecoForm, EmpreendimentoUpdateForm
+from .forms import (EmpreendimentoForm, ArquivoForm, LoteForm, EmpreendimentoEnderecoForm, EmpreendimentoUpdateForm,
+                    AtualizarLoteForm)
 from .models import Empreendimento, Quadra, Lote
 from accounts.models import User, UsuarioEmpreendimento
 from vendas.models import RegisterVenda
@@ -355,6 +357,77 @@ def listaQuadra(request, empreendimento_uuid):
     }
 
     return render(request, 'lista-quadras.html', context)
+
+
+@has_permission_decorator('atualizarLotes')
+def atualizarLotes(request):
+    empreendimento_id = request.GET.get('empreendimento')
+    empreendimento_id_int = None
+    quadra = request.GET.get('quadra', '').strip()
+    lote = request.GET.get('lote', '').strip()
+
+    lotes = Lote.objects.select_related('quadra', 'quadra__empr').all().order_by(
+        'quadra__empr__nome',
+        'quadra__namequadra',
+        'lote'
+    )
+
+    if empreendimento_id and empreendimento_id.isdigit():
+        empreendimento_id_int = int(empreendimento_id)
+        lotes = lotes.filter(quadra__empr_id=empreendimento_id_int)
+
+    if quadra:
+        lotes = lotes.filter(quadra__namequadra__icontains=quadra)
+
+    if lote:
+        lotes = lotes.filter(lote__icontains=lote)
+
+    paginator = Paginator(lotes, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    querydict = request.GET.copy()
+    querydict.pop('page', None)
+
+    context = {
+        'lotes': page_obj,
+        'page_obj': page_obj,
+        'empreendimentos': Empreendimento.objects.filter(is_ativo=True).order_by('nome'),
+        'filtro_empreendimento': empreendimento_id_int,
+        'filtro_quadra': quadra,
+        'filtro_lote': lote,
+        'querystring': querydict.urlencode(),
+    }
+    return render(request, 'atualizar-lotes.html', context)
+
+
+@has_permission_decorator('atualizarLotes')
+def editarAtualizarLote(request, lote_uuid):
+    lote = get_object_or_404(Lote.objects.select_related('quadra', 'quadra__empr'), uuid=lote_uuid)
+    querystring = request.GET.urlencode()
+
+    if request.method == 'POST':
+        form = AtualizarLoteForm(request.POST, instance=lote)
+        querystring = request.POST.get('querystring', '')
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Lote atualizado com sucesso!")
+            url = reverse('atualizar-lotes')
+            if querystring:
+                url = f'{url}?{querystring}'
+            return redirect(url)
+
+        messages.error(request, "Verifique os campos informados.")
+    else:
+        form = AtualizarLoteForm(instance=lote)
+
+    context = {
+        'form': form,
+        'lote': lote,
+        'querystring': querystring,
+    }
+    return render(request, 'editar-atualizar-lote.html', context)
 
 
 class importarDados(View):

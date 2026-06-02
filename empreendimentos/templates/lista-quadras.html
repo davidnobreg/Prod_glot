@@ -77,8 +77,9 @@
                         </a>
                     </div>
                     <div class="col-md-6 g-4">
-                        <body data-loteamento-id="{{ empreendimento.id }}">
-                        <button class="btn btn-outline-primary text-center py-3 w-100"
+                        <button type="button"
+                                class="btn btn-outline-primary text-center py-3 w-100"
+                                data-loteamento-uuid="{{ empreendimento.uuid }}"
                                 onclick="compartilharRelatorio()">Compartilhar Relatório
                         </button>
                     </div>

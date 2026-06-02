@@ -40,8 +40,8 @@ deploy:
 
   resources:
     limits:
-      cpus: "0.50"
-      memory: 512M
+      cpus: "1"
+      memory: 1024M
   ```
 
 worker_empreendimentos:

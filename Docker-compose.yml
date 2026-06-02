@@ -1,181 +1,157 @@
 version: "3.9"
 
 services:
+  web:
+    image: davidnobrega/glot:latest
 
-web:
-image: davidnobrega/glot:latest
-  
-  ```
-ports:
-  - "8000:8000"
+    ports:
+      - "8000:8000"
 
-environment:
-  - SENTRY_DSN=${SENTRY_DSN}
-  - ENVIRONMENT=production
-  - GIT_COMMIT=${GIT_COMMIT}
+    environment:
+      - SENTRY_DSN=${SENTRY_DSN}
+      - ENVIRONMENT=production
+      - GIT_COMMIT=${GIT_COMMIT}
 
-volumes:
-  - configuration:/app/configuration
-  - logs:/app/logs
-  - media_compartilhada:/app/media
-  - static_volume:/app/static
+    volumes:
+      - configuration:/app/configuration
+      - logs:/app/logs
+      - media_compartilhada:/app/media
+      - static_volume:/app/static
 
-networks:
-  - app_network
-  - npm_public
+    networks:
+      - app_network
+      - npm_public
 
-depends_on:
-  - postgres
-  - rabbitmq
+    depends_on:
+      - postgres
+      - rabbitmq
 
-deploy:
-  replicas: 1
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1024M
 
-  placement:
-    constraints:
-      - node.role == manager
+  worker_empreendimentos:
+    image: davidnobrega/glot:latest
 
-  restart_policy:
-    condition: on-failure
+    command: celery -A core worker -Q empreendimentos -l info
 
-  resources:
-    limits:
-      cpus: "1"
-      memory: 1024M
-  ```
+    volumes:
+      - configuration:/app/configuration
+      - logs:/app/logs
+      - media_compartilhada:/app/media
 
-worker_empreendimentos:
-image: davidnobrega/glot:latest
-  
-  ```
-command: celery -A core worker -Q empreendimentos -l info
+    networks:
+      - app_network
 
-volumes:
-  - configuration:/app/configuration
-  - logs:/app/logs
-  - media_compartilhada:/app/media
+    depends_on:
+      - rabbitmq
 
-networks:
-  - app_network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
 
-depends_on:
-  - rabbitmq
+  worker_mensagens:
+    image: davidnobrega/glot:latest
 
-deploy:
-  replicas: 1
+    command: celery -A core worker -Q mensagens -l info
 
-  placement:
-    constraints:
-      - node.role == manager
+    volumes:
+      - configuration:/app/configuration
+      - logs:/app/logs
+      - media_compartilhada:/app/media
 
-  restart_policy:
-    condition: on-failure
-  ```
+    networks:
+      - app_network
 
-worker_mensagens:
-image: davidnobrega/glot:latest
-  
-  ```
-command: celery -A core worker -Q mensagens -l info
+    depends_on:
+      - rabbitmq
 
-volumes:
-  - configuration:/app/configuration
-  - logs:/app/logs
-  - media_compartilhada:/app/media
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
 
-networks:
-  - app_network
+  beat:
+    image: davidnobrega/glot:latest
 
-depends_on:
-  - rabbitmq
+    command: celery -A core beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
 
-deploy:
-  replicas: 1
+    volumes:
+      - configuration:/app/configuration
+      - logs:/app/logs
+      - celerybeat:/app/celerybeat
 
-  placement:
-    constraints:
-      - node.role == manager
+    networks:
+      - app_network
 
-  restart_policy:
-    condition: on-failure
-  ```
+    depends_on:
+      - rabbitmq
 
-beat:
-image: davidnobrega/glot:latest
-  
-  ```
-command: celery -A core beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
 
-volumes:
-  - configuration:/app/configuration
-  - logs:/app/logs
-  - celerybeat:/app/celerybeat
+  flower:
+    image: davidnobrega/glot:latest
 
-networks:
-  - app_network
+    command: celery -A core flower --port=5555
 
-depends_on:
-  - rabbitmq
+    ports:
+      - "5555:5555"
 
-deploy:
-  replicas: 1
+    volumes:
+      - configuration:/app/configuration
+      - logs:/app/logs
 
-  placement:
-    constraints:
-      - node.role == manager
+    networks:
+      - app_network
 
-  restart_policy:
-    condition: on-failure
-  ```
-
-flower:
-image: davidnobrega/glot:latest
-  
-  ```
-command: celery -A core flower --port=5555
-
-ports:
-  - "5555:5555"
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
 
 volumes:
-  - configuration:/app/configuration
-  - logs:/app/logs
+  configuration:
+    external: true
+
+  logs:
+    external: true
+
+  media_compartilhada:
+    external: true
+
+  static_volume:
+    external: true
+
+  celerybeat:
+    external: true
 
 networks:
-  - app_network
+  app_network:
+    external: true
 
-deploy:
-  replicas: 1
-
-  placement:
-    constraints:
-      - node.role == manager
-
-  restart_policy:
-    condition: on-failure
-  ```
-
-volumes:
-
-configuration:
-external: true
-
-logs:
-external: true
-
-media_compartilhada:
-external: true
-
-static_volume:
-external: true
-
-celerybeat:
-external: true
-
-networks:
-
-app_network:
-external: true
-
-npm_public:
-external: true
+  npm_public:
+    external: true

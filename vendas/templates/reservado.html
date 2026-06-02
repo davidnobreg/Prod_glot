@@ -132,6 +132,7 @@
 
                             <a href="
 
+
                                     {% if reservas %}{% url 'listar-quadras' reservas.lote.quadra.empr.uuid %}{% else %}{% url 'listar-quadras' lote.quadra.empr.uuid %}{% endif %}"
                                class="btn btn-primary px-4 py-2 fw-bold">
                                 Quadras
@@ -164,25 +165,28 @@
         <div class="modal fade" id="ReservaModalDelete" tabindex="-1" aria-labelledby="ReservaModalDelete"
              aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Deleta da Venda</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                <form method="post" action="{% url 'delete-venda' reservas.uuid %}">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Deleta da Venda</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Fechar"></button>
+                        </div>
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <p><strong>Cliente:</strong> {{ reservas.cliente }}</p>
+                            <p><strong>Empreendimento:</strong> {{ reservas.lote.quadra.empr.nome }}</p>
+                            <p><strong>Quadra:</strong> {{ reservas.lote.quadra }}</p>
+                            <p><strong>Lote:</strong> {{ reservas.lote }}</p>
+                            <p><strong>Corretor:</strong> {{ reservas.user }}</p>
+                            <p><strong>Vencimento da Reserva:</strong> {{ reservas.lote.data_termina_reserva }}</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-danger">Deletar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        </div>
                     </div>
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        <p><strong>Cliente:</strong> {{ reservas.cliente }}</p>
-                        <p><strong>Empreendimento:</strong> {{ reservas.lote.quadra.empr.nome }}</p>
-                        <p><strong>Quadra:</strong> {{ reservas.lote.quadra }}</p>
-                        <p><strong>Lote:</strong> {{ reservas.lote }}</p>
-                        <p><strong>Corretor:</strong> {{ reservas.user }}</p>
-                        <p><strong>Vencimento da Reserva:</strong> {{ reservas.lote.data_termina_reserva }}</p>
-                    </div>
-                    <div class="modal-footer">
-                        <a href="{% url 'delete-venda' reservas.uuid %}" class="btn btn-danger">Deletar</a>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
     {% endif %}

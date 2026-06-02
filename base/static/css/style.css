@@ -141,6 +141,15 @@ body[data-bs-theme="dark"] {
     margin: 0 auto;
 }
 
+.folha-a4 {
+    width: 210mm;
+    min-height: 297mm;
+    max-width: 100%;
+    padding: 10mm;
+    background: #fff;
+    box-sizing: border-box;
+}
+
 /* =========================
    IMPRESSÃO A4 - 1 PÁGINA
 ========================= */
@@ -190,7 +199,8 @@ body[data-bs-theme="dark"] {
 
     #conteudo {
         position: relative;
-        width: 100%;
+        width: 210mm;
+        min-height: 297mm;
         margin: 0 auto;
         padding: 0 !important;
         background: #fff !important;

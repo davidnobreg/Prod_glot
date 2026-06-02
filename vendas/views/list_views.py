@@ -137,7 +137,7 @@ class RelatorioReservaView(ListView):
 
 
 
-@method_decorator(has_permission_decorator('alguma_permissao'), name='dispatch')
+@method_decorator(has_permission_decorator('listaVenda'), name='dispatch')
 class ListaVendaView(ListView):
 
     model = RegisterVenda

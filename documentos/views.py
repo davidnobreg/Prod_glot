@@ -96,7 +96,7 @@ def bloco_assinaturas():
 
     return tabela
 
-@method_decorator(has_permission_decorator('proposta'), name='dispatch')
+@has_permission_decorator('proposta')
 def proposta(request, venda_uuid):
     venda = get_object_or_404(
         RegisterVenda.objects.select_related(

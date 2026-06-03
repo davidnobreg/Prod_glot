@@ -1,37 +1,202 @@
-<aside class="glot-sidebar bg-dark text-white p-3 flex-shrink-0">
+{% load static %}
 
-    <div class="mb-4">
-        <h4 class="fw-bold mb-0">GLOT</h4>
-        <small class="text-secondary">Sistema de Gestão</small>
+<aside
+        id="glotSidebar"
+        class="glot-sidebar p-3"
+        aria-label="Menu principal"
+>
+
+    <!-- ===================================================== -->
+    <!-- TOPO / LOGO / ACOES -->
+    <!-- ===================================================== -->
+    <div class="glot-sidebar-header d-flex align-items-center justify-content-between gap-3 mb-3">
+
+        <a href="{% url 'lista-empreendimento' %}" class="d-flex align-items-center gap-3 text-decoration-none text-white overflow-hidden">
+            <span class="glot-brand-logo-wrap">
+                <img
+                        src="{% static 'images/logo_carlos_e_celso.jpg' %}"
+                        alt="logo_carlos_e_celso"
+                        class="glot-brand-logo"
+                >
+            </span>
+
+            <span class="sidebar-brand-text sidebar-text">
+                <strong class="d-block lh-1">GLOT</strong>
+                <small class="text-white-50">Sistema de Gestão</small>
+            </span>
+        </a>
+
+        <button
+                type="button"
+                id="sidebarToggle"
+                class="btn btn-sm btn-outline-light rounded-circle d-none d-md-inline-flex align-items-center justify-content-center flex-shrink-0"
+                title="Recolher menu"
+                aria-label="Recolher menu"
+        >
+            <i class="bi bi-layout-sidebar-inset"></i>
+        </button>
+
+        <button
+                type="button"
+                id="mobileSidebarClose"
+                class="btn btn-sm btn-outline-light rounded-circle d-inline-flex d-md-none align-items-center justify-content-center flex-shrink-0"
+                title="Fechar menu"
+                aria-label="Fechar menu"
+        >
+            <i class="bi bi-x-lg"></i>
+        </button>
+
     </div>
 
-    <nav class="nav flex-column gap-2">
+    <!-- ===================================================== -->
+    <!-- USUARIO LOGADO -->
+    <!-- ===================================================== -->
+    {% if user.is_authenticated %}
+        <div class="sidebar-user mb-3 p-3 rounded-4 bg-black bg-opacity-25">
+            <small class="text-white-50 d-block">Usuario logado</small>
 
-        <a href="#" class="nav-link text-white rounded px-3 py-2">
-            <i class="bi bi-speedometer2 me-2"></i>
-            Dashboard
+            <strong class="d-block text-white text-truncate">
+                {% if user.first_name %}
+                    {{ user.first_name }}
+                {% else %}
+                    {{ user.email }}
+                {% endif %}
+            </strong>
+
+            {% if user.tipo_usuario %}
+                <small class="text-white-50">
+                    {{ user.tipo_usuario }}
+                </small>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <!-- ===================================================== -->
+    <!-- MENU PRINCIPAL -->
+    <!-- ===================================================== -->
+    <nav class="nav flex-column gap-1 flex-grow-1">
+
+        <a href="{% url 'lista-empreendimento' %}" class="nav-link">
+            <i class="bi bi-speedometer2"></i>
+            <span class="sidebar-text">Dashboard</span>
         </a>
 
-        <a href="#" class="nav-link text-white rounded px-3 py-2">
-            <i class="bi bi-building me-2"></i>
-            Empreendimentos
+        <a href="{% url 'lista-empreendimento' %}" class="nav-link">
+            <i class="bi bi-building"></i>
+            <span class="sidebar-text">Empreendimentos</span>
         </a>
 
-        <a href="#" class="nav-link text-white rounded px-3 py-2">
-            <i class="bi bi-grid me-2"></i>
-            Lotes
-        </a>
+        <!-- ================================================= -->
+        <!-- LISTAGEM -->
+        <!-- ================================================= -->
+        <button
+                class="mt-4 mb-1 px-2 sidebar-section-title"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#sidebarListagem"
+                aria-expanded="false"
+                aria-controls="sidebarListagem"
+        >
+            <span class="sidebar-text">Listagem</span>
+            <i class="bi bi-chevron-down sidebar-chevron"></i>
+        </button>
 
-        <a href="#" class="nav-link text-white rounded px-3 py-2">
-            <i class="bi bi-cash-coin me-2"></i>
-            Vendas
-        </a>
+        <div id="sidebarListagem" class="collapse sidebar-submenu">
+            {% if user.tipo_usuario == "ADMINISTRADOR" %}
+                <a href="{% url 'lista-cliente-relatorio' %}" class="nav-link">
+                    <i class="bi bi-people"></i>
+                    <span class="sidebar-text">Relatorio de Clientes</span>
+                </a>
+            {% endif %}
 
-        <a href="#" class="nav-link text-white rounded px-3 py-2">
-            <i class="bi bi-people me-2"></i>
-            Clientes
-        </a>
+            <a href="{% url 'lista-venda-relatorio' %}" class="nav-link">
+                <i class="bi bi-file-earmark-text"></i>
+                <span class="sidebar-text">Relatorio de Vendas</span>
+            </a>
+        </div>
+
+        <!-- ================================================= -->
+        <!-- MOVIMENTACAO -->
+        <!-- ================================================= -->
+        <button
+                class="mt-4 mb-1 px-2 sidebar-section-title"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#sidebarMovimentacao"
+                aria-expanded="false"
+                aria-controls="sidebarMovimentacao"
+        >
+            <span class="sidebar-text">Movimentacao</span>
+            <i class="bi bi-chevron-down sidebar-chevron"></i>
+        </button>
+
+        <div id="sidebarMovimentacao" class="collapse sidebar-submenu">
+            <a href="{% url 'lista-pre-reserva' %}" class="nav-link">
+                <i class="bi bi-clock-history"></i>
+                <span class="sidebar-text">Pre-Reserva</span>
+            </a>
+
+            <a href="{% url 'lista-reserva' %}" class="nav-link">
+                <i class="bi bi-bookmark-check"></i>
+                <span class="sidebar-text">Reserva</span>
+            </a>
+
+            <a href="{% url 'lista-venda' %}" class="nav-link">
+                <i class="bi bi-cash-coin"></i>
+                <span class="sidebar-text">Venda</span>
+            </a>
+        </div>
+
+        <!-- ================================================= -->
+        <!-- CADASTROS -->
+        <!-- ================================================= -->
+        <button
+                class="mt-4 mb-1 px-2 sidebar-section-title"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#sidebarCadastros"
+                aria-expanded="false"
+                aria-controls="sidebarCadastros"
+        >
+            <span class="sidebar-text">Cadastros</span>
+            <i class="bi bi-chevron-down sidebar-chevron"></i>
+        </button>
+
+        <div id="sidebarCadastros" class="collapse sidebar-submenu">
+            <a href="{% url 'lista-cliente' %}" class="nav-link">
+                <i class="bi bi-person-lines-fill"></i>
+                <span class="sidebar-text">Clientes</span>
+            </a>
+
+            <a href="{% url 'lista-empreendimento-tabela' %}" class="nav-link">
+                <i class="bi bi-buildings"></i>
+                <span class="sidebar-text">Empreendimentos</span>
+            </a>
+
+            {% if user.tipo_usuario == "ADMINISTRADOR" %}
+                <a href="{% url 'lista-usuario' %}" class="nav-link">
+                    <i class="bi bi-person-gear"></i>
+                    <span class="sidebar-text">Usuarios</span>
+                </a>
+            {% endif %}
+        </div>
 
     </nav>
+
+    <!-- ===================================================== -->
+    <!-- SAIR -->
+    <!-- ===================================================== -->
+    {% if user.is_authenticated %}
+        <div class="mt-4 pt-3 border-top border-secondary border-opacity-50">
+            <form action="{% url 'logout' %}" method="GET">
+                {% csrf_token %}
+
+                <button type="submit" class="btn btn-outline-light w-100 rounded-pill sidebar-logout-button d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span class="sidebar-text">Sair</span>
+                </button>
+            </form>
+        </div>
+    {% endif %}
 
 </aside>

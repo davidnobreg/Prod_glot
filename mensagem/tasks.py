@@ -24,11 +24,15 @@ def enviar_mensagem(numero: str, mensagem: str, instancia: str = None):
 
     if not numero or not mensagem:
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         logger.warning(
             "Nenhum número ou mensagem fornecido | numero=%s mensagem=%s instancia=%s",
             numero, mensagem, instancia
         )
         return None
+=======
+        raise ValueError("Número e mensagem são obrigatórios")
+>>>>>>> Stashed changes
 =======
         raise ValueError("Número e mensagem são obrigatórios")
 >>>>>>> Stashed changes
@@ -51,6 +55,7 @@ def enviar_mensagem(numero: str, mensagem: str, instancia: str = None):
     return resultado
 
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 @shared_task(
     bind=True,
@@ -103,6 +108,8 @@ def enviar_mensagem_task(self, numero: str = None, mensagem: str = None, instanc
         logger.error(f"❌ Erro definitivo ao enviar para {numero}: {e}")
         raise
 =======
+=======
+>>>>>>> Stashed changes
 # ==========================================================
 # TASK CELERY — ENVIO DE MENSAGEM
 # ==========================================================
@@ -158,4 +165,7 @@ def enviar_mensagem_task(self, numero: str, mensagem: str, instancia: str = None
         # ❌ Erro inesperado → NÃO retry → vai para DLQ
         logger.exception("💥 Erro inesperado ao enviar mensagem")
         raise Reject(str(exc), requeue=False)
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes

@@ -1,286 +1,37 @@
-{% load static %}
-
-<section class="lg:col-span-2">
-
-    <aside
-        id="sidebar"
-        class="bg-white rounded-2xl shadow-sm border border-gray-200 h-full flex flex-col overflow-hidden"
-    >
-
-        <!-- ================================================= -->
-        <!-- TOPO -->
-        <!-- ================================================= -->
-        <div class="p-4 border-b border-gray-200 flex items-center justify-between">
-
-            <!-- Logo -->
-            <a href="/empreendimentos/" class="flex justify-center flex-1">
-
-                <img
-                    src="{% static 'images/logo_carlos_e_celso.jpg' %}"
-                    alt="logo_carlos_e_celso"
-                    class="w-32 h-auto"
-                >
-
-            </a>
-
-            <!-- BOTÃO MOBILE -->
-            <button
-                id="sidebarToggle"
-                class="lg:hidden text-gray-700"
-            >
-
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     height="32px"
-                     viewBox="0 -960 960 960"
-                     width="32px"
-                     fill="currentColor">
-
-                    <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/>
-
-                </svg>
-
-            </button>
-
-        </div>
-
-        <!-- ================================================= -->
-        <!-- CONTEÚDO -->
-        <!-- ================================================= -->
-        <div
-            id="sidebarContent"
-            class="flex flex-col flex-1"
-        >
-
-            <!-- Usuário -->
-            {% if user.is_authenticated %}
-            <div class="px-6 py-4 border-b border-gray-200">
-
-                <p class="text-sm text-gray-500">
-                    Bem-vindo,
-                </p>
-
-                <p class="font-bold text-black text-lg">
-                    {{ user.first_name }}
-                </p>
-
-            </div>
-            {% endif %}
-
-            <!-- ================================================= -->
-            <!-- MENU -->
-            <!-- ================================================= -->
-            <nav class="flex-1 overflow-y-auto px-4 py-6">
-
-                {% if user.is_authenticated %}
-
-                    <!-- LISTAGEM -->
-                    <div class="mb-8">
-
-                        <h4 class="flex items-center gap-3 text-sm uppercase tracking-wider text-gray-400 font-bold mb-4 px-2">
-
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                 height="28px"
-                                 viewBox="0 -960 960 960"
-                                 width="28px"
-                                 fill="currentColor">
-
-                                <path d="M520-600v-240h320v240H520ZM120-440v-400h320v400H120Zm400 320v-400h320v400H520Zm-400 0v-240h320v240H120Z"/>
-
-                            </svg>
-
-                            Listagem
-
-                        </h4>
-
-                        <ul class="space-y-2">
-
-                            {% if user.tipo_usuario == "ADMINISTRADOR" %}
-                            <li>
-
-                                <a
-                                    href="{% url 'lista-cliente-relatorio' %}"
-                                    class="flex items-center px-4 py-3 rounded-xl text-black hover:bg-sky-50 hover:text-sky-700 transition-all duration-300 hover:translate-x-1"
-                                >
-                                    Clientes
-                                </a>
-
-                            </li>
-                            {% endif %}
-
-                            <li>
-
-                                <a
-                                    href="{% url 'lista-venda-relatorio' %}"
-                                    class="flex items-center px-4 py-3 rounded-xl text-black hover:bg-sky-50 hover:text-sky-700 transition-all duration-300 hover:translate-x-1"
-                                >
-                                    Vendas
-                                </a>
-
-                            </li>
-
-                        </ul>
-
-                    </div>
-
-                    <!-- MOVIMENTAÇÃO -->
-                    <div class="mb-8">
-
-                        <h4 class="flex items-center gap-3 text-sm uppercase tracking-wider text-gray-400 font-bold mb-4 px-2">
-
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                 height="28px"
-                                 viewBox="0 -960 960 960"
-                                 width="28px"
-                                 fill="currentColor">
-
-                                <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Z"/>
-
-                            </svg>
-
-                            Movimentação
-
-                        </h4>
-
-                        <ul class="space-y-2">
-
-                            <li>
-                                <a
-                                    href="{% url 'lista-pre-reserva' %}"
-                                    class="flex items-center px-4 py-3 rounded-xl text-black hover:bg-sky-50 hover:text-sky-700 transition-all duration-300 hover:translate-x-1"
-                                >
-                                    Pré-Reserva
-                                </a>
-                            </li>
-
-                            <li>
-                                <a
-                                    href="{% url 'lista-reserva' %}"
-                                    class="flex items-center px-4 py-3 rounded-xl text-black hover:bg-sky-50 hover:text-sky-700 transition-all duration-300 hover:translate-x-1"
-                                >
-                                    Reserva
-                                </a>
-                            </li>
-
-                            <li>
-                                <a
-                                    href="{% url 'lista-venda' %}"
-                                    class="flex items-center px-4 py-3 rounded-xl text-black hover:bg-sky-50 hover:text-sky-700 transition-all duration-300 hover:translate-x-1"
-                                >
-                                    Venda
-                                </a>
-                            </li>
-
-                        </ul>
-
-                    </div>
-
-                    <!-- CADASTROS -->
-                    <div class="mb-8">
-
-                        <h4 class="flex items-center gap-3 text-sm uppercase tracking-wider text-gray-400 font-bold mb-4 px-2">
-
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                 height="28px"
-                                 viewBox="0 -960 960 960"
-                                 width="28px"
-                                 fill="currentColor">
-
-                                <path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Z"/>
-
-                            </svg>
-
-                            Cadastros
-
-                        </h4>
-
-                        <ul class="space-y-2">
-
-                            <li>
-                                <a
-                                    href="{% url 'lista-cliente' %}"
-                                    class="flex items-center px-4 py-3 rounded-xl text-black hover:bg-sky-50 hover:text-sky-700 transition-all duration-300 hover:translate-x-1"
-                                >
-                                    Clientes
-                                </a>
-                            </li>
-
-                            <li>
-                                <a
-                                    href="{% url 'lista-empreendimento-tabela' %}"
-                                    class="flex items-center px-4 py-3 rounded-xl text-black hover:bg-sky-50 hover:text-sky-700 transition-all duration-300 hover:translate-x-1"
-                                >
-                                    Empreendimentos
-                                </a>
-                            </li>
-
-                            <li>
-                                <a
-                                    href="{% url 'lista-usuario' %}"
-                                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-black hover:bg-sky-50 hover:text-sky-700 transition-all duration-300 hover:translate-x-1"
-                                >
-
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                         height="24px"
-                                         viewBox="0 -960 960 960"
-                                         width="24px"
-                                         fill="currentColor">
-
-                                        <path d="M367-527q-47-47-47-113t47-113q47-47 113-47t113 47q47 47 47 113t-47 113q-47 47-113 47t-113-47Z"/>
-
-                                    </svg>
-
-                                    Usuários
-
-                                </a>
-                            </li>
-
-                        </ul>
-
-                    </div>
-
-                {% endif %}
-
-            </nav>
-
-            <!-- ================================================= -->
-            <!-- RODAPÉ -->
-            <!-- ================================================= -->
-            <div class="p-4 border-t border-gray-200">
-
-                {% if user.is_authenticated %}
-
-                    <form action="{% url 'logout' %}" method="GET">
-
-                        {% csrf_token %}
-
-                        <button
-                            type="submit"
-                            class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl transition-all duration-300 hover:scale-105"
-                        >
-                            Sair
-                        </button>
-
-                    </form>
-
-                {% endif %}
-
-            </div>
-
-        </div>
-
-    </aside>
-
-</section>
-
-<script>
-
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebarContent = document.getElementById('sidebarContent');
-
-    sidebarToggle.addEventListener('click', () => {
-
-        sidebarContent.classList.toggle('hidden');
-
-    });
-
-</script>
+<aside class="glot-sidebar bg-dark text-white p-3 flex-shrink-0">
+
+    <div class="mb-4">
+        <h4 class="fw-bold mb-0">GLOT</h4>
+        <small class="text-secondary">Sistema de Gestão</small>
+    </div>
+
+    <nav class="nav flex-column gap-2">
+
+        <a href="#" class="nav-link text-white rounded px-3 py-2">
+            <i class="bi bi-speedometer2 me-2"></i>
+            Dashboard
+        </a>
+
+        <a href="#" class="nav-link text-white rounded px-3 py-2">
+            <i class="bi bi-building me-2"></i>
+            Empreendimentos
+        </a>
+
+        <a href="#" class="nav-link text-white rounded px-3 py-2">
+            <i class="bi bi-grid me-2"></i>
+            Lotes
+        </a>
+
+        <a href="#" class="nav-link text-white rounded px-3 py-2">
+            <i class="bi bi-cash-coin me-2"></i>
+            Vendas
+        </a>
+
+        <a href="#" class="nav-link text-white rounded px-3 py-2">
+            <i class="bi bi-people me-2"></i>
+            Clientes
+        </a>
+
+    </nav>
+
+</aside>

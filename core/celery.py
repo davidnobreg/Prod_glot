@@ -13,8 +13,11 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks()
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 app.autodiscover_tasks()
 =======
+=======
+>>>>>>> Stashed changes
 app.conf.worker_proc_name = "glot_celery"
 app.conf.task_create_missing_queues = False
 app.conf.task_default_exchange_type = "direct"
@@ -118,5 +121,8 @@ app.conf.task_routes = {
         "exchange": "app_mensagem",
         "routing_key": "mensagem",
     },
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 }

@@ -5,7 +5,10 @@ from celery import shared_task
 from django.utils import timezone
 from django.db import transaction
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
 
 from .models import Lote
 >>>>>>> Stashed changes
@@ -13,6 +16,7 @@ from .models import Lote
 logger = logging.getLogger(__name__)
 
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 @shared_task(
     bind=True,
@@ -52,6 +56,30 @@ def destravar_lotes_expirados(self):
 
     agora = timezone.now()
 
+=======
+# ==========================================================
+# TASK 1 — DESTRAVAR LOTES EXPIRADOS
+# ==========================================================
+
+@shared_task(
+    bind=True,
+    name="empreendimentos.tasks.destravar_lotes_expirados",
+    queue="app_empreendimentos.lotes",
+    routing_key="empreendimentos",
+    acks_late=True,
+)
+def destravar_lotes_expirados(self):
+    """
+    Libera automaticamente todos os lotes que estão em reserva
+    e já ultrapassaram o tempo limite.
+    Task idempotente e segura para múltiplos workers.
+    """
+
+    logger.info("🔄 [CELERY] Iniciando destravamento de lotes expirados")
+
+    agora = timezone.now()
+
+>>>>>>> Stashed changes
     lotes = (
         Lote.objects
         .select_for_update(skip_locked=True)
@@ -59,6 +87,9 @@ def destravar_lotes_expirados(self):
             situacao="EM_RESERVA",
             tempo_reservado__lte=agora
         )
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     )
 
@@ -73,9 +104,12 @@ def destravar_lotes_expirados(self):
             lote.cliente_reserva = ""
             lote.telefone = ""
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             lote.save(update_fields=["situacao", "cliente_reserva", "telefone"])
             liberados += 1
 =======
+=======
+>>>>>>> Stashed changes
             lote.tempo_reservado = None
             lote.save(
                 update_fields=[
@@ -86,6 +120,9 @@ def destravar_lotes_expirados(self):
                 ]
             )
             destravados += 1
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
     logger.info(
@@ -97,6 +134,7 @@ def destravar_lotes_expirados(self):
 
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 @shared_task(
     bind=True,
     autoretry_for=(Exception,),
@@ -105,6 +143,8 @@ def destravar_lotes_expirados(self):
 def liberar_lotes_expirados(self):
     from .models import Lote  # 👈 IMPORT AQUI
 =======
+=======
+>>>>>>> Stashed changes
 # ==========================================================
 # TASK 2 — VOLTAR LOTE ESPECÍFICO PARA DISPONÍVEL
 # ==========================================================
@@ -126,6 +166,9 @@ def voltar_lote_para_disponivel(self, lote_id):
         "↩️ [CELERY] Solicitada liberação manual do lote ID=%s",
         lote_id
     )
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
     try:
@@ -136,6 +179,7 @@ def voltar_lote_para_disponivel(self, lote_id):
                 .get(id=lote_id)
             )
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
     hoje = timezone.now().date()
 
@@ -177,10 +221,35 @@ def voltar_lote_para_disponivel(self, lote_id):
         )
         return False
 
+=======
+            lote.situacao = "DISPONIVEL"
+            lote.cliente_reserva = ""
+            lote.telefone = ""
+            lote.tempo_reservado = None
+            lote.save(
+                update_fields=[
+                    "situacao",
+                    "cliente_reserva",
+                    "telefone",
+                    "tempo_reservado",
+                ]
+            )
+
+    except Lote.DoesNotExist:
+        logger.warning(
+            "⚠️ [CELERY] Lote ID=%s não encontrado",
+            lote_id
+        )
+        return False
+
+>>>>>>> Stashed changes
     logger.info(
         "✅ [CELERY] Lote ID=%s liberado manualmente",
         lote_id
     )
 
     return True
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes

@@ -4,10 +4,16 @@ import logging
 from celery import shared_task
 from django.utils import timezone
 from django.db import transaction
+<<<<<<< Updated upstream
+=======
+
+from .models import Lote
+>>>>>>> Stashed changes
 
 logger = logging.getLogger(__name__)
 
 
+<<<<<<< Updated upstream
 @shared_task(
     bind=True,
     autoretry_for=(Exception,),
@@ -23,25 +29,74 @@ def liberar_lotes_travados(self):
     lotes = Lote.objects.filter(
         situacao="EM_RESERVA",
         tempo_reservado__lte=agora
+=======
+# ==========================================================
+# TASK 1 — DESTRAVAR LOTES EXPIRADOS
+# ==========================================================
+
+@shared_task(
+    bind=True,
+    name="empreendimentos.tasks.destravar_lotes_expirados",
+    queue="app_empreendimentos.lotes",
+    routing_key="empreendimentos",
+    acks_late=True,
+)
+def destravar_lotes_expirados(self):
+    """
+    Libera automaticamente todos os lotes que estão em reserva
+    e já ultrapassaram o tempo limite.
+    Task idempotente e segura para múltiplos workers.
+    """
+
+    logger.info("🔄 [CELERY] Iniciando destravamento de lotes expirados")
+
+    agora = timezone.now()
+
+    lotes = (
+        Lote.objects
+        .select_for_update(skip_locked=True)
+        .filter(
+            situacao="EM_RESERVA",
+            tempo_reservado__lte=agora
+        )
+>>>>>>> Stashed changes
     )
 
     total = lotes.count()
-    logger.info(f"📦 [CELERY] {total} lotes encontrados para liberação")
+    logger.info("📦 [CELERY] %s lotes encontrados para destravamento", total)
 
-    liberados = 0
+    destravados = 0
 
     for lote in lotes:
         with transaction.atomic():
             lote.situacao = "DISPONIVEL"
             lote.cliente_reserva = ""
             lote.telefone = ""
+<<<<<<< Updated upstream
             lote.save(update_fields=["situacao", "cliente_reserva", "telefone"])
             liberados += 1
+=======
+            lote.tempo_reservado = None
+            lote.save(
+                update_fields=[
+                    "situacao",
+                    "cliente_reserva",
+                    "telefone",
+                    "tempo_reservado",
+                ]
+            )
+            destravados += 1
+>>>>>>> Stashed changes
 
-    logger.info(f"✅ [CELERY] {liberados} lotes liberados com sucesso")
-    return liberados
+    logger.info(
+        "✅ [CELERY] %s lotes destravados com sucesso",
+        destravados
+    )
+
+    return destravados
 
 
+<<<<<<< Updated upstream
 @shared_task(
     bind=True,
     autoretry_for=(Exception,),
@@ -49,9 +104,39 @@ def liberar_lotes_travados(self):
 )
 def liberar_lotes_expirados(self):
     from .models import Lote  # 👈 IMPORT AQUI
+=======
+# ==========================================================
+# TASK 2 — VOLTAR LOTE ESPECÍFICO PARA DISPONÍVEL
+# ==========================================================
 
-    logger.info("🔄 [CELERY] Iniciando liberação de lotes expirados")
+@shared_task(
+    bind=True,
+    name="empreendimentos.tasks.voltar_lote_para_disponivel",
+    queue="app_empreendimentos.lotes",
+    routing_key="empreendimentos",
+    acks_late=True,
+)
+def voltar_lote_para_disponivel(self, lote_id):
+    """
+    Força um lote específico a voltar para DISPONÍVEL.
+    Útil para ações administrativas manuais.
+    """
 
+    logger.info(
+        "↩️ [CELERY] Solicitada liberação manual do lote ID=%s",
+        lote_id
+    )
+>>>>>>> Stashed changes
+
+    try:
+        with transaction.atomic():
+            lote = (
+                Lote.objects
+                .select_for_update()
+                .get(id=lote_id)
+            )
+
+<<<<<<< Updated upstream
     hoje = timezone.now().date()
 
     lotes_reservados = Lote.objects.filter(
@@ -71,3 +156,31 @@ def liberar_lotes_expirados(self):
 
     logger.info(f"[FIM] Total de lotes liberados: {total_processados}")
     return total_processados
+=======
+            lote.situacao = "DISPONIVEL"
+            lote.cliente_reserva = ""
+            lote.telefone = ""
+            lote.tempo_reservado = None
+            lote.save(
+                update_fields=[
+                    "situacao",
+                    "cliente_reserva",
+                    "telefone",
+                    "tempo_reservado",
+                ]
+            )
+
+    except Lote.DoesNotExist:
+        logger.warning(
+            "⚠️ [CELERY] Lote ID=%s não encontrado",
+            lote_id
+        )
+        return False
+
+    logger.info(
+        "✅ [CELERY] Lote ID=%s liberado manualmente",
+        lote_id
+    )
+
+    return True
+>>>>>>> Stashed changes

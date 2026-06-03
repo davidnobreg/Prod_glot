@@ -1,28 +1,57 @@
+# mensagem/tasks.py
+
 import logging
 from celery import shared_task
+from celery.exceptions import Reject
+
 from .services.n8n_service import N8nService
 
 logger = logging.getLogger(__name__)
 
 
-def enviar_mensagem(numero: str = None, mensagem: str = None, instancia: str = None):
+# ==========================================================
+# FUNÇÃO HELPER (REUTILIZÁVEL)
+# ==========================================================
+
+def enviar_mensagem(numero: str, mensagem: str, instancia: str = None):
     """
-    Função helper reutilizável (shell, signal, Celery, Beat).
+    Função helper reutilizável:
+    - Django shell
+    - Signals
+    - Celery
+    - Views / Services
     """
+
     if not numero or not mensagem:
+<<<<<<< Updated upstream
         logger.warning(
             "Nenhum número ou mensagem fornecido | numero=%s mensagem=%s instancia=%s",
             numero, mensagem, instancia
         )
         return None
+=======
+        raise ValueError("Número e mensagem são obrigatórios")
+>>>>>>> Stashed changes
 
     service = N8nService()
-    resultado = service.enviar_mensagem(numero, mensagem, instancia)
 
-    logger.info("Mensagem enviada para %s | Resultado=%s", numero, resultado)
+    # 🔐 timeout obrigatório para não travar worker
+    resultado = service.enviar_mensagem(
+        numero=numero,
+        mensagem=mensagem,
+        instancia=instancia,
+        timeout=10,  # segundos
+    )
+
+    logger.info(
+        "📨 Mensagem enviada | numero=%s instancia=%s resultado=%s",
+        numero, instancia, resultado
+    )
+
     return resultado
 
 
+<<<<<<< Updated upstream
 @shared_task(
     bind=True,
     autoretry_for=(Exception,),
@@ -73,3 +102,60 @@ def enviar_mensagem_task(self, numero: str = None, mensagem: str = None, instanc
         # ❌ erro definitivo → NÃO retry infinito
         logger.error(f"❌ Erro definitivo ao enviar para {numero}: {e}")
         raise
+=======
+# ==========================================================
+# TASK CELERY — ENVIO DE MENSAGEM
+# ==========================================================
+
+@shared_task(
+    bind=True,
+    name="mensagem.tasks.enviar_mensagem_task",
+    queue="app_mensagem.default",
+    routing_key="mensagem",
+    autoretry_for=(requests.RequestException,),
+    retry_kwargs={
+        "max_retries": 3,
+        "countdown": 30,
+    },
+    retry_backoff=True,
+    retry_jitter=True,
+    acks_late=True,
+)
+def enviar_mensagem_task(self, numero: str, mensagem: str, instancia: str = None):
+    """
+    Task Celery responsável EXCLUSIVAMENTE por envio de mensagens.
+    - Assinatura explícita
+    - Retry apenas para erro de rede
+    - Falha rápida para erro lógico
+    """
+
+    logger.debug(
+        "🔔 [CELERY] enviar_mensagem_task | numero=%s instancia=%s",
+        numero, instancia
+    )
+
+    # ❌ Erro lógico → NÃO RETENTAR → NÃO DLQ
+    if not numero or not mensagem:
+        logger.error(
+            "❌ Task chamada com parametros inválidos | numero=%s mensagem=%s",
+            numero, mensagem
+        )
+        raise Reject("Parametros obrigatorios ausentes", requeue=False)
+
+    try:
+        return enviar_mensagem(numero, mensagem, instancia)
+
+    except requests.RequestException as exc:
+        # 🔁 Erro de rede → retry automático
+        logger.warning(
+            "🌐 Erro de rede ao enviar mensagem | tentativa=%s/%s",
+            self.request.retries + 1,
+            self.max_retries,
+        )
+        raise exc
+
+    except Exception as exc:
+        # ❌ Erro inesperado → NÃO retry → vai para DLQ
+        logger.exception("💥 Erro inesperado ao enviar mensagem")
+        raise Reject(str(exc), requeue=False)
+>>>>>>> Stashed changes

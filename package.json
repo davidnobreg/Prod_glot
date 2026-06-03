@@ -1,1 +1,13 @@
-{}
+{
+	"name": "glot",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"build:css": "tailwindcss -i ./base/static/css/tailwind.input.css -o ./base/static/css/tailwind.css",
+		"watch:css": "tailwindcss -i ./base/static/css/tailwind.input.css -o ./base/static/css/tailwind.css --watch"
+	},
+	"devDependencies": {
+		"@tailwindcss/cli": "^4.3.0",
+		"tailwindcss": "^4.3.0"
+	}
+}

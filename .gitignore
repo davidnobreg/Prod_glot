@@ -118,6 +118,12 @@ configuration/
 # Se em produção você usa static/ apenas como saída do collectstatic,
 # mantenha esta linha ativa:
 static/
+!base/static/
+base/static/*
+!base/static/css/
+base/static/css/*
+!base/static/css/tailwind.input.css
+!base/static/css/tailwind.css
 
 # Se algum dia você decidir versionar static/ manualmente,
 # comente a linha acima.

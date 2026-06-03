@@ -224,38 +224,33 @@
 
 <body>
 
-<!-- ========================================================= -->
-<!-- NAVBAR -->
-<!-- ========================================================= -->
+<div class="{% if user.is_authenticated %}d-flex flex-column flex-md-row min-vh-100{% endif %}">
 
-{% include 'navbar.html' %}
+    {% if user.is_authenticated %}
+        {% include 'sidebar.html' %}
+    {% endif %}
 
-<!-- ========================================================= -->
-<!-- MESSAGES -->
-<!-- ========================================================= -->
+    <div class="{% if user.is_authenticated %}flex-grow-1 min-vw-0{% endif %}">
 
-{% include 'message.html' %}
+        {% include 'message.html' %}
 
-<!-- ========================================================= -->
-<!-- CONTENT -->
-<!-- ========================================================= -->
+        <main class="container-fluid py-4">
 
-<div class="container-fluid py-4">
+            {% block content %}
+            {% endblock %}
 
-    {% block content %}
-    {% endblock %}
+        </main>
+
+        <footer>
+            {% include 'rodape.html' %}
+        </footer>
+
+    </div>
 
 </div>
 
-<!-- ========================================================= -->
-<!-- FOOTER -->
-<!-- ========================================================= -->
 
-<footer>
 
-    {% include 'rodape.html' %}
-
-</footer>
 
 <!-- ========================================================= -->
 <!-- JQUERY -->

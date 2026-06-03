@@ -149,12 +149,25 @@
                                         </button>
                                     </a>
                                 {% elif lote_info.situacao == 'ANALISE' %}
-                                    <a href="{% url 'analise' lote_info.lote.uuid %}"
-                                       aria-label="Ver detalhes do lote vendido {{ lote_info.lote.lote }}">
-                                        <button type="button" class="btn btn-danger">
-                                            {{ lote_info.lote.lote }}
-                                        </button>
-                                    </a>
+                                    {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
+
+                                        <a href="{% url 'analise' lote_info.lote.uuid %}"
+                                           aria-label="Ver detalhes do lote vendido {{ lote_info.lote.lote }}">
+                                            <button type="button" class="btn btn-danger">
+                                                {{ lote_info.lote.lote }}
+                                            </button>
+                                        </a>
+
+                                    {% elif user.is_authenticated and user.tipo_usuario == "CORRETOR" %}
+
+                                        <a href="{% url 'proposta-rascunho' lote_info.lote.uuid %}"
+                                           aria-label="Ver detalhes do lote vendido {{ lote_info.lote.lote }}">
+                                            <button type="button" class="btn btn-danger">
+                                                {{ lote_info.lote.lote }}
+                                            </button>
+                                        </a>
+
+                                    {% endif %}
                                 {% elif lote_info.situacao == 'CONSTRUTORA' %}
                                     <a aria-label="Lote da construtora {{ lote_info.lote.lote }}">
                                         <button type="button" class="btn btn-secondary">

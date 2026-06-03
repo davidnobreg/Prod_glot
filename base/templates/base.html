@@ -111,61 +111,280 @@
     <style>
 
         body {
-
             background-color: #f5f7fb;
-
         }
 
         .card {
-
             border-radius: 16px;
-
         }
 
         .form-control,
         .select2-container .select2-selection--single {
-
             height: 48px;
-
             border-radius: 12px;
-
         }
 
         .money-readonly {
-
             background-color: #edf2f7 !important;
-
             font-weight: 600;
-
             color: #0d6efd;
-
         }
 
         .resumo-financeiro {
-
             background: linear-gradient(
                     135deg,
                     #0d6efd,
                     #0b5ed7
             );
-
             color: white;
-
             border-radius: 18px;
-
         }
 
         .resumo-financeiro strong {
-
             font-size: 1.1rem;
-
         }
 
         .flatpickr-input[readonly] {
-
             background-color: #fff !important;
-
             cursor: pointer;
+        }
+
+        /* ===================================================== */
+        /* SIDEBAR */
+        /* ===================================================== */
+
+        .glot-app-shell {
+            min-height: 100vh;
+        }
+
+        .glot-sidebar {
+            background: linear-gradient(180deg, #0d6efd 0%, #2f8cff 48%, #f8fbff 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            transition: transform 0.25s ease, width 0.25s ease;
+            width: 280px;
+            z-index: 1040;
+        }
+
+        .glot-sidebar-header {
+            min-height: 68px;
+        }
+
+        .glot-brand-mark {
+            align-items: center;
+            background: rgba(255, 255, 255, 0.22);
+            border-radius: 14px;
+            color: #fff;
+            display: inline-flex;
+            flex: 0 0 42px;
+            font-weight: 800;
+            height: 42px;
+            justify-content: center;
+            width: 42px;
+        }
+
+        .glot-brand-logo-wrap {
+            align-items: center;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 14px;
+            display: inline-flex;
+            flex: 0 0 112px;
+            height: 62px;
+            justify-content: center;
+            overflow: hidden;
+            padding: 0.25rem;
+            width: 112px;
+        }
+
+        .glot-brand-logo {
+            border-radius: 10px;
+            height: 55px;
+            object-fit: cover;
+            width: 100px;
+        }
+
+        .glot-sidebar .nav-link {
+            align-items: center;
+            border-radius: 14px;
+            color: rgba(255, 255, 255, 0.92);
+            display: flex;
+            gap: 0.75rem;
+            min-height: 44px;
+            padding: 0.65rem 0.85rem;
+            white-space: nowrap;
+        }
+
+        .glot-sidebar .nav-link:hover,
+        .glot-sidebar .nav-link:focus {
+            background-color: rgba(255, 255, 255, 0.18);
+            color: #fff;
+        }
+
+        .glot-sidebar .nav-link i {
+            flex: 0 0 22px;
+            font-size: 1.08rem;
+            text-align: center;
+        }
+
+        .sidebar-text,
+        .sidebar-user,
+        .sidebar-section-title {
+            transition: opacity 0.18s ease;
+        }
+
+        .sidebar-section-title {
+            align-items: center;
+            background: transparent;
+            border: 0;
+            color: rgba(255, 255, 255, 0.74);
+            display: flex;
+            font-size: 0.72rem;
+            font-weight: 700;
+            justify-content: space-between;
+            letter-spacing: 0.08em;
+            padding: 0;
+            text-transform: uppercase;
+            width: 100%;
+        }
+
+        .sidebar-section-title:hover,
+        .sidebar-section-title:focus {
+            color: #fff;
+        }
+
+        .sidebar-section-title .sidebar-chevron {
+            font-size: 0.78rem;
+            transition: transform 0.18s ease;
+        }
+
+        .sidebar-section-title[aria-expanded="true"] .sidebar-chevron {
+            transform: rotate(180deg);
+        }
+
+        .sidebar-submenu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            margin-top: 0.25rem;
+        }
+
+        .glot-sidebar .btn-outline-light {
+            background-color: rgba(13, 110, 253, 0.12);
+        }
+
+        .glot-sidebar-backdrop {
+            background: rgba(15, 23, 42, 0.58);
+            inset: 0;
+            opacity: 0;
+            pointer-events: none;
+            position: fixed;
+            transition: opacity 0.2s ease;
+            z-index: 1030;
+        }
+
+        .glot-main-wrapper {
+            min-width: 0;
+            width: 100%;
+        }
+
+        .glot-mobile-topbar {
+            align-items: center;
+            background: rgba(245, 247, 251, 0.94);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+            display: flex;
+            justify-content: space-between;
+            min-height: 64px;
+            padding: 0.75rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+        }
+
+        @media (min-width: 768px) {
+
+            .glot-app-shell {
+                display: flex;
+            }
+
+            body.sidebar-collapsed .glot-sidebar {
+                width: 84px;
+            }
+
+            body.sidebar-collapsed .glot-sidebar .sidebar-text,
+            body.sidebar-collapsed .glot-sidebar .sidebar-user,
+            body.sidebar-collapsed .glot-sidebar .sidebar-section-title {
+                opacity: 0;
+                pointer-events: none;
+                width: 0;
+            }
+
+            body.sidebar-collapsed .glot-sidebar .nav-link,
+            body.sidebar-collapsed .glot-sidebar .sidebar-logout-button {
+                justify-content: center;
+            }
+
+            body.sidebar-collapsed .glot-sidebar .sidebar-logout-button .sidebar-text {
+                display: none;
+            }
+
+            body.sidebar-collapsed .glot-sidebar .glot-sidebar-header {
+                justify-content: center !important;
+            }
+
+            body.sidebar-collapsed .glot-sidebar .sidebar-brand-text {
+                display: none;
+            }
+
+            body.sidebar-collapsed .glot-sidebar .glot-brand-logo-wrap {
+                flex-basis: 42px;
+                height: 42px;
+                padding: 0;
+                width: 42px;
+            }
+
+            body.sidebar-collapsed .glot-sidebar .glot-brand-logo {
+                border-radius: 12px;
+                height: 42px;
+                width: 42px;
+            }
+
+        }
+
+        @media (max-width: 767.98px) {
+
+            body.sidebar-mobile-open {
+                overflow: hidden;
+            }
+
+            .glot-sidebar {
+                box-shadow: 22px 0 60px rgba(15, 23, 42, 0.32);
+                left: 0;
+                max-width: 340px;
+                position: fixed;
+                top: 0;
+                transform: translateX(-105%);
+                width: min(88vw, 340px);
+            }
+
+            body.sidebar-mobile-open .glot-sidebar {
+                transform: translateX(0);
+            }
+
+            body.sidebar-mobile-open .glot-sidebar-backdrop {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .glot-main-wrapper main {
+                padding-top: 1.25rem !important;
+            }
 
         }
 
@@ -175,64 +394,111 @@
     <!-- SESSION TIMER -->
     <!-- ===================================================== -->
 
-    <script>
+    {% if user.is_authenticated %}
+        <script>
 
-        const sessionAge = {{ request.session.get_expiry_age|default:900 }};
+            const sessionAge = {{ request.session.get_expiry_age|default:900 }};
 
-        let timeLeft = sessionAge;
+            let timeLeft = sessionAge;
 
-        function startSessionTimer() {
+            function startSessionTimer() {
 
-            const warningTime = 60;
+                const warningTime = 60;
 
-            const interval = setInterval(() => {
+                const interval = setInterval(() => {
 
-                timeLeft--;
+                    timeLeft--;
 
-                if (timeLeft === warningTime) {
+                    if (timeLeft === warningTime) {
 
-                    alert(
-                        "⚠️ Sua sessão expirará em 1 minuto."
-                    );
+                        alert(
+                            "⚠️ Sua sessão expirará em 1 minuto."
+                        );
 
-                }
+                    }
 
-                if (timeLeft <= 0) {
+                    if (timeLeft <= 0) {
 
-                    clearInterval(interval);
+                        clearInterval(interval);
 
-                    alert(
-                        "Sua sessão expirou."
-                    );
+                        alert(
+                            "Sua sessão expirou."
+                        );
 
-                    window.location.href = "{% url 'logout' %}";
+                        window.location.href = "{% url 'logout' %}";
 
-                }
+                    }
 
-            }, 1000);
+                }, 1000);
 
-        }
+            }
 
-        document.addEventListener(
-            "DOMContentLoaded",
-            startSessionTimer
-        );
+            document.addEventListener(
+                "DOMContentLoaded",
+                startSessionTimer
+            );
 
-    </script>
+        </script>
+    {% endif %}
 
 </head>
 
 <body>
 
-<div class="{% if user.is_authenticated %}d-flex flex-column flex-md-row min-vh-100{% endif %}">
+<!-- ========================================================= -->
+<!-- PAGE WRAPPER -->
+<!-- ========================================================= -->
+
+<div class="{% if user.is_authenticated %}glot-app-shell{% endif %}">
+
+    {% if user.is_authenticated %}
+        <header class="glot-mobile-topbar d-md-none">
+            <a href="{% url 'lista-empreendimento' %}" class="d-flex align-items-center gap-2 text-decoration-none text-dark">
+                <span class="glot-brand-mark">G</span>
+                <span class="fw-bold">GLOT</span>
+            </a>
+
+            <button
+                    type="button"
+                    id="mobileSidebarOpen"
+                    class="btn btn-dark rounded-pill px-3"
+                    aria-controls="glotSidebar"
+                    aria-expanded="false"
+            >
+                <i class="bi bi-list me-1"></i>
+                Menu
+            </button>
+        </header>
+    {% endif %}
+
+    <!-- ===================================================== -->
+    <!-- SIDEBAR -->
+    <!-- ===================================================== -->
 
     {% if user.is_authenticated %}
         {% include 'sidebar.html' %}
+        <div
+                id="sidebarBackdrop"
+                class="glot-sidebar-backdrop d-md-none"
+                aria-hidden="true"
+        ></div>
     {% endif %}
 
-    <div class="{% if user.is_authenticated %}flex-grow-1 min-vw-0{% endif %}">
+    <!-- ===================================================== -->
+    <!-- MAIN WRAPPER -->
+    <!-- ===================================================== -->
+
+    <div class="{% if user.is_authenticated %}glot-main-wrapper{% endif %}">
+
+        <!-- ================================================= -->
+        <!-- MESSAGES -->
+        <!-- ================================================= -->
 
         {% include 'message.html' %}
+
+        <!-- ================================================= -->
+        <!-- CONTENT -->
+        <!-- ================================================= -->
 
         <main class="container-fluid py-4">
 
@@ -241,6 +507,10 @@
 
         </main>
 
+        <!-- ================================================= -->
+        <!-- FOOTER -->
+        <!-- ================================================= -->
+
         <footer>
             {% include 'rodape.html' %}
         </footer>
@@ -248,9 +518,6 @@
     </div>
 
 </div>
-
-
-
 
 <!-- ========================================================= -->
 <!-- JQUERY -->
@@ -370,6 +637,71 @@
 
             disableMobile: true
 
+        });
+
+    });
+
+</script>
+
+<!-- ========================================================= -->
+<!-- SIDEBAR TOGGLE -->
+<!-- ========================================================= -->
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const desktopToggle = document.getElementById("sidebarToggle");
+        const mobileOpen = document.getElementById("mobileSidebarOpen");
+        const mobileClose = document.getElementById("mobileSidebarClose");
+        const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+        const sidebarLinks = document.querySelectorAll(".glot-sidebar .nav-link");
+
+        function isMobile() {
+            return window.matchMedia("(max-width: 767.98px)").matches;
+        }
+
+        function openMobileSidebar() {
+            document.body.classList.add("sidebar-mobile-open");
+            mobileOpen?.setAttribute("aria-expanded", "true");
+        }
+
+        function closeMobileSidebar() {
+            document.body.classList.remove("sidebar-mobile-open");
+            mobileOpen?.setAttribute("aria-expanded", "false");
+        }
+
+        desktopToggle?.addEventListener("click", function () {
+            if (isMobile()) {
+                closeMobileSidebar();
+                return;
+            }
+
+            document.body.classList.toggle("sidebar-collapsed");
+        });
+
+        mobileOpen?.addEventListener("click", openMobileSidebar);
+        mobileClose?.addEventListener("click", closeMobileSidebar);
+        sidebarBackdrop?.addEventListener("click", closeMobileSidebar);
+
+        sidebarLinks.forEach(function (link) {
+            link.addEventListener("click", function () {
+                if (isMobile()) {
+                    closeMobileSidebar();
+                }
+            });
+        });
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") {
+                closeMobileSidebar();
+            }
+        });
+
+        window.addEventListener("resize", function () {
+            if (!isMobile()) {
+                closeMobileSidebar();
+            }
         });
 
     });

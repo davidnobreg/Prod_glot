@@ -17,7 +17,7 @@
                 <div class="row g-3"> <!-- espaçamento aplicado aqui -->
                     <div class="col-md-4">
                         <label class="form-label fw-bold d-block">Livres</label>
-                        <a href="?situacao=DISPONIVEL" class="btn btn-success text-center py-3 w-100"
+                        <a href="?situacao=DISPONIVEL#quadras" class="btn btn-success text-center py-3 w-100"
                            aria-label="Exibir lotes disponíveis">
                             <p class="mb-0">{{ livre }} </p>
 
@@ -25,7 +25,7 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold d-block">Pre-Reservados</label>
-                        <a href="?situacao=PRE-RESERVA"
+                        <a href="?situacao=PRE-RESERVA#quadras"
                            class="btn btn-warning text-center py-3 w-100 botao-quadra-reservada"
                            aria-label="Exibir lotes reservados">
                             <p class="mb-0">{{ prereserva }}</p>
@@ -33,7 +33,7 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold d-block">Reservados</label>
-                        <a href="?situacao=RESERVADO"
+                        <a href="?situacao=RESERVADO#quadras"
                            class="btn btn-info text-center py-3 w-100"
                            aria-label="Exibir lotes reservados">
                             <p class="mb-0">{{ reservado }}</p>
@@ -41,28 +41,28 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold d-block">Vendidos</label>
-                        <a href="?situacao=VENDIDO" class="btn btn-primary text-center py-3 w-100 botao-quadra-vendida"
+                        <a href="?situacao=VENDIDO#quadras" class="btn btn-primary text-center py-3 w-100 botao-quadra-vendida"
                            aria-label="Exibir lotes vendidos">
                             <p class="mb-0">{{ vendido }}</p>
                         </a>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold d-block">Analises</label>
-                        <a href="?situacao=ANALISE" class="btn btn-danger text-center py-3 w-100"
+                        <a href="?situacao=ANALISE#quadras" class="btn btn-danger text-center py-3 w-100"
                            aria-label="Exibir lotes vendidos">
                             <p class="mb-0">{{ analise }}</p>
                         </a>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold d-block">Outros</label>
-                        <a href="?situacao=OUTROS" class="btn btn-secondary text-center py-3 w-100"
+                        <a href="?situacao=OUTROS#quadras" class="btn btn-secondary text-center py-3 w-100"
                            aria-label="Exibir outros lotes">
                             <p class="mb-0">{{ outros }}</p>
                         </a>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold d-block">Total de Lotes</label>
-                        <a href="?situacao=TODOS" class="btn btn-dark text-center py-3 w-100"
+                        <a href="?situacao=TODOS#quadras" class="btn btn-dark text-center py-3 w-100"
                            aria-label="Exibir todos os lotes">
                             <p class="mb-0">{{ total }}</p>
                         </a>
@@ -100,7 +100,7 @@
 
 
         <!-- Quadras e Lotes -->
-        <div class="row g-4">
+        <div id="quadras" class="row g-4" style="scroll-margin-top: 16px;">
             {% for quadra_info in quadras_info %}
                 <div class="col-md-6 col-lg-4">
                     <div class="card text-center">
@@ -192,7 +192,7 @@
             <li class="page-item">
                 {% if quadras_info.has_previous %}
                     <a class="btn btn-primary" href="?page=
-                            {{ quadras_info.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}"
+                            {{ quadras_info.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}#quadras"
                        aria-label="Página anterior">
                         Voltar
                     </a>
@@ -208,7 +208,7 @@
             <li class="page-item">
                 {% if quadras_info.has_next %}
                     <a class="btn btn-primary"
-                       href="?page={{ quadras_info.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}"
+                       href="?page={{ quadras_info.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}#quadras"
                        aria-label="Próxima página">
                         Avançar
                     </a>

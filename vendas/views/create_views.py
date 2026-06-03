@@ -25,7 +25,7 @@ from decimal import Decimal
 class CriarVendaView(UpdateView):
 
     model = RegisterVenda
-    fields = []  # não precisa de formulário
+    fields = []  # nÃ£o precisa de formulÃ¡rio
     slug_field = 'uuid'
     slug_url_kwarg = 'venda_uuid'
 
@@ -36,14 +36,14 @@ class CriarVendaView(UpdateView):
         lote = venda.lote
         empreendimento = lote.quadra.empr
 
-        # 🔥 Atualiza dados da venda
+        # ðŸ”¥ Atualiza dados da venda
         venda.dt_venda = timezone.now()
         venda.tipo_venda = 'VENDIDO'
 
-        # 🔥 Atualiza lote
+        # ðŸ”¥ Atualiza lote
         lote.situacao = 'VENDIDO'
 
-        # 💾 Salva
+        # ðŸ’¾ Salva
         lote.save(update_fields=['situacao'])
         venda.save(update_fields=['dt_venda', 'tipo_venda'])
 
@@ -263,7 +263,7 @@ class CriarReservadoView(UpdateView):
         reserva_existente = self.object
 
         # =================================================
-        # PRÉ RESERVA
+        # PRÃ‰ RESERVA
         # =================================================
 
         if not reserva_existente:
@@ -326,7 +326,7 @@ class CriarReservadoView(UpdateView):
                 self.request,
 
                 (
-                    'Já existe uma '
+                    'JÃ¡ existe uma '
                     'venda ativa '
                     'para este lote.'
                 )
@@ -344,7 +344,7 @@ class CriarReservadoView(UpdateView):
             )
 
         # =================================================
-        # INSTÂNCIA
+        # INSTÃ‚NCIA
         # =================================================
 
         reserva = form.save(
@@ -404,7 +404,7 @@ class CriarReservadoView(UpdateView):
 
         mensagem = (
             'Reserva enviada '
-            'para análise.'
+            'para anÃ¡lise.'
         )
 
         """else:
@@ -505,7 +505,7 @@ class ReservaTemporariaView(UpdateView):
     slug_url_kwarg = 'lote_uuid'
 
 
-    # 🔒 LOCK + SELECT RELATED
+    # ðŸ”’ LOCK + SELECT RELATED
     def get_queryset(self):
         return (
             Lote.objects
@@ -514,7 +514,7 @@ class ReservaTemporariaView(UpdateView):
         )
 
     # ======================
-    # CONTEXTO (CÁLCULOS)
+    # CONTEXTO (CÃLCULOS)
     # ======================
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -522,7 +522,7 @@ class ReservaTemporariaView(UpdateView):
         lote = self.object
         empreendimento = lote.quadra.empr
 
-        # 💰 Cálculo valor total
+        # ðŸ’° CÃ¡lculo valor total
         try:
             area = float(lote.area or 0)
             valor_metro = float(lote.valor_metro_quadrado or 0)
@@ -532,7 +532,7 @@ class ReservaTemporariaView(UpdateView):
 
         valor_formatado = f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
-        # 📊 Parcelas
+        # ðŸ“Š Parcelas
         try:
             total_parcelas = int(empreendimento.quantidade_parcela or 0)
         except (TypeError, ValueError):
@@ -560,25 +560,25 @@ class ReservaTemporariaView(UpdateView):
         return context
 
     # ======================
-    # GET → RESERVA TEMPORÁRIA
+    # GET â†’ RESERVA TEMPORÃRIA
     # ======================
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
 
         lote = self.object
 
-        # 🔁 Defesa
+        # ðŸ” Defesa
         if lote.situacao == "EM_RESERVA" and not lote.user:
             lote.tempo_reservado = None
             lote.save(update_fields=['tempo_reservado'])
-            messages.error(request, "Pré-reserva cancelada automaticamente.")
+            messages.error(request, "PrÃ©-reserva cancelada automaticamente.")
 
-        # 🚫 Bloqueio
+        # ðŸš« Bloqueio
         if lote.situacao != "DISPONIVEL":
-            messages.warning(request, "Este lote já está em reserva ou indisponível.")
+            messages.warning(request, "Este lote jÃ¡ estÃ¡ em reserva ou indisponÃ­vel.")
             return redirect('lotes_disponiveis')
 
-        # 🔒 Reserva
+        # ðŸ”’ Reserva
         lote.situacao = "EM_RESERVA"
         lote.tempo_reservado = timezone.now()
         lote.save(update_fields=['situacao', 'tempo_reservado'])
@@ -586,7 +586,7 @@ class ReservaTemporariaView(UpdateView):
         return super().get(request, *args, **kwargs)
 
     # ======================
-    # POST → PRÉ-RESERVA
+    # POST â†’ PRÃ‰-RESERVA
     # ======================
     def form_valid(self, form):
 
@@ -603,12 +603,12 @@ class ReservaTemporariaView(UpdateView):
 
         lote.save()
 
-        messages.success(self.request, "Pré-reserva salva com sucesso!")
+        messages.success(self.request, "PrÃ©-reserva salva com sucesso!")
 
         return redirect('listar-quadras', empreendimento_uuid=empreendimento.uuid)
 
     def form_invalid(self, form):
-        messages.error(self.request, "Erro ao salvar pré-reserva.")
+        messages.error(self.request, "Erro ao salvar prÃ©-reserva.")
         return super().form_invalid(form)
 
 @method_decorator(has_permission_decorator('renovarReserva'), name='dispatch')
@@ -635,7 +635,7 @@ class RenovaReservaView(View):
 
         empreendimento = venda.lote.quadra.empr
 
-        # 🔥 Atualiza data da reserva
+        # ðŸ”¥ Atualiza data da reserva
         venda.dt_reserva = timezone.now() + timedelta(
             days=empreendimento.tempo_reserva
         )
@@ -655,14 +655,15 @@ class AceitaReservaView(View):
 
         lote = venda.lote
 
-        # 🔥 Atualiza lote
+        # ðŸ”¥ Atualiza lote
         lote.situacao = 'RESERVADO'
         lote.save(update_fields=['situacao'])
 
-        # 🔥 Atualiza venda
+        # ðŸ”¥ Atualiza venda
         venda.is_ativo = False
         venda.tipo_venda = 'RESERVADO'
-        venda.save(update_fields=['is_ativo', 'tipo_venda'])
+        venda.aceite_proposta = request.user
+        venda.save(update_fields=['is_ativo', 'tipo_venda', 'aceite_proposta'])
 
         messages.success(request, "Reserva aceita com sucesso!")
 

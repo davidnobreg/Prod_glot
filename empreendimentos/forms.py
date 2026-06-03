@@ -318,12 +318,17 @@ class LoteForm(forms.ModelForm):
 class AtualizarLoteForm(forms.ModelForm):
     class Meta:
         model = Lote
-        fields = ('medidasConfrontacoes', 'dimenssoes')
+        fields = ('valor_metro_quadrado', 'medidasConfrontacoes', 'dimenssoes')
         labels = {
+            'valor_metro_quadrado': 'Valor metro quadrado',
             'medidasConfrontacoes': 'Medidas e confrontacoes',
             'dimenssoes': 'Marcar dimensoes',
         }
         widgets = {
+            'valor_metro_quadrado': forms.TextInput(attrs={
+                'class': 'form-control mb-3',
+                'placeholder': 'R$ 0,00',
+            }),
             'medidasConfrontacoes': forms.Textarea(attrs={
                 'class': 'form-control mb-3',
                 'rows': 6,

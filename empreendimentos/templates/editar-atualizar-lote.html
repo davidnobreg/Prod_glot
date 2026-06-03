@@ -31,6 +31,18 @@
                     </div>
 
                     <div class="mb-3">
+                        <label for="{{ form.valor_metro_quadrado.id_for_label }}" class="form-label fw-semibold">
+                            {{ form.valor_metro_quadrado.label }}
+                        </label>
+                        {{ form.valor_metro_quadrado }}
+                        {% if form.valor_metro_quadrado.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.valor_metro_quadrado.errors|striptags }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
                         <label for="{{ form.medidasConfrontacoes.id_for_label }}" class="form-label fw-semibold">
                             {{ form.medidasConfrontacoes.label }}
                         </label>

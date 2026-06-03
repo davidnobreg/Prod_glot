@@ -24,6 +24,8 @@ from .models import CadastroDocumento
 from clientes.models import ClienteEndereco, ClienteTelefone, ClienteConjuge
 from vendas.models import RegisterVenda
 from weasyprint import HTML, CSS
+from django.utils.decorators import method_decorator
+from rolepermissions.decorators import has_permission_decorator
 
 
 def draw_header_footer(canvas, doc):
@@ -94,7 +96,7 @@ def bloco_assinaturas():
 
     return tabela
 
-
+@method_decorator(has_permission_decorator('proposta'), name='dispatch')
 def proposta(request, venda_uuid):
     venda = get_object_or_404(
         RegisterVenda.objects.select_related(
@@ -422,7 +424,7 @@ def proposta(request, venda_uuid):
         html_final
     )
 
-
+@has_permission_decorator('propostaRascunho')
 def propostaRascunho(request, venda_uuid):
     venda = get_object_or_404(
         RegisterVenda.objects.select_related(
@@ -748,20 +750,18 @@ def propostaRascunho(request, venda_uuid):
 
     watermark_css = """
 <style>
-    @media print {
-        #conteudo::before {
-            content: "RASCUNHO";
-            position: fixed;
-            top: 45%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-35deg);
-            font-size: 90px;
-            font-weight: bold;
-            color: rgba(0, 0, 0, 0.12);
-            z-index: 9999;
-            pointer-events: none;
-            white-space: nowrap;
-        }
+    #conteudo::before {
+        content: "EM ANALISES";
+        position: fixed;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-35deg);
+        font-size: 90px;
+        font-weight: bold;
+        color: rgba(0, 0, 0, 0.12);
+        z-index: 9999;
+        pointer-events: none;
+        white-space: nowrap;
     }
 </style>
 """

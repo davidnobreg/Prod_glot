@@ -71,7 +71,8 @@ class CancelarReservaView(View):
         # 🔥 Atualiza venda
         venda.is_ativo = False
         venda.tipo_venda = 'NAO_ACEITE'
-        venda.save(update_fields=['is_ativo', 'tipo_venda'])
+        venda.aceite_proposta = None
+        venda.save(update_fields=['is_ativo', 'tipo_venda', 'aceite_proposta'])
 
         messages.error(request, "Reserva não aceita!")
 

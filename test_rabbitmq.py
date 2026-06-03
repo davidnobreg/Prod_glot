@@ -1,31 +1,33 @@
-import pika
 import os
-from prettyconf import Configuration
-from decouple import config
+from pathlib import Path
 
-config_host = Configuration()
+import pika
+import pytest
+from decouple import Config, RepositoryEnv, UndefinedValueError
 
-
-# Substitua com suas credenciais e host
-user = config('RABBITMQ_USER')
-password = config('RABBITMQ_PASSWD')
-host = config('RABBITMQ_HOST')
-port = config('RABBITMQ_PORT')
-vhost = config('RABBITMQ_VHOST')
+ENV_PATH = Path(__file__).resolve().parent / "configuration" / ".env"
 
 
-url = CELERY_BROKER_URL = os.getenv(
-    'CELERY_BROKER',
-    f'amqp://{user}:{password}@{host}:{port}/{vhost}'
-)
-# Substitua com suas credenciais e host
+def test_rabbitmq_connection():
+	if os.getenv("RUN_RABBITMQ_TEST") != "1":
+		pytest.skip("Defina RUN_RABBITMQ_TEST=1 para testar conexao real com RabbitMQ")
 
+	config = Config(repository=RepositoryEnv(ENV_PATH))
 
-try:
-    params = pika.URLParameters(url)
-    connection = pika.BlockingConnection(params)
-    channel = connection.channel()
-    print("✅ Conexão com RabbitMQ OK")
-    connection.close()
-except Exception as e:
-    print(f"❌ Erro de conexão: {e}")
+	try:
+		user = config("RABBITMQ_USER")
+		password = config("RABBITMQ_PASSWD")
+		host = config("RABBITMQ_HOST")
+		port = config("RABBITMQ_PORT")
+		vhost = config("RABBITMQ_VHOST")
+	except UndefinedValueError as exc:
+		pytest.skip(str(exc))
+
+	url = os.getenv(
+		"CELERY_BROKER",
+		f"amqp://{user}:{password}@{host}:{port}/{vhost}",
+	)
+
+	params = pika.URLParameters(url)
+	connection = pika.BlockingConnection(params)
+	connection.close()

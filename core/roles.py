@@ -21,6 +21,11 @@ class Administrador(AbstractUserRole):
         'relatorioCliente': True,
         'relatorioClienteRelatorio': True,
 
+        # MODULO DOCUMENTO
+
+        'proposta': True,
+        'propostaRascunho': True,
+
         # MODULO EMPREENDIMENTO
 
         'selectEmpreendimento': True,
@@ -68,6 +73,11 @@ class Corretor(AbstractUserRole):
         'selectCliente': True,
         'criarCliente': True,
         'relatorioClienteRelatorio': True,
+
+        # MODULO DOCUMENTO
+
+        'proposta': True,
+        'propostaRascunho': True,
 
         # MODULO EMPREENDIMENTO
 

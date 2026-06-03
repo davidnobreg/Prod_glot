@@ -432,7 +432,7 @@ def propostaRascunho(request, venda_uuid):
             'lote__quadra__empr',
             'user',
         ),
-        uuid=venda_uuid
+        lote__uuid=venda_uuid
     )
 
     endereco_cliente = ClienteEndereco.objects.filter(

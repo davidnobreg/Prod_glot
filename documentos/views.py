@@ -423,6 +423,362 @@ def proposta(request, venda_uuid):
     )
 
 
+def propostaRascunho(request, venda_uuid):
+    venda = get_object_or_404(
+        RegisterVenda.objects.select_related(
+            'cliente',
+            'lote',
+            'lote__quadra',
+            'lote__quadra__empr',
+            'user',
+        ),
+        uuid=venda_uuid
+    )
+
+    endereco_cliente = ClienteEndereco.objects.filter(
+        cliente=venda.cliente
+    ).first()
+
+    contato_cliente = ClienteTelefone.objects.filter(
+        cliente=venda.cliente
+    ).first()
+
+    conjuge = ClienteConjuge.objects.filter(
+        cliente=venda.cliente
+    ).first()
+
+    data_atual = timezone.now().date()
+
+    data_por_extenso = format_date(
+        data_atual,
+        format="d 'de' MMMM 'de' y",
+        locale='pt_BR'
+    )
+
+    get_tempo = venda.lote.quadra.empr
+
+    # ======================
+    # HELPERS
+    # ======================
+    def formatar_moeda_br(valor):
+
+        return (
+            f"R$ {float(valor):,.2f}"
+            .replace(",", "X")
+            .replace(".", ",")
+            .replace("X", ".")
+        )
+
+    # ======================
+    # VALOR TOTAL
+    # ======================
+    try:
+
+        area = float(
+            venda.lote.area or 0
+        )
+
+        valor_metro = float(
+            venda.lote.valor_metro_quadrado or 0
+        )
+
+        valor = (
+                area * valor_metro
+        )
+
+    except (
+            TypeError,
+            ValueError
+    ):
+
+        valor = 0
+
+    # ======================
+    # PARCELAS
+    # ======================
+    try:
+
+        total_parcelas = int(
+            venda.quantidade_parcelas or 0
+        )
+
+    except (
+            TypeError,
+            ValueError,
+            AttributeError
+    ):
+
+        total_parcelas = 0
+
+    # ======================
+    # CORREÇÃO
+    # ======================
+    try:
+
+        correcao = float(
+            get_tempo.correcao or 0
+        )
+
+    except (
+            TypeError,
+            ValueError,
+            AttributeError
+    ):
+
+        correcao = 0
+
+    valor_corrigido = valor + (
+            valor * (correcao / 100)
+    )
+
+    # ======================
+    # SINAL
+    # ======================
+    try:
+
+        sinal = float(
+            venda.valor_sinal or 0
+        )
+
+    except (
+            TypeError,
+            ValueError
+    ):
+
+        sinal = 0
+
+    # ======================
+    # SINAL EXTENSO
+    # ======================
+    try:
+
+        valor_extenso = num2words(
+            sinal,
+            lang='pt_BR',
+            to='currency'
+        ).upper()
+
+    except (
+            TypeError,
+            ValueError
+    ):
+
+        valor_extenso = 0
+
+    # ======================
+    # ENTRADA
+    # ======================
+    try:
+
+        entrada = float(
+            venda.valor_entrada or 0
+        )
+
+    except (
+            TypeError,
+            ValueError
+    ):
+
+        entrada = 0
+
+    # ======================
+    # DESCONTO
+    # ======================
+    try:
+
+        valor_desconto = float(
+            venda.valor_desconto or 0
+        )
+
+    except (
+            TypeError,
+            ValueError
+    ):
+
+        valor_desconto = 0
+
+    # ======================
+    # VALOR FINANCIADO
+    # ======================
+    valor_financiado = (
+            valor_corrigido
+            - entrada
+            - valor_desconto
+    )
+
+    # ======================
+    # VALOR PARCELA
+    # ======================
+    try:
+
+        valor_parcela = float(
+            venda.valor_parcela or 0
+        )
+
+    except (
+            TypeError,
+            ValueError
+    ):
+
+        valor_parcela = 0
+
+    # ======================
+    # REAJUSTE
+    # ======================
+    if venda.reajuste:
+
+        tipo_reajuste = (
+            venda.lote.quadra.empr.tipo_correcao
+            if venda.lote.quadra.empr.tipo_correcao
+            else "IGPM"
+        )
+
+        frase_reajuste = (
+            f"AS PARCELAS SERÃO CORRIGIDAS PELO {tipo_reajuste}."
+        )
+
+    else:
+
+        frase_reajuste = (
+            "AS PARCELAS SERÃO FIXAS."
+        )
+
+    # ======================
+    # FORMATADOS
+    # ======================
+    valor_total_formatado = (
+        formatar_moeda_br(valor)
+    )
+
+    valor_entrada_formatado = (
+        formatar_moeda_br(entrada)
+    )
+
+    valor_sinal_formatado = (
+        formatar_moeda_br(sinal)
+    )
+
+    valor_desconto_formatado = (
+        formatar_moeda_br(valor_desconto)
+    )
+
+    valor_parcela_formatado = (
+        formatar_moeda_br(valor_parcela)
+    )
+
+    valor_financiado_formatado = (
+        formatar_moeda_br(valor_financiado)
+    )
+
+    valor_corrigido_formatado = (
+        formatar_moeda_br(valor_corrigido)
+    )
+
+    data_primeira_parcela = (
+        venda.dt_primeira_parcela
+    )
+
+    documento = get_object_or_404(
+        CadastroDocumento,
+        id=1,
+        ativo=True
+    )
+
+    template = Template(
+        documento.texto
+    )
+
+    html_final = template.render(Context({
+
+        'venda':
+            venda,
+
+        'endereco_cliente':
+            endereco_cliente,
+
+        'contato_cliente':
+            contato_cliente,
+
+        'conjuge':
+            conjuge,
+
+        'data_por_extenso':
+            data_por_extenso,
+
+        'valor_entrada_formatado':
+            valor_entrada_formatado,
+
+        'valor_sinal_formatado':
+            valor_sinal_formatado,
+
+        'valor_extenso':
+            valor_extenso,
+
+        'valor_desconto_formatado':
+            valor_desconto_formatado,
+
+        'valor_total_formatado':
+            valor_total_formatado,
+
+        'valor_parcela_formatado':
+            valor_parcela_formatado,
+
+        'valor_financiado_formatado':
+            valor_financiado_formatado,
+
+        'valor_corrigido_formatado':
+            valor_corrigido_formatado,
+
+        'data_primeira_parcela':
+            data_primeira_parcela,
+
+        'total_parcelas':
+            total_parcelas,
+
+        'correcao':
+            correcao,
+
+        'frase_reajuste':
+            frase_reajuste,
+
+        'observacao':
+            venda.observacao,
+
+    }))
+
+    watermark_css = """
+<style>
+    @media print {
+        #conteudo::before {
+            content: "RASCUNHO";
+            position: fixed;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-35deg);
+            font-size: 90px;
+            font-weight: bold;
+            color: rgba(0, 0, 0, 0.12);
+            z-index: 9999;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+    }
+</style>
+"""
+
+    if '</head>' in html_final:
+        html_final = html_final.replace(
+            '</head>',
+            f'{watermark_css}</head>',
+            1
+        )
+    else:
+        html_final = f'{watermark_css}{html_final}'
+
+    return HttpResponse(
+        html_final
+    )
+
 def proposta_pdf(request, venda_uuid):
     # =====================================================
     # VENDA
@@ -714,7 +1070,7 @@ def proposta_pdf(request, venda_uuid):
 
     documento = get_object_or_404(
         CadastroDocumento,
-        id=1,
+        id=2,
         ativo=True
     )
 

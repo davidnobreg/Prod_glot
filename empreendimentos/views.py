@@ -1,4 +1,5 @@
 import json
+import os
 import re
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
@@ -12,7 +13,7 @@ from django.views.decorators.http import require_http_methods
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
 
 from rolepermissions.decorators import has_permission_decorator
 
@@ -37,7 +38,8 @@ from reportlab.platypus import (
     Table,
     TableStyle,
     Paragraph,
-    Spacer
+    Spacer,
+    Image
 )
 
 
@@ -872,6 +874,10 @@ def gerarRelatorioLotes(request):
     # filtros
     situacao = request.GET.get('situacao', 'TODOS')
     loteamento_uuid = request.GET.get('loteamento_uuid')
+    empreendimento = None
+
+    if loteamento_uuid:
+        empreendimento = Empreendimento.objects.filter(uuid=loteamento_uuid).first()
 
     # consulta inicial
     lotes = Lote.objects.select_related(
@@ -879,149 +885,126 @@ def gerarRelatorioLotes(request):
         'quadra__empr'
     ).all()
 
-    if loteamento_uuid:
+    if empreendimento:
         lotes = lotes.filter(
-            quadra__empr__uuid=loteamento_uuid
+            quadra__empr=empreendimento
         )
 
     # filtra situação se não for TODOS
     if situacao != 'TODOS':
-        lotes = lotes.filter(situacao=situacao)
+        if situacao == 'OUTROS':
+            lotes = lotes.filter(
+                Q(situacao='CONSTRUTORA') |
+                Q(situacao='EM_RESERVA') |
+                Q(situacao='INDISPONIVEL')
+            )
+        else:
+            lotes = lotes.filter(situacao=situacao)
 
     # nome empreendimento
     primeiro_lote = lotes.first()
 
     nome_empreendimento = (
-        primeiro_lote.quadra.empr.nome
+        empreendimento.nome
+        if empreendimento
+        else primeiro_lote.quadra.empr.nome
         if primeiro_lote
-        else 'Empreendimento não identificado'
+        else 'Empreendimento nao identificado'
+    )
+    title_style = ParagraphStyle(
+        'RelatorioLotesTitle',
+        parent=styles['Title'],
+        alignment=1,
+        fontSize=18,
+        leading=22,
+        spaceAfter=12
     )
 
-    # título
+    subtitle_style = ParagraphStyle(
+        'RelatorioLotesSubtitle',
+        parent=styles['Heading2'],
+        fontSize=13,
+        leading=16,
+        spaceAfter=12
+    )
+
+    if empreendimento and empreendimento.logo:
+        logo_path = empreendimento.logo.path
+
+        if os.path.exists(logo_path):
+            logo = Image(logo_path)
+            logo.drawHeight = 58
+            logo.drawWidth = 150
+            logo.hAlign = 'CENTER'
+            elementos.append(logo)
+            elementos.append(Spacer(1, 12))
+
     titulo = Paragraph(
-        f'Relatório de Lotes - '
-        f'<b>{nome_empreendimento}</b>',
-        styles['Title']
+        f'Relatorio de Lotes - <b>{nome_empreendimento}</b>',
+        title_style
     )
 
     elementos.append(titulo)
-    elementos.append(Spacer(1, 12))
+    elementos.append(Spacer(1, 10))
 
-    # subtítulo
     subtitulo = Paragraph(
-        f'Situação dos Lotes: <b>{situacao}</b>',
-        styles['Heading2']
+        f'Situacao dos Lotes: <b>{situacao}</b>',
+        subtitle_style
     )
 
     elementos.append(subtitulo)
-    elementos.append(Spacer(1, 12))
+    elementos.append(Spacer(1, 10))
 
-    # cabeçalho tabela
     dados = [[
         'Quadra',
         'Lote',
-        'Situação',
-        'Vencimento Reserva',
-        'Corretor'
+        'Situacao',
+        'Valor do Lote'
     ]]
 
-    lotes = list(lotes)
-    vendas_por_lote = {}
-    lote_ids = [lote.id for lote in lotes]
+    def formatar_moeda(valor):
+        return f'R$ {valor:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
 
-    for venda in RegisterVenda.objects.select_related('user').filter(
-        lote_id__in=lote_ids
-    ).order_by('lote_id', '-id'):
-        vendas_por_lote.setdefault(venda.lote_id, venda)
+    def calcular_valor_lote(lote):
+        try:
+            area = float(str(lote.area or 0).replace(',', '.'))
+            valor_metro = float(str(lote.valor_metro_quadrado or 0).replace(',', '.'))
+            return area * valor_metro
+        except (TypeError, ValueError):
+            return 0
 
-    # percorre lotes
     for lote in lotes:
-
-        corretor = ''
-
-        # PRE-VENDA → pega usuário do lote
-        if lote.situacao == 'PRE-VENDA':
-
-            if lote.user:
-                if hasattr(lote.user, 'first_name'):
-                    corretor = lote.user.first_name
-                else:
-                    corretor = str(lote.user)
-
-        # RESERVADO / VENDIDO → pega usuário da venda
-        elif lote.situacao in ['RESERVADO', 'VENDIDO']:
-
-            venda = vendas_por_lote.get(lote.id)
-
-            if venda and venda.user:
-                corretor = venda.user.first_name
-
-        # TODOS → tenta venda primeiro, senão lote
-        else:
-
-            venda = vendas_por_lote.get(lote.id)
-
-            if venda and venda.user:
-                corretor = venda.user.first_name
-
-            elif lote.user:
-                if hasattr(lote.user, 'first_name'):
-                    corretor = lote.user.first_name
-                else:
-                    corretor = str(lote.user)
-
         dados.append([
             lote.quadra.namequadra,
             lote.lote,
             lote.situacao,
-            lote.data_termina_reserva.strftime('%d/%m/%Y')
-            if lote.data_termina_reserva else '',
-            corretor
+            formatar_moeda(calcular_valor_lote(lote))
         ])
 
-    # tabela
     tabela = Table(
         dados,
-        colWidths=[100, 90, 120, 140, 140]
+        colWidths=[105, 105, 150, 160],
+        repeatRows=1
     )
 
     tabela.setStyle(TableStyle([
-
-        # cabeçalho
-        ('BACKGROUND', (0, 0), (-1, 0),
-         colors.HexColor('#036B91')),
-
-        ('TEXTCOLOR', (0, 0), (-1, 0),
-         colors.white),
-
-        ('FONTNAME', (0, 0), (-1, 0),
-         'Helvetica-Bold'),
-
-        ('FONTSIZE', (0, 0), (-1, 0),
-         11),
-
-        # corpo
-        ('FONTSIZE', (0, 1), (-1, -1),
-         9),
-
-        ('ALIGN', (0, 0), (-1, -1),
-         'CENTER'),
-
-        ('VALIGN', (0, 0), (-1, -1),
-         'MIDDLE'),
-
-        ('GRID', (0, 0), (-1, -1),
-         0.5, colors.grey),
-
-        ('BOTTOMPADDING', (0, 0), (-1, 0),
-         10),
-
-        ('TOPPADDING', (0, 1), (-1, -1),
-         6),
-
-        ('BOTTOMPADDING', (0, 1), (-1, -1),
-         6),
-
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#08789A')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('ALIGN', (0, 1), (2, -1), 'CENTER'),
+        ('ALIGN', (3, 1), (3, -1), 'RIGHT'),
+        ('GRID', (0, 0), (-1, -1), 0.35, colors.HexColor('#9CA3AF')),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F8FAFC')]),
+        ('TOPPADDING', (0, 0), (-1, 0), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 9),
+        ('TOPPADDING', (0, 1), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+        ('LEFTPADDING', (0, 0), (-1, -1), 8),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
     ]))
 
     elementos.append(tabela)
@@ -1049,13 +1032,24 @@ def gerarRelatorioLotes(request):
     # Filtros
     situacao = request.GET.get('situacao', 'TODOS')
     loteamento_uuid = request.GET.get('loteamento_uuid')
+    empreendimento = None
+
+    if loteamento_uuid:
+        empreendimento = Empreendimento.objects.filter(uuid=loteamento_uuid).first()
 
     # Aplica os filtros
     lotes = Lote.objects.all()
     if loteamento_uuid:
         lotes = lotes.filter(quadra__empr__uuid=loteamento_uuid)
     if situacao != 'TODOS':
-        lotes = lotes.filter(situacao=situacao)
+        if situacao == 'OUTROS':
+            lotes = lotes.filter(
+                Q(situacao='CONSTRUTORA') |
+                Q(situacao='EM_RESERVA') |
+                Q(situacao='INDISPONIVEL')
+            )
+        else:
+            lotes = lotes.filter(situacao=situacao)
 
     # Verifica se há pelo menos um lote
     primeiro_lote = lotes.first()
@@ -1124,4 +1118,6 @@ def criarUsuarioEmpreendimento(request):
 
     messages.success(request, "Usuários adicionados com sucesso!")
     return redirect('detalhe-empreendimento', id=empreendimento.id)
+
+
 

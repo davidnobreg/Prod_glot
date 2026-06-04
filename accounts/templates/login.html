@@ -2,81 +2,385 @@
 {% load static %}
 
 {% block title %}
-    Login
+	Login
 {% endblock %}
 
 {% block content %}
-    <div class="container-fluid mt-4">
-        <div class="row align-items-center justify-content-center g-4">
+	<style>
+		.login-page {
+			background:
+				linear-gradient(120deg, rgba(8, 120, 154, 0.88), rgba(3, 21, 35, 0.72)),
+				radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.42), transparent 28%),
+				linear-gradient(135deg, #e8f6f9 0%, #08789a 48%, #031523 100%);
+			border-radius: 18px;
+			box-shadow: 0 24px 54px rgba(15, 23, 42, 0.18);
+			display: grid;
+			grid-template-columns: minmax(0, 1.1fr) minmax(380px, 0.9fr);
+			min-height: calc(100vh - 120px);
+			overflow: hidden;
+			position: relative;
+		}
 
-            <div class="col-lg-6">
-                <div class="card text-center">
-                    <div class="card-header">
-                        <h4 class="mb-3">ENTRAR NA CONTA</h4>
-                    </div>
+		.login-page::before,
+		.login-page::after {
+			content: "";
+			position: absolute;
+			z-index: 0;
+		}
 
-                    <div class="card-body mb-3">
-                        <form action="{% url 'login' %}" method="POST" class="card p-4 shadow align-items-center">
-                            {% csrf_token %}
+		.login-page::before {
+			background:
+				linear-gradient(135deg, transparent 0 42%, rgba(255, 255, 255, 0.2) 42% 44%, transparent 44%),
+				linear-gradient(45deg, transparent 0 58%, rgba(255, 255, 255, 0.14) 58% 60%, transparent 60%);
+			inset: 0;
+		}
 
-                            {{ form.non_field_errors }}
+		.login-page::after {
+			background: rgba(255, 255, 255, 0.1);
+			border: 1px solid rgba(255, 255, 255, 0.18);
+			border-radius: 28px;
+			bottom: 64px;
+			height: 210px;
+			left: 72px;
+			transform: rotate(-8deg);
+			width: 330px;
+		}
 
-                            <div class="form-floating mb-3 w-100">
-                                <input
-                                    type="email"
-                                    name="email"
-                                    class="form-control"
-                                    id="id_email"
-                                    placeholder="name@example.com"
-                                    required
-                                >
-                                <label for="id_email">Digite seu email</label>
-                            </div>
+		.login-showcase,
+		.login-panel {
+			position: relative;
+			z-index: 1;
+		}
 
-                            <div class="form-floating mb-3 w-100">
-                                <input
-                                    type="password"
-                                    name="senha"
-                                    class="form-control"
-                                    id="id_senha"
-                                    placeholder="Digite sua senha"
-                                    required
-                                >
-                                <label for="id_senha">Digite sua senha</label>
-                            </div>
+		.login-showcase {
+			color: #fff;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			padding: 56px;
+		}
 
-                            <div class="form-floating mb-3">
-                                <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill">
-                                    Logar
-                                </button>
-                            </div>
+		.login-brand {
+			align-items: center;
+			display: flex;
+			gap: 14px;
+		}
 
-                            <!--
-                            <div class="form-floating mb-3">
-                                <a href="criar-cadastro" class="navbar-brand">
-                                    <p>Crie a sua conta</p>
-                                </a>
-                            </div>
-                            -->
-                        </form>
-                    </div>
-                </div>
-            </div>
+		.login-brand-mark {
+			align-items: center;
+			background: rgba(255, 255, 255, 0.18);
+			border: 1px solid rgba(255, 255, 255, 0.28);
+			border-radius: 16px;
+			display: inline-flex;
+			font-size: 1.25rem;
+			font-weight: 900;
+			height: 48px;
+			justify-content: center;
+			width: 48px;
+		}
 
-            <!--<div class="col-lg-6">
-                <div class="card text-center">
-                    <div class="card-header">
-                        <h4 class="mb-3">EM CONSTRUÇÃO</h4>
-                    </div>
+		.login-brand strong {
+			display: block;
+			font-size: 1.08rem;
+			letter-spacing: 0.12em;
+		}
 
-                    <div class="card-body mb-3">
-                        <div class="p-4 bg-slate-100 rounded-xl shadow text-slate-800">
-                            Tailwind CSS carregado com sucesso no GLOT.
-                        </div>
-                    </div>
-                </div>
-            </div>-->
+		.login-brand span {
+			color: rgba(255, 255, 255, 0.72);
+			font-size: 0.82rem;
+		}
 
-        </div>
-    </div>
+		.login-copy {
+			max-width: 620px;
+		}
+
+		.login-eyebrow {
+			background: rgba(255, 255, 255, 0.14);
+			border: 1px solid rgba(255, 255, 255, 0.22);
+			border-radius: 999px;
+			display: inline-flex;
+			font-size: 0.78rem;
+			font-weight: 800;
+			letter-spacing: 0.12em;
+			margin-bottom: 18px;
+			padding: 8px 13px;
+			text-transform: uppercase;
+		}
+
+		.login-title {
+			font-size: clamp(2.35rem, 5vw, 4.6rem);
+			font-weight: 900;
+			letter-spacing: -0.05em;
+			line-height: 0.98;
+			margin: 0;
+		}
+
+		.login-subtitle {
+			color: rgba(255, 255, 255, 0.82);
+			font-size: 1.05rem;
+			font-weight: 500;
+			line-height: 1.6;
+			margin: 22px 0 0;
+			max-width: 520px;
+		}
+
+		.login-metrics {
+			display: grid;
+			gap: 12px;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			max-width: 560px;
+		}
+
+		.login-metric {
+			background: rgba(255, 255, 255, 0.13);
+			border: 1px solid rgba(255, 255, 255, 0.18);
+			border-radius: 18px;
+			padding: 15px;
+		}
+
+		.login-metric strong {
+			display: block;
+			font-size: 1.35rem;
+			font-weight: 900;
+		}
+
+		.login-metric span {
+			color: rgba(255, 255, 255, 0.72);
+			font-size: 0.78rem;
+			font-weight: 700;
+			text-transform: uppercase;
+		}
+
+		.login-panel {
+			align-items: center;
+			background: rgba(248, 250, 252, 0.92);
+			display: flex;
+			justify-content: center;
+			padding: 42px;
+		}
+
+		.login-card {
+			background: rgba(255, 255, 255, 0.96);
+			border: 1px solid rgba(255, 255, 255, 0.85);
+			border-radius: 24px;
+			box-shadow: 0 24px 48px rgba(15, 23, 42, 0.18);
+			max-width: 440px;
+			padding: 34px;
+			width: 100%;
+		}
+
+		.login-card-header {
+			margin-bottom: 24px;
+			text-align: left;
+		}
+
+		.login-card-header span {
+			color: #08789a;
+			font-size: 0.78rem;
+			font-weight: 900;
+			letter-spacing: 0.12em;
+			text-transform: uppercase;
+		}
+
+		.login-card-header h1 {
+			color: #031523;
+			font-size: 2rem;
+			font-weight: 900;
+			letter-spacing: -0.04em;
+			margin: 6px 0 8px;
+		}
+
+		.login-card-header p {
+			color: rgba(3, 21, 35, 0.62);
+			font-weight: 500;
+			margin: 0;
+		}
+
+		.login-form-group {
+			margin-bottom: 16px;
+		}
+
+		.login-label {
+			color: #031523;
+			display: block;
+			font-size: 0.84rem;
+			font-weight: 800;
+			margin-bottom: 8px;
+		}
+
+		.login-input {
+			background: #f8fafc;
+			border: 1px solid #cbd5e1;
+			border-radius: 14px;
+			color: #031523;
+			display: block;
+			font-size: 0.98rem;
+			height: 52px;
+			outline: none;
+			padding: 0 15px;
+			transition: border-color 0.18s ease, box-shadow 0.18s ease;
+			width: 100%;
+		}
+
+		.login-input:focus {
+			border-color: #08789a;
+			box-shadow: 0 0 0 4px rgba(8, 120, 154, 0.14);
+		}
+
+		.login-submit {
+			align-items: center;
+			background: linear-gradient(180deg, #f7ffff 0%, #4fb4cf 34%, #057897 100%);
+			border: 1px solid #08748d;
+			border-radius: 999px;
+			box-shadow: 0 14px 24px rgba(4, 80, 105, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+			color: #fff;
+			display: inline-flex;
+			font-weight: 900;
+			gap: 10px;
+			height: 52px;
+			justify-content: center;
+			margin-top: 8px;
+			width: 100%;
+		}
+
+		.login-submit:hover,
+		.login-submit:focus {
+			filter: brightness(1.08);
+			transform: translateY(-1px);
+		}
+
+		.login-footnote {
+			color: rgba(3, 21, 35, 0.54);
+			font-size: 0.82rem;
+			font-weight: 600;
+			margin: 18px 0 0;
+			text-align: center;
+		}
+
+		@media (max-width: 991.98px) {
+			.login-page {
+				grid-template-columns: 1fr;
+			}
+
+			.login-showcase {
+				gap: 36px;
+				padding: 36px 24px;
+			}
+
+			.login-panel {
+				padding: 24px;
+			}
+		}
+
+		@media (max-width: 575.98px) {
+			.login-page {
+				border-radius: 12px;
+				min-height: auto;
+			}
+
+			.login-showcase {
+				padding: 28px 18px;
+			}
+
+			.login-metrics {
+				grid-template-columns: 1fr;
+			}
+
+			.login-card {
+				padding: 26px 20px;
+			}
+		}
+	</style>
+
+	<section class="login-page" aria-label="Login do sistema">
+		<div class="login-showcase">
+			<div class="login-brand">
+				<span class="login-brand-mark">G</span>
+				<div>
+					<strong>GLOT</strong>
+					<span>Gestão imobiliária</span>
+				</div>
+			</div>
+
+			<div class="login-copy">
+				<span class="login-eyebrow">
+					Vendas imobiliárias
+				</span>
+
+				<h1 class="login-title">
+					Controle lotes, reservas e vendas em um só lugar.
+				</h1>
+
+				<p class="login-subtitle">
+					Acesse o painel para acompanhar empreendimentos, disponibilidade de lotes e movimentações comerciais com mais agilidade.
+				</p>
+			</div>
+
+			<div class="login-metrics" aria-hidden="true">
+				<div class="login-metric">
+					<strong>01</strong>
+					<span>Escolha o loteamento</span>
+				</div>
+
+				<div class="login-metric">
+					<strong>02</strong>
+					<span>Consulte quadras</span>
+				</div>
+
+				<div class="login-metric">
+					<strong>03</strong>
+					<span>Avance na venda</span>
+				</div>
+			</div>
+		</div>
+
+		<div class="login-panel">
+			<form action="{% url 'login' %}" method="POST" class="login-card">
+				{% csrf_token %}
+
+				<div class="login-card-header">
+					<span>Acesso restrito</span>
+					<h1>Entrar na conta</h1>
+					<p>Informe suas credenciais para acessar o sistema.</p>
+				</div>
+
+				{{ form.non_field_errors }}
+
+				<div class="login-form-group">
+					<label for="id_email" class="login-label">Email</label>
+					<input
+						type="email"
+						name="email"
+						class="login-input"
+						id="id_email"
+						placeholder="usuario@email.com"
+						autocomplete="email"
+						required
+					>
+				</div>
+
+				<div class="login-form-group">
+					<label for="id_senha" class="login-label">Senha</label>
+					<input
+						type="password"
+						name="senha"
+						class="login-input"
+						id="id_senha"
+						placeholder="Digite sua senha"
+						autocomplete="current-password"
+						required
+					>
+				</div>
+
+				<button type="submit" class="login-submit">
+					<i class="bi bi-box-arrow-in-right"></i>
+					Acessar sistema
+				</button>
+
+				<p class="login-footnote">
+					Ambiente seguro para equipe comercial e administrativa.
+				</p>
+			</form>
+		</div>
+	</section>
 {% endblock %}

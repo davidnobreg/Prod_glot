@@ -22,36 +22,33 @@ class ListarendaRelatorioView(ListView):
 
     def get_queryset(self):
 
-        queryset = RegisterVenda.objects.all()
+        queryset = RegisterVenda.objects.select_related(
+            'cliente',
+            'lote',
+            'lote__quadra',
+            'lote__quadra__empr',
+            'user'
+        )
 
         registroVendas = self.request.GET.get("registro")
         get_tipo_venda = self.request.GET.get("tipo_venda")
 
-        # busca texto
         if registroVendas:
             queryset = queryset.filter(
-                Q(first_name__icontains=registroVendas) |
-                Q(last_name__icontains=registroVendas) |
-                Q(email__icontains=user) |
-                Q(creci__icontains=user) |
-                Q(contato__icontains=user)
-            )
-
-        if registroVendas:  ## Filtra por nome, documento ou email do cliente
-            vendas = RegisterVenda.objects.filter(
-                Q(is_ativo__icontains='False') |
                 Q(cliente__name__icontains=registroVendas) |
-                Q(cliente__fone__icontains=registroVendas) |
+                Q(cliente__documento__icontains=registroVendas) |
+                Q(cliente__email__icontains=registroVendas) |
                 Q(lote__quadra__empr__nome__icontains=registroVendas) |
                 Q(user__username__icontains=registroVendas) |
-                Q(user=request.user)
+                Q(user__first_name__icontains=registroVendas) |
+                Q(user__last_name__icontains=registroVendas) |
+                Q(user__email__icontains=registroVendas)
             )
 
-        # tipo usuário
         if get_tipo_venda:
-            queryset = queryset.filter(tipo_venda=get_tipo_venda, user=request.user)
+            queryset = queryset.filter(tipo_venda=get_tipo_venda)
 
-        return queryset.order_by("first_name")
+        return queryset.order_by("-id")
 
 @method_decorator(has_permission_decorator('relatorioReserva'), name='dispatch')
 class RelatorioReservaView(ListView):
@@ -215,3 +212,4 @@ class ListaVendaView(ListView):
         }
 
         return context
+

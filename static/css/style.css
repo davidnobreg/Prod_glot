@@ -1,4 +1,9 @@
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+body{
+    font-family: 'Poppins', sans-serif;
+}
 
 /* Estilos gerais - claro e escuro */
 body[data-bs-theme="light"] {
@@ -136,6 +141,15 @@ body[data-bs-theme="dark"] {
     margin: 0 auto;
 }
 
+.folha-a4 {
+    width: 210mm;
+    min-height: 297mm;
+    max-width: 100%;
+    padding: 10mm;
+    background: #fff;
+    box-sizing: border-box;
+}
+
 /* =========================
    IMPRESSÃO A4 - 1 PÁGINA
 ========================= */
@@ -185,7 +199,8 @@ body[data-bs-theme="dark"] {
 
     #conteudo {
         position: relative;
-        width: 100%;
+        width: 210mm;
+        min-height: 297mm;
         margin: 0 auto;
         padding: 0 !important;
         background: #fff !important;
@@ -368,4 +383,53 @@ body[data-bs-theme="dark"] {
 
 .dropdown-submenu:hover .submenu {
     display: block;
+}
+
+.glot-sidebar {
+    width: 260px;
+    min-height: 100vh;
+}
+
+.glot-sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 767.98px) {
+
+    .glot-sidebar {
+        width: 100%;
+        min-height: auto;
+    }
+
+    body.sidebar-collapsed .glot-sidebar {
+        width: 100%;
+        min-height: auto;
+    }
+
+    body.sidebar-collapsed .glot-sidebar .sidebar-user,
+    body.sidebar-collapsed .glot-sidebar .sidebar-section-title,
+    body.sidebar-collapsed .glot-sidebar nav,
+    body.sidebar-collapsed .glot-sidebar .border-top {
+        display: none !important;
+    }
+
+    body.sidebar-collapsed .glot-sidebar .sidebar-text {
+        display: inline;
+    }
+
+    body.sidebar-collapsed .glot-sidebar .sidebar-toggle-wrapper {
+        margin-bottom: 0 !important;
+    }
+
+    body.sidebar-collapsed .glot-sidebar .nav-link {
+        text-align: left;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    body.sidebar-collapsed .glot-sidebar .nav-link i {
+        margin-right: 0.5rem !important;
+        font-size: 1rem;
+    }
+
 }

@@ -1,19 +1,102 @@
 {% load static %}
-<nav class="navbar navbar-expand-lg navbar-light p-4">
-    <div class="container-fluid">
 
-        <div class="text-center">
-            <a href="https://www.facebook.com/carlosecelsoimoveisfanpage" target="_blank"
-               style="margin:0 10px; color:#425df5; text-decoration:none; font-size:30px;">
-                <i class="fab fa-facebook-f"></i>
-            </a>
-            <a href="https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==" target="_blank"
-               style="margin:0 10px; color:#F2836B; text-decoration:none; font-size:30px;">
-                <i class="fab fa-instagram"></i>
-            </a>
-        </div>
-        <div class="text-center">
-            <p style="font-size:14px; margin:0;">© 2025 David Nóbrega - Todos os direitos reservados</p>
-        </div>
-    </div>
+<style>
+	.glot-footer {
+		background: linear-gradient(90deg, #f8fafc 0%, #cfe7ec 36%, #0a7895 100%);
+		margin-top: 2rem;
+		padding: 2rem 1.5rem;
+		width: 100%;
+	}
+
+	.glot-footer-content {
+		align-items: center;
+		display: flex;
+		gap: 1.25rem;
+		justify-content: space-between;
+		text-align: center;
+		width: 100%;
+	}
+
+	.glot-footer-social {
+		align-items: center;
+		display: flex;
+		gap: 1.5rem;
+		justify-content: center;
+	}
+
+	.glot-footer-link {
+		align-items: center;
+		display: inline-flex;
+		font-size: 30px;
+		justify-content: center;
+		line-height: 1;
+		text-decoration: none;
+		transition: color 0.18s ease, transform 0.18s ease;
+	}
+
+	.glot-footer-link:hover,
+	.glot-footer-link:focus {
+		transform: scale(1.1);
+	}
+
+	.glot-footer-facebook {
+		color: #425df5;
+	}
+
+	.glot-footer-facebook:hover,
+	.glot-footer-facebook:focus {
+		color: #3148d9;
+	}
+
+	.glot-footer-instagram {
+		color: #F2836B;
+	}
+
+	.glot-footer-instagram:hover,
+	.glot-footer-instagram:focus {
+		color: #df6b52;
+	}
+
+	.glot-footer-copy {
+		color: #020617;
+		font-size: 0.875rem;
+		font-weight: 500;
+		margin: 0;
+	}
+
+	@media (max-width: 767.98px) {
+		.glot-footer-content {
+			flex-direction: column;
+		}
+	}
+</style>
+
+<nav class="glot-footer">
+	<div class="glot-footer-content">
+		<div class="glot-footer-social">
+			<a
+				href="https://www.facebook.com/carlosecelsoimoveisfanpage"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="glot-footer-link glot-footer-facebook"
+				aria-label="Facebook"
+			>
+				<i class="fab fa-facebook-f"></i>
+			</a>
+
+			<a
+				href="https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA=="
+				target="_blank"
+				rel="noopener noreferrer"
+				class="glot-footer-link glot-footer-instagram"
+				aria-label="Instagram"
+			>
+				<i class="fab fa-instagram"></i>
+			</a>
+		</div>
+
+		<p class="glot-footer-copy">
+			© 2025 David Nóbrega - Todos os direitos reservados
+		</p>
+	</div>
 </nav>

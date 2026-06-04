@@ -106,8 +106,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function preencherModalCliente(clienteId, data) {
         if (!data || typeof data !== 'object') return;
-        document.getElementById('cliente-id').textContent = clienteId;
-        document.getElementById('cliente-id-display').textContent = clienteId;
+        document.getElementById('cliente-id').value = clienteId;
+        const clienteIdDisplay = document.getElementById('cliente-id-display');
+        if (clienteIdDisplay) clienteIdDisplay.textContent = clienteId;
         document.getElementById('cliente-name').textContent = data.name || 'Nome não encontrado';
         document.getElementById('cliente-documento').textContent = data.documento || 'Documento não encontrado';
         document.getElementById('cliente-email').textContent = data.email || 'Email não encontrado';
@@ -118,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const button = event.relatedTarget;
             const clienteId = button.getAttribute('data-cliente-id');
 
-            fetch(`${clienteId}/`)
+            fetch(`/clientes/select/${clienteId}/`)
                 .then(resp => resp.ok ? resp.json() : Promise.reject(resp.status))
                 .then(data => preencherModalCliente(clienteId, data))
                 .catch(err => console.error('Erro ao buscar dados do cliente:', err));
@@ -126,8 +127,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const btnDeletarCliente = document.getElementById("btn-deletar-cliente");
         if (btnDeletarCliente) {
-            btnDeletarCliente.addEventListener("click", () => {
-                const clienteId = document.getElementById("cliente-id").textContent;
+            btnDeletarCliente.addEventListener("click", (event) => {
+                event.preventDefault();
+                const clienteId = document.getElementById("cliente-id").value;
+                if (!clienteId) return;
                 window.location.href = `/clientes/delete_cliente/${clienteId}/`;
             });
         }
@@ -156,6 +159,8 @@ document.addEventListener("DOMContentLoaded", function () {
         enderecoModal.addEventListener('show.bs.modal', event => {
             const button = event.relatedTarget;
             const enderecoId = button.getAttribute('data-endereco-id');
+
+            if (!enderecoId) return;
 
             fetch(`/clientes/select_endereco/${enderecoId}/`)
                 .then(resp => resp.ok ? resp.json() : Promise.reject(resp.status))

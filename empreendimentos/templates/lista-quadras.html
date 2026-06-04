@@ -1,220 +1,844 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Lista de Quadras
+	Lista de Quadras
 {% endblock %}
 
 {% block content %}
-    <div class="container text-center mt-4">
-        <h1 class="mb-4 fw-bold">{{ empreendimento }}</h1>
+	<style>
+		.quadras-page {
+			background: #fff;
+			border-radius: 8px;
+			box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+			overflow: hidden;
+		}
 
-        <!-- Filtros -->
-        <div class="row g-3 align-items-center bg-light p-2 rounded shadow mb-4">
-            <div class="col-md-6">
-                <h4 class="text-sm-center">Em construção</h4>
-            </div>
-            <div class="col-md-6">
-                <div class="row g-3"> <!-- espaçamento aplicado aqui -->
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold d-block">Livres</label>
-                        <a href="?situacao=DISPONIVEL#quadras" class="btn btn-success text-center py-3 w-100"
-                           aria-label="Exibir lotes disponíveis">
-                            <p class="mb-0">{{ livre }} </p>
+		.quadras-hero {
+			background: linear-gradient(180deg, #0b7a95 0%, #e8f6f9 100%);
+			border-bottom: 1px solid #08748d;
+			padding: 28px 24px 34px;
+			text-align: center;
+		}
 
-                        </a>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold d-block">Pre-Reservados</label>
-                        <a href="?situacao=PRE-RESERVA#quadras"
-                           class="btn btn-warning text-center py-3 w-100 botao-quadra-reservada"
-                           aria-label="Exibir lotes reservados">
-                            <p class="mb-0">{{ prereserva }}</p>
-                        </a>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold d-block">Reservados</label>
-                        <a href="?situacao=RESERVADO#quadras"
-                           class="btn btn-info text-center py-3 w-100"
-                           aria-label="Exibir lotes reservados">
-                            <p class="mb-0">{{ reservado }}</p>
-                        </a>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold d-block">Vendidos</label>
-                        <a href="?situacao=VENDIDO#quadras" class="btn btn-primary text-center py-3 w-100 botao-quadra-vendida"
-                           aria-label="Exibir lotes vendidos">
-                            <p class="mb-0">{{ vendido }}</p>
-                        </a>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold d-block">Analises</label>
-                        <a href="?situacao=ANALISE#quadras" class="btn btn-danger text-center py-3 w-100"
-                           aria-label="Exibir lotes vendidos">
-                            <p class="mb-0">{{ analise }}</p>
-                        </a>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold d-block">Outros</label>
-                        <a href="?situacao=OUTROS#quadras" class="btn btn-secondary text-center py-3 w-100"
-                           aria-label="Exibir outros lotes">
-                            <p class="mb-0">{{ outros }}</p>
-                        </a>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold d-block">Total de Lotes</label>
-                        <a href="?situacao=TODOS#quadras" class="btn btn-dark text-center py-3 w-100"
-                           aria-label="Exibir todos os lotes">
-                            <p class="mb-0">{{ total }}</p>
-                        </a>
-                    </div>
-                </div>
-                <br>
-                <div class="row g-3">
-                    <div class="col-md-6 g-4">
-                        <a href="{% url 'relatorio-lotes' %}?situacao={{ request.GET.situacao|default:'TODOS' }}&loteamento_uuid={{ empreendimento.uuid }}"
-                           class="btn btn-danger text-center py-3 w-100" target="_blank">
-                            Baixar Relatório em PDF
-                        </a>
-                    </div>
-                    <div class="col-md-6 g-4">
-                        <button type="button"
-                                class="btn btn-outline-primary text-center py-3 w-100"
-                                data-loteamento-uuid="{{ empreendimento.uuid }}"
-                                onclick="compartilharRelatorio()">Compartilhar Relatório
-                        </button>
-                    </div>
-                </div>
-                {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
-                    <div class="row g-3 mt-1">
-                        <div class="col-12">
-                            <a href="{% url 'atualizar-lotes' empreendimento.uuid %}"
-                               class="btn btn-info text-center py-3 w-100" target="_blank">
-                                Atualizar Lotes
-                            </a>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
+		.quadras-title {
+			color: #031523;
+			font-size: clamp(1.6rem, 3vw, 2.4rem);
+			font-weight: 800;
+			letter-spacing: 0.03em;
+			margin: 0;
+			text-transform: uppercase;
+		}
 
-        </div>
+		.quadras-panel {
+			background: linear-gradient(180deg, #08789a 0%, #b9d9df 100%);
+			border: 1px solid #04728f;
+			border-radius: 8px;
+			box-shadow: 6px 6px 12px rgba(4, 80, 105, 0.45);
+			margin: 16px;
+			padding: 24px;
+		}
 
+		.quadras-summary {
+			background: rgba(255, 255, 255, 0.94);
+			border-radius: 14px;
+			box-shadow: 0 14px 24px rgba(15, 23, 42, 0.2);
+			margin-bottom: 24px;
+			padding: 18px;
+		}
 
-        <!-- Quadras e Lotes -->
-        <div id="quadras" class="row g-4" style="scroll-margin-top: 16px;">
-            {% for quadra_info in quadras_info %}
-                <div class="col-md-6 col-lg-4">
-                    <div class="card text-center">
-                        <div class="card-header">
-                            <h5 class="card-title">
-                                QUADRA {{ quadra_info.quadra.namequadra }}
-                            </h5>
-                        </div>
-                        <div class="card-body d-flex flex-wrap gap-3 justify-content-center">
+		.quadras-summary-header {
+			align-items: center;
+			border-bottom: 1px solid #d3e5e8;
+			display: flex;
+			gap: 16px;
+			justify-content: space-between;
+			margin-bottom: 16px;
+			padding-bottom: 14px;
+		}
 
-                            {% for lote_info in quadra_info.lotes %}
-                                {% if lote_info.situacao == 'DISPONIVEL' %}
-                                    <a href="{% url 'reserva_temporaria' lote_info.lote.uuid %}"
-                                       aria-label="Reservar lote {{ lote_info.lote.lote }}">
-                                        <button type="button" class="btn btn-success">
-                                            {{ lote_info.lote.lote }}
-                                        </button>
-                                    </a>
-                                {% elif lote_info.situacao == 'EM_RESERVA' %}
-                                    <button type="button" class="btn btn-dark"
-                                            aria-label="Lote em reserva {{ lote_info.lote.lote }}">
-                                        {{ lote_info.lote.lote }}
-                                    </button>
-                                {% elif lote_info.situacao == 'PRE-RESERVA' %}
-                                    <a href="{% url 'reservado-detalhes-pre-reserva-lote' lote_info.lote.uuid %}"
-                                       aria-label="Ver detalhes do lote reservado {{ lote_info.lote.lote }}">
-                                        <button type="button" class="btn btn-warning botao-quadra-reservada">
-                                            {{ lote_info.lote.lote }}
-                                        </button>
-                                    </a>
-                                {% elif lote_info.situacao == 'RESERVADO' %}
+		.quadras-summary-heading {
+			align-items: center;
+			display: flex;
+			gap: 12px;
+			justify-content: space-between;
+			width: 100%;
+		}
 
-                                    <a href="{% url 'reservadoDetalhes' lote_info.lote.uuid %}"
-                                       aria-label="Ver detalhes do lote reservado {{ lote_info.lote.lote }}">
-                                        <button type="button" class="btn btn-info">
-                                            {{ lote_info.lote.lote }}
-                                            {{ lote_info.user }}
-                                        </button>
-                                    </a>
+		.quadras-summary-title {
+			color: #031523;
+			font-size: 1.15rem;
+			font-weight: 800;
+			margin: 0;
+			text-transform: uppercase;
+		}
 
-                                {% elif lote_info.situacao == 'VENDIDO' %}
-                                    <a href="{% url 'reservado' lote_info.lote.uuid %}"
-                                       aria-label="Ver detalhes do lote vendido {{ lote_info.lote.lote }}">
-                                        <button type="button" class="btn btn-primary botao-quadra-vendida">
-                                            {{ lote_info.lote.lote }}
-                                        </button>
-                                    </a>
-                                {% elif lote_info.situacao == 'ANALISE' %}
-                                    {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
+		.quadras-summary-toggle {
+			align-items: center;
+			background: #08789a;
+			border: 0;
+			border-radius: 999px;
+			color: #fff;
+			display: none;
+			font-weight: 800;
+			gap: 8px;
+			padding: 8px 12px;
+		}
 
-                                        <a href="{% url 'analise' lote_info.lote.uuid %}"
-                                           aria-label="Ver detalhes do lote vendido {{ lote_info.lote.lote }}">
-                                            <button type="button" class="btn btn-danger">
-                                                {{ lote_info.lote.lote }}
-                                            </button>
-                                        </a>
+		.quadras-summary-toggle i {
+			transition: transform 0.18s ease;
+		}
 
-                                    {% elif user.is_authenticated and user.tipo_usuario == "CORRETOR" %}
+		.quadras-active-filter {
+			background: #e8f6f9;
+			border: 1px solid #b9d9df;
+			border-radius: 999px;
+			color: #08789a;
+			font-size: 0.8rem;
+			font-weight: 800;
+			padding: 6px 12px;
+			text-transform: uppercase;
+		}
 
-                                        <a href="{% url 'proposta-rascunho' lote_info.lote.uuid %}"
-                                           aria-label="Ver detalhes do lote vendido {{ lote_info.lote.lote }}">
-                                            <button type="button" class="btn btn-danger">
-                                                {{ lote_info.lote.lote }}
-                                            </button>
-                                        </a>
+		.quadras-stats {
+			display: grid;
+			gap: 12px;
+			grid-template-columns: repeat(7, minmax(0, 1fr));
+		}
 
-                                    {% endif %}
-                                {% elif lote_info.situacao == 'CONSTRUTORA' %}
-                                    <a aria-label="Lote da construtora {{ lote_info.lote.lote }}">
-                                        <button type="button" class="btn btn-secondary">
-                                            {{ lote_info.lote.lote }}
-                                        </button>
-                                    </a>
-                                {% elif lote_info.situacao == 'INDISPONIVEL' %}
-                                    <a aria-label="Lote indisponível {{ lote_info.lote.lote }}">
-                                        <button type="button" class="btn btn-secondary">
-                                            {{ lote_info.lote.lote }}
-                                        </button>
-                                    </a>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
+		.quadra-stat {
+			border: 0;
+			border-radius: 10px;
+			box-shadow: 0 10px 18px rgba(15, 23, 42, 0.16);
+			color: #fff;
+			display: block;
+			min-height: 90px;
+			padding: 12px;
+			text-align: center;
+			text-decoration: none;
+			transition: filter 0.18s ease, transform 0.18s ease;
+		}
 
-        <ul class="pagination justify-content-center mt-4">
-            <li class="page-item">
-                {% if quadras_info.has_previous %}
-                    <a class="btn btn-primary" href="?page=
-                            {{ quadras_info.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}#quadras"
-                       aria-label="Página anterior">
-                        Voltar
-                    </a>
-                {% endif %}
-            </li>
+		.quadra-stat:hover,
+		.quadra-stat:focus {
+			color: #fff;
+			filter: brightness(1.08);
+			transform: translateY(-2px);
+		}
 
-            <li class="page-item">
-                <span class="page-link">
-                    Página {{ quadras_info.number }} de {{ quadras_info.paginator.num_pages }}
-                </span>
-            </li>
+		.quadra-stat-label {
+			display: block;
+			font-size: 0.76rem;
+			font-weight: 800;
+			line-height: 1.2;
+			text-transform: uppercase;
+		}
 
-            <li class="page-item">
-                {% if quadras_info.has_next %}
-                    <a class="btn btn-primary"
-                       href="?page={{ quadras_info.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}#quadras"
-                       aria-label="Próxima página">
-                        Avançar
-                    </a>
-                {% endif %}
-            </li>
-        </ul>
-    </div>
+		.quadra-stat-value {
+			display: block;
+			font-size: 1.75rem;
+			font-weight: 900;
+			line-height: 1;
+			margin-top: 10px;
+		}
 
+		.quadra-stat-disponivel {
+			background: linear-gradient(180deg, #34d399 0%, #059669 100%);
+		}
+
+		.quadra-stat-pre-reserva {
+			background: linear-gradient(180deg, #fde68a 0%, #f59e0b 100%);
+			color: #3b2600;
+		}
+
+		.quadra-stat-pre-reserva:hover,
+		.quadra-stat-pre-reserva:focus {
+			color: #3b2600;
+		}
+
+		.quadra-stat-reservado {
+			background: linear-gradient(180deg, #67e8f9 0%, #0891b2 100%);
+		}
+
+		.quadra-stat-vendido {
+			background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
+		}
+
+		.quadra-stat-analise {
+			background: linear-gradient(180deg, #fb7185 0%, #e11d48 100%);
+		}
+
+		.quadra-stat-outros {
+			background: linear-gradient(180deg, #94a3b8 0%, #475569 100%);
+		}
+
+		.quadra-stat-total {
+			background: linear-gradient(180deg, #1e293b 0%, #020617 100%);
+		}
+
+		.quadras-actions {
+			display: grid;
+			gap: 12px;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			margin-top: 16px;
+		}
+
+		.quadras-actions-admin {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+
+		.quadras-action {
+			align-items: center;
+			border: 1px solid transparent;
+			border-radius: 10px;
+			display: inline-flex;
+			font-weight: 800;
+			justify-content: center;
+			min-height: 48px;
+			padding: 10px 14px;
+			text-align: center;
+			text-decoration: none;
+			transition: filter 0.18s ease, transform 0.18s ease;
+		}
+
+		.quadras-action:hover,
+		.quadras-action:focus {
+			filter: brightness(1.06);
+			transform: translateY(-1px);
+		}
+
+		.quadras-action-pdf {
+			background: #ef4444;
+			color: #fff;
+		}
+
+		.quadras-action-share {
+			background: #fff;
+			border-color: #08789a;
+			color: #08789a;
+		}
+
+		.quadras-action-update {
+			background: #08789a;
+			color: #fff;
+		}
+
+		.quadras-grid {
+			display: grid;
+			gap: 24px;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			scroll-margin-top: 16px;
+		}
+
+		.quadra-card {
+			background: #fff;
+			border: 1px solid #08789a;
+			border-radius: 7px;
+			box-shadow: 0 10px 18px rgba(15, 23, 42, 0.14);
+			overflow: visible;
+		}
+
+		.quadra-card-header {
+			background: #dff6f9;
+			border-bottom: 1px solid #c8e8ef;
+			padding: 10px 12px;
+			text-align: center;
+		}
+
+		.quadra-card-title {
+			color: #031523;
+			font-size: 0.9rem;
+			font-weight: 900;
+			margin: 0;
+			text-transform: uppercase;
+		}
+
+		.quadra-lotes {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 8px;
+			justify-content: center;
+			min-height: 82px;
+			padding: 14px 12px 18px;
+		}
+
+		.lote-button {
+			align-items: center;
+			border: 0;
+			border-radius: 7px;
+			box-shadow: 0 7px 10px rgba(15, 23, 42, 0.18);
+			color: #fff;
+			display: inline-flex;
+			font-size: 0.78rem;
+			font-weight: 900;
+			justify-content: center;
+			height: 67px;
+			line-height: 1;
+			min-width: 35px;
+			padding: 8px 10px;
+			text-decoration: none;
+			transition: filter 0.18s ease, transform 0.18s ease;
+		}
+
+		.lote-button:hover,
+		.lote-button:focus {
+			color: #fff;
+			filter: brightness(1.08);
+			transform: translateY(-1px);
+		}
+
+		.lote-disponivel {
+			background: #059669;
+		}
+
+		.lote-em-reserva {
+			background: #020617;
+		}
+
+		.lote-pre-reserva {
+			background: #f59e0b;
+			color: #3b2600;
+		}
+
+		.lote-pre-reserva:hover,
+		.lote-pre-reserva:focus {
+			color: #3b2600;
+		}
+
+		.lote-reservado {
+			background: #0891b2;
+		}
+
+		.lote-vendido {
+			background: #2563eb;
+		}
+
+		.lote-analise {
+			background: #e11d48;
+		}
+
+		.lote-outros {
+			background: #64748b;
+		}
+
+		.lote-tooltip {
+			display: inline-flex;
+			position: relative;
+		}
+
+		.lote-popup {
+			background: #fff;
+			border: 1px solid #d9e2e7;
+			border-radius: 12px;
+			bottom: calc(100% + 12px);
+			box-shadow: 0 18px 32px rgba(15, 23, 42, 0.22);
+			color: #031523;
+			left: 50%;
+			min-width: 285px;
+			opacity: 0;
+			pointer-events: none;
+			position: absolute;
+			text-align: center;
+			transform: translateX(-50%) translateY(6px);
+			transition: opacity 0.16s ease, transform 0.16s ease;
+			z-index: 20;
+		}
+
+		.lote-popup::after {
+			background: #fff;
+			border-bottom: 1px solid #d9e2e7;
+			border-right: 1px solid #d9e2e7;
+			bottom: -7px;
+			content: "";
+			height: 14px;
+			left: 50%;
+			position: absolute;
+			transform: translateX(-50%) rotate(45deg);
+			width: 14px;
+		}
+
+		.lote-tooltip:hover .lote-popup,
+		.lote-tooltip:focus-within .lote-popup,
+		.lote-tooltip.is-open .lote-popup {
+			opacity: 1;
+			transform: translateX(-50%) translateY(0);
+		}
+
+		.lote-popup-row {
+			border-bottom: 1px solid #d9e2e7;
+			font-size: 0.92rem;
+			padding: 10px 14px;
+		}
+
+		.lote-popup-row:last-child {
+			border-bottom: 0;
+		}
+
+		.lote-popup-row strong {
+			font-weight: 900;
+		}
+
+		.lote-popup-medidas {
+			font-size: 0.84rem;
+			line-height: 1.35;
+			max-height: 92px;
+			overflow: auto;
+			text-align: left;
+		}
+
+		.quadras-empty {
+			background: rgba(255, 255, 255, 0.94);
+			border-radius: 12px;
+			color: #031523;
+			grid-column: 1 / -1;
+			padding: 36px;
+			text-align: center;
+		}
+
+		.quadras-pagination {
+			align-items: center;
+			display: flex;
+			gap: 10px;
+			justify-content: center;
+			margin: 28px 0 0;
+		}
+
+		.quadras-page-link,
+		.quadras-page-status {
+			align-items: center;
+			display: inline-flex;
+			font-weight: 800;
+			justify-content: center;
+			text-decoration: none;
+		}
+
+		.quadras-page-link {
+			background: linear-gradient(180deg, #f7ffff 0%, #4fb4cf 34%, #057897 100%);
+			border: 1px solid #08748d;
+			border-radius: 999px;
+			box-shadow: 0 10px 18px rgba(4, 80, 105, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+			color: #fff;
+			gap: 8px;
+			min-height: 44px;
+			padding: 10px 18px;
+			transition: filter 0.18s ease, transform 0.18s ease;
+		}
+
+		.quadras-page-link:hover,
+		.quadras-page-link:focus {
+			color: #fff;
+			filter: brightness(1.08);
+			transform: translateY(-1px);
+		}
+
+		.quadras-page-status {
+			background: rgba(255, 255, 255, 0.95);
+			border: 1px solid #c8e8ef;
+			border-radius: 14px;
+			box-shadow: 0 10px 18px rgba(15, 23, 42, 0.14);
+			color: #031523;
+			flex-direction: column;
+			line-height: 1.15;
+			min-width: 132px;
+			padding: 9px 18px;
+		}
+
+		.quadras-page-status small {
+			color: #08789a;
+			font-size: 0.68rem;
+			font-weight: 900;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+		}
+
+		.quadras-page-status strong {
+			font-size: 1.05rem;
+			font-weight: 900;
+		}
+
+		.quadras-page-placeholder {
+			background: rgba(255, 255, 255, 0.42);
+			border: 1px solid rgba(255, 255, 255, 0.38);
+			border-radius: 999px;
+			color: rgba(3, 21, 35, 0.45);
+			min-height: 44px;
+			padding: 10px 18px;
+		}
+
+		@media (max-width: 1399.98px) {
+			.quadras-stats {
+				grid-template-columns: repeat(4, minmax(0, 1fr));
+			}
+		}
+
+		@media (max-width: 1199.98px) {
+			.quadras-grid {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+		}
+
+		@media (max-width: 767.98px) {
+			.quadras-panel {
+				margin: 10px 0 0;
+				padding: 14px;
+			}
+
+			.quadras-summary-header,
+			.quadras-actions,
+			.quadras-actions-admin {
+				grid-template-columns: 1fr;
+			}
+
+			.quadras-summary-header {
+				align-items: flex-start;
+				flex-direction: column;
+			}
+
+			.quadras-summary-toggle {
+				display: inline-flex;
+			}
+
+			.quadras-summary.is-collapsed .quadras-summary-body {
+				display: none;
+			}
+
+			.quadras-summary.is-collapsed .quadras-summary-toggle i {
+				transform: rotate(180deg);
+			}
+
+			.quadras-stats,
+			.quadras-grid {
+				grid-template-columns: 1fr;
+			}
+
+			.quadras-pagination {
+				flex-wrap: wrap;
+			}
+
+			.quadras-page-link,
+			.quadras-page-placeholder {
+				flex: 1 1 130px;
+			}
+
+			.quadras-page-status {
+				order: -1;
+				width: 100%;
+			}
+		}
+	</style>
+
+	<div class="quadras-page">
+		<header class="quadras-hero">
+			<h1 class="quadras-title">
+				{{ empreendimento }}
+			</h1>
+		</header>
+
+		<section class="quadras-panel">
+			<div class="quadras-summary" id="quadrasSummary">
+				<div class="quadras-summary-header">
+					<div class="quadras-summary-heading">
+						<h2 class="quadras-summary-title">
+							Situação dos lotes
+						</h2>
+
+						<button
+							type="button"
+							class="quadras-summary-toggle"
+							id="quadrasSummaryToggle"
+							aria-controls="quadrasSummaryBody"
+							aria-expanded="true"
+						>
+							Filtros
+							<i class="bi bi-chevron-up"></i>
+						</button>
+					</div>
+
+					<span class="quadras-active-filter">
+						Filtro: {{ situacao_filtro|default:'TODOS' }}
+					</span>
+				</div>
+
+				<div class="quadras-summary-body" id="quadrasSummaryBody">
+					<div class="quadras-stats">
+						<a href="?situacao=DISPONIVEL#quadras" class="quadra-stat quadra-stat-disponivel" aria-label="Exibir lotes disponíveis">
+							<span class="quadra-stat-label">Livres</span>
+							<span class="quadra-stat-value">{{ livre }}</span>
+						</a>
+
+						<a href="?situacao=PRE-RESERVA#quadras" class="quadra-stat quadra-stat-pre-reserva" aria-label="Exibir lotes pré-reservados">
+							<span class="quadra-stat-label">Pré-reservados</span>
+							<span class="quadra-stat-value">{{ prereserva }}</span>
+						</a>
+
+						<a href="?situacao=RESERVADO#quadras" class="quadra-stat quadra-stat-reservado" aria-label="Exibir lotes reservados">
+							<span class="quadra-stat-label">Reservados</span>
+							<span class="quadra-stat-value">{{ reservado }}</span>
+						</a>
+
+						<a href="?situacao=VENDIDO#quadras" class="quadra-stat quadra-stat-vendido" aria-label="Exibir lotes vendidos">
+							<span class="quadra-stat-label">Vendidos</span>
+							<span class="quadra-stat-value">{{ vendido }}</span>
+						</a>
+
+						<a href="?situacao=ANALISE#quadras" class="quadra-stat quadra-stat-analise" aria-label="Exibir lotes em análise">
+							<span class="quadra-stat-label">Análises</span>
+							<span class="quadra-stat-value">{{ analise }}</span>
+						</a>
+
+						<a href="?situacao=OUTROS#quadras" class="quadra-stat quadra-stat-outros" aria-label="Exibir outros lotes">
+							<span class="quadra-stat-label">Outros</span>
+							<span class="quadra-stat-value">{{ outros }}</span>
+						</a>
+
+						<a href="?situacao=TODOS#quadras" class="quadra-stat quadra-stat-total" aria-label="Exibir todos os lotes">
+							<span class="quadra-stat-label">Total de lotes</span>
+							<span class="quadra-stat-value">{{ total }}</span>
+						</a>
+					</div>
+
+					<div class="quadras-actions{% if user.is_authenticated and user.tipo_usuario == 'ADMINISTRADOR' %} quadras-actions-admin{% endif %}">
+						<a
+							href="{% url 'relatorio-lotes' %}?situacao={{ request.GET.situacao|default:'TODOS' }}&loteamento_uuid={{ empreendimento.uuid }}"
+							class="quadras-action quadras-action-pdf"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							Baixar relatório em PDF
+						</a>
+
+						<button
+							type="button"
+							class="quadras-action quadras-action-share"
+							data-report-url="{% url 'relatorio-lotes' %}?situacao={{ request.GET.situacao|default:'TODOS' }}&loteamento_uuid={{ empreendimento.uuid }}"
+							onclick="compartilharRelatorio(this)"
+						>
+							Compartilhar relatório
+						</button>
+
+						{% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
+							<a
+								href="{% url 'atualizar-lotes' empreendimento.uuid %}"
+								class="quadras-action quadras-action-update"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								Atualizar lotes
+							</a>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+
+			<div id="quadras" class="quadras-grid">
+				{% for quadra_info in quadras_info %}
+					<article class="quadra-card">
+						<header class="quadra-card-header">
+							<h2 class="quadra-card-title">
+								Quadra {{ quadra_info.quadra.namequadra }}
+							</h2>
+						</header>
+
+						<div class="quadra-lotes">
+							{% for lote_info in quadra_info.lotes %}
+								<span class="lote-tooltip">
+								{% if lote_info.situacao == 'DISPONIVEL' %}
+									<a href="{% url 'reserva_temporaria' lote_info.lote.uuid %}" class="lote-button lote-disponivel" aria-label="Reservar lote {{ lote_info.lote.lote }}">
+										{{ lote_info.lote.lote }}
+									</a>
+								{% elif lote_info.situacao == 'EM_RESERVA' %}
+									<button type="button" class="lote-button lote-em-reserva" aria-label="Lote em reserva {{ lote_info.lote.lote }}">
+										{{ lote_info.lote.lote }}
+									</button>
+								{% elif lote_info.situacao == 'PRE-RESERVA' %}
+									<a href="{% url 'reservado-detalhes-pre-reserva-lote' lote_info.lote.uuid %}" class="lote-button lote-pre-reserva" aria-label="Ver detalhes do lote pré-reservado {{ lote_info.lote.lote }}">
+										{{ lote_info.lote.lote }}
+									</a>
+								{% elif lote_info.situacao == 'RESERVADO' %}
+									<a href="{% url 'reservadoDetalhes' lote_info.lote.uuid %}" class="lote-button lote-reservado" aria-label="Ver detalhes do lote reservado {{ lote_info.lote.lote }}">
+										{{ lote_info.lote.lote }} {{ lote_info.user }}
+									</a>
+								{% elif lote_info.situacao == 'VENDIDO' %}
+									<a href="{% url 'reservado' lote_info.lote.uuid %}" class="lote-button lote-vendido" aria-label="Ver detalhes do lote vendido {{ lote_info.lote.lote }}">
+										{{ lote_info.lote.lote }}
+									</a>
+								{% elif lote_info.situacao == 'ANALISE' %}
+									{% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
+										<a href="{% url 'analise' lote_info.lote.uuid %}" class="lote-button lote-analise" aria-label="Ver análise do lote {{ lote_info.lote.lote }}">
+											{{ lote_info.lote.lote }}
+										</a>
+									{% elif user.is_authenticated and user.tipo_usuario == "CORRETOR" %}
+										<a href="{% url 'proposta-rascunho' lote_info.lote.uuid %}" class="lote-button lote-analise" aria-label="Ver proposta do lote {{ lote_info.lote.lote }}">
+											{{ lote_info.lote.lote }}
+										</a>
+									{% endif %}
+								{% elif lote_info.situacao == 'CONSTRUTORA' %}
+									<button type="button" class="lote-button lote-outros" aria-label="Lote da construtora {{ lote_info.lote.lote }}">
+										{{ lote_info.lote.lote }}
+									</button>
+								{% elif lote_info.situacao == 'INDISPONIVEL' %}
+									<button type="button" class="lote-button lote-outros" aria-label="Lote indisponível {{ lote_info.lote.lote }}">
+										{{ lote_info.lote.lote }}
+									</button>
+								{% endif %}
+
+									{% if lote_info.situacao == 'DISPONIVEL' %}
+										<span class="lote-popup" role="tooltip">
+											<span class="lote-popup-row">
+												<strong>Valor do lote:</strong> {{ lote_info.valor_lote_formatado }}
+											</span>
+
+											<span class="lote-popup-row lote-popup-medidas">
+												<strong>Confrontações:</strong><br>
+												{{ lote_info.lote.medidasConfrontacoes|default:'Não informado'|linebreaksbr }}
+											</span>
+										</span>
+									{% endif %}
+								</span>
+							{% endfor %}
+						</div>
+					</article>
+				{% empty %}
+					<div class="quadras-empty">
+						<h2 class="h5 fw-bold mb-2">
+							Nenhuma quadra encontrada
+						</h2>
+
+						<p class="mb-0">
+							Não há lotes para o filtro selecionado.
+						</p>
+					</div>
+				{% endfor %}
+			</div>
+
+			<div class="quadras-pagination">
+				{% if quadras_info.has_previous %}
+					<a
+						class="quadras-page-link"
+						href="?page={{ quadras_info.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}#quadras"
+						aria-label="Página anterior"
+					>
+						<i class="bi bi-arrow-left"></i>
+						Voltar
+					</a>
+				{% else %}
+					<span class="quadras-page-placeholder">
+						<i class="bi bi-arrow-left"></i>
+						Voltar
+					</span>
+				{% endif %}
+
+				<span class="quadras-page-status">
+					<small>Página</small>
+					<strong>{{ quadras_info.number }} de {{ quadras_info.paginator.num_pages }}</strong>
+				</span>
+
+				{% if quadras_info.has_next %}
+					<a
+						class="quadras-page-link"
+						href="?page={{ quadras_info.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}#quadras"
+						aria-label="Próxima página"
+					>
+						Avançar
+						<i class="bi bi-arrow-right"></i>
+					</a>
+				{% else %}
+					<span class="quadras-page-placeholder">
+						Avançar
+						<i class="bi bi-arrow-right"></i>
+					</span>
+				{% endif %}
+			</div>
+		</section>
+	</div>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			const summary = document.getElementById("quadrasSummary");
+			const toggle = document.getElementById("quadrasSummaryToggle");
+			const mobileQuery = window.matchMedia("(max-width: 767.98px)");
+
+			if (!summary || !toggle) {
+				return;
+			}
+
+			function syncSummaryState() {
+				if (mobileQuery.matches) {
+					summary.classList.add("is-collapsed");
+					toggle.setAttribute("aria-expanded", "false");
+					return;
+				}
+
+				summary.classList.remove("is-collapsed");
+				toggle.setAttribute("aria-expanded", "true");
+			}
+
+			toggle.addEventListener("click", function () {
+				summary.classList.toggle("is-collapsed");
+				toggle.setAttribute("aria-expanded", String(!summary.classList.contains("is-collapsed")));
+			});
+
+			syncSummaryState();
+			mobileQuery.addEventListener("change", syncSummaryState);
+		});
+
+		document.addEventListener("DOMContentLoaded", function () {
+			const touchQuery = window.matchMedia("(hover: none)");
+			const lotesComPopup = document.querySelectorAll(".lote-tooltip .lote-popup");
+
+			function fecharPopups() {
+				document.querySelectorAll(".lote-tooltip.is-open").forEach((tooltip) => {
+					tooltip.classList.remove("is-open");
+				});
+			}
+
+			lotesComPopup.forEach((popup) => {
+				const tooltip = popup.closest(".lote-tooltip");
+				const loteButton = tooltip?.querySelector(".lote-button");
+
+				if (!tooltip || !loteButton) {
+					return;
+				}
+
+				loteButton.addEventListener("click", function (event) {
+					if (!touchQuery.matches) {
+						return;
+					}
+
+					if (!tooltip.classList.contains("is-open")) {
+						event.preventDefault();
+						fecharPopups();
+						tooltip.classList.add("is-open");
+					}
+				});
+			});
+
+			document.addEventListener("click", function (event) {
+				if (!touchQuery.matches || event.target.closest(".lote-tooltip")) {
+					return;
+				}
+
+				fecharPopups();
+			});
+		});
+
+		function compartilharRelatorio(button) {
+			const reportPath = button.dataset.reportUrl;
+			const reportUrl = new URL(reportPath, window.location.origin).href;
+
+			if (navigator.share) {
+				navigator.share({
+					title: "Relatório de lotes",
+					url: reportUrl
+				});
+				return;
+			}
+
+			navigator.clipboard.writeText(reportUrl);
+			button.textContent = "Link copiado";
+
+			setTimeout(() => {
+				button.textContent = "Compartilhar relatório";
+			}, 1800);
+		}
+	</script>
 {% endblock %}

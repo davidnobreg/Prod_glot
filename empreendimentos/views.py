@@ -277,6 +277,9 @@ def listaQuadra(request, empreendimento_uuid):
     empreendimento = get_object_or_404(Empreendimento, uuid=empreendimento_uuid)
     situacao_filtro = request.GET.get('situacao')
 
+    def formatar_moeda(valor):
+        return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
     # Inicializa a consulta de quadras
     quadras = Quadra.objects.filter(empr=empreendimento).order_by('id')
 
@@ -308,7 +311,21 @@ def listaQuadra(request, empreendimento_uuid):
             Q(situacao='INDISPONIVEL')
         ).count()
 
-        lotes_info = [{'lote': lote, 'situacao': lote.situacao} for lote in lotes]
+        lotes_info = []
+
+        for lote in lotes:
+            try:
+                area = float(str(lote.area or 0).replace(',', '.'))
+                valor_metro = float(str(lote.valor_metro_quadrado or 0).replace(',', '.'))
+                valor_lote = area * valor_metro
+            except (TypeError, ValueError):
+                valor_lote = 0
+
+            lotes_info.append({
+                'lote': lote,
+                'situacao': lote.situacao,
+                'valor_lote_formatado': formatar_moeda(valor_lote),
+            })
 
 
 

@@ -384,3 +384,52 @@ body[data-bs-theme="dark"] {
 .dropdown-submenu:hover .submenu {
     display: block;
 }
+
+.glot-sidebar {
+    width: 260px;
+    min-height: 100vh;
+}
+
+.glot-sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 767.98px) {
+
+    .glot-sidebar {
+        width: 100%;
+        min-height: auto;
+    }
+
+    body.sidebar-collapsed .glot-sidebar {
+        width: 100%;
+        min-height: auto;
+    }
+
+    body.sidebar-collapsed .glot-sidebar .sidebar-user,
+    body.sidebar-collapsed .glot-sidebar .sidebar-section-title,
+    body.sidebar-collapsed .glot-sidebar nav,
+    body.sidebar-collapsed .glot-sidebar .border-top {
+        display: none !important;
+    }
+
+    body.sidebar-collapsed .glot-sidebar .sidebar-text {
+        display: inline;
+    }
+
+    body.sidebar-collapsed .glot-sidebar .sidebar-toggle-wrapper {
+        margin-bottom: 0 !important;
+    }
+
+    body.sidebar-collapsed .glot-sidebar .nav-link {
+        text-align: left;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    body.sidebar-collapsed .glot-sidebar .nav-link i {
+        margin-right: 0.5rem !important;
+        font-size: 1rem;
+    }
+
+}

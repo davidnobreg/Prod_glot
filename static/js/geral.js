@@ -34,10 +34,10 @@ tooltipTriggerList.forEach(function (tooltipTriggerEl) {
 // ==============================
 // Compartilhar relatório (PDF)
 // ==============================
-async function compartilharRelatorio() {
+async function compartilharRelatorio(botao) {
     const params = new URLSearchParams(window.location.search);
     const situacao = params.get('situacao') || 'TODOS';
-    const botaoCompartilhar = document.querySelector('[data-loteamento-uuid]');
+    const botaoCompartilhar = botao || document.querySelector('[data-loteamento-uuid]');
     const loteamento_uuid = botaoCompartilhar ? botaoCompartilhar.dataset.loteamentoUuid : '';
     const textoOriginal = botaoCompartilhar ? botaoCompartilhar.innerText : '';
 

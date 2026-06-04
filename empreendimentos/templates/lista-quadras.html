@@ -609,6 +609,7 @@
 						<button
 							type="button"
 							class="quadras-action quadras-action-share"
+							data-loteamento-uuid="{{ empreendimento.uuid }}"
 							data-report-url="{% url 'relatorio-lotes' %}?situacao={{ request.GET.situacao|default:'TODOS' }}&loteamento_uuid={{ empreendimento.uuid }}"
 							onclick="compartilharRelatorio(this)"
 						>

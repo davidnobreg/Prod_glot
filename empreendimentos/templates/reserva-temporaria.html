@@ -1,90 +1,381 @@
-
 {% extends 'base.html' %}
 
 {% block title %}
-    Cadastrar Reserva
+	Cadastrar Reserva
 {% endblock %}
 
 {% block content %}
-    <div class="container-fluid mt-4">
-        <div class="row align-items-center g-4">
-            <hr/>
-            <div class="col-lg-6">
-                <div class="card-body">
-                    {% if lote.quadra.empr.logo %}
-                        <img src="{{ lote.quadra.empr.logo.url }}" alt="{{ lote.quadra.empr.nome }}"
-                             width="100%" height="320"/>
-                    {% endif %}
-                    <hr/>
-                    <h5 class="card-title text-center fw-bold">{{ lote.quadra.empr }}</h5>
-                    <hr/>
-                </div>
-                <div class="col mt-3">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item text-center">
-                            <div class="row">
-                                <div class="col">
-                                    <h5 class="card-title text-center">
-                                        Quadra: {{ lote.quadra.namequadra }}</h5>
-                                </div>
-                                <div class="col">
-                                    <h5 class="card-title text-center">
-                                        Lote: {{ lote.lote }}</h5>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="list-group-item text-center">
-                            <h5 class="card-title text-center fw-bold">
-                                <div class="row">
-                                    <div class="col">
-                                        <h5 class="card-title text-center">
-                                            Quantidade de Parcelas: {{ total_parcelas }}</h5>
-                                    </div>
-                                    <div class="col">
-                                        <h5 class="card-title text-center">
-                                            Valor da Parcela: {{ valor_parcela_formatado }}</h5>
-                                    </div>
-                                </div>
-                            </h5>
-                        </li>
+	<style>
+		.pre-reserva-page {
+			background: #fff;
+			border-radius: 12px;
+			box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+			overflow: hidden;
+		}
 
-                        <li class="list-group-item text-center">
-                            <h5 class="card-title text-center fw-bold">
-                                Valor Total: {{ valor_formatado }}</h5>
-                        </li>
+		.pre-reserva-hero {
+			background: linear-gradient(180deg, #0b7a95 0%, #e8f6f9 100%);
+			border-bottom: 1px solid #08748d;
+			padding: 28px 24px 34px;
+			text-align: center;
+		}
 
-                    </ul>
-                </div>
-            </div>
-            <!-- Formulário -->
-            <div class="col-lg-6">
-                <form action="." method="post" enctype="multipart/form-data" class="card p-4 shadow">
-                    {% csrf_token %}
-                    <div class="row">
+		.pre-reserva-title {
+			color: #031523;
+			font-size: clamp(1.7rem, 3vw, 2.55rem);
+			font-weight: 900;
+			letter-spacing: 0.02em;
+			line-height: 1.1;
+			margin: 0;
+			text-transform: uppercase;
+		}
 
-                        <div class="col mt-3">
-                            <h4 class="mb-3 text-center fw-bold">Cadastrar Pre-Reserva</h4>
-                        </div>
+		.pre-reserva-subtitle {
+			color: rgba(3, 21, 35, 0.74);
+			font-size: 1rem;
+			font-weight: 600;
+			margin: 10px auto 0;
+			max-width: 680px;
+		}
 
-                    </div>
+		.pre-reserva-panel {
+			background: linear-gradient(180deg, #08789a 0%, #b9d9df 100%);
+			border: 1px solid #04728f;
+			border-radius: 8px;
+			box-shadow: 6px 6px 12px rgba(4, 80, 105, 0.45);
+			margin: 16px;
+			padding: 24px;
+		}
 
-                    {% for field in form %}
-                        <div class="mb-3">
-                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                            {{ field }}
-                        </div>
-                    {% endfor %}
+		.pre-reserva-grid {
+			display: grid;
+			gap: 24px;
+			grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+		}
 
-                    <button type="submit" class="btn btn-primary w-100 mt-3">Salvar</button>
+		.pre-reserva-card {
+			background: rgba(255, 255, 255, 0.96);
+			border-radius: 16px;
+			box-shadow: 0 14px 24px rgba(15, 23, 42, 0.22);
+			overflow: hidden;
+		}
 
-                    <a href="{% url 'cancela-lote-pre-reserva' lote.uuid %}"
-                       class="btn btn-danger w-100 mt-3">Cancelar</a>
-                </form>
-            </div>
-        </div>
-        <hr/>
-        <hr/>
-    </div>
+		.pre-reserva-info-header {
+			align-items: center;
+			background: #fff;
+			display: flex;
+			justify-content: center;
+			min-height: 220px;
+			padding: 22px;
+		}
 
+		.pre-reserva-logo {
+			display: block;
+			max-height: 210px;
+			max-width: 100%;
+			object-fit: contain;
+		}
 
+		.pre-reserva-logo-placeholder {
+			align-items: center;
+			background: linear-gradient(135deg, #edf9fb, #fff);
+			border: 1px solid #c8e8ef;
+			border-radius: 18px;
+			color: #08789a;
+			display: flex;
+			font-size: 4rem;
+			font-weight: 900;
+			height: 190px;
+			justify-content: center;
+			width: 100%;
+		}
+
+		.pre-reserva-info-body {
+			padding: 20px;
+		}
+
+		.pre-reserva-empreendimento {
+			border-bottom: 1px solid #d7e6e9;
+			color: #031523;
+			font-size: 1.15rem;
+			font-weight: 900;
+			margin: 0 0 18px;
+			padding-bottom: 14px;
+			text-align: center;
+			text-transform: uppercase;
+		}
+
+		.pre-reserva-facts {
+			display: grid;
+			gap: 12px;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		.pre-reserva-fact {
+			background: #f8fafc;
+			border: 1px solid #dbe8ec;
+			border-radius: 12px;
+			padding: 13px;
+			text-align: center;
+		}
+
+		.pre-reserva-fact-wide {
+			grid-column: 1 / -1;
+		}
+
+		.pre-reserva-fact span {
+			color: #08789a;
+			display: block;
+			font-size: 0.74rem;
+			font-weight: 900;
+			letter-spacing: 0.08em;
+			margin-bottom: 5px;
+			text-transform: uppercase;
+		}
+
+		.pre-reserva-fact strong {
+			color: #031523;
+			font-size: 1.04rem;
+			font-weight: 900;
+		}
+
+		.pre-reserva-form-card {
+			padding: 28px;
+		}
+
+		.pre-reserva-form-header {
+			margin-bottom: 22px;
+		}
+
+		.pre-reserva-form-eyebrow {
+			color: #08789a;
+			font-size: 0.78rem;
+			font-weight: 900;
+			letter-spacing: 0.12em;
+			text-transform: uppercase;
+		}
+
+		.pre-reserva-form-title {
+			color: #031523;
+			font-size: 1.8rem;
+			font-weight: 900;
+			letter-spacing: -0.03em;
+			margin: 6px 0 8px;
+		}
+
+		.pre-reserva-form-text {
+			color: rgba(3, 21, 35, 0.64);
+			font-weight: 500;
+			margin: 0;
+		}
+
+		.pre-reserva-field {
+			margin-bottom: 16px;
+		}
+
+		.pre-reserva-label {
+			color: #031523;
+			display: block;
+			font-size: 0.86rem;
+			font-weight: 800;
+			margin-bottom: 8px;
+		}
+
+		.pre-reserva-field input,
+		.pre-reserva-field select,
+		.pre-reserva-field textarea {
+			background: #f8fafc;
+			border: 1px solid #cbd5e1;
+			border-radius: 14px;
+			color: #031523;
+			display: block;
+			min-height: 48px;
+			outline: none;
+			padding: 10px 14px;
+			transition: border-color 0.18s ease, box-shadow 0.18s ease;
+			width: 100%;
+		}
+
+		.pre-reserva-field textarea {
+			min-height: 92px;
+			resize: vertical;
+		}
+
+		.pre-reserva-field input:focus,
+		.pre-reserva-field select:focus,
+		.pre-reserva-field textarea:focus {
+			border-color: #08789a;
+			box-shadow: 0 0 0 4px rgba(8, 120, 154, 0.14);
+		}
+
+		.pre-reserva-actions {
+			display: grid;
+			gap: 12px;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			margin-top: 22px;
+		}
+
+		.pre-reserva-button {
+			align-items: center;
+			border: 1px solid transparent;
+			border-radius: 999px;
+			display: inline-flex;
+			font-weight: 900;
+			gap: 10px;
+			justify-content: center;
+			min-height: 50px;
+			padding: 12px 18px;
+			text-decoration: none;
+			transition: filter 0.18s ease, transform 0.18s ease;
+			width: 100%;
+		}
+
+		.pre-reserva-button-primary {
+			background: linear-gradient(180deg, #f7ffff 0%, #4fb4cf 34%, #057897 100%);
+			border-color: #08748d;
+			box-shadow: 0 12px 24px rgba(4, 80, 105, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+			color: #fff;
+		}
+
+		.pre-reserva-button-danger {
+			background: #ef4444;
+			border-color: #fecaca;
+			box-shadow: 0 12px 24px rgba(127, 29, 29, 0.22);
+			color: #fff;
+		}
+
+		.pre-reserva-button:hover,
+		.pre-reserva-button:focus {
+			color: #fff;
+			filter: brightness(1.06);
+			transform: translateY(-1px);
+		}
+
+		@media (max-width: 991.98px) {
+			.pre-reserva-grid {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		@media (max-width: 575.98px) {
+			.pre-reserva-panel {
+				margin: 10px 0 0;
+				padding: 14px;
+			}
+
+			.pre-reserva-form-card {
+				padding: 22px 18px;
+			}
+
+			.pre-reserva-facts,
+			.pre-reserva-actions {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
+
+	<div class="pre-reserva-page">
+		<header class="pre-reserva-hero">
+			<h1 class="pre-reserva-title">
+				Cadastrar pré-reserva
+			</h1>
+
+			<p class="pre-reserva-subtitle">
+				Confira os dados do lote e registre a pré-reserva para avançar no atendimento ao cliente.
+			</p>
+		</header>
+
+		<section class="pre-reserva-panel">
+			<div class="pre-reserva-grid">
+				<article class="pre-reserva-card">
+					<div class="pre-reserva-info-header">
+						{% if lote.quadra.empr.logo %}
+							<img
+								src="{{ lote.quadra.empr.logo.url }}"
+								alt="{{ lote.quadra.empr.nome }}"
+								class="pre-reserva-logo"
+							>
+						{% else %}
+							<div class="pre-reserva-logo-placeholder" aria-hidden="true">
+								{{ lote.quadra.empr.nome|first|upper }}
+							</div>
+						{% endif %}
+					</div>
+
+					<div class="pre-reserva-info-body">
+						<h2 class="pre-reserva-empreendimento">
+							{{ lote.quadra.empr }}
+						</h2>
+
+						<div class="pre-reserva-facts">
+							<div class="pre-reserva-fact">
+								<span>Quadra</span>
+								<strong>{{ lote.quadra.namequadra }}</strong>
+							</div>
+
+							<div class="pre-reserva-fact">
+								<span>Lote</span>
+								<strong>{{ lote.lote }}</strong>
+							</div>
+
+							<div class="pre-reserva-fact">
+								<span>Parcelas</span>
+								<strong>{{ total_parcelas }}</strong>
+							</div>
+
+							<div class="pre-reserva-fact">
+								<span>Valor parcela</span>
+								<strong>{{ valor_parcela_formatado }}</strong>
+							</div>
+
+							<div class="pre-reserva-fact pre-reserva-fact-wide">
+								<span>Valor total</span>
+								<strong>{{ valor_formatado }}</strong>
+							</div>
+						</div>
+					</div>
+				</article>
+
+				<form action="." method="post" enctype="multipart/form-data" class="pre-reserva-card pre-reserva-form-card">
+					{% csrf_token %}
+
+					<div class="pre-reserva-form-header">
+						<span class="pre-reserva-form-eyebrow">
+							Dados da reserva
+						</span>
+
+						<h2 class="pre-reserva-form-title">
+							Informe os dados do cliente
+						</h2>
+
+						<p class="pre-reserva-form-text">
+							Revise os campos antes de salvar. Após confirmar, o lote será marcado como pré-reserva.
+						</p>
+					</div>
+
+					{% for field in form %}
+						<div class="pre-reserva-field">
+							<label for="{{ field.id_for_label }}" class="pre-reserva-label">
+								{{ field.label }}
+							</label>
+
+							{{ field }}
+						</div>
+					{% endfor %}
+
+					<div class="pre-reserva-actions">
+						<button type="submit" class="pre-reserva-button pre-reserva-button-primary">
+							<i class="bi bi-check2-circle"></i>
+							Salvar
+						</button>
+
+						<a href="{% url 'cancela-lote-pre-reserva' lote.uuid %}" class="pre-reserva-button pre-reserva-button-danger">
+							<i class="bi bi-x-circle"></i>
+							Cancelar
+						</a>
+					</div>
+				</form>
+			</div>
+		</section>
+	</div>
 {% endblock %}

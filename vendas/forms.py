@@ -1,4 +1,4 @@
-from decimal import Decimal, InvalidOperation
+﻿from decimal import Decimal, InvalidOperation
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -8,12 +8,12 @@ from .models import RegisterVenda
 
 class RegisterVendaForm(forms.ModelForm):
     # =========================================================
-    # CORREÃƒâ€¡ÃƒÆ’O
+    # CORREÇÃO
     # =========================================================
 
     reajuste = forms.TypedChoiceField(
-        label='CorreÃƒÂ§ÃƒÂ£o',
-        choices=((True, 'Sim'), (False, 'NÃƒÂ£o')),
+        label='Correção',
+        choices=((True, 'Sim'), (False, 'Não')),
         coerce=lambda v: v == 'True',
         initial=True,
         widget=forms.RadioSelect
@@ -135,7 +135,7 @@ class RegisterVendaForm(forms.ModelForm):
             'observacao': forms.Textarea(attrs={
                 'class': 'form-control mb-3',
                 'style': 'height:150px;',
-                'placeholder': 'Digite uma observaÃƒÂ§ÃƒÂ£o...',
+                'placeholder': 'Digite uma observação...',
             }),
         }
 
@@ -155,7 +155,7 @@ class RegisterVendaForm(forms.ModelForm):
         self._set_initial_values()
 
     # =========================================================
-    # CONFIGURAÃƒâ€¡ÃƒÆ’O DOS CAMPOS
+    # CONFIGURAÃƒÆ’Ã¢â‚¬Â¡ÃƒÆ’Ã†â€™O DOS CAMPOS
     # =========================================================
 
     def _configure_fields(self):
@@ -246,7 +246,7 @@ class RegisterVendaForm(forms.ModelForm):
 
             except InvalidOperation:
                 raise ValidationError(
-                    'Valor monetÃƒÂ¡rio invÃƒÂ¡lido.'
+                    'Valor monetÃƒÆ’Ã‚Â¡rio invÃƒÆ’Ã‚Â¡lido.'
                 )
 
         return Decimal(value)
@@ -277,7 +277,7 @@ class RegisterVendaForm(forms.ModelForm):
 
             if desconto > total:
                 raise ValidationError(
-                    'O desconto nÃƒÂ£o pode ser maior que o valor total.'
+                    'O desconto nÃƒÆ’Ã‚Â£o pode ser maior que o valor total.'
                 )
 
         return desconto
@@ -313,7 +313,7 @@ class RegisterVendaForm(forms.ModelForm):
 
         if valor_financiado < 0:
             raise ValidationError(
-                'O valor financiado nÃƒÂ£o pode ser negativo.'
+                'O valor financiado nÃƒÆ’Ã‚Â£o pode ser negativo.'
             )
 
         return cleaned
@@ -367,7 +367,7 @@ class RegisterVendaForm(forms.ModelForm):
         return instance
 
     # =========================================================
-    # CÃƒÂLCULOS
+    # CÃƒÆ’Ã‚ÂLCULOS
     # =========================================================
 
     def _calcular_valor_total(self):
@@ -406,7 +406,7 @@ class RegisterVendaForm(forms.ModelForm):
 
         if parcelas <= 0:
             raise ValidationError(
-                'Quantidade de parcelas invÃƒÂ¡lida.'
+                'Quantidade de parcelas invÃƒÆ’Ã‚Â¡lida.'
             )
 
         valor_financiado = (
@@ -416,3 +416,4 @@ class RegisterVendaForm(forms.ModelForm):
         return (
                 valor_financiado / Decimal(str(parcelas))
         ).quantize(Decimal('0.01'))
+

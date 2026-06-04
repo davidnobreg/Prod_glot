@@ -420,8 +420,13 @@ def proposta(request, venda_uuid):
 
     }))
 
-    return HttpResponse(
-        html_final
+    return render(
+        request,
+        'proposta.html',
+        {
+            'html_final': html_final,
+            'venda': venda,
+        }
     )
 
 @has_permission_decorator('propostaRascunho')
@@ -775,8 +780,14 @@ def propostaRascunho(request, venda_uuid):
     else:
         html_final = f'{watermark_css}{html_final}'
 
-    return HttpResponse(
-        html_final
+    return render(
+        request,
+        'proposta.html',
+        {
+            'html_final': html_final,
+            'venda': venda,
+            'is_rascunho': True,
+        }
     )
 
 def proposta_pdf(request, venda_uuid):

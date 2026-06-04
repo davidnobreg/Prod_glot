@@ -4,283 +4,483 @@
 {% block title %}Detalhes da Reserva{% endblock %}
 
 {% block content %}
+	<style>
+		.reserva-detail-page {
+			background: #fff;
+			border-radius: 12px;
+			box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+			overflow: hidden;
+		}
 
-    <div class="container mt-5">
+		.reserva-detail-hero {
+			background: linear-gradient(180deg, #0b7a95 0%, #e8f6f9 100%);
+			border-bottom: 1px solid #08748d;
+			padding: 28px 24px 34px;
+			text-align: center;
+		}
 
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
+		.reserva-detail-title {
+			color: #031523;
+			font-size: clamp(1.7rem, 3vw, 2.55rem);
+			font-weight: 900;
+			margin: 0;
+			text-transform: uppercase;
+		}
 
-                <div class="card shadow-lg">
+		.reserva-detail-subtitle {
+			color: rgba(3, 21, 35, 0.74);
+			font-size: 1rem;
+			font-weight: 600;
+			margin: 10px auto 0;
+			max-width: 720px;
+		}
 
-                    <!-- HEADER -->
-                    <div class="card-header text-white text-center" style="background-color: rgb(3, 107, 145);">
-                        <h3 class="mb-0 display-5">Detalhes da Reserva</h3>
-                    </div>
+		.reserva-detail-panel {
+			background: linear-gradient(180deg, #08789a 0%, #b9d9df 100%);
+			border: 1px solid #04728f;
+			border-radius: 8px;
+			box-shadow: 6px 6px 12px rgba(4, 80, 105, 0.45);
+			margin: 16px;
+			padding: 24px;
+		}
 
-                    <div class="card-body">
+		.reserva-detail-grid {
+			display: grid;
+			gap: 24px;
+			grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+		}
 
-                        <!-- EMPREENDIMENTO -->
-                        <div class="row mb-4 text-center align-items-center">
+		.reserva-detail-card {
+			background: rgba(255, 255, 255, 0.96);
+			border-radius: 16px;
+			box-shadow: 0 14px 24px rgba(15, 23, 42, 0.22);
+			overflow: hidden;
+		}
 
-                            <div class="col-md-6">
-                                {% if reservas.lote.quadra.empr.logo %}
-                                    <img src="{{ reservas.lote.quadra.empr.logo.url }}"
-                                         class="img-fluid"
-                                         style="max-height:150px;">
-                                {% endif %}
-                            </div>
+		.reserva-logo-area {
+			align-items: center;
+			background: #fff;
+			display: flex;
+			justify-content: center;
+			min-height: 245px;
+			padding: 24px;
+		}
 
-                            <div class="col-md-6">
-                                <p class="fw-bold text-primary fs-4">Empreendimento</p>
-                                <p class="fs-5">{{ reservas.lote.quadra.empr.nome }}</p>
-                            </div>
+		.reserva-logo {
+			display: block;
+			max-height: 220px;
+			max-width: 100%;
+			object-fit: contain;
+		}
 
-                        </div>
+		.reserva-placeholder {
+			align-items: center;
+			background: linear-gradient(135deg, #edf9fb, #fff);
+			border: 1px solid #c8e8ef;
+			border-radius: 18px;
+			color: #08789a;
+			display: flex;
+			font-size: 4rem;
+			font-weight: 900;
+			height: 200px;
+			justify-content: center;
+			width: 100%;
+		}
 
-                        <hr>
+		.reserva-lote-info,
+		.reserva-section {
+			padding: 24px;
+		}
 
-                        <!-- LOTE -->
-                        <div class="row text-center mb-4">
+		.reserva-empreendimento {
+			border-bottom: 1px solid #d7e6e9;
+			color: #031523;
+			font-size: 1.15rem;
+			font-weight: 900;
+			margin: 0 0 18px;
+			padding-bottom: 14px;
+			text-align: center;
+			text-transform: uppercase;
+		}
 
-                            <div class="col-md-4">
-                                <p class="fw-bold text-primary fs-4">Quadra</p>
-                                <p class="fs-5">{{ reservas.lote.quadra.namequadra }}</p>
-                            </div>
+		.reserva-section-title {
+			color: #031523;
+			font-size: 1.5rem;
+			font-weight: 900;
+			letter-spacing: -0.03em;
+			margin: 0 0 6px;
+		}
 
-                            <div class="col-md-4">
-                                <p class="fw-bold text-primary fs-4">Lote</p>
-                                <p class="fs-5">{{ reservas.lote.lote }}</p>
-                            </div>
+		.reserva-section-text {
+			color: rgba(3, 21, 35, 0.64);
+			font-weight: 500;
+			margin: 0 0 20px;
+		}
 
-                            <div class="col-md-4">
-                                <p class="fw-bold text-primary fs-4">Vencimento</p>
-                                <p class="fs-5">{{ reservas.dt_reserva }}</p>
-                            </div>
+		.reserva-facts {
+			display: grid;
+			gap: 12px;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
 
-                        </div>
+		.reserva-fact {
+			background: #f8fafc;
+			border: 1px solid #dbe8ec;
+			border-radius: 12px;
+			padding: 13px;
+			text-align: center;
+		}
 
-                        <hr>
+		.reserva-fact-wide {
+			grid-column: 1 / -1;
+		}
 
-                        <!-- CORRETOR -->
-                        <div class="row text-center mb-4">
+		.reserva-fact span {
+			color: #08789a;
+			display: block;
+			font-size: 0.74rem;
+			font-weight: 900;
+			letter-spacing: 0.08em;
+			margin-bottom: 5px;
+			text-transform: uppercase;
+		}
 
-                            <div class="col-md-6">
-                                <p class="fw-bold text-primary fs-4">Corretor</p>
-                                <p class="fs-5">{{ contatoCorretor.first_name }}</p>
-                            </div>
+		.reserva-fact strong {
+			color: #031523;
+			font-size: 1.04rem;
+			font-weight: 900;
+		}
 
-                            <div class="col-md-6">
-                                <p class="fw-bold text-primary fs-4">Contato</p>
-                                <p class="fs-5">{{ contatoCorretor.contato }}</p>
-                            </div>
+		.reserva-actions {
+			display: grid;
+			gap: 12px;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			margin-top: 24px;
+		}
 
-                        </div>
+		.reserva-button {
+			align-items: center;
+			border: 1px solid transparent;
+			border-radius: 999px;
+			display: inline-flex;
+			font-weight: 900;
+			gap: 10px;
+			justify-content: center;
+			min-height: 48px;
+			padding: 12px 20px;
+			text-decoration: none;
+			transition: filter 0.18s ease, transform 0.18s ease;
+		}
 
-                        <hr>
+		.reserva-button-primary {
+			background: linear-gradient(180deg, #f7ffff 0%, #4fb4cf 34%, #057897 100%);
+			border-color: #08748d;
+			box-shadow: 0 12px 24px rgba(4, 80, 105, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+			color: #fff;
+		}
 
-                        <!-- BOTÕES -->
-                        <div class="d-flex justify-content-center gap-2 flex-wrap">
+		.reserva-button-danger {
+			background: #ef4444;
+			border-color: #fecaca;
+			color: #fff;
+		}
 
-                            <!-- VOLTAR -->
-                            <div class="col-md-2">
-                                <a href="{% url 'listar-quadras' reservas.lote.quadra.empr.uuid %}"
-                                   class="btn btn-primary w-100 py-3">
-                                    Voltar
-                                </a>
-                            </div>
+		.reserva-button-secondary {
+			background: #64748b;
+			border-color: #cbd5e1;
+			color: #fff;
+		}
 
-                            <!-- DELETAR (ADMIN) -->
-                            {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
-                                <div class="col-md-2">
-                                    <a href="#"
-                                       class="btn btn-danger w-100 py-3"
-                                       data-bs-toggle="modal"
-                                       data-bs-target="#ReservaModalDelete">
-                                        Deletar
-                                    </a>
-                                </div>
-                            {% endif %}
+		.reserva-button-success {
+			background: #059669;
+			border-color: #bbf7d0;
+			color: #fff;
+		}
 
-                            <!-- PROPOSTA (ADMIN OU DONO) -->
-                            {% if user.is_authenticated %}
-                                {% if user.tipo_usuario == "ADMINISTRADOR" or reservas.corretor == user %}
-                                    <div class="col-md-2">
-                                        <!--<a class="btn btn-secondary w-100 py-3"
-                                           data-bs-toggle="modal"
-                                           data-bs-target="#propostaModal">
-                                            Proposta
-                                        </a>-->
-                                        <a href="{% url 'proposta' reservas.uuid %}"
-                                           class="btn btn-secondary w-100 py-3">
-                                            Proposta
-                                        </a>
-                                    </div>
-                                {% endif %}
-                            {% endif %}
+		.reserva-button:hover,
+		.reserva-button:focus {
+			color: #fff;
+			filter: brightness(1.06);
+			transform: translateY(-1px);
+		}
 
-                            <!-- VENDER (ADMIN) -->
-                            {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
-                                <div class="col-md-2">
-                                    <a href="{% url 'criar-venda' reservas.uuid %}"
-                                       class="btn btn-success w-100 py-3">
-                                        Vender
-                                    </a>
-                                </div>
-                            {% endif %}
+		.reserva-modal-content {
+			border: 0;
+			border-radius: 18px;
+			box-shadow: 0 24px 48px rgba(15, 23, 42, 0.24);
+			overflow: hidden;
+		}
 
-                        </div>
+		.reserva-modal-header {
+			background: linear-gradient(180deg, #0b7a95 0%, #e8f6f9 100%);
+			border-bottom: 1px solid #c8e8ef;
+		}
 
-                    </div>
-                </div>
+		.reserva-modal-title {
+			color: #031523;
+			font-weight: 900;
+		}
 
-            </div>
-        </div>
-    </div>
+		@media (max-width: 991.98px) {
+			.reserva-detail-grid {
+				grid-template-columns: 1fr;
+			}
+		}
 
-    <!-- ================= MODAL DELETE ================= -->
-    <div class="modal fade" id="ReservaModalDelete" tabindex="-1">
+		@media (max-width: 575.98px) {
+			.reserva-detail-panel {
+				margin: 10px 0 0;
+				padding: 14px;
+			}
 
-        <div class="modal-dialog">
-            <div class="modal-content">
+			.reserva-facts,
+			.reserva-actions {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
 
-                <div class="modal-header">
-                    <h5 class="modal-title">Excluir Reserva</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
+	<div class="reserva-detail-page">
+		<header class="reserva-detail-hero">
+			<h1 class="reserva-detail-title">
+				Detalhes da reserva
+			</h1>
 
-                <form method="post" action="{% url 'delete-reservado' reservas.uuid %}">
-                    {% csrf_token %}
+			<p class="reserva-detail-subtitle">
+				Confira os dados da reserva e escolha a próxima ação comercial.
+			</p>
+		</header>
 
-                    <div class="modal-body">
+		<section class="reserva-detail-panel">
+			<div class="reserva-detail-grid">
+				<article class="reserva-detail-card">
+					<div class="reserva-logo-area">
+						{% if reservas.lote.quadra.empr.logo %}
+							<img src="{{ reservas.lote.quadra.empr.logo.url }}" class="reserva-logo" alt="Logo de {{ reservas.lote.quadra.empr.nome }}">
+						{% else %}
+							<div class="reserva-placeholder" aria-hidden="true">
+								{{ reservas.lote.quadra.empr.nome|first|upper }}
+							</div>
+						{% endif %}
+					</div>
 
-                        <p><strong>Cliente:</strong> {{ reservas.cliente }}</p>
-                        <p><strong>Empreendimento:</strong> {{ reservas.lote.quadra.empr.nome }}</p>
-                        <p><strong>Quadra:</strong> {{ reservas.lote.quadra }}</p>
-                        <p><strong>Lote:</strong> {{ reservas.lote }}</p>
-                        <p><strong>Corretor:</strong> {{ reservas.corretor }}</p>
+					<div class="reserva-lote-info">
+						<h2 class="reserva-empreendimento">
+							{{ reservas.lote.quadra.empr.nome }}
+						</h2>
 
-                    </div>
+						<div class="reserva-facts">
+							<div class="reserva-fact">
+								<span>Quadra</span>
+								<strong>{{ reservas.lote.quadra.namequadra }}</strong>
+							</div>
 
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-danger">Deletar</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            Cancelar
-                        </button>
-                    </div>
+							<div class="reserva-fact">
+								<span>Lote</span>
+								<strong>{{ reservas.lote.lote }}</strong>
+							</div>
 
-                </form>
+							<div class="reserva-fact reserva-fact-wide">
+								<span>Vencimento</span>
+								<strong>{{ reservas.dt_reserva }}</strong>
+							</div>
+						</div>
+					</div>
+				</article>
 
-            </div>
-        </div>
-    </div>
+				<article class="reserva-detail-card reserva-section">
+					<h2 class="reserva-section-title">
+						Responsável pela reserva
+					</h2>
 
-    <!-- ================= MODAL PROPOSTA ================= -->
-    <div class="modal fade" id="propostaModal" tabindex="-1">
+					<p class="reserva-section-text">
+						Dados do corretor vinculado à reserva.
+					</p>
 
-        <div class="modal-dialog">
-            <div class="modal-content">
+					<div class="reserva-facts">
+						<div class="reserva-fact">
+							<span>Corretor</span>
+							<strong>{{ contatoCorretor.first_name }}</strong>
+						</div>
 
-                <div class="modal-header">
-                    <h5 class="modal-title">Tipos de Proposta</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
+						<div class="reserva-fact">
+							<span>Contato</span>
+							<strong>{{ contatoCorretor.contato }}</strong>
+						</div>
+					</div>
 
-                <div class="modal-body text-center">
+					<div class="reserva-actions">
+						<a href="{% url 'listar-quadras' reservas.lote.quadra.empr.uuid %}" class="reserva-button reserva-button-primary">
+							<i class="bi bi-arrow-left"></i>
+							Voltar
+						</a>
 
-                    <div class="row g-2">
+						{% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
+							<a href="#" class="reserva-button reserva-button-danger" data-bs-toggle="modal" data-bs-target="#ReservaModalDelete">
+								<i class="bi bi-trash"></i>
+								Deletar
+							</a>
+						{% endif %}
 
-                        <div class="col-6">
-                            <a href="{% url 'proposta' reservas.uuid %}"
-                               class="btn btn-primary w-100 py-2">
-                                Visualizar
-                            </a>
-                        </div>
+						{% if user.is_authenticated %}
+							{% if user.tipo_usuario == "ADMINISTRADOR" or reservas.corretor == user %}
+								<a href="{% url 'proposta' reservas.uuid %}" class="reserva-button reserva-button-secondary">
+									<i class="bi bi-file-earmark-text"></i>
+									Proposta
+								</a>
+							{% endif %}
+						{% endif %}
 
-                        <div class="col-6">
-                            <button type="button"
-                                    class="btn btn-secondary w-100 py-2"
-                                    data-proposta-url="{% url 'proposta_pdf' reservas.uuid %}"
-                                    data-proposta-nome="proposta_{{ reservas.cliente.name|slugify }}.pdf"
-                                    onclick="compartilharProposta(this)">
-                                Compartilhar PDF
-                            </button>
-                        </div>
+						{% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
+							<a href="{% url 'criar-venda' reservas.uuid %}" class="reserva-button reserva-button-success">
+								<i class="bi bi-cash-coin"></i>
+								Vender
+							</a>
+						{% endif %}
+					</div>
+				</article>
+			</div>
+		</section>
+	</div>
 
-                    </div>
+	<div class="modal fade" id="ReservaModalDelete" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content reserva-modal-content">
+				<div class="modal-header reserva-modal-header">
+					<h5 class="modal-title reserva-modal-title">
+						Excluir reserva
+					</h5>
 
-                </div>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
 
-            </div>
-        </div>
-    </div>
+				<form method="post" action="{% url 'delete-reservado' reservas.uuid %}">
+					{% csrf_token %}
 
-    <script>
-        async function compartilharProposta(botao) {
-            const url = botao.dataset.propostaUrl;
-            const nomeArquivo = botao.dataset.propostaNome || 'proposta.pdf';
-            const textoOriginal = botao.innerText;
+					<div class="modal-body">
+						<p><strong>Cliente:</strong> {{ reservas.cliente }}</p>
+						<p><strong>Empreendimento:</strong> {{ reservas.lote.quadra.empr.nome }}</p>
+						<p><strong>Quadra:</strong> {{ reservas.lote.quadra }}</p>
+						<p><strong>Lote:</strong> {{ reservas.lote }}</p>
+						<p><strong>Corretor:</strong> {{ reservas.corretor }}</p>
+					</div>
 
-            if (!url) {
-                alert('Proposta nao identificada para gerar o PDF.');
-                return;
-            }
+					<div class="modal-footer">
+						<button type="submit" class="btn btn-danger rounded-pill px-4">
+							Deletar
+						</button>
 
-            const baixarPdf = (blob, fileName) => {
-                const urlBlob = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = urlBlob;
-                a.download = fileName;
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
+						<button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">
+							Cancelar
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 
-                setTimeout(() => {
-                    URL.revokeObjectURL(urlBlob);
-                    document.body.removeChild(a);
-                }, 1000);
-            };
+	<div class="modal fade" id="propostaModal" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content reserva-modal-content">
+				<div class="modal-header reserva-modal-header">
+					<h5 class="modal-title reserva-modal-title">
+						Tipos de proposta
+					</h5>
 
-            botao.disabled = true;
-            botao.innerText = 'Gerando PDF...';
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
 
-            try {
-                const response = await fetch(url);
+				<div class="modal-body text-center">
+					<div class="row g-2">
+						<div class="col-6">
+							<a href="{% url 'proposta' reservas.uuid %}" class="btn btn-primary w-100 py-2 rounded-pill">
+								Visualizar
+							</a>
+						</div>
 
-                if (!response.ok) {
-                    alert('Erro ao gerar a proposta.');
-                    return;
-                }
+						<div class="col-6">
+							<button
+								type="button"
+								class="btn btn-secondary w-100 py-2 rounded-pill"
+								data-proposta-url="{% url 'proposta_pdf' reservas.uuid %}"
+								data-proposta-nome="proposta_{{ reservas.cliente.name|slugify }}.pdf"
+								onclick="compartilharProposta(this)"
+							>
+								Compartilhar PDF
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
-                const blob = await response.blob();
-                const file = new File([blob], nomeArquivo, {type: 'application/pdf'});
+	<script>
+		async function compartilharProposta(botao) {
+			const url = botao.dataset.propostaUrl;
+			const nomeArquivo = botao.dataset.propostaNome || 'proposta.pdf';
+			const textoOriginal = botao.innerText;
 
-                if (navigator.canShare && navigator.canShare({files: [file]})) {
-                    try {
-                        botao.innerText = 'Abrindo compartilhamento...';
-                        await navigator.share({
-                            title: 'Proposta',
-                            text: 'Segue a proposta em PDF.',
-                            files: [file]
-                        });
-                    } catch (shareErr) {
-                        if (shareErr && shareErr.name === 'AbortError') {
-                            return;
-                        }
+			if (!url) {
+				alert('Proposta nao identificada para gerar o PDF.');
+				return;
+			}
 
-                        console.warn('Compartilhamento indisponivel, baixando PDF:', shareErr);
-                        baixarPdf(blob, file.name);
-                    }
-                } else {
-                    baixarPdf(blob, file.name);
-                }
-            } catch (err) {
-                console.error('Erro ao gerar proposta:', err);
-                alert('Ocorreu um erro ao gerar a proposta.');
-            } finally {
-                botao.disabled = false;
-                botao.innerText = textoOriginal;
-            }
-        }
-    </script>
+			const baixarPdf = (blob, fileName) => {
+				const urlBlob = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = urlBlob;
+				a.download = fileName;
+				a.style.display = 'none';
+				document.body.appendChild(a);
+				a.click();
 
+				setTimeout(() => {
+					URL.revokeObjectURL(urlBlob);
+					document.body.removeChild(a);
+				}, 1000);
+			};
+
+			botao.disabled = true;
+			botao.innerText = 'Gerando PDF...';
+
+			try {
+				const response = await fetch(url);
+
+				if (!response.ok) {
+					alert('Erro ao gerar a proposta.');
+					return;
+				}
+
+				const blob = await response.blob();
+				const file = new File([blob], nomeArquivo, {type: 'application/pdf'});
+
+				if (navigator.canShare && navigator.canShare({files: [file]})) {
+					try {
+						botao.innerText = 'Abrindo compartilhamento...';
+						await navigator.share({
+							title: 'Proposta',
+							text: 'Segue a proposta em PDF.',
+							files: [file]
+						});
+					} catch (shareErr) {
+						if (shareErr && shareErr.name === 'AbortError') {
+							return;
+						}
+
+						console.warn('Compartilhamento indisponivel, baixando PDF:', shareErr);
+						baixarPdf(blob, file.name);
+					}
+				} else {
+					baixarPdf(blob, file.name);
+				}
+			} catch (err) {
+				console.error('Erro ao gerar proposta:', err);
+				alert('Ocorreu um erro ao gerar a proposta.');
+			} finally {
+				botao.disabled = false;
+				botao.innerText = textoOriginal;
+			}
+		}
+	</script>
 {% endblock %}

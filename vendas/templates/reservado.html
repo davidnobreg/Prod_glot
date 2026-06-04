@@ -1,232 +1,579 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Detalhe de Venda
+	Detalhe de Venda
 {% endblock %}
 
 {% load static %}
 
 {% block content %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="card shadow-lg">
-                    <div class="card-header text-white text-center" style="background-color: rgb(3, 107, 145);">
-                        <h3 class="mb-0 display-5">Detalhes da Venda</h3>
-                    </div>
-                    <div class="card-body">
-                        {% if reservas %}
-                            <!-- Bloco com venda existente -->
-                            <!-- Logo e Empreendimento -->
-                            <div class="row mb-4 d-flex align-items-center justify-content-center text-center"
-                                 style="min-height: 200px;">
-                                <div class="col-md-6 d-flex justify-content-center align-items-center">
-                                    {% if reservas.lote.quadra.empr.logo %}
-                                        <div class="image-container">
-                                            <img src="{{ reservas.lote.quadra.empr.logo.url }}"
-                                                 alt="Logo de {{ reservas.lote.quadra.empr }}"
-                                                 class="img-fluid"
-                                                 style="max-height: 150px;">
-                                        </div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-6 d-flex flex-column justify-content-center align-items-center">
-                                    <p class="fw-bold text-primary fs-4 mb-1">Empreendimento:</p>
-                                    <p class="fs-5 mb-0">{{ reservas.lote.quadra.empr }}</p>
-                                </div>
-                            </div>
+	<style>
+		.venda-detalhe-page {
+			background: #fff;
+			border-radius: 12px;
+			box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+			overflow: hidden;
+		}
 
-                            <hr class="my-4"/>
+		.venda-detalhe-hero {
+			background: linear-gradient(180deg, #0b7a95 0%, #e8f6f9 100%);
+			border-bottom: 1px solid #08748d;
+			padding: 28px 24px 34px;
+			text-align: center;
+		}
 
-                            <!-- Informações do Lote -->
-                            <div class="row mb-4 text-center">
-                                <div class="col-md-4">
-                                    <p class="fw-bold text-primary fs-4 mb-1">Quadra:</p>
-                                    <p class="fs-5 mb-0">{{ reservas.lote.quadra.namequadra }}</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <p class="fw-bold text-primary fs-4 mb-1">Lote:</p>
-                                    <p class="fs-5 mb-0">{{ reservas.lote.lote }}</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <p class="fw-bold text-primary fs-4 mb-1">Data de Venda:</p>
-                                    <p class="fs-5 mb-0">{{ reservas.dt_venda }}</p>
-                                </div>
-                            </div>
-                            <!-- Corretor -->
-                            <div class="row text-center">
-                                <div class="col-md-6">
-                                    <p class="fw-bold text-primary fs-4 mb-1">Corretor:</p>
-                                    <p class="fs-5 mb-0">{{ reservas.user.first_name }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p class="fw-bold text-primary fs-4 mb-1">Contato:</p>
-                                    <p class="fs-5 mb-0">{{ reservas.user.contato }}</p>
-                                </div>
-                            </div>
+		.venda-detalhe-title {
+			color: #031523;
+			font-size: clamp(1.7rem, 3vw, 2.55rem);
+			font-weight: 900;
+			letter-spacing: 0.02em;
+			line-height: 1.1;
+			margin: 0;
+			text-transform: uppercase;
+		}
 
-                            <hr class="my-4"/>
+		.venda-detalhe-subtitle {
+			color: rgba(3, 21, 35, 0.74);
+			font-size: 1rem;
+			font-weight: 600;
+			margin: 10px auto 0;
+			max-width: 680px;
+		}
 
-                            <!-- Corretor -->
-                            <div class="row text-center">
-                                <div class="col-md-6">
-                                    <p class="fw-bold text-primary fs-4 mb-1">Cliente:</p>
-                                    <p class="fs-5 mb-0">{{ reservas.cliente.name }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p class="fw-bold text-primary fs-4 mb-1">Contato do Cliente:</p>
-                                    <p class="fs-5 mb-0">{{ contatoCliente.numero }}</p>
-                                    <p class="fs-5 mb-0">
+		.venda-detalhe-panel {
+			background: linear-gradient(180deg, #08789a 0%, #b9d9df 100%);
+			border: 1px solid #04728f;
+			border-radius: 8px;
+			box-shadow: 6px 6px 12px rgba(4, 80, 105, 0.45);
+			margin: 16px;
+			padding: 24px;
+		}
 
-                                        {% if contatoCliente.tipo %}
-                                            {% if contatoCliente.tipo == 'whatsapp' %}
-                                                <span class="badge bg-success">WHATSAPP</span>
-                                            {% elif contatoCliente.tipo == 'celular' %}
-                                                <span class="badge bg-primary">CELULAR</span>
-                                            {% elif contatoCliente.tipo == 'fixo' %},
-                                                <span class="badge bg-infor">FIXO</span>
-                                            {% elif contatoCliente.tipo == 'recado' %}
-                                                <span class="badge bg-black">RECADO</span>
-                                            {% elif contatoCliente.tipo == 'outro' %}
-                                                <span class="badge bg-danger">OUTROS</span>
-                                            {% endif %}
+		.venda-detalhe-card {
+			background: rgba(255, 255, 255, 0.96);
+			border-radius: 16px;
+			box-shadow: 0 14px 24px rgba(15, 23, 42, 0.22);
+			overflow: hidden;
+		}
 
-                                        {% else %}
-                                            <span class="text-muted">Sem Status</span>
-                                        {% endif %}
-                                    </p>
-                                </div>
-                            </div>
+		.venda-detalhe-main {
+			display: grid;
+			gap: 24px;
+			grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+		}
 
-                        {% else %}
-                            <!-- Bloco sem venda -->
-                            <div class="alert alert-warning text-center">
-                                <h4 class="fw-bold text-danger">Este lote está marcado como <u>vendido</u>, mas não há
-                                    venda registrada.</h4>
-                                <h5 class="fw-bold text-danger">Id do Lote: {{ lote.uuid }}</h5>
-                                <p class="mb-0">Verifique com o administrador do sistema ou registre a venda
-                                    corretamente.</p>
-                                {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
-                                    <div class="col-md-12">
-                                        <a href="{% url 'libera-lote' lote.uuid %}"
-                                           class="btn btn-dark text-bg-info text-center py-3 w-50"
-                                           aria-label="Exibir quadras">
-                                            <label class="form-label fw-bold d-block">Libera Lote</label>
-                                        </a>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        {% endif %}
+		.venda-logo-area {
+			align-items: center;
+			background: #fff;
+			display: flex;
+			justify-content: center;
+			min-height: 245px;
+			padding: 24px;
+		}
 
-                        <hr class="my-4"/>
+		.venda-logo {
+			display: block;
+			max-height: 220px;
+			max-width: 100%;
+			object-fit: contain;
+		}
 
-                        <!-- Botões de navegação -->
-                        <div class="d-flex flex-wrap justify-content-center gap-2">
-                            {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" and reservas %}
-                                <a class="btn btn-danger px-4 py-2 fw-bold"
-                                   data-bs-toggle="modal"
-                                   data-bs-target="#ReservaModalDelete">
-                                    Deletar
-                                </a>
-                            {% endif %}
+		.venda-logo-placeholder {
+			align-items: center;
+			background: linear-gradient(135deg, #edf9fb, #fff);
+			border: 1px solid #c8e8ef;
+			border-radius: 18px;
+			color: #08789a;
+			display: flex;
+			font-size: 4rem;
+			font-weight: 900;
+			height: 200px;
+			justify-content: center;
+			width: 100%;
+		}
 
-                            <a href="
+		.venda-lote-info {
+			padding: 22px;
+		}
 
+		.venda-empreendimento {
+			border-bottom: 1px solid #d7e6e9;
+			color: #031523;
+			font-size: 1.15rem;
+			font-weight: 900;
+			margin: 0 0 18px;
+			padding-bottom: 14px;
+			text-align: center;
+			text-transform: uppercase;
+		}
 
-                                    {% if reservas %}{% url 'listar-quadras' reservas.lote.quadra.empr.uuid %}{% else %}{% url 'listar-quadras' lote.quadra.empr.uuid %}{% endif %}"
-                               class="btn btn-primary px-4 py-2 fw-bold">
-                                Quadras
-                            </a>
+		.venda-facts {
+			display: grid;
+			gap: 12px;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
 
-                            <a href="{% url 'lista-venda' %}"
-                               class="btn btn-warning px-4 py-2 fw-bold">
-                                Listagem
-                            </a>
-                            {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" and reservas %}
-                                <a class="btn btn-success px-4 py-2 fw-bold"
-                                   data-venda-id="{{ reservas.uuid }}"
-                                   data-bs-toggle="modal"
-                                   data-bs-target="#contratoModal"
-                                   data-bs-toggle="tooltip">
-                                    Contrato
-                                </a>
-                            {% endif %}
+		.venda-fact {
+			background: #f8fafc;
+			border: 1px solid #dbe8ec;
+			border-radius: 12px;
+			padding: 13px;
+			text-align: center;
+		}
 
-                        </div>
+		.venda-fact-wide {
+			grid-column: 1 / -1;
+		}
 
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+		.venda-fact span {
+			color: #08789a;
+			display: block;
+			font-size: 0.74rem;
+			font-weight: 900;
+			letter-spacing: 0.08em;
+			margin-bottom: 5px;
+			text-transform: uppercase;
+		}
 
-    {% if reservas %}
-        <!-- Modal para deletar reserva -->
-        <div class="modal fade" id="ReservaModalDelete" tabindex="-1" aria-labelledby="ReservaModalDelete"
-             aria-hidden="true">
-            <div class="modal-dialog">
-                <form method="post" action="{% url 'delete-venda' reservas.uuid %}">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Deleta da Venda</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Fechar"></button>
-                        </div>
-                        {% csrf_token %}
-                        <div class="modal-body">
-                            <p><strong>Cliente:</strong> {{ reservas.cliente }}</p>
-                            <p><strong>Empreendimento:</strong> {{ reservas.lote.quadra.empr.nome }}</p>
-                            <p><strong>Quadra:</strong> {{ reservas.lote.quadra }}</p>
-                            <p><strong>Lote:</strong> {{ reservas.lote }}</p>
-                            <p><strong>Corretor:</strong> {{ reservas.user }}</p>
-                            <p><strong>Vencimento da Reserva:</strong> {{ reservas.lote.data_termina_reserva }}</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-danger">Deletar</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    {% endif %}
+		.venda-fact strong {
+			color: #031523;
+			font-size: 1.04rem;
+			font-weight: 900;
+		}
 
-    <div class="modal fade" id="contratoModal" tabindex="-1" aria-labelledby="contratoModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
+		.venda-section {
+			padding: 26px;
+		}
 
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <h5 class="modal-title" id="contratoModalLabel">Tipos de Contratos</h5>
-                    <br>
-                    <div class="row g-2">
-                        <div class="col-6">
-                            {% if reservas and reservas.uuid %}
-                                <a href="{% url 'contrato' reservas.uuid %}"
-                                   class="btn btn-primary py-2 w-100 rounded-pill">
-                                    Visualizar
-                                </a>
-                            {% else %}
-                                <button class="btn btn-secondary py-2 w-100 rounded-pill" disabled>
-                                    Indisponível
-                                </button>
-                            {% endif %}
-                        </div>
-                        <div class="col-6">
-                            <a href="{% url 'contrato_pdf' %}?venda_uuid={{ reservas.uuid }}"
-                               class="btn btn-secondary py-2 w-100 rounded-pill">PDF</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
+		.venda-section-title {
+			color: #031523;
+			font-size: 1.5rem;
+			font-weight: 900;
+			letter-spacing: -0.03em;
+			margin: 0 0 6px;
+		}
 
-                </div>
+		.venda-section-text {
+			color: rgba(3, 21, 35, 0.64);
+			font-weight: 500;
+			margin: 0 0 20px;
+		}
 
-            </div>
-        </div>
-    </div>
+		.venda-info-grid {
+			display: grid;
+			gap: 12px;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		.venda-client-badge {
+			border-radius: 999px;
+			display: inline-flex;
+			font-size: 0.72rem;
+			font-weight: 900;
+			margin-top: 8px;
+			padding: 6px 10px;
+			text-transform: uppercase;
+		}
+
+		.venda-badge-whatsapp {
+			background: #dcfce7;
+			color: #15803d;
+		}
+
+		.venda-badge-celular {
+			background: #dbeafe;
+			color: #1d4ed8;
+		}
+
+		.venda-badge-fixo {
+			background: #cffafe;
+			color: #0e7490;
+		}
+
+		.venda-badge-recado {
+			background: #e2e8f0;
+			color: #0f172a;
+		}
+
+		.venda-badge-outro {
+			background: #fee2e2;
+			color: #b91c1c;
+		}
+
+		.venda-alert {
+			background: #fff7ed;
+			border: 1px solid #fed7aa;
+			border-radius: 16px;
+			box-shadow: 0 14px 24px rgba(15, 23, 42, 0.12);
+			color: #7c2d12;
+			padding: 28px;
+			text-align: center;
+		}
+
+		.venda-alert h2 {
+			font-size: 1.4rem;
+			font-weight: 900;
+			margin: 0 0 10px;
+		}
+
+		.venda-actions {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 12px;
+			justify-content: center;
+			margin-top: 24px;
+		}
+
+		.venda-button {
+			align-items: center;
+			border: 1px solid transparent;
+			border-radius: 999px;
+			display: inline-flex;
+			font-weight: 900;
+			gap: 10px;
+			justify-content: center;
+			min-height: 48px;
+			padding: 12px 20px;
+			text-decoration: none;
+			transition: filter 0.18s ease, transform 0.18s ease;
+		}
+
+		.venda-button-primary {
+			background: linear-gradient(180deg, #f7ffff 0%, #4fb4cf 34%, #057897 100%);
+			border-color: #08748d;
+			box-shadow: 0 12px 24px rgba(4, 80, 105, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+			color: #fff;
+		}
+
+		.venda-button-warning {
+			background: #f59e0b;
+			border-color: #fde68a;
+			color: #3b2600;
+		}
+
+		.venda-button-danger {
+			background: #ef4444;
+			border-color: #fecaca;
+			color: #fff;
+		}
+
+		.venda-button-success {
+			background: #059669;
+			border-color: #bbf7d0;
+			color: #fff;
+		}
+
+		.venda-button-dark {
+			background: #0f172a;
+			border-color: #cbd5e1;
+			color: #fff;
+		}
+
+		.venda-button:hover,
+		.venda-button:focus {
+			filter: brightness(1.06);
+			transform: translateY(-1px);
+		}
+
+		.venda-button-primary:hover,
+		.venda-button-danger:hover,
+		.venda-button-success:hover,
+		.venda-button-dark:hover,
+		.venda-button-primary:focus,
+		.venda-button-danger:focus,
+		.venda-button-success:focus,
+		.venda-button-dark:focus {
+			color: #fff;
+		}
+
+		.venda-button-warning:hover,
+		.venda-button-warning:focus {
+			color: #3b2600;
+		}
+
+		.venda-modal-content {
+			border: 0;
+			border-radius: 18px;
+			box-shadow: 0 24px 48px rgba(15, 23, 42, 0.24);
+			overflow: hidden;
+		}
+
+		.venda-modal-header {
+			background: linear-gradient(180deg, #0b7a95 0%, #e8f6f9 100%);
+			border-bottom: 1px solid #c8e8ef;
+		}
+
+		.venda-modal-title {
+			color: #031523;
+			font-weight: 900;
+		}
+
+		@media (max-width: 991.98px) {
+			.venda-detalhe-main {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		@media (max-width: 575.98px) {
+			.venda-detalhe-panel {
+				margin: 10px 0 0;
+				padding: 14px;
+			}
+
+			.venda-info-grid,
+			.venda-facts {
+				grid-template-columns: 1fr;
+			}
+
+			.venda-actions {
+				align-items: stretch;
+				flex-direction: column;
+			}
+		}
+	</style>
+
+	<div class="venda-detalhe-page">
+		<header class="venda-detalhe-hero">
+			<h1 class="venda-detalhe-title">
+				Detalhes da venda
+			</h1>
+
+			<p class="venda-detalhe-subtitle">
+				Consulte os dados do empreendimento, lote, corretor e cliente vinculados a esta venda.
+			</p>
+		</header>
+
+		<section class="venda-detalhe-panel">
+			{% if reservas %}
+				<div class="venda-detalhe-main">
+					<article class="venda-detalhe-card">
+						<div class="venda-logo-area">
+							{% if reservas.lote.quadra.empr.logo %}
+								<img
+									src="{{ reservas.lote.quadra.empr.logo.url }}"
+									alt="Logo de {{ reservas.lote.quadra.empr }}"
+									class="venda-logo"
+								>
+							{% else %}
+								<div class="venda-logo-placeholder" aria-hidden="true">
+									{{ reservas.lote.quadra.empr.nome|first|upper }}
+								</div>
+							{% endif %}
+						</div>
+
+						<div class="venda-lote-info">
+							<h2 class="venda-empreendimento">
+								{{ reservas.lote.quadra.empr }}
+							</h2>
+
+							<div class="venda-facts">
+								<div class="venda-fact">
+									<span>Quadra</span>
+									<strong>{{ reservas.lote.quadra.namequadra }}</strong>
+								</div>
+
+								<div class="venda-fact">
+									<span>Lote</span>
+									<strong>{{ reservas.lote.lote }}</strong>
+								</div>
+
+								<div class="venda-fact venda-fact-wide">
+									<span>Data de venda</span>
+									<strong>{{ reservas.dt_venda }}</strong>
+								</div>
+							</div>
+						</div>
+					</article>
+
+					<article class="venda-detalhe-card venda-section">
+						<h2 class="venda-section-title">
+							Informações da venda
+						</h2>
+
+						<p class="venda-section-text">
+							Dados comerciais vinculados ao lote vendido.
+						</p>
+
+						<div class="venda-info-grid">
+							<div class="venda-fact">
+								<span>Corretor</span>
+								<strong>{{ reservas.user.first_name }}</strong>
+							</div>
+
+							<div class="venda-fact">
+								<span>Contato corretor</span>
+								<strong>{{ reservas.user.contato }}</strong>
+							</div>
+
+							<div class="venda-fact">
+								<span>Cliente</span>
+								<strong>{{ reservas.cliente.name }}</strong>
+							</div>
+
+							<div class="venda-fact">
+								<span>Contato cliente</span>
+								<strong>{{ contatoCliente.numero|default:"Não informado" }}</strong>
+
+								{% if contatoCliente.tipo %}
+									{% if contatoCliente.tipo == 'whatsapp' %}
+										<small class="venda-client-badge venda-badge-whatsapp">WhatsApp</small>
+									{% elif contatoCliente.tipo == 'celular' %}
+										<small class="venda-client-badge venda-badge-celular">Celular</small>
+									{% elif contatoCliente.tipo == 'fixo' %}
+										<small class="venda-client-badge venda-badge-fixo">Fixo</small>
+									{% elif contatoCliente.tipo == 'recado' %}
+										<small class="venda-client-badge venda-badge-recado">Recado</small>
+									{% elif contatoCliente.tipo == 'outro' %}
+										<small class="venda-client-badge venda-badge-outro">Outros</small>
+									{% endif %}
+								{% endif %}
+							</div>
+						</div>
+					</article>
+				</div>
+			{% else %}
+				<div class="venda-alert">
+					<h2>
+						Venda não registrada
+					</h2>
+
+					<p>
+						Este lote está marcado como vendido, mas não há venda registrada. Verifique com o administrador do sistema ou registre a venda corretamente.
+					</p>
+
+					<p class="mb-0">
+						<strong>ID do lote:</strong> {{ lote.uuid }}
+					</p>
+
+					{% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
+						<div class="venda-actions">
+							<a href="{% url 'libera-lote' lote.uuid %}" class="venda-button venda-button-dark">
+								<i class="bi bi-unlock"></i>
+								Liberar lote
+							</a>
+						</div>
+					{% endif %}
+				</div>
+			{% endif %}
+
+			<div class="venda-actions">
+				{% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" and reservas %}
+					<a
+						class="venda-button venda-button-danger"
+						data-bs-toggle="modal"
+						data-bs-target="#ReservaModalDelete"
+					>
+						<i class="bi bi-trash"></i>
+						Deletar
+					</a>
+				{% endif %}
+
+				<a
+					href="{% if reservas %}{% url 'listar-quadras' reservas.lote.quadra.empr.uuid %}{% else %}{% url 'listar-quadras' lote.quadra.empr.uuid %}{% endif %}"
+					class="venda-button venda-button-primary"
+				>
+					<i class="bi bi-grid-3x3-gap"></i>
+					Quadras
+				</a>
+
+				<a href="{% url 'lista-venda' %}" class="venda-button venda-button-warning">
+					<i class="bi bi-list-ul"></i>
+					Listagem
+				</a>
+
+				{% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" and reservas %}
+					<a
+						class="venda-button venda-button-success"
+						data-venda-id="{{ reservas.uuid }}"
+						data-bs-toggle="modal"
+						data-bs-target="#contratoModal"
+					>
+						<i class="bi bi-file-earmark-text"></i>
+						Contrato
+					</a>
+				{% endif %}
+			</div>
+		</section>
+	</div>
+
+	{% if reservas %}
+		<div class="modal fade" id="ReservaModalDelete" tabindex="-1" aria-labelledby="ReservaModalDelete" aria-hidden="true">
+			<div class="modal-dialog">
+				<form method="post" action="{% url 'delete-venda' reservas.uuid %}">
+					<div class="modal-content venda-modal-content">
+						<div class="modal-header venda-modal-header">
+							<h5 class="modal-title venda-modal-title">
+								Deletar venda
+							</h5>
+
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+						</div>
+
+						{% csrf_token %}
+
+						<div class="modal-body">
+							<p><strong>Cliente:</strong> {{ reservas.cliente }}</p>
+							<p><strong>Empreendimento:</strong> {{ reservas.lote.quadra.empr.nome }}</p>
+							<p><strong>Quadra:</strong> {{ reservas.lote.quadra }}</p>
+							<p><strong>Lote:</strong> {{ reservas.lote }}</p>
+							<p><strong>Corretor:</strong> {{ reservas.user }}</p>
+							<p><strong>Vencimento da Reserva:</strong> {{ reservas.lote.data_termina_reserva }}</p>
+						</div>
+
+						<div class="modal-footer">
+							<button type="submit" class="btn btn-danger rounded-pill px-4">
+								Deletar
+							</button>
+
+							<button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">
+								Cancelar
+							</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	{% endif %}
+
+	<div class="modal fade" id="contratoModal" tabindex="-1" aria-labelledby="contratoModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content venda-modal-content">
+				<div class="modal-header venda-modal-header">
+					<h5 class="modal-title venda-modal-title" id="contratoModalLabel">
+						Tipos de contratos
+					</h5>
+
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+				</div>
+
+				<div class="modal-body text-center">
+					<div class="row g-2">
+						<div class="col-6">
+							{% if reservas and reservas.uuid %}
+								<a href="{% url 'contrato' reservas.uuid %}" class="btn btn-primary py-2 w-100 rounded-pill">
+									Visualizar
+								</a>
+							{% else %}
+								<button class="btn btn-secondary py-2 w-100 rounded-pill" disabled>
+									Indisponível
+								</button>
+							{% endif %}
+						</div>
+
+						<div class="col-6">
+							{% if reservas and reservas.uuid %}
+								<a href="{% url 'contrato_pdf' %}?venda_uuid={{ reservas.uuid }}" class="btn btn-secondary py-2 w-100 rounded-pill">
+									PDF
+								</a>
+							{% else %}
+								<button class="btn btn-secondary py-2 w-100 rounded-pill" disabled>
+									PDF
+								</button>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 {% endblock %}
-

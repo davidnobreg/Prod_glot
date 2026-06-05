@@ -14,7 +14,7 @@ class Cobranca(models.Model):
 
     id = models.BigAutoField(primary_key=True)
     cliente_id = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='cliente')
-    valor_do_total = models.CharField('Valor toral sem correção', max_length=50, default=000.000,00)
+    valor_do_total = models.CharField('Valor toral sem correção', max_length=50, default="0,00")
     data_vencimento = models.DateField(default=datetime.now, blank=True)
     status_boleto = models.CharField(max_length=10, choices=TypeBoleto.choices)
     nosso_numero = models.CharField(max_length=100)

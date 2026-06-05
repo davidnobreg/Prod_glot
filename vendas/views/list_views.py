@@ -50,9 +50,9 @@ class ListarendaRelatorioView(ListView):
 
         return queryset.order_by("-id")
 
+
 @method_decorator(has_permission_decorator('relatorioReserva'), name='dispatch')
 class RelatorioReservaView(ListView):
-
     model = RegisterVenda
     template_name = "lista_reserva.html"
     context_object_name = "reservas"
@@ -133,10 +133,8 @@ class RelatorioReservaView(ListView):
         return context
 
 
-
 @method_decorator(has_permission_decorator('listaVenda'), name='dispatch')
 class ListaVendaView(ListView):
-
     model = RegisterVenda
     template_name = "lista_venda.html"
     context_object_name = "reservas"
@@ -213,3 +211,78 @@ class ListaVendaView(ListView):
 
         return context
 
+
+@method_decorator(has_permission_decorator('listasAnalises'), name='dispatch')
+class ListasAnalisesView(ListView):
+
+    model = RegisterVenda
+    template_name = "lista_analise.html"
+    context_object_name = "reservas"
+    paginate_by = 10
+    ordering = ['-id']
+
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(
+            tipo_venda='ANALISE'
+        )
+
+        tipo_empreendimento = self.request.GET.get('tipo_empreendimento')
+        data_inicio = self.request.GET.get('data_inicio')
+        data_fim = self.request.GET.get('data_fim')
+
+        # Filtro por empreendimento
+        if tipo_empreendimento:
+            queryset = queryset.filter(
+                lote__quadra__empr__id=tipo_empreendimento,
+                lote__quadra__empr__is_ativo=True
+            )
+
+        # Filtro por data
+        try:
+            if data_inicio and data_fim:
+                dt_inicio = datetime.strptime(data_inicio, "%Y-%m-%d").date()
+                dt_fim = datetime.strptime(data_fim, "%Y-%m-%d").date()
+
+                queryset = queryset.filter(
+                    dt_venda__range=[dt_inicio, dt_fim]
+                )
+
+            elif data_inicio:
+                dt_inicio = datetime.strptime(data_inicio, "%Y-%m-%d").date()
+
+                queryset = queryset.filter(
+                    dt_venda__gte=dt_inicio
+                )
+
+            elif data_fim:
+                dt_fim = datetime.strptime(data_fim, "%Y-%m-%d").date()
+
+                queryset = queryset.filter(
+                    dt_venda__lte=dt_fim
+                )
+
+        except ValueError:
+            pass
+
+        return queryset.select_related(
+            'cliente',
+            'lote',
+            'lote__quadra',
+            'lote__quadra__empr',
+            'user'
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['empreendimentos'] = Empreendimento.objects.filter(
+            is_ativo=True
+        ).order_by('nome')
+
+        context['filtros'] = {
+            'tipo_empreendimento': self.request.GET.get('tipo_empreendimento', ''),
+            'data_inicio': self.request.GET.get('data_inicio', ''),
+            'data_fim': self.request.GET.get('data_fim', ''),
+        }
+
+        return context

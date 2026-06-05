@@ -53,6 +53,7 @@ class Administrador(AbstractUserRole):
         'reservadoDetalhe': True,
         'relatorioReserva': True,
         'relatorioVenda': True,
+        'listasAnalises': True,
         'listaVenda': True,
         'listaVendaRelatorio': True,
         'cancelarReservadoCadastro': True,

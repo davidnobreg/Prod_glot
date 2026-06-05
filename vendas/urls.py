@@ -20,9 +20,11 @@ from .views.detail_views import (
 
 )
 from .views.list_views import (
+    ListasAnalisesView,
     ListarendaRelatorioView,
     ListaVendaView,
     RelatorioReservaView
+
 )
 
 urlpatterns = [
@@ -37,7 +39,8 @@ urlpatterns = [
     path('renova_reserva/<uuid:venda_uuid>/', RenovaReservaView.as_view(), name='renova-reserva'),  # 14
 
     path('listar_venda_relatorio/', ListarendaRelatorioView.as_view(), name='lista-venda-relatorio'),  # 2
-    path('listar_reserva/', RelatorioReservaView.as_view(), name='lista-reserva'),  # 3
+    path('listar_reserva/', RelatorioReservaView.as_view(), name='lista-reserva'),
+    path('listar_analise/', ListasAnalisesView.as_view(), name='lista-analise'),# 3
     path('listar_venda/', ListaVendaView.as_view(), name='lista-venda'),  # 4
 
     path('venda_delete/<uuid:delete_uuid>/', CancelarVendaView.as_view(), name='delete-venda'),  # 6

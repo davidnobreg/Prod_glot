@@ -33,9 +33,9 @@ RUN apt-get update && \
 # ===================================
 # Dependências Python
 # ===================================
-#COPY requirements.txt .
-#RUN pip install --upgrade pip && \
-    #pip install -r requirements.txt
+COPY requirements.txt .
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
 
 # ===================================
 # Código da aplicação

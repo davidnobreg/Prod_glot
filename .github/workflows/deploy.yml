@@ -1,17 +1,18 @@
 name: Build e Deploy GLOT
 
-on:
+"on":
 push:
 branches:
 - main
 
 jobs:
 build-and-deploy:
+name: Build e Deploy GLOT
 runs-on: ubuntu-latest
 
-
+```
 steps:
-  - name: Checkout do código
+  - name: Checkout do codigo
     uses: actions/checkout@v4
 
   - name: Configurar Docker Buildx
@@ -71,51 +72,5 @@ steps:
         exit 1
       fi
 
-      echo "Aguardando Portainer atualizar a stack..."
-      sleep 20
-
-      echo "Obtendo lista de serviços..."
-      ALL_SERVICES=$(curl -s \
-        -H "X-API-Key: $PORTAINER_TOKEN" \
-        "$PORTAINER_URL/api/endpoints/1/docker/services")
-
-      for SERVICE in web worker_empreendimentos worker_mensagens beat flower; do
-        SERVICE_NAME="django_glot_$SERVICE"
-        echo "Reiniciando: $SERVICE_NAME"
-
-        SERVICE_ID=$(echo "$ALL_SERVICES" | python3 -c "import sys,json; services=json.load(sys.stdin); print(next((s.get('ID','') for s in services if s.get('Spec',{}).get('Name','') == '$SERVICE_NAME'), ''))")
-
-        if [ -z "$SERVICE_ID" ]; then
-          echo "Servico $SERVICE_NAME nao encontrado, pulando..."
-          continue
-        fi
-
-        SERVICE_SPEC=$(curl -s \
-          -H "X-API-Key: $PORTAINER_TOKEN" \
-          "$PORTAINER_URL/api/endpoints/1/docker/services/$SERVICE_ID")
-
-        VERSION=$(echo "$SERVICE_SPEC" | python3 -c "import sys,json; data=json.load(sys.stdin); print(data.get('Version',{}).get('Index',''))")
-
-        if [ -z "$VERSION" ]; then
-          echo "Nao foi possivel obter a versao do servico $SERVICE_NAME"
-          echo "$SERVICE_SPEC"
-          continue
-        fi
-
-        SPEC=$(echo "$SERVICE_SPEC" | python3 -c "import sys,json; data=json.load(sys.stdin); spec=data['Spec']; spec.setdefault('TaskTemplate', {}); spec['TaskTemplate']['ForceUpdate'] = spec['TaskTemplate'].get('ForceUpdate', 0) + 1; print(json.dumps(spec))")
-
-        UPDATE=$(curl -s -o /tmp/service_update_response.json -w "%{http_code}" -X POST \
-          -H "X-API-Key: $PORTAINER_TOKEN" \
-          -H "Content-Type: application/json" \
-          "$PORTAINER_URL/api/endpoints/1/docker/services/$SERVICE_ID/update?version=$VERSION" \
-          -d "$SPEC")
-
-        echo "Status $SERVICE_NAME: $UPDATE"
-
-        if [ "$UPDATE" != "200" ]; then
-          echo "Falha ao atualizar $SERVICE_NAME"
-          cat /tmp/service_update_response.json
-        fi
-      done
-
       echo "Deploy concluido!"
+```

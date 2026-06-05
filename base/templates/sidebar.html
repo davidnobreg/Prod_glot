@@ -76,7 +76,7 @@
     <!-- ===================================================== -->
     <nav class="nav flex-column gap-1 flex-grow-1">
 
-        <a href="{% url 'lista-empreendimento' %}" class="nav-link">
+        <a href="{% url 'dashbord:dashboard' %}" class="nav-link">
             <i class="bi bi-speedometer2"></i>
             <span class="sidebar-text">Dashboard</span>
         </a>
@@ -131,6 +131,11 @@
         </button>
 
         <div id="sidebarMovimentacao" class="collapse sidebar-submenu">
+            <a href="{% url 'lista-analise' %}" class="nav-link">
+                <i class="bi bi-clock-history"></i>
+                <span class="sidebar-text">Analises</span>
+            </a>
+
             <a href="{% url 'lista-pre-reserva' %}" class="nav-link">
                 <i class="bi bi-clock-history"></i>
                 <span class="sidebar-text">Pre-Reserva</span>

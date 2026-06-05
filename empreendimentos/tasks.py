@@ -7,10 +7,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from .models import Lote
-<<<<<<< HEAD
-=======
 
->>>>>>> feature/tailwind-paralelo
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +74,6 @@ def _liberar_pre_reservas_expiradas():
 	return total_processados
 
 
-<<<<<<< HEAD
 @shared_task(
 	bind=True,
 	name="empreendimentos.tasks.destravar_lotes_expirados",
@@ -137,7 +133,7 @@ def voltar_lote_para_disponivel(self, lote_id):
 			lote.cliente_reserva = ""
 			lote.telefone = ""
 			lote.save(update_fields=["situacao", "cliente_reserva", "telefone"])
-=======
+
 # ==========================================================
 # TASK 1 — LIBERAR LOTES TRAVADOS / EXPIRADOS
 # ==========================================================
@@ -315,16 +311,16 @@ def voltar_lote_para_disponivel(self, lote_id):
         "↩️ [CELERY] Solicitada liberação manual do lote ID=%s",
         lote_id
     )
->>>>>>> feature/tailwind-paralelo
+
 
 	except Lote.DoesNotExist:
 		logger.warning("[CELERY] Lote ID=%s nao encontrado", lote_id)
 		return False
 
-<<<<<<< HEAD
+
 	logger.info("[CELERY] Lote ID=%s liberado manualmente", lote_id)
 	return True
-=======
+
             lote.situacao = "DISPONIVEL"
             lote.cliente_reserva = ""
             lote.telefone = ""
@@ -352,4 +348,4 @@ def voltar_lote_para_disponivel(self, lote_id):
     )
 
     return True
->>>>>>> feature/tailwind-paralelo
+

@@ -1,8 +1,10 @@
-from django.urls import path  # adicionar include
-from . import views
+from django.urls import path
+
+from .views import DashboardView
+
+app_name = "dashbord"
 
 urlpatterns = [
-    # Cadastro de cliente
-    path('', views.listDashboard, name='list-dashboard'),
-
+	path("", DashboardView.as_view(), name="dashboard"),
+	path("", DashboardView.as_view(), name="list-dashboard"),
 ]

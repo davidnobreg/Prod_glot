@@ -8,16 +8,6 @@ from empreendimentos.models import Empreendimento, Lote
 from vendas.models import RegisterVenda
 
 
-<<<<<<< HEAD
-    context = {
-        'total': total,
-        'livre': livre,
-        'reservas': reservas,
-
-        'vendidos': vendidos,
-    }
-    return render(request, 'dash.html', context)
-=======
 class DashboardView(TemplateView):
 	template_name = "dash.html"
 
@@ -97,4 +87,4 @@ class DashboardView(TemplateView):
 	def formatar_moeda(valor):
 		valor = valor or Decimal("0.00")
 		return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
->>>>>>> feature/tailwind-paralelo
+

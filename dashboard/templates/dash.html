@@ -1,29 +1,518 @@
 {% extends 'base.html' %}
 
-{% load static %}
-
-{% block title %}Lista de Tarefas{% endblock %}
+{% block title %}
+	Dashboard
+{% endblock %}
 
 {% block content %}
+	<style>
+		.dashboard-page {
+			background: #f5f7fb;
+			border-radius: 8px;
+			color: #1f2937;
+			display: flex;
+			flex-direction: column;
+			gap: 18px;
+			min-height: calc(100vh - 120px);
+			padding: 20px;
+		}
 
-    <div class="container dashboard">
-        <div class="col-2 dashboard-box" id="dashboard-lastdays">
-            <h4>Total de lotes</h4>
-            <span>{{ total }}</span>
-        </div>
-        <div class="col-2 dashboard-box" id="dashboard-done">
-            <h4>Lotes Disponicel</h4>
-            <span>{{ livre }}</span>
-        </div>
-        <div class="col-2 dashboard-box" id="dashboard-doing">
-            <h4>Lotes Reservado</h4>
-            <span>{{ reservas }}</span>
-        </div>
-        <div class="col-2 dashboard-box" id="dashboard-doing">
-            <h4>Lotes Vendidos</h4>
-            <span>{{ vendidos }}</span>
-        </div>
+		.dashboard-header {
+			align-items: center;
+			background: linear-gradient(135deg, #08789a 0%, #0b7a95 58%, #b9d9df 100%);
+			border-radius: 8px;
+			box-shadow: 0 12px 28px rgba(4, 80, 105, 0.18);
+			display: flex;
+			justify-content: space-between;
+			overflow: hidden;
+			padding: 22px 24px;
+			position: relative;
+		}
 
-    </div>
+		.dashboard-header::after {
+			background: rgba(255, 255, 255, 0.24);
+			bottom: 0;
+			content: "";
+			height: 3px;
+			left: 0;
+			position: absolute;
+			right: 0;
+		}
 
+		.dashboard-title {
+			color: #fff;
+			font-size: 1.65rem;
+			font-weight: 900;
+			letter-spacing: 0.04em;
+			margin: 0;
+			text-transform: uppercase;
+		}
+
+		.dashboard-subtitle {
+			color: rgba(255, 255, 255, 0.82);
+			font-size: 0.95rem;
+			margin: 4px 0 0;
+		}
+
+		.dashboard-action {
+			background: rgba(255, 255, 255, 0.16);
+			border: 1px solid rgba(255, 255, 255, 0.48);
+			border-radius: 8px;
+			color: #fff;
+			font-weight: 700;
+			padding: 10px 14px;
+		}
+
+		.dashboard-action:hover,
+		.dashboard-action:focus {
+			background: #fff;
+			border-color: #fff;
+			color: #08789a;
+		}
+
+		.dashboard-grid {
+			display: grid;
+			gap: 14px;
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+		}
+
+		.dashboard-card {
+			background: #fff;
+			border: 1px solid rgba(4, 80, 105, 0.1);
+			border-radius: 8px;
+			box-shadow: 0 10px 22px rgba(3, 21, 35, 0.08);
+			min-height: 116px;
+			overflow: hidden;
+			padding: 18px;
+			position: relative;
+		}
+
+		.dashboard-card::before {
+			background: var(--metric-accent, #08789a);
+			content: "";
+			height: 100%;
+			left: 0;
+			position: absolute;
+			top: 0;
+			width: 3px;
+		}
+
+		.dashboard-card::after {
+			background: linear-gradient(90deg, transparent, var(--metric-glow, rgba(8, 120, 154, 0.08)));
+			content: "";
+			inset: 0;
+			pointer-events: none;
+			position: absolute;
+		}
+
+		.dashboard-card > * {
+			position: relative;
+			z-index: 1;
+		}
+
+		.metric-cyan {
+			--metric-accent: #08789a;
+			--metric-glow: rgba(8, 120, 154, 0.1);
+		}
+
+		.metric-blue {
+			--metric-accent: #0b7a95;
+			--metric-glow: rgba(11, 122, 149, 0.1);
+		}
+
+		.metric-green {
+			--metric-accent: #198754;
+			--metric-glow: rgba(25, 135, 84, 0.1);
+		}
+
+		.metric-amber {
+			--metric-accent: #f59f00;
+			--metric-glow: rgba(245, 159, 0, 0.1);
+		}
+
+		.metric-indigo {
+			--metric-accent: #0d6efd;
+			--metric-glow: rgba(13, 110, 253, 0.1);
+		}
+
+		.metric-red {
+			--metric-accent: #dc3545;
+			--metric-glow: rgba(220, 53, 69, 0.1);
+		}
+
+		.dashboard-card-label {
+			color: #5f7f8a;
+			font-size: 0.82rem;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			margin-bottom: 10px;
+			text-transform: uppercase;
+		}
+
+		.dashboard-card-value {
+			color: #17313a;
+			font-size: 2rem;
+			font-weight: 900;
+			line-height: 1;
+			margin: 0;
+		}
+
+		.dashboard-card-icon {
+			align-items: center;
+			background: color-mix(in srgb, var(--metric-accent, #08789a) 12%, #fff);
+			border: 1px solid color-mix(in srgb, var(--metric-accent, #08789a) 26%, #fff);
+			border-radius: 8px;
+			color: var(--metric-accent, #08789a);
+			display: inline-flex;
+			height: 40px;
+			justify-content: center;
+			width: 40px;
+		}
+
+		.dashboard-section {
+			background: #fff;
+			border: 1px solid rgba(4, 80, 105, 0.1);
+			border-radius: 8px;
+			box-shadow: 0 10px 22px rgba(3, 21, 35, 0.08);
+			overflow: hidden;
+		}
+
+		.dashboard-section-header {
+			align-items: center;
+			background: linear-gradient(90deg, rgba(8, 120, 154, 0.1), rgba(185, 217, 223, 0.28));
+			border-bottom: 1px solid rgba(4, 80, 105, 0.1);
+			display: flex;
+			justify-content: space-between;
+			padding: 16px 20px;
+		}
+
+		.dashboard-section-title {
+			color: #17313a;
+			font-size: 1.05rem;
+			font-weight: 800;
+			letter-spacing: 0.04em;
+			margin: 0;
+			text-transform: uppercase;
+		}
+
+		.dashboard-section-link {
+			border-color: rgba(8, 120, 154, 0.3);
+			border-radius: 8px;
+			color: #08789a;
+			font-weight: 700;
+		}
+
+		.dashboard-section-link:hover,
+		.dashboard-section-link:focus {
+			background: #08789a;
+			border-color: #08789a;
+			color: #fff;
+		}
+
+		.dashboard-table {
+			--bs-table-bg: transparent;
+			--bs-table-color: #334155;
+			--bs-table-hover-bg: rgba(8, 120, 154, 0.06);
+			--bs-table-hover-color: #17313a;
+			--bs-table-striped-bg: rgba(8, 120, 154, 0.035);
+			--bs-table-striped-color: #334155;
+			border-color: rgba(4, 80, 105, 0.1);
+			margin: 0;
+		}
+
+		.dashboard-table th {
+			background: rgba(8, 120, 154, 0.08);
+			border-color: rgba(4, 80, 105, 0.1);
+			color: #08789a;
+			font-size: 0.78rem;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			white-space: nowrap;
+		}
+
+		.dashboard-table td {
+			border-color: rgba(4, 80, 105, 0.08);
+			color: #334155;
+		}
+
+		.dashboard-table .fw-semibold {
+			color: #17313a;
+		}
+
+		.dashboard-badge {
+			border: 1px solid transparent;
+			border-radius: 8px;
+			display: inline-flex;
+			font-size: 0.82rem;
+			font-weight: 800;
+			justify-content: center;
+			min-width: 42px;
+			padding: 6px 9px;
+		}
+
+		.dashboard-badge-success {
+			background: rgba(25, 135, 84, 0.1);
+			border-color: rgba(25, 135, 84, 0.25);
+			color: #146c43;
+		}
+
+		.dashboard-badge-warning {
+			background: rgba(245, 159, 0, 0.12);
+			border-color: rgba(245, 159, 0, 0.28);
+			color: #9a6700;
+		}
+
+		.dashboard-badge-info {
+			background: rgba(8, 120, 154, 0.1);
+			border-color: rgba(8, 120, 154, 0.25);
+			color: #08789a;
+		}
+
+		.dashboard-badge-danger {
+			background: rgba(220, 53, 69, 0.1);
+			border-color: rgba(220, 53, 69, 0.25);
+			color: #b02a37;
+		}
+
+		.dashboard-empty {
+			color: #5f7f8a;
+			padding: 28px;
+			text-align: center;
+		}
+
+		@media (max-width: 1199.98px) {
+			.dashboard-grid {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+		}
+
+		@media (max-width: 575.98px) {
+			.dashboard-header {
+				align-items: flex-start;
+				flex-direction: column;
+				gap: 12px;
+				padding: 18px;
+			}
+
+			.dashboard-grid {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
+
+	<div class="dashboard-page">
+		<header class="dashboard-header">
+			<div>
+				<h1 class="dashboard-title">
+					Dashboard
+				</h1>
+				<p class="dashboard-subtitle">
+					Visao geral de empreendimentos, lotes e vendas.
+				</p>
+			</div>
+
+			<a href="{% url 'lista-empreendimento-tabela' %}" class="btn dashboard-action">
+				<i class="bi bi-buildings me-1"></i>
+				Empreendimentos
+			</a>
+		</header>
+
+		<section class="dashboard-grid" aria-label="Indicadores gerais">
+			<div class="dashboard-card metric-cyan">
+				<div class="d-flex align-items-start justify-content-between gap-3">
+					<div>
+						<div class="dashboard-card-label">Empreendimentos</div>
+						<p class="dashboard-card-value">{{ total_empreendimentos }}</p>
+					</div>
+					<span class="dashboard-card-icon">
+						<i class="bi bi-building"></i>
+					</span>
+				</div>
+			</div>
+
+			<div class="dashboard-card metric-blue">
+				<div class="d-flex align-items-start justify-content-between gap-3">
+					<div>
+						<div class="dashboard-card-label">Total de lotes</div>
+						<p class="dashboard-card-value">{{ total_lotes }}</p>
+					</div>
+					<span class="dashboard-card-icon">
+						<i class="bi bi-grid-3x3-gap"></i>
+					</span>
+				</div>
+			</div>
+
+			<div class="dashboard-card metric-green">
+				<div class="d-flex align-items-start justify-content-between gap-3">
+					<div>
+						<div class="dashboard-card-label">Disponiveis</div>
+						<p class="dashboard-card-value">{{ lotes_disponiveis }}</p>
+					</div>
+					<span class="dashboard-card-icon">
+						<i class="bi bi-check-circle"></i>
+					</span>
+				</div>
+			</div>
+
+			<div class="dashboard-card metric-amber">
+				<div class="d-flex align-items-start justify-content-between gap-3">
+					<div>
+						<div class="dashboard-card-label">Reservados</div>
+						<p class="dashboard-card-value">{{ lotes_reservados }}</p>
+					</div>
+					<span class="dashboard-card-icon">
+						<i class="bi bi-bookmark-check"></i>
+					</span>
+				</div>
+			</div>
+
+			<div class="dashboard-card metric-indigo">
+				<div class="d-flex align-items-start justify-content-between gap-3">
+					<div>
+						<div class="dashboard-card-label">Vendidos</div>
+						<p class="dashboard-card-value">{{ lotes_vendidos }}</p>
+					</div>
+					<span class="dashboard-card-icon">
+						<i class="bi bi-cash-coin"></i>
+					</span>
+				</div>
+			</div>
+
+			<div class="dashboard-card metric-red">
+				<div class="d-flex align-items-start justify-content-between gap-3">
+					<div>
+						<div class="dashboard-card-label">Bloqueados</div>
+						<p class="dashboard-card-value">{{ lotes_bloqueados }}</p>
+					</div>
+					<span class="dashboard-card-icon">
+						<i class="bi bi-lock"></i>
+					</span>
+				</div>
+			</div>
+
+			<div class="dashboard-card metric-blue">
+				<div class="d-flex align-items-start justify-content-between gap-3">
+					<div>
+						<div class="dashboard-card-label">Vendas ativas</div>
+						<p class="dashboard-card-value">{{ total_vendas_ativas }}</p>
+					</div>
+					<span class="dashboard-card-icon">
+						<i class="bi bi-receipt"></i>
+					</span>
+				</div>
+			</div>
+
+			<div class="dashboard-card metric-green">
+				<div class="d-flex align-items-start justify-content-between gap-3">
+					<div>
+						<div class="dashboard-card-label">Valor vendido</div>
+						<p class="dashboard-card-value fs-3">{{ valor_total_vendido }}</p>
+					</div>
+					<span class="dashboard-card-icon">
+						<i class="bi bi-currency-dollar"></i>
+					</span>
+				</div>
+			</div>
+		</section>
+
+		<section class="dashboard-section">
+			<div class="dashboard-section-header">
+				<h2 class="dashboard-section-title">
+					Ultimas vendas
+				</h2>
+
+				<a href="{% url 'lista-venda' %}" class="btn btn-sm dashboard-section-link">
+					Ver vendas
+				</a>
+			</div>
+
+			<div class="table-responsive">
+				<table class="table table-hover align-middle dashboard-table">
+					<thead>
+						<tr>
+							<th>Cliente</th>
+							<th>Empreendimento</th>
+							<th>Quadra</th>
+							<th>Lote</th>
+							<th>Corretor</th>
+							<th>Data</th>
+							<th class="text-end">Valor</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for venda in ultimas_vendas %}
+							<tr>
+								<td>{{ venda.cliente|default:"-" }}</td>
+								<td>{{ venda.lote.quadra.empr.nome|default:"-" }}</td>
+								<td>{{ venda.lote.quadra.namequadra|default:"-" }}</td>
+								<td>{{ venda.lote.lote|default:"-" }}</td>
+								<td>{{ venda.corretor.first_name|default:venda.user.first_name|default:"-" }}</td>
+								<td>{{ venda.dt_venda|date:"d/m/Y"|default:"-" }}</td>
+								<td class="text-end">R$ {{ venda.valor_financiado|floatformat:2 }}</td>
+							</tr>
+						{% empty %}
+							<tr>
+								<td colspan="7" class="dashboard-empty">
+									Nenhuma venda encontrada.
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</section>
+
+		<section class="dashboard-section">
+			<div class="dashboard-section-header">
+				<h2 class="dashboard-section-title">
+					Resumo por empreendimento
+				</h2>
+			</div>
+
+			<div class="table-responsive">
+				<table class="table table-striped align-middle dashboard-table">
+					<thead>
+						<tr>
+							<th>Empreendimento</th>
+							<th class="text-center">Total</th>
+							<th class="text-center">Disponiveis</th>
+							<th class="text-center">Pre-reserva</th>
+							<th class="text-center">Reservados</th>
+							<th class="text-center">Vendidos</th>
+							<th class="text-center">Bloqueados</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for empreendimento in resumo_empreendimentos %}
+							<tr>
+								<td class="fw-semibold">{{ empreendimento.nome }}</td>
+								<td class="text-center">{{ empreendimento.total_lotes }}</td>
+								<td class="text-center">
+									<span class="dashboard-badge dashboard-badge-success">{{ empreendimento.lotes_disponiveis }}</span>
+								</td>
+								<td class="text-center">
+									<span class="dashboard-badge dashboard-badge-warning">{{ empreendimento.lotes_pre_reserva }}</span>
+								</td>
+								<td class="text-center">
+									<span class="dashboard-badge dashboard-badge-warning">{{ empreendimento.lotes_reservados }}</span>
+								</td>
+								<td class="text-center">
+									<span class="dashboard-badge dashboard-badge-info">{{ empreendimento.lotes_vendidos }}</span>
+								</td>
+								<td class="text-center">
+									<span class="dashboard-badge dashboard-badge-danger">{{ empreendimento.lotes_bloqueados }}</span>
+								</td>
+							</tr>
+						{% empty %}
+							<tr>
+								<td colspan="7" class="dashboard-empty">
+									Nenhum empreendimento ativo encontrado.
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</section>
+	</div>
 {% endblock %}

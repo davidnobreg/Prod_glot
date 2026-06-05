@@ -31,7 +31,7 @@ class CancelarVendaView(View):
 
         messages.success(request, "Venda cancelada com sucesso!")
 
-        return redirect('lista-empreendimento')
+        return redirect('listar-quadras', empreendimento_uuid=venda.lote.quadra.empr.uuid)
 
 
 

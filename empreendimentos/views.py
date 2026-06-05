@@ -813,7 +813,7 @@ def liberaLote(request, lote_uuid):
         get_lote.situacao = "DISPONIVEL"
         get_lote.save()
         messages.success(request, "Lote liberado com Sucesso!")
-    return redirect('listar-quadras', id=get_lote.quadra.empr_id)
+    return redirect('listar-quadras', empreendimento_uuid=get_lote.quadra.empr.uuid)
 
 
 @has_permission_decorator('cancelarReservadoTemporaria')

@@ -13,6 +13,7 @@ def listDashboard(request):
         'total': total,
         'livre': livre,
         'reservas': reservas,
+
         'vendidos': vendidos,
     }
     return render(request, 'dash.html', context)

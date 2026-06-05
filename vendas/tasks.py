@@ -9,8 +9,7 @@ from .models import RegisterVenda
 logger = logging.getLogger(__name__)
 
 @shared_task(bind=True, name="vendas.tasks.reserva_expirada")
-def liberar_lotes_reservados_expirados():
-    breakpoint()  # <- Vai abrir o modo interativo
+def liberar_lotes_reservados_expirados(self):
     """
     Libera lotes com reserva vencida, alterando os campos conforme necessário.
     Adicionado modo DEBUG para entender o motivo de não processar algum item.

@@ -1,3 +1,4 @@
+```yaml
 name: Build e Deploy GLOT
 
 on:
@@ -27,6 +28,7 @@ jobs:
         with:
           context: .
           push: true
+          platforms: linux/amd64
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/glot:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/glot:${{ github.sha }}
@@ -42,10 +44,16 @@ jobs:
           set -e
 
           echo "Obtendo docker-compose da stack..."
-          STACK_FILE=$(curl -s -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" "${{ secrets.PORTAINER_URL }}/api/stacks/48/file" | python3 -c "import sys,json; print(json.load(sys.stdin)['StackFileContent'])")
+
+          STACK_FILE=$(curl -s \
+            -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
+            "${{ secrets.PORTAINER_URL }}/api/stacks/48/file" \
+            | python3 -c "import sys,json; print(json.load(sys.stdin)['StackFileContent'])")
+
           STACK_FILE_JSON=$(echo "$STACK_FILE" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read()))")
 
-          echo "Atualizando stack..."
+          echo "Atualizando stack no Portainer..."
+
           RESPONSE=$(curl -s -o /tmp/portainer_response.json -w "%{http_code}" -X PUT \
             -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
             -H "Content-Type: application/json" \
@@ -53,36 +61,84 @@ jobs:
             -d "{\"stackFileContent\": $STACK_FILE_JSON, \"env\": [{\"name\": \"GIT_COMMIT\", \"value\": \"$GIT_COMMIT\"}, {\"name\": \"SENTRY_DSN\", \"value\": \"${{ secrets.SENTRY_DSN }}\"}], \"pullImage\": true, \"prune\": true}")
 
           echo "Status PUT stack: $RESPONSE"
+
           if [ "$RESPONSE" != "200" ]; then
-            echo "Erro ao atualizar stack"
+            echo "Erro ao atualizar stack no Portainer"
             cat /tmp/portainer_response.json
             exit 1
           fi
 
-          echo "Reiniciando serviços..."
-          ALL_SERVICES=$(curl -s -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" "${{ secrets.PORTAINER_URL }}/api/endpoints/1/docker/services")
+          echo "Aguardando serviços serem recriados..."
+          sleep 20
+
+          echo "Buscando serviços Docker..."
+          ALL_SERVICES=$(curl -s \
+            -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
+            "${{ secrets.PORTAINER_URL }}/api/endpoints/1/docker/services")
 
           for SERVICE in web worker_empreendimentos worker_mensagens beat flower; do
-            echo "Reiniciando: django_glot_$SERVICE"
+            SERVICE_NAME="django_glot_$SERVICE"
+            echo "Verificando serviço: $SERVICE_NAME"
 
-            SERVICE_ID=$(echo "$ALL_SERVICES" | python3 -c "import sys,json; services=json.load(sys.stdin); [print(s['ID']) for s in services if s.get('Spec',{}).get('Name','') == 'django_glot_$SERVICE']" 2>/dev/null || echo "")
+            SERVICE_ID=$(echo "$ALL_SERVICES" | python3 -c "
+import sys,json
+try:
+    services=json.load(sys.stdin)
+    for s in services:
+        if s.get('Spec',{}).get('Name','') == '$SERVICE_NAME':
+            print(s.get('ID',''))
+except Exception:
+    pass
+")
 
             if [ -z "$SERVICE_ID" ]; then
-              echo "Servico django_glot_$SERVICE nao encontrado, pulando..."
+              echo "Serviço $SERVICE_NAME não encontrado, pulando..."
               continue
             fi
 
-            SERVICE_SPEC=$(curl -s -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" "${{ secrets.PORTAINER_URL }}/api/endpoints/1/docker/services/$SERVICE_ID")
-            VERSION=$(echo "$SERVICE_SPEC" | python3 -c "import sys,json; print(json.load(sys.stdin)['Version']['Index'])")
-            SPEC=$(echo "$SERVICE_SPEC" | python3 -c "import sys,json; d=json.load(sys.stdin); s=d['Spec']; s.setdefault('TaskTemplate',{})['ForceUpdate']=s.get('TaskTemplate',{}).get('ForceUpdate',0)+1; print(json.dumps(s))")
+            echo "Reiniciando serviço: $SERVICE_NAME"
 
-            UPDATE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            SERVICE_SPEC=$(curl -s \
+              -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
+              "${{ secrets.PORTAINER_URL }}/api/endpoints/1/docker/services/$SERVICE_ID")
+
+            VERSION=$(echo "$SERVICE_SPEC" | python3 -c "
+import sys,json
+try:
+    data=json.load(sys.stdin)
+    print(data.get('Version',{}).get('Index',''))
+except Exception:
+    print('')
+")
+
+            if [ -z "$VERSION" ]; then
+              echo "Não foi possível obter a versão do serviço $SERVICE_NAME. Resposta:"
+              echo "$SERVICE_SPEC"
+              continue
+            fi
+
+            SPEC=$(echo "$SERVICE_SPEC" | python3 -c "
+import sys,json
+data=json.load(sys.stdin)
+spec=data['Spec']
+spec.setdefault('TaskTemplate', {})
+spec['TaskTemplate']['ForceUpdate'] = spec.get('TaskTemplate', {}).get('ForceUpdate', 0) + 1
+print(json.dumps(spec))
+")
+
+            UPDATE=$(curl -s -o /tmp/service_update_response.json -w "%{http_code}" -X POST \
               -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
               -H "Content-Type: application/json" \
               "${{ secrets.PORTAINER_URL }}/api/endpoints/1/docker/services/$SERVICE_ID/update?version=$VERSION" \
               -d "$SPEC")
 
-            echo "Status $SERVICE: $UPDATE"
+            echo "Status $SERVICE_NAME: $UPDATE"
+
+            if [ "$UPDATE" != "200" ]; then
+              echo "Falha ao atualizar $SERVICE_NAME"
+              cat /tmp/service_update_response.json
+            fi
           done
 
-          echo "Deploy concluido!"
+          echo "Deploy concluído!"
+```

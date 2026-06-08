@@ -497,10 +497,29 @@ CELERY_BROKER_URL = os.getenv(
 	f"amqp://{rabbitmq_user}:{rabbitmq_password}@{rabbitmq_host}:{rabbitmq_port}/{rabbitmq_vhost}",
 )
 
-redis_host = config("REDIS_HOST")
-redis_port = config("REDIS_PORT")
+# Redis
+redis_host = config("REDIS_HOST", default="redis")
+redis_port = config("REDIS_PORT", default="6379")
+redis_password = config("REDIS_PASSWORD", default="")
+redis_db_result = config("REDIS_DB_RESULT", default="0")
+redis_db_cache = config("REDIS_DB_CACHE", default="1")
 
-CELERY_RESULT_BACKEND = f"redis://{redis_host}:{redis_port}/0"
+
+if redis_password:
+    REDIS_BASE_URL = f"redis://:{redis_password}@{redis_host}:{redis_port}"
+else:
+    REDIS_BASE_URL = f"redis://{redis_host}:{redis_port}"
+
+
+CELERY_RESULT_BACKEND = os.getenv(
+    "CELERY_RESULT_BACKEND",
+    f"{REDIS_BASE_URL}/{redis_db_result}",
+)
+
+CACHE_REDIS_URI = os.getenv(
+    "CACHE_REDIS_URI",
+    f"{REDIS_BASE_URL}/{redis_db_cache}",
+)
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"

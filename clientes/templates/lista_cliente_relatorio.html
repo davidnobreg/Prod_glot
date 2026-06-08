@@ -1,107 +1,105 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Lista de Cliente
+	Lista de Clientes
 {% endblock %}
 
 {% load static %}
 
 {% block content %}
-    <div class="container-fluid">
-        <div class="row g-3 align-items-center bg-light p-2 rounded shadow mb-4">
-            <h4 class="mt-4 text-center">LISTA DE CLIENTES</h4>
-            <hr>
+<div class="tw:mx-auto tw:max-w-6xl tw:px-4 tw:sm:px-6 tw:lg:px-8 tw:py-6">
+	<div class="tw:flex tw:items-center tw:justify-between tw:gap-5 tw:mb-6">
+		<div>
+			<h1 class="tw:text-2xl tw:font-bold">Clientes (Relatório)</h1>
+			<p class="tw:mt-1 tw:text-sm tw:text-slate-400">Lista para conferência e exportações.</p>
+		</div>
 
-            <!-- Filtros -->
+		<a href="{% url 'criar-cliente' %}"
+		   class="tw:inline-flex tw:items-center tw:justify-center tw:rounded-xl tw:px-4 tw:py-2 tw:font-semibold tw:text-white tw:bg-blue-600 tw:transition tw:hover:bg-blue-700">
+			<i class="fas fa-plus tw:mr-2"></i>
+			Adicionar Cliente
+		</a>
+	</div>
 
-            <div class="col-md-6">
-                <a href="{% url 'criar-cliente' %}" class="btn btn-primary">
-                    Adicionar Cliente
-                </a>
-            </div>
-            <!-- Pesquisar pelo cliente -->
-            <div class="col-md-5">
+	<div class="tw:bg-white tw:rounded-xl tw:shadow tw:p-5 tw:mb-6">
+		<div class="tw:grid tw:grid-cols-1 tw:md:grid-cols-2 tw:gap-5 tw:items-end">
+			<div>
+				<label for="clientSearch" class="tw:block tw:text-sm tw:font-semibold tw:mb-1">Nome do Cliente, CPF/CNPJ ou E-mail</label>
+				<form class="tw:flex tw:gap-5" action="{% url 'lista-cliente-relatorio' %}">
+					<input name="client" id="clientSearch" type="search" class="form-control"
+						   placeholder="Pesquisar cliente..." value="{{ request.GET.client }}">
+					<button class="tw:inline-flex tw:items-center tw:justify-center tw:rounded-xl tw:px-4 tw:py-2 tw:font-semibold tw:text-white tw:bg-blue-600 tw:transition tw:hover:bg-blue-700"
+							type="submit" aria-label="Pesquisar">
+						<i class="fas fa-search"></i>
+					</button>
+				</form>
+			</div>
 
-                <label for="clientSearch" class="form-label">Nome do Cliente, Cpf ou E-mail</label>
-                <form class="d-flex" action="{% url 'lista-cliente-relatorio' %}">
-                    <input name="client" id="clientSearch" type="search" class="form-control me-2"
-                           placeholder="Pesquisar cliente..." value="{{ request.GET.client }}">
-                    <button class="btn btn-success" type="submit">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </form>
-            </div>
+			<div class="tw:flex tw:items-center tw:justify-end">
+				<a class="tw:inline-flex tw:items-center tw:justify-center tw:rounded-xl tw:px-4 tw:py-2 tw:font-semibold tw:text-white tw:bg-red-600 tw:transition"
+				   href="{% url 'lista-cliente-relatorio' %}" aria-label="Resetar">
+					<i class="fas fa-window-close"></i>
+				</a>
+			</div>
+		</div>
+	</div>
 
-            <!-- Resetar filtros -->
-            <div class="col-md-1">
-                <label for="idReset" class="form-label">Resetar</label>
-                <a class="btn btn-danger" href="{% url 'lista-cliente-relatorio' %}">
-                    <i class="fas fa-window-close"></i>
-                </a>
-            </div>
-            <div class="row col-md-12 g-3">
-                <div class="table-responsive">
-                    <table class="table table-striped table-group-divider table-responsive md-4">
-                        <thead>
-                        <tr>
-                            <th scope="col">Nome ou Razão Social</th>
-                            <th scope="col">Cpf ou Cnpj</th>
-                            <th scope="col">E-mail</th>
-                            <th scope="col">Contato</th>
-                        </tr>
-                        </thead>
+	<div class="tw:bg-white tw:rounded-xl tw:shadow tw:overflow-x-auto tw:border tw:border-slate-200">
+		<table class="tw:w-full">
+			<thead class="tw:bg-slate-900 tw:text-slate-100">
+			<tr class="tw:text-left">
+				<th class="tw:px-4 tw:py-2">Nome/Razão Social</th>
+				<th class="tw:px-4 tw:py-2">CPF/CNPJ</th>
+				<th class="tw:px-4 tw:py-2">E-mail</th>
+				<th class="tw:px-4 tw:py-2">Contato</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for cliente in clientes %}
+				<tr class="tw:border-t tw:border-slate-200">
+					<td class="tw:px-4 tw:py-2">{{ cliente.name }}</td>
+					<td class="tw:px-4 tw:py-2">{{ cliente.documento }}</td>
+					<td class="tw:px-4 tw:py-2">{{ cliente.email }}</td>
+					<td class="tw:px-4 tw:py-2">
+						{% if cliente.telefones_list %}
+							{% for telefone in cliente.telefones_list %}
+								<div>{{ telefone.numero }}</div>
+							{% endfor %}
+						{% else %}
+							<span class="tw:text-slate-400">Sem telefone</span>
+						{% endif %}
+					</td>
+				</tr>
+			{% empty %}
+				<tr class="tw:border-t tw:border-slate-200">
+					<td colspan="4" class="tw:px-4 tw:py-6 tw:text-center tw:text-slate-400">Nenhum cliente encontrado.</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
 
-                        <tbody class="featurette-heading fw-normal lh-1 table-group-divider">
-                        {% for cliente in clientes %}
-                            <tr>
-                                <td>{{ cliente.name }}</td>
-                                <td>{{ cliente.documento }}</td>
-                                <td>{{ cliente.email }}</td>
-                                <td>
-                                    {% if cliente.telefones_list %}
-                                        {% for telefone in cliente.telefones_list %}
-                                            <div>{{ telefone.numero }}</div>
-                                        {% endfor %}
-                                    {% else %}
-                                        <span class="text-muted">Sem telefone</span>
-                                    {% endif %}
-                                </td>
+		<div class="tw:flex tw:items-center tw:justify-center tw:gap-5 tw:py-6">
+			{% if page_obj.has_previous %}
+				<a class="tw:inline-flex tw:items-center tw:justify-center tw:rounded-xl tw:px-4 tw:py-2 tw:font-semibold tw:text-white tw:bg-blue-600 tw:transition tw:hover:bg-blue-700"
+				   href="?page={{ page_obj.previous_page_number }}&client={{ request.GET.client }}"
+				   aria-label="Página anterior">
+					Voltar
+				</a>
+			{% endif %}
 
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                    <div>
-                        <ul class="pagination justify-content-center mt-4">
-                            <li class="page-item">
-                                {% if page_obj.has_previous %}
-                                    <a class="btn btn-primary"
-                                       href="?page={{ page_obj.previous_page_number }}&client={{ request.GET.client }}"
-                                       aria-label="Página anterior">
-                                        Voltar
-                                    </a>
-                                {% endif %}
-                            </li>
+			<span class="tw:text-sm tw:text-slate-400">
+				Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+			</span>
 
-                            <li class="page-item">
-                                 <span class="page-link">
-                                      Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
-                                 </span>
-                            </li>
-
-                            <li class="page-item">
-                                {% if page_obj.has_next %}
-                                    <a class="btn btn-primary"
-                                       href="?page={{ page_obj.next_page_number }}&client={{ request.GET.client }}"
-                                       aria-label="Próxima página">
-                                        Avançar
-                                    </a>
-                                {% endif %}
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+			{% if page_obj.has_next %}
+				<a class="tw:inline-flex tw:items-center tw:justify-center tw:rounded-xl tw:px-4 tw:py-2 tw:font-semibold tw:text-white tw:bg-blue-600 tw:transition tw:hover:bg-blue-700"
+				   href="?page={{ page_obj.next_page_number }}&client={{ request.GET.client }}"
+				   aria-label="Próxima página">
+					Avançar
+				</a>
+			{% endif %}
+		</div>
+	</div>
+</div>
 {% endblock %}
+

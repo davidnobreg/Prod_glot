@@ -162,24 +162,69 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // =====================================================
-    // FORM CÔNJUGE
+    // ESTADO CIVIL -> SEÇÃO DO CÔNJUGE
     // =====================================================
 
-    const conjugeForm = document.getElementById('conjugeForm');
+    function initConjugeSection() {
 
-    if (conjugeForm) {
+        const estadoCivil = document.getElementById("id_estado_civil");
+        const secao = document.getElementById("secaoConjuge");
 
-        conjugeForm.addEventListener('submit', function (e) {
+        if (!estadoCivil || !secao) {
+            return;
+        }
 
-            e.preventDefault();
+        const conjugeNome = document.getElementById("id_conj_nome");
+        const conjugeDocumento = document.getElementById("id_conj_documento");
+        const conjugeRg = document.getElementById("id_conj_numero_rg");
+        const conjugeOrgao = document.getElementById("id_conj_orgao_emissor_rg");
 
-            conjugeModal.hide();
+        const campos = [
+            conjugeNome,
+            conjugeDocumento,
+            conjugeRg,
+            conjugeOrgao
+        ].filter(Boolean);
 
-            alert('Dados do cônjuge salvos!');
+        function setEnabled(enabled) {
+            campos.forEach((el) => {
+                el.disabled = !enabled;
+            });
 
-        });
+            // regra atual do backend exige apenas nome
+            if (conjugeNome) {
+                conjugeNome.required = enabled;
+                conjugeNome.setAttribute("aria-required", enabled ? "true" : "false");
+            }
+        }
+
+        function update() {
+            const val = (estadoCivil.value || "").toLowerCase();
+            const isCasado = val === "casado";
+
+            if (isCasado) {
+                secao.hidden = false;
+                secao.setAttribute("aria-hidden", "false");
+                setEnabled(true);
+            } else {
+                secao.hidden = true;
+                secao.setAttribute("aria-hidden", "true");
+                setEnabled(false);
+            }
+        }
+
+        estadoCivil.addEventListener("change", update);
+
+        // compatibilidade se em algum ponto virar select2
+        if (typeof $ !== "undefined") {
+            $(document).on("change select2:select select2:unselect", "[name='estado_civil']", update);
+        }
+
+        update();
 
     }
+
+    initConjugeSection();
 
     // =====================================================
     // MODAL CLIENTE DELETE

@@ -8,6 +8,41 @@ from .models import Cliente, ClienteTelefone, choices_estado
 
 
 # ===================================================================
+# Tailwind component class helpers (see base/static/css/tailwind.input.css)
+# ===================================================================
+_DROP_WIDGET_CLASSES = {"form-control", "form-select", "mb-3"}
+
+
+def _merge_classes(existing, *adds):
+    parts = []
+    for token in (existing or "").split():
+        if token and token not in _DROP_WIDGET_CLASSES and token not in parts:
+            parts.append(token)
+
+    for add in adds:
+        for token in (add or "").split():
+            if token and token not in parts:
+                parts.append(token)
+
+    return " ".join(parts).strip()
+
+
+def _apply_widget_style(field):
+    widget = field.widget
+    if isinstance(widget, forms.HiddenInput):
+        return
+
+    if isinstance(widget, forms.Textarea):
+        base = "glot-textarea"
+    elif isinstance(widget, (forms.Select, forms.SelectMultiple)):
+        base = "glot-select"
+    else:
+        base = "glot-input"
+
+    widget.attrs["class"] = _merge_classes(widget.attrs.get("class"), base)
+
+
+# ===================================================================
 # Funções de validação CPF / CNPJ
 # ===================================================================
 def validar_cpf(cpf):
@@ -102,7 +137,7 @@ class ClienteForm(forms.ModelForm):
         for field in self.fields.values():
             field.required = False
             field.widget.attrs.pop('required', None)
-            field.widget.attrs.setdefault('class', 'form-control mb-3')
+            _apply_widget_style(field)
 
         for name in ('name', 'documento', 'email'):
             if name in self.fields:
@@ -263,7 +298,7 @@ class ClienteUpdateForm(forms.ModelForm):
 
     def _configure_fields(self):
         for field in self.fields.values():
-            field.widget.attrs.setdefault('class', 'form-control mb-3')
+            _apply_widget_style(field)
 
         if 'nacionalidade' in self.fields:
             self.fields['nacionalidade'].initial = 'Brasileiro'
@@ -368,12 +403,12 @@ class ClienteEnderecoForm(forms.ModelForm):
 
         for field in self.fields.values():
             field.required = False
-            field.widget.attrs.setdefault('class', 'form-control mb-3')
+            _apply_widget_style(field)
 
         if 'end_estado' in self.fields:
             self.fields['end_estado'].widget = forms.Select(
                 choices=[('', '---------')] + list(choices_estado),
-                attrs={'class': 'form-select mb-3'},
+                attrs={'class': _merge_classes('form-select', 'glot-select')},
             )
 
         config = {
@@ -428,17 +463,18 @@ class ClienteConjugeForm(forms.ModelForm):
 
         for field in self.fields.values():
             field.required = False
-            field.widget.attrs.setdefault('class', 'form-control mb-3')
+            _apply_widget_style(field)
 
         config = {
             'conj_nome': {'placeholder': 'Nome do Cônjuge'},
-            'conj_documento': {'placeholder': 'CPF', 'class': 'form-control mb-3 mask-doc'},
-            'conj_numero_rg': {'placeholder': 'Nº do RG', 'class': 'form-control mb-3 mask-rg'},
+            'conj_documento': {'placeholder': 'CPF', 'class': 'mask-doc'},
+            'conj_numero_rg': {'placeholder': 'Nº do RG', 'class': 'mask-rg'},
             'conj_orgao_emissor_rg': {'placeholder': 'Órgão emissor do RG'},
         }
         for field_name, attrs in config.items():
             if field_name in self.fields:
                 self.fields[field_name].widget.attrs.update(attrs)
+                _apply_widget_style(self.fields[field_name])
 
         left_fields = ['conj_nome', 'conj_documento']
         right_fields = ['conj_numero_rg', 'conj_orgao_emissor_rg']
@@ -471,15 +507,15 @@ class ClienteTelefoneForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
-            field.widget.attrs.setdefault('class', 'form-control mb-3')
+            _apply_widget_style(field)
 
         self.fields['numero'].widget.attrs.update({
             'placeholder': 'Digite o telefone',
-            'class': 'form-control mb-3 mask-phone',
+            'class': _merge_classes(self.fields['numero'].widget.attrs.get('class'), 'mask-phone'),
             'id': 'telefoneNumero',
         })
         if 'tipo' in self.fields:
-            self.fields['tipo'].widget.attrs.update({'class': 'form-select mb-3'})
+            self.fields['tipo'].widget.attrs.update({'class': _merge_classes(self.fields['tipo'].widget.attrs.get('class'), 'glot-select')})
         if 'observacao' in self.fields:
             self.fields['observacao'].widget.attrs.update({'placeholder': 'Observação'})
 

@@ -11,7 +11,8 @@
     <!-- ===================================================== -->
     <div class="glot-sidebar-header d-flex align-items-center justify-content-between gap-3 mb-3">
 
-        <a href="{% url 'lista-empreendimento' %}" class="d-flex align-items-center gap-3 text-decoration-none text-white overflow-hidden">
+        <a href="{% url 'lista-empreendimento' %}"
+           class="d-flex align-items-center gap-3 text-decoration-none text-white overflow-hidden">
             <span class="glot-brand-logo-wrap">
                 <img
                         src="{% static 'images/logo_carlos_e_celso.jpg' %}"
@@ -131,9 +132,9 @@
         </button>
 
         <div id="sidebarMovimentacao" class="collapse sidebar-submenu">
-            <a href="{% url 'lista-analise' %}" class="nav-link">
-                <i class="bi bi-clock-history"></i>
-                <span class="sidebar-text">Analises</span>
+            <a href="{% url 'lista-analise' %}" class="nav-link" title="Análises">
+                <i class="bi bi-clipboard-check-fill"></i>
+                <span class="sidebar-text">Análises</span>
             </a>
 
             <a href="{% url 'lista-pre-reserva' %}" class="nav-link">
@@ -196,7 +197,8 @@
             <form action="{% url 'logout' %}" method="GET">
                 {% csrf_token %}
 
-                <button type="submit" class="btn btn-outline-light w-100 rounded-pill sidebar-logout-button d-flex align-items-center justify-content-center gap-2">
+                <button type="submit"
+                        class="btn btn-outline-light w-100 rounded-pill sidebar-logout-button d-flex align-items-center justify-content-center gap-2">
                     <i class="bi bi-box-arrow-right"></i>
                     <span class="sidebar-text">Sair</span>
                 </button>

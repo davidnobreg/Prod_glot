@@ -44,14 +44,14 @@ def _endereco_preenchido(cleaned_data):
 
 def _render_cliente_form(request, template, form, cliente=None,
                          form_endereco=None, form_conjuge=None,
-                         telefones_json='[]', veio_da_lista=False, lote_uuid=None):
+                         telefones_json='[]', origem='lista', lote_uuid=None):
     context = {
         'form': form,
         'formConjuge': form_conjuge or ClienteConjugeForm(instance=cliente),
         'formEndereco': form_endereco or ClienteEnderecoForm(instance=cliente),
         'formTelefone': ClienteTelefoneForm(),
         'telefones_json': telefones_json,
-        'veio_da_lista': veio_da_lista,
+        'origem': origem,
         'lote_uuid': lote_uuid,
     }
     if cliente is not None:
@@ -91,10 +91,10 @@ def selectClienteEndereco(request, endereco_id):
 @has_permission_decorator('criarCliente')
 def criarCliente(request):
     lote_uuid = request.GET.get('lote_uuid') or request.POST.get('lote_uuid')
-    previous = request.META.get('HTTP_REFERER', '')
-    veio_da_lista = '/clientes/listar_clientes/' in previous
+    origem = request.GET.get('origem', 'lista')
 
     if request.method == 'POST':
+        origem = request.POST.get('origem', origem)
         telefones_json = request.POST.get('telefones_json', '[]')
         form = ClienteForm(request.POST)
         form_endereco = ClienteEnderecoForm(request.POST)
@@ -106,7 +106,7 @@ def criarCliente(request):
                 request, 'cliente.html', form,
                 form_endereco=form_endereco, form_conjuge=form_conjuge,
                 telefones_json=telefones_json,
-                veio_da_lista=veio_da_lista, lote_uuid=lote_uuid,
+                origem=origem, lote_uuid=lote_uuid,
             )
 
         if not form_endereco.is_valid() or not _endereco_preenchido(form_endereco.cleaned_data):
@@ -115,7 +115,7 @@ def criarCliente(request):
                 request, 'cliente.html', form,
                 form_endereco=form_endereco, form_conjuge=form_conjuge,
                 telefones_json=telefones_json,
-                veio_da_lista=veio_da_lista, lote_uuid=lote_uuid,
+                origem=origem, lote_uuid=lote_uuid,
             )
 
         telefones = _normalize_telefones(_load_json_payload(telefones_json, []))
@@ -124,7 +124,7 @@ def criarCliente(request):
             return _render_cliente_form(
                 request, 'cliente.html', form,
                 form_endereco=form_endereco, form_conjuge=form_conjuge,
-                telefones_json='[]', veio_da_lista=veio_da_lista, lote_uuid=lote_uuid,
+                telefones_json='[]', origem=origem, lote_uuid=lote_uuid,
             )
 
         is_casado = form.cleaned_data.get('estado_civil') == 'casado'
@@ -135,7 +135,7 @@ def criarCliente(request):
                     request, 'cliente.html', form,
                     form_endereco=form_endereco, form_conjuge=form_conjuge,
                     telefones_json=json.dumps(telefones),
-                    veio_da_lista=veio_da_lista, lote_uuid=lote_uuid,
+                    origem=origem, lote_uuid=lote_uuid,
                 )
 
         with transaction.atomic():
@@ -153,8 +153,8 @@ def criarCliente(request):
 
         messages.success(request, "Cliente cadastrado com sucesso!")
 
-        if lote_uuid:
-            return redirect(f'/vendas/insert_reserva/{lote_uuid}/')
+        if origem == 'reserva' and lote_uuid:
+            return redirect('reserva-create', reserva_uuid=lote_uuid)
         return redirect('lista-cliente')
 
     context = {
@@ -162,7 +162,7 @@ def criarCliente(request):
         'formConjuge': ClienteConjugeForm(),
         'formEndereco': ClienteEnderecoForm(),
         'formTelefone': ClienteTelefoneForm(),
-        'veio_da_lista': veio_da_lista,
+        'origem': origem,
         'lote_uuid': lote_uuid,
     }
     return render(request, 'cliente.html', context)
@@ -175,10 +175,10 @@ def criarCliente(request):
 @has_permission_decorator('alterarCliente')
 def atualizarCliente(request, cliente_uuid):
     cliente = get_object_or_404(Cliente, uuid=cliente_uuid)
-    previous = request.META.get('HTTP_REFERER', '')
-    veio_da_lista = '/clientes/listar_clientes/' in previous
 
     if request.method == 'GET':
+        origem = request.GET.get('origem', 'lista')
+        lote_uuid = request.GET.get('lote_uuid', '')
         telefones = list(
             ClienteTelefone.objects
             .filter(cliente=cliente)
@@ -190,8 +190,12 @@ def atualizarCliente(request, cliente_uuid):
             'formConjuge': ClienteConjugeForm(instance=cliente),
             'formEndereco': ClienteEnderecoForm(instance=cliente),
             'telefones_json': json.dumps(telefones),
-            'veio_da_lista': veio_da_lista,
+            'origem': origem,
+            'lote_uuid': lote_uuid,
         })
+
+    origem = request.POST.get('origem', 'lista')
+    lote_uuid = request.POST.get('lote_uuid', '')
 
     form = ClienteUpdateForm(request.POST, instance=cliente)
     form_endereco = ClienteEnderecoForm(request.POST, instance=cliente)
@@ -203,7 +207,7 @@ def atualizarCliente(request, cliente_uuid):
             request, 'cliente_update.html', form, cliente=cliente,
             form_endereco=form_endereco, form_conjuge=form_conjuge,
             telefones_json=request.POST.get('telefones_json', '[]'),
-            veio_da_lista=veio_da_lista,
+            origem=origem, lote_uuid=lote_uuid,
         )
 
     if not form_endereco.is_valid() or not _endereco_preenchido(form_endereco.cleaned_data):
@@ -212,7 +216,7 @@ def atualizarCliente(request, cliente_uuid):
             request, 'cliente_update.html', form, cliente=cliente,
             form_endereco=form_endereco, form_conjuge=form_conjuge,
             telefones_json=request.POST.get('telefones_json', '[]'),
-            veio_da_lista=veio_da_lista,
+            origem=origem, lote_uuid=lote_uuid,
         )
 
     telefones_json = request.POST.get('telefones_json', '[]')
@@ -222,7 +226,7 @@ def atualizarCliente(request, cliente_uuid):
         return _render_cliente_form(
             request, 'cliente_update.html', form, cliente=cliente,
             form_endereco=form_endereco, form_conjuge=form_conjuge,
-            telefones_json='[]', veio_da_lista=veio_da_lista,
+            telefones_json='[]', origem=origem, lote_uuid=lote_uuid,
         )
 
     estado_civil_final = form.cleaned_data.get('estado_civil')
@@ -234,7 +238,7 @@ def atualizarCliente(request, cliente_uuid):
                 request, 'cliente_update.html', form, cliente=cliente,
                 form_endereco=form_endereco, form_conjuge=form_conjuge,
                 telefones_json=json.dumps(telefones_recebidos),
-                veio_da_lista=veio_da_lista,
+                origem=origem, lote_uuid=lote_uuid,
             )
 
     with transaction.atomic():
@@ -262,6 +266,8 @@ def atualizarCliente(request, cliente_uuid):
                 telefone.delete()
 
     messages.success(request, "Cliente atualizado com sucesso!")
+    if origem == 'reserva' and lote_uuid:
+        return redirect('reserva-create', reserva_uuid=lote_uuid)
     return redirect('lista-cliente')
 
 

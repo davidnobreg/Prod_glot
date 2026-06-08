@@ -1,254 +1,251 @@
 {% extends 'base.html' %}
 
-{% block title %}
-	Clientes
-{% endblock %}
+{% block title %}Clientes{% endblock %}
 
 {% load static %}
 {% load format_filters %}
 
 {% block content %}
-<div class="glot-page">
-	<div class="glot-page-banner tw:mb-6">
-		<div class="glot-accent-bar tw:rounded-xl"></div>
-		<div class="tw:mt-4 tw:flex tw:flex-col tw:gap-4 tw:sm:flex-row tw:sm:items-start tw:sm:justify-between">
+<style>
+	.cliente-card {
+		border-radius: 12px;
+		box-shadow: 0 2px 8px rgba(0,0,0,.08);
+		border: 1px solid #e9ecef;
+		transition: transform .18s ease, box-shadow .18s ease;
+	}
+	.cliente-card:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 6px 20px rgba(0,0,0,.13);
+	}
+	.avatar-circle {
+		width: 44px;
+		height: 44px;
+		min-width: 44px;
+		border-radius: 50%;
+		background: #0097a7;
+		color: #fff;
+		font-weight: 700;
+		font-size: .95rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	.badge-pill-status {
+		border-radius: 20px;
+		font-size: .72rem;
+		font-weight: 600;
+		padding: 3px 10px;
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+	}
+	.badge-ativo    { background: #d1fae5; color: #065f46; }
+	.badge-pendente { background: #fef9c3; color: #92400e; }
+	.page-link:focus { box-shadow: 0 0 0 .2rem rgba(0,151,167,.25); }
+	.page-item.active .page-link { background: #0097a7; border-color: #0097a7; }
+</style>
+
+<div class="content-header">
+	<div class="container-fluid">
+		<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 py-1">
 			<div>
-				<h1 class="glot-banner-title">Clientes</h1>
-				<p class="glot-banner-subtitle">Gerencie os clientes cadastrados no sistema.</p>
+				<h1 class="mb-0" style="font-size:1.5rem;font-weight:700;">Clientes</h1>
+				<p class="text-muted mb-0" style="font-size:.875rem;">Gerencie os clientes cadastrados no sistema.</p>
 			</div>
-
-			<div class="glot-header-actions">
-				<a href="{% url 'lista-cliente-relatorio' %}" class="glot-btn-ghost" title="Relatório">
-					<i class="fas fa-file-alt"></i>
-					Relatório
+			<div class="d-flex gap-2 flex-wrap">
+				<a href="{% url 'lista-cliente-relatorio' %}" class="btn btn-outline-secondary btn-sm">
+					<i class="fas fa-file-alt me-1"></i>Relatório
 				</a>
-				<a href="{% url 'criar-cliente' %}" class="glot-btn-primary">
-					<i class="fas fa-plus"></i>
-					Novo cliente
+				<a href="{% url 'criar-cliente' %}" class="btn btn-sm text-white"
+				   style="background:#0097a7;border-color:#0097a7;border-radius:8px;">
+					<i class="fas fa-plus me-1"></i>Novo cliente
 				</a>
-			</div>
-		</div>
-	</div>
-
-	<div class="glot-card tw:mb-6">
-		<div class="glot-card-body">
-			<form method="get" action="{% url 'lista-cliente' %}" class="glot-toolbar">
-				<div class="tw:flex tw:flex-col tw:gap-2 tw:w-full tw:max-w-2xl">
-					<label for="clientSearch" class="glot-label">Buscar</label>
-					<div class="glot-search">
-						<i class="fas fa-search glot-search-icon" aria-hidden="true"></i>
-						<input name="client" id="clientSearch" type="search" class="glot-search-input"
-							   placeholder="Buscar cliente..." value="{{ request.GET.client }}">
-					</div>
-				</div>
-
-				<div class="tw:flex tw:items-center tw:gap-3 tw:flex-wrap tw:justify-start tw:md:justify-end">
-					<button type="submit" class="glot-btn-primary">
-						<i class="fas fa-filter"></i>
-						Filtrar
-					</button>
-					<a href="{% url 'lista-cliente' %}" class="glot-btn-ghost">
-						<i class="fas fa-times"></i>
-						Limpar
-					</a>
-				</div>
-			</form>
-		</div>
-	</div>
-
-	<!-- Mobile: cards -->
-	<div class="tw:grid tw:grid-cols-1 tw:gap-4 tw:md:hidden">
-		{% for cliente in clientes %}
-			<div class="glot-card">
-				<div class="glot-card-body">
-					<div class="tw:flex tw:items-start tw:justify-between tw:gap-4">
-						<div class="glot-row-primary">
-							<div class="glot-avatar" aria-hidden="true">{{ cliente.name|initials }}</div>
-							<div class="tw:min-w-0">
-								<div class="glot-row-title">{{ cliente.name }}</div>
-								<div class="glot-row-subtitle">{{ cliente.documento|format_documento }}</div>
-							</div>
-						</div>
-
-						<div class="glot-actions">
-							<a href="{% url 'atualizar-cliente' cliente.uuid %}" class="glot-icon-btn-edit" title="Editar" aria-label="Editar">
-								<i class="fas fa-edit"></i>
-							</a>
-							<button type="button" class="glot-icon-btn-delete"
-									data-cliente-id="{{ cliente.uuid }}"
-									data-bs-toggle="modal" data-bs-target="#clienteModalDelete"
-									title="Inativar" aria-label="Inativar">
-								<i class="fas fa-trash"></i>
-							</button>
-						</div>
-					</div>
-
-					<div class="tw:mt-4 tw:space-y-2">
-						<div class="tw:text-sm tw:text-slate-900 tw:truncate">
-							<i class="fas fa-envelope tw:text-slate-400"></i>
-							<span class="tw:ml-2">{{ cliente.email }}</span>
-						</div>
-
-						<div class="tw:text-sm tw:text-slate-900">
-							<i class="fas fa-phone tw:text-slate-400"></i>
-							<span class="tw:ml-2">
-								{% if cliente.telefones_list %}
-									{{ cliente.telefones_list.0.numero }}
-								{% else %}
-									<span class="tw:text-slate-400">Sem telefone</span>
-								{% endif %}
-							</span>
-						</div>
-
-						<div class="tw:flex tw:flex-wrap tw:gap-2">
-							<span class="glot-badge-success">Ativo</span>
-							{% if cliente.end_cep and cliente.end_rua and cliente.end_numero and cliente.end_bairro and cliente.end_cidade and cliente.end_estado and cliente.telefones_list %}
-								<span class="glot-badge-success">Cadastro completo</span>
-							{% else %}
-								<span class="glot-badge-warning">Pendente</span>
-							{% endif %}
-						</div>
-					</div>
-				</div>
-			</div>
-		{% empty %}
-			<div class="glot-card">
-				<div class="glot-card-body tw:text-slate-400">Nenhum cliente encontrado.</div>
-			</div>
-		{% endfor %}
-	</div>
-
-	<!-- Desktop: table -->
-	<div class="glot-table-wrap tw:hidden tw:md:block">
-		<table class="glot-table">
-			<thead class="glot-thead">
-			<tr>
-				<th class="glot-th">Cliente</th>
-				<th class="glot-th">Contato</th>
-				<th class="glot-th">Estado civil</th>
-				<th class="glot-th">Status</th>
-				<th class="glot-th tw:text-right">Ações</th>
-			</tr>
-			</thead>
-
-			<tbody>
-			{% for cliente in clientes %}
-				<tr class="glot-tr">
-					<td class="glot-td">
-						<div class="glot-row-primary">
-							<div class="glot-avatar" aria-hidden="true">{{ cliente.name|initials }}</div>
-							<div class="tw:min-w-0">
-								<div class="glot-row-title">{{ cliente.name }}</div>
-								<div class="glot-row-subtitle">CPF/CNPJ: {{ cliente.documento|format_documento }}</div>
-							</div>
-						</div>
-					</td>
-
-					<td class="glot-td">
-						<div class="tw:text-slate-900 tw:truncate">
-							<i class="fas fa-envelope tw:text-slate-400" aria-hidden="true"></i>
-							<span class="tw:ml-2">{{ cliente.email }}</span>
-						</div>
-						<div class="tw:mt-2 tw:text-slate-900">
-							<i class="fas fa-phone tw:text-slate-400" aria-hidden="true"></i>
-							<span class="tw:ml-2">
-								{% if cliente.telefones_list %}
-									{% for t in cliente.telefones_list %}
-										<div>{{ t.numero }}</div>
-									{% endfor %}
-								{% else %}
-									<span class="tw:text-slate-400">Sem telefone</span>
-								{% endif %}
-							</span>
-						</div>
-					</td>
-
-					<td class="glot-td tw:text-slate-900">
-						{{ cliente.get_estado_civil_display }}
-					</td>
-
-					<td class="glot-td">
-						<div class="tw:flex tw:flex-wrap tw:gap-2">
-							<span class="glot-badge-success">Ativo</span>
-							{% if cliente.end_cep and cliente.end_rua and cliente.end_numero and cliente.end_bairro and cliente.end_cidade and cliente.end_estado and cliente.telefones_list %}
-								<span class="glot-badge-success">Cadastro completo</span>
-							{% else %}
-								<span class="glot-badge-warning">Pendente</span>
-							{% endif %}
-						</div>
-					</td>
-
-					<td class="glot-td">
-						<div class="tw:flex tw:items-center tw:justify-end tw:gap-2">
-							<a href="{% url 'atualizar-cliente' cliente.uuid %}" class="glot-icon-btn-edit" title="Editar" aria-label="Editar">
-								<i class="fas fa-edit"></i>
-							</a>
-							<button type="button" class="glot-icon-btn-delete"
-									data-cliente-id="{{ cliente.uuid }}"
-									data-bs-toggle="modal" data-bs-target="#clienteModalDelete"
-									title="Inativar" aria-label="Inativar">
-								<i class="fas fa-trash"></i>
-							</button>
-						</div>
-					</td>
-				</tr>
-			{% empty %}
-				<tr class="glot-tr">
-					<td colspan="5" class="glot-td tw:text-center tw:text-slate-400">Nenhum cliente encontrado.</td>
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-
-		<div class="glot-footer">
-			<div class="glot-footer-muted">
-				Mostrando {{ cliente_obj.start_index }} a {{ cliente_obj.end_index }} de {{ cliente_obj.paginator.count }} registros
-			</div>
-
-			<div class="glot-pagination">
-				{% if cliente_obj.has_previous %}
-					<a class="glot-btn-ghost" href="?page={{ cliente_obj.previous_page_number }}&client={{ request.GET.client }}" aria-label="Anterior">
-						<i class="fas fa-chevron-left" aria-hidden="true"></i>
-						Anterior
-					</a>
-				{% endif %}
-
-				<span class="glot-page-pill">Página {{ cliente_obj.number }} de {{ cliente_obj.paginator.num_pages }}</span>
-
-				{% if cliente_obj.has_next %}
-					<a class="glot-btn-ghost" href="?page={{ cliente_obj.next_page_number }}&client={{ request.GET.client }}" aria-label="Próxima">
-						Próxima
-						<i class="fas fa-chevron-right" aria-hidden="true"></i>
-					</a>
-				{% endif %}
 			</div>
 		</div>
 	</div>
 </div>
 
+<section class="content">
+	<div class="container-fluid">
+
+		<!-- Filtro -->
+		<div class="card mb-4" style="border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.07);">
+			<div class="card-body py-3">
+				<form method="get" action="{% url 'lista-cliente' %}">
+					<div class="row g-2 align-items-end">
+						<div class="col-md-7 col-lg-5">
+							<label for="clientSearch" class="form-label fw-semibold mb-1"
+							       style="font-size:.85rem;">Buscar</label>
+							<div class="input-group">
+								<span class="input-group-text bg-light border-end-0">
+									<i class="fas fa-search text-muted" style="font-size:.8rem;"></i>
+								</span>
+								<input name="client" id="clientSearch" type="search"
+								       class="form-control border-start-0"
+								       placeholder="Nome, CPF ou e-mail..."
+								       value="{{ request.GET.client }}">
+								<button type="submit" class="btn text-white"
+								        style="background:#0097a7;border-color:#0097a7;">
+									<i class="fas fa-filter me-1"></i>Filtrar
+								</button>
+							</div>
+						</div>
+						<div class="col-auto">
+							<a href="{% url 'lista-cliente' %}" class="btn btn-outline-secondary"
+							   style="border-radius:8px;">
+								<i class="fas fa-times me-1"></i>Limpar
+							</a>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- Grid de cards -->
+		<div class="row g-4">
+			{% for cliente in clientes %}
+			<div class="col-md-6 col-xl-4">
+				<div class="card cliente-card h-100">
+					<div class="card-body p-4">
+						<div class="d-flex align-items-center gap-3 mb-3">
+							<div class="avatar-circle">{{ cliente.name|initials }}</div>
+							<div class="overflow-hidden">
+								<div class="fw-bold text-dark lh-sm" style="font-size:.95rem;">
+									{{ cliente.name }}
+								</div>
+								<div class="text-muted" style="font-size:.8rem;">
+									{{ cliente.documento|format_documento }}
+								</div>
+							</div>
+						</div>
+
+						<div class="mb-1" style="font-size:.855rem;">
+							<i class="fas fa-envelope text-muted me-2" style="width:14px;"></i>
+							<span>{{ cliente.email }}</span>
+						</div>
+						<div class="mb-3" style="font-size:.855rem;">
+							<i class="fas fa-phone text-muted me-2" style="width:14px;"></i>
+							{% if cliente.telefones_list %}
+								<span>{{ cliente.telefones_list.0.numero }}</span>
+							{% else %}
+								<span class="text-muted fst-italic">Sem telefone</span>
+							{% endif %}
+						</div>
+
+						<div class="d-flex flex-wrap gap-1 mb-4">
+							<span class="badge-pill-status badge-ativo">
+								<i class="fas fa-check-circle"></i> Ativo
+							</span>
+							{% if cliente.end_cep and cliente.end_rua and cliente.end_numero and cliente.end_bairro and cliente.end_cidade and cliente.end_estado and cliente.telefones_list %}
+								<span class="badge-pill-status badge-ativo">
+									<i class="fas fa-check-circle"></i> Cadastro completo
+								</span>
+							{% else %}
+								<span class="badge-pill-status badge-pendente">
+									<i class="fas fa-exclamation-circle"></i> Pendente
+								</span>
+							{% endif %}
+						</div>
+
+						<div class="d-flex gap-2">
+							<a href="{% url 'atualizar-cliente' cliente.uuid %}?origem=lista"
+							   class="btn btn-outline-primary btn-sm flex-fill"
+							   style="border-radius:8px;">
+								<i class="fas fa-edit me-1"></i>Editar
+							</a>
+							<button type="button"
+							        class="btn btn-outline-danger btn-sm flex-fill"
+							        style="border-radius:8px;"
+							        data-cliente-id="{{ cliente.uuid }}"
+							        data-bs-toggle="modal"
+							        data-bs-target="#clienteModalDelete"
+							        title="Inativar">
+								<i class="fas fa-ban me-1"></i>Inativar
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			{% empty %}
+			<div class="col-12">
+				<div class="card text-center py-5" style="border-radius:12px;">
+					<div class="card-body text-muted">
+						<i class="fas fa-users fa-2x mb-3 d-block"></i>
+						Nenhum cliente encontrado.
+					</div>
+				</div>
+			</div>
+			{% endfor %}
+		</div>
+
+		<!-- Paginação -->
+		{% if cliente_obj.paginator.num_pages > 1 %}
+		<div class="d-flex flex-wrap align-items-center justify-content-between mt-4">
+			<div class="text-muted" style="font-size:.85rem;">
+				Mostrando {{ cliente_obj.start_index }}–{{ cliente_obj.end_index }}
+				de {{ cliente_obj.paginator.count }} registros
+			</div>
+			<nav>
+				<ul class="pagination mb-0">
+					{% if cliente_obj.has_previous %}
+					<li class="page-item">
+						<a class="page-link"
+						   href="?page={{ cliente_obj.previous_page_number }}&client={{ request.GET.client }}">
+							<i class="fas fa-chevron-left"></i>
+						</a>
+					</li>
+					{% endif %}
+					<li class="page-item active">
+						<span class="page-link">
+							{{ cliente_obj.number }}&nbsp;/&nbsp;{{ cliente_obj.paginator.num_pages }}
+						</span>
+					</li>
+					{% if cliente_obj.has_next %}
+					<li class="page-item">
+						<a class="page-link"
+						   href="?page={{ cliente_obj.next_page_number }}&client={{ request.GET.client }}">
+							<i class="fas fa-chevron-right"></i>
+						</a>
+					</li>
+					{% endif %}
+				</ul>
+			</nav>
+		</div>
+		{% endif %}
+
+	</div>
+</section>
+
 <!-- Modal Inativar -->
-<div class="modal fade" id="clienteModalDelete" tabindex="-1" aria-labelledby="clienteModalDeleteLabel" aria-hidden="true">
+<div class="modal fade" id="clienteModalDelete" tabindex="-1"
+     aria-labelledby="clienteModalDeleteLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered">
-		<div class="modal-content tw:rounded-xl tw:overflow-hidden">
-			<div class="modal-header tw:flex tw:items-center tw:justify-between">
-				<h5 class="modal-title tw:font-semibold" id="clienteModalDeleteLabel">Inativar Cliente</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+		<div class="modal-content" style="border-radius:12px;overflow:hidden;">
+			<div class="modal-header" style="background:#0097a7;">
+				<h5 class="modal-title text-white" id="clienteModalDeleteLabel">
+					<i class="fas fa-ban me-2"></i>Inativar Cliente
+				</h5>
+				<button type="button" class="btn-close btn-close-white"
+				        data-bs-dismiss="modal" aria-label="Fechar"></button>
 			</div>
 			<form id="clienteModalDeleteForm" method="post">
 				{% csrf_token %}
 				<div class="modal-body">
 					<div id="loading-indicator" style="display:none;">Carregando...</div>
 					<input type="hidden" name="id" id="cliente-id">
-
-					<div class="tw:space-y-2">
-						<p><strong>Cliente:</strong> <span id="cliente-name"></span></p>
-						<p><strong>Documento:</strong> <span id="cliente-documento"></span></p>
-						<p><strong>Email:</strong> <span id="cliente-email"></span></p>
-					</div>
+					<p class="mb-1"><strong>Cliente:</strong> <span id="cliente-name"></span></p>
+					<p class="mb-1"><strong>Documento:</strong> <span id="cliente-documento"></span></p>
+					<p class="mb-0"><strong>E-mail:</strong> <span id="cliente-email"></span></p>
 				</div>
 				<div class="modal-footer">
-					<button type="submit" id="btn-deletar-cliente" class="glot-btn-danger">Inativar</button>
-					<button type="button" class="glot-btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+					        style="border-radius:8px;">
+						<i class="fas fa-times me-1"></i>Cancelar
+					</button>
+					<button type="submit" id="btn-deletar-cliente" class="btn btn-danger"
+					        style="border-radius:8px;">
+						<i class="fas fa-ban me-1"></i>Inativar
+					</button>
 				</div>
 			</form>
 		</div>

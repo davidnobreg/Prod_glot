@@ -1,316 +1,193 @@
 {% extends 'base.html' %}
 
-{% block title %}
-    Altera Cliente
-{% endblock %}
+{% block title %}Altera Cliente{% endblock %}
 
 {% load static %}
 
 {% block content %}
-    <div class="container-fluid mt-4">
-        <div class="row align-items-center g-4">
-            <hr/>
-            <!-- Imagem
-            <div class="col-lg-6">
-                <img src="{% static 'images/carlos.jpg' %}" class="img-fluid rounded shadow" alt="Cliente"/>
-            </div>-->
+<div class="container-fluid mt-4">
+	<div class="row align-items-center g-4">
+		<hr/>
+		<div class="col-md-10 offset-md-1">
+			<form action="{% url 'atualizar-cliente' cliente.uuid %}" method="POST" class="card p-4 shadow">
+				{% csrf_token %}
+				<input type="hidden" name="telefones_json" id="telefones_json">
+				<h4 class="mb-3 text-center">Atualização Cliente</h4>
+				<hr>
 
-            <!-- Formulário -->
-            <div class="col-md-10 offset-md-1">
-                <form action="{% url 'atualizar-cliente' cliente.uuid %}" method="POST" class="card p-4 shadow">
-                    {% csrf_token %}
-                    <input type="hidden" name="conjuge_json" id="conjuge_json">
-                    <input type="hidden" name="endereco_json" id="endereco_json">
-                    <input type="hidden" name="telefones_json" id="telefones_json">
-                    <h4 class="mb-3 text-center">Atualização Cliente</h4>
+				<!-- Dados principais -->
+				<div class="row">
+					<div class="col-md-6">
+						{% for field in form %}
+							{% if field.field.widget.attrs.col == 'left' %}
+								<div class="mb-3">
+									<label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+									{{ field }}
+									{% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>{% endif %}
+								</div>
+							{% endif %}
+						{% endfor %}
+					</div>
+					<div class="col-md-6">
+						{% for field in form %}
+							{% if field.field.widget.attrs.col == 'right' %}
+								<div class="mb-3">
+									<label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+									{{ field }}
+									{% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>{% endif %}
+								</div>
+							{% endif %}
+						{% endfor %}
+					</div>
+				</div>
 
-                    <!-- Mensagens -->
-                    {% if status == '0' %}
-                        <div class="alert alert-success" role="alert">Cliente atualizado com sucesso!</div>
-                    {% elif status == '1' %}
-                        <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
-                    {% elif status == '2' %}
-                        <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
-                    {% elif status == '3' %}
-                        <div class="alert alert-danger" role="alert">Preencha o telefone corretamente.</div>
-                    {% endif %}
+				<hr>
 
-                    <hr>
+                <!-- Cônjuge (visível apenas quando casado) -->
+				<div id="secaoConjuge" style="display:none">
+					<h5 class="mb-3">Cônjuge</h5>
+					<div class="row">
+						<div class="col-md-6">
+							{% for field in formConjuge %}
+								{% if field.field.widget.attrs.col == 'left' %}
+									<div class="mb-3">
+										<label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+										{{ field }}
+										{% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>{% endif %}
+									</div>
+								{% endif %}
+							{% endfor %}
+						</div>
+						<div class="col-md-6">
+							{% for field in formConjuge %}
+								{% if field.field.widget.attrs.col == 'right' %}
+									<div class="mb-3">
+										<label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+										{{ field }}
+										{% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>{% endif %}
+									</div>
+								{% endif %}
+							{% endfor %}
+						</div>
+					</div>
+					<hr>
+				</div>
 
-                    <!-- 📌 Duas colunas -->
-                    <div class="row">
-                        <!-- COLUNA ESQUERDA -->
-                        <div class="col-md-6">
-                            {% for field in form %}
-                                {% if field.field.widget.attrs.col == 'left' %}
-                                    <div class="mb-3">
-                                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                                        {{ field }}
-                                        {% if field.errors %}
-                                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                        <!-- COLUNA DIREITA -->
-                        <div class="col-md-6">
-                            {% for field in form %}
-                                {% if field.field.widget.attrs.col == 'right' %}
-                                    <div class="mb-3">
-                                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                                        {{ field }}
-                                        {% if field.errors %}
-                                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                            <div class="row">
-                                <a
-                                        class="btn btn-light py-2 w-100 rounded-pill"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalConjuge"
-                                        data-bs-toggle="tooltip"
-                                        title="Cadastre os Telefones">Cônjuge
-                                </a>
+                <hr>
 
-                            </div>
-                        <br>
-                            <div class="row">
-                                <div class="col">
-                                    <a
-                                            class="btn btn-secondary py-2 w-100 rounded-pill"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#modalTelefones"
-                                            data-bs-toggle="tooltip"
-                                            title="Cadastre os Telefones">Contatos
-                                    </a>
+				<!-- Endereço -->
+				<h5 class="mb-3">Endereço</h5>
+				<div class="row">
+					<div class="col-md-6">
+						{% for field in formEndereco %}
+							{% if field.field.widget.attrs.col == 'left' %}
+								<div class="mb-3">
+									<label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+									{{ field }}
+									{% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>{% endif %}
+								</div>
+							{% endif %}
+						{% endfor %}
+					</div>
+					<div class="col-md-6">
+						{% for field in formEndereco %}
+							{% if field.field.widget.attrs.col == 'right' %}
+								<div class="mb-3">
+									<label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+									{{ field }}
+									{% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>{% endif %}
+								</div>
+							{% endif %}
+						{% endfor %}
+					</div>
+				</div>
 
-                                </div>
-                                <div class="col">
-                                    <a
-                                            class="btn btn-primary py-2 w-100 rounded-pill"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#enderecoModal"
-                                            data-bs-toggle="tooltip"
-                                            title="Cadastre o Endereço">Endereço
-                                    </a>
-                                </div>
-                            </div>
-                        <br>
-                        <div class="row">
-                            <div class="col">
-                                <button type="submit" class="btn btn-success py-2 w-100 rounded-pill">Salvar</button>
-                            </div>
-                            <div class="col">
-                                <a href="{% url 'lista-cliente' %}" class="btn btn-danger py-2 w-100 rounded-pill">Cancelar</a>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
+				<hr>
 
-                    <hr>
+				<!-- Botões -->
+				<div class="row">
+					<div class="col">
+						<a class="btn btn-secondary py-2 w-100 rounded-pill"
+						   data-bs-toggle="modal" data-bs-target="#modalTelefones">Contatos</a>
+					</div>
+                    <div class="col">
+						<a href="{% url 'lista-cliente' %}" class="btn btn-danger py-2 w-100 rounded-pill">Cancelar</a>
+					</div>
+					<div class="col">
+						<button type="submit" class="btn btn-success py-2 w-100 rounded-pill">Salvar</button>
+					</div>
+				</div>
 
+			</form>
+		</div>
+		<hr/>
+	</div>
+</div>
 
-                </form>
-            </div>
-            <hr/>
-        </div>
-    </div>
+<!-- Modal Telefones -->
+<div class="modal fade" id="modalTelefones" tabindex="-1">
+	<div class="modal-dialog modal-lg modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Cadastrar Contatos</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<div class="row g-2">
+					<div class="col-12 col-md-3">
+						<label class="form-label">Telefone</label>
+						<input type="text" id="telefoneNumero" class="form-control mask-phone" placeholder="(99) 99999-9999">
+					</div>
+					<div class="col-12 col-md-3">
+						<label class="form-label">Tipo</label>
+						<select class="form-select">
+							<option value="">Selecione</option>
+							<option>WhatsApp</option>
+							<option>Residencial</option>
+							<option>Comercial</option>
+						</select>
+					</div>
+					<div class="col-12 col-md-3">
+						<label class="form-label">Observação</label>
+						<input type="text" class="form-control" placeholder="Ex: Principal">
+					</div>
+					<div class="col-12 col-md-3 d-flex align-items-end">
+						<button type="button" class="btn btn-success w-100 py-2 rounded-pill" onclick="addTelefone()">ADD</button>
+					</div>
+				</div>
+				<hr>
+				<div id="telefoneErro" style="display:none"></div>
+				<ul id="listaTelefones" class="list-group"></ul>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+			</div>
+		</div>
+	</div>
+</div>
 
-    <!-- Modal do Endereço -->
-    <div class="modal fade" id="enderecoModal" tabindex="-1" aria-labelledby="enderecoModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Cadastro de Endereço</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <!-- Mensagens -->
-                {% if status == '0' %}
-                    <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso!</div>
-                {% elif status == '1' %}
-                    <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
-                {% elif status == '2' %}
-                    <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
-                {% elif status == '3' %}
-                    <div class="alert alert-danger" role="alert">Preencha o telefone corretamente.</div>
-                {% endif %}
+<script>
+	window.telefonesTemp = {{ telefones_json|safe }};
 
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            {% for field in formEndereco %}
-                                {% if field.field.widget.attrs.col == 'left' %}
-                                    <div class="mb-3">
-                                        {{ field }}
-                                        {% if field.errors %}
-                                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                        <div class="col-md-6">
-                            {% for field in formEndereco %}
-                                {% if field.field.widget.attrs.col == 'right' %}
-                                    <div class="mb-3">
-                                        {{ field }}
-                                        {% if field.errors %}
-                                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                            <p>digite o cep e preencha automatico</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Fechar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Modal do Conjuge -->
-    <div class="modal fade" id="modalConjuge" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Cadastrar Cônjuge</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
+	function atualizarConjuge() {
+		const val = document.getElementById('id_estado_civil')?.value
+				 || (typeof $ !== 'undefined' ? $('select[name="estado_civil"]').val() : '')
+				 || '';
+		const sec = document.getElementById('secaoConjuge');
+		if (sec) sec.style.display = val === 'casado' ? 'block' : 'none';
+	}
 
-                <!-- Mensagens -->
-                {% if status == '0' %}
-                    <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso!</div>
-                {% elif status == '1' %}
-                    <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
-                {% elif status == '2' %}
-                    <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
-                {% elif status == '3' %}
-                    <div class="alert alert-danger" role="alert">Preencha o telefone corretamente.</div>
-                {% endif %}
+	const _sel = document.getElementById('id_estado_civil');
+	if (_sel) _sel.addEventListener('change', atualizarConjuge);
 
-                <div class="modal-body">
-                    <div class="row">
+	if (typeof $ !== 'undefined') {
+		$(document).on('change select2:select select2:unselect', '[name="estado_civil"]', atualizarConjuge);
+	}
 
-                        <div class="col-md-6">
-                            {% for field in formConjuge %}
-                                {% if field.field.widget.attrs.col == 'left' %}
-                                    <div class="mb-3">
-                                        {{ field }}
-                                        {% if field.errors %}
-                                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-
-                        <div class="col-md-6">
-                            {% for field in formConjuge %}
-                                {% if field.field.widget.attrs.col == 'right' %}
-                                    <div class="mb-3">
-                                        {{ field }}
-                                        {% if field.errors %}
-                                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Modal do Telefone -->
-    <div class="modal fade" id="modalTelefones" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-
-                <div class="modal-header">
-                    <h5 class="modal-title">Cadastrar Contatos</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-
-                    <div class="row g-2">
-
-                        <!-- COLUNA ESQUERDA -->
-                        <div class="col-12 col-md-3">
-                            <label class="form-label">Telefone</label>
-                            <input
-                                    type="text"
-                                    id="telefoneNumero"
-                                    class="form-control mask-phone"
-                                    placeholder="(99) 99999-9999"
-                            >
-                        </div>
-
-                        <!-- COLUNA CENTRO -->
-                        <div class="col-12 col-md-3">
-                            <label class="form-label">Tipo</label>
-                            <select class="form-select">
-                                <option value="">Selecione</option>
-                                <option>WhatsApp</option>
-                                <option>Residencial</option>
-                                <option>Comercial</option>
-                            </select>
-                        </div>
-
-                        <!-- COLUNA DIREITA -->
-                        <div class="col-12 col-md-3">
-                            <label class="form-label">Observação</label>
-                            <input
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="Ex: Principal"
-                            >
-                        </div>
-
-                        <!-- BOTÃO ADD -->
-                        <div class="col-12 col-md-3 d-flex align-items-end">
-                            <button
-                                    type="button"
-                                    class="btn btn-success w-100 py-2 rounded-pill"
-                                    onclick="addTelefone()"
-                            >
-                                ADD
-                            </button>
-                        </div>
-
-                    </div>
-
-                    <hr>
-
-                    <!-- ERRO -->
-                    <div id="telefoneErro" style="display:none"></div>
-
-                    <!-- LISTA DE TELEFONES -->
-                    <ul id="listaTelefones" class="list-group"></ul>
-
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Fechar
-                    </button>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <script>
-        window.telefonesTemp = {{ telefones_json|safe }};
-    </script>
+	let _tentativas = 0;
+	const _intervalo = setInterval(() => {
+		atualizarConjuge();
+		if (++_tentativas >= 6) clearInterval(_intervalo);
+	}, 500);
+</script>
 {% endblock %}

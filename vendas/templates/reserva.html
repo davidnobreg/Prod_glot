@@ -443,7 +443,7 @@
 						Dados da reserva
 					</h2>
 
-					<a href="{% url 'criar-cliente' %}?lote_id={{ lote.uuid }}" class="reserva-venda-add-client">
+					<a href="{% url 'criar-cliente' %}?lote_uuid={{ lote.uuid }}&origem=reserva" class="reserva-venda-add-client">
 						<i class="bi bi-person-plus"></i>
 						Adicionar cliente
 					</a>

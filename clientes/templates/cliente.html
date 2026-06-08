@@ -5,201 +5,357 @@
 {% load static %}
 
 {% block content %}
-<div class="container-fluid mt-4">
-	<div class="row align-items-center g-4">
-		<hr/>
-		<div class="col-md-10 offset-md-1">
-			<form action="{% url 'criar-cliente' %}" method="POST" class="card p-4 shadow" novalidate>
-				{% csrf_token %}
-				<input type="hidden" name="telefones_json" id="telefones_json">
-				<h4 class="mb-3 text-center">Cadastrar Cliente</h4>
-				<hr>
+<div class="tw:mx-auto tw:max-w-6xl tw:px-4 tw:sm:px-6 tw:lg:px-8 tw:py-6">
+	<div class="tw:flex tw:flex-col tw:gap-5 tw:sm:flex-row tw:sm:items-start tw:sm:justify-between tw:mb-6">
+		<div>
+			<h1 class="glot-h1">Cadastrar Cliente</h1>
+			<p class="glot-subtitle">Cadastro completo com endereÃ§o e contatos.</p>
+		</div>
 
-				<!-- Dados principais -->
-				<div class="row">
-					<div class="col-md-6">
-						{% for field in form %}
-							{% if field.field.widget.attrs.col == 'left' %}
-								<div class="mb-3">
-									<label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-									{{ field }}
-									{% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>{% endif %}
-								</div>
-							{% endif %}
-						{% endfor %}
+		<div class="tw:flex tw:gap-5 tw:flex-wrap tw:justify-start tw:sm:justify-end">
+			{% if origem == 'reserva' and lote_uuid %}
+				<a href="{% url 'reserva-create' reserva_uuid=lote_uuid %}" class="glot-btn-ghost">
+					<i class="fas fa-arrow-left"></i>
+					Voltar
+				</a>
+			{% else %}
+				<a href="{% url 'lista-cliente' %}" class="glot-btn-ghost">
+					<i class="fas fa-arrow-left"></i>
+					Voltar
+				</a>
+			{% endif %}
+
+			<button type="submit" form="cliente-form" class="glot-btn-primary">
+				<i class="fas fa-save"></i>
+				Salvar cliente
+			</button>
+		</div>
+	</div>
+
+	<form id="cliente-form" action="{% url 'criar-cliente' %}" method="POST" class="tw:space-y-6" novalidate>
+		{% csrf_token %}
+
+		<input type="hidden" name="telefones_json" id="telefones_json">
+		<input type="hidden" name="origem" value="{{ origem }}">
+		{% if lote_uuid %}<input type="hidden" name="lote_uuid" value="{{ lote_uuid }}">{% endif %}
+		{% if form.lote_id %}{{ form.lote_id }}{% endif %}
+
+		<div class="glot-card">
+			<div class="glot-card-body">
+				<div class="tw:flex tw:items-start tw:justify-between tw:gap-5 tw:flex-wrap">
+					<div>
+						<h2 class="glot-section-title">Dados Pessoais</h2>
+						<p class="glot-section-subtitle">IdentificaÃ§Ã£o e perfil do cliente.</p>
 					</div>
-					<div class="col-md-6">
-						{% for field in form %}
-							{% if field.field.widget.attrs.col == 'right' %}
-								<div class="mb-3">
-									<label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-									{{ field }}
-									{% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>{% endif %}
-								</div>
-							{% endif %}
-						{% endfor %}
+					<button type="button" class="glot-btn-secondary" data-bs-toggle="modal" data-bs-target="#modalTelefones">
+						<i class="fas fa-phone"></i>
+						Contatos
+					</button>
+				</div>
+
+				<div class="tw:mt-4 tw:grid tw:grid-cols-1 tw:md:grid-cols-2 tw:gap-5">
+					<div>
+						<label for="{{ form.name.id_for_label }}" class="glot-label">Nome <span class="tw:text-red-600">*</span></label>
+						{{ form.name }}
+						{% if form.name.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ form.name.errors|striptags }}</div>{% endif %}
+					</div>
+
+					<div>
+						<label for="{{ form.nome_usual.id_for_label }}" class="glot-label">Nome usual</label>
+						{{ form.nome_usual }}
+						{% if form.nome_usual.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ form.nome_usual.errors|striptags }}</div>{% endif %}
+					</div>
+
+					<div>
+						<label for="{{ form.data_ns.id_for_label }}" class="glot-label">Data de nascimento</label>
+						{{ form.data_ns }}
+						{% if form.data_ns.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ form.data_ns.errors|striptags }}</div>{% endif %}
+					</div>
+
+					<div>
+						<label for="{{ form.estado_civil.id_for_label }}" class="glot-label">Estado civil</label>
+						{{ form.estado_civil }}
+						{% if form.estado_civil.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ form.estado_civil.errors|striptags }}</div>{% endif %}
+					</div>
+
+					<div>
+						<label for="{{ form.naturalidade.id_for_label }}" class="glot-label">Naturalidade</label>
+						{{ form.naturalidade }}
+						{% if form.naturalidade.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ form.naturalidade.errors|striptags }}</div>{% endif %}
+					</div>
+
+					<div>
+						<label for="{{ form.nacionalidade.id_for_label }}" class="glot-label">Nacionalidade</label>
+						{{ form.nacionalidade }}
+						{% if form.nacionalidade.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ form.nacionalidade.errors|striptags }}</div>{% endif %}
+					</div>
+
+					<div>
+						<label for="{{ form.profissao.id_for_label }}" class="glot-label">ProfissÃ£o</label>
+						{{ form.profissao }}
+						{% if form.profissao.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ form.profissao.errors|striptags }}</div>{% endif %}
+					</div>
+
+					<div>
+						<label for="{{ form.renda.id_for_label }}" class="glot-label">Renda</label>
+						{{ form.renda }}
+						{% if form.renda.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ form.renda.errors|striptags }}</div>{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="glot-card">
+			<div class="glot-card-body">
+				<h2 class="glot-section-title">Documentos</h2>
+				<p class="glot-section-subtitle">CPF/CNPJ e RG.</p>
+
+				<div class="tw:mt-4 tw:grid tw:grid-cols-1 tw:md:grid-cols-2 tw:gap-5">
+					<div>
+						<label for="{{ form.documento.id_for_label }}" class="glot-label">CPF / CNPJ <span class="tw:text-red-600">*</span></label>
+						{{ form.documento }}
+						{% if form.documento.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ form.documento.errors|striptags }}</div>{% endif %}
+					</div>
+					<div>
+						<label for="{{ form.numero_rg.id_for_label }}" class="glot-label">RG</label>
+						{{ form.numero_rg }}
+						{% if form.numero_rg.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ form.numero_rg.errors|striptags }}</div>{% endif %}
+					</div>
+					<div class="tw:md:col-span-2">
+						<label for="{{ form.orgao_emissor_rg.id_for_label }}" class="glot-label">Ã“rgÃ£o emissor</label>
+						{{ form.orgao_emissor_rg }}
+						{% if form.orgao_emissor_rg.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ form.orgao_emissor_rg.errors|striptags }}</div>{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="glot-card">
+			<div class="glot-card-body">
+				<h2 class="glot-section-title">Contato</h2>
+				<p class="glot-section-subtitle">E-mail e telefones.</p>
+
+				<div class="tw:mt-4 tw:grid tw:grid-cols-1 tw:md:grid-cols-2 tw:gap-5 tw:items-end">
+					<div>
+						<label for="{{ form.email.id_for_label }}" class="glot-label">E-mail <span class="tw:text-red-600">*</span></label>
+						{{ form.email }}
+						{% if form.email.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ form.email.errors|striptags }}</div>{% endif %}
+					</div>
+
+					<div class="tw:flex tw:items-center tw:justify-start tw:md:justify-end">
+						<button type="button" class="glot-btn-secondary tw:w-full tw:md:w-auto" data-bs-toggle="modal" data-bs-target="#modalTelefones">
+							<i class="fas fa-phone"></i>
+							Gerenciar telefones
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="glot-card">
+			<div class="glot-card-body">
+				<h2 class="glot-section-title">EndereÃ§o</h2>
+				<p class="glot-section-subtitle">Dados para cadastro e contratos.</p>
+
+				<div class="tw:mt-4 tw:grid tw:grid-cols-1 tw:md:grid-cols-2 tw:gap-5">
+					<div>
+						<label for="{{ formEndereco.end_cep.id_for_label }}" class="glot-label">CEP</label>
+						{{ formEndereco.end_cep }}
+						{% if formEndereco.end_cep.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ formEndereco.end_cep.errors|striptags }}</div>{% endif %}
+					</div>
+					<div>
+						<label for="{{ formEndereco.end_rua.id_for_label }}" class="glot-label">Rua</label>
+						{{ formEndereco.end_rua }}
+						{% if formEndereco.end_rua.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ formEndereco.end_rua.errors|striptags }}</div>{% endif %}
+					</div>
+					<div>
+						<label for="{{ formEndereco.end_numero.id_for_label }}" class="glot-label">NÃºmero</label>
+						{{ formEndereco.end_numero }}
+						{% if formEndereco.end_numero.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ formEndereco.end_numero.errors|striptags }}</div>{% endif %}
+					</div>
+					<div>
+						<label for="{{ formEndereco.end_complemento.id_for_label }}" class="glot-label">Complemento</label>
+						{{ formEndereco.end_complemento }}
+						{% if formEndereco.end_complemento.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ formEndereco.end_complemento.errors|striptags }}</div>{% endif %}
+					</div>
+					<div>
+						<label for="{{ formEndereco.end_bairro.id_for_label }}" class="glot-label">Bairro</label>
+						{{ formEndereco.end_bairro }}
+						{% if formEndereco.end_bairro.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ formEndereco.end_bairro.errors|striptags }}</div>{% endif %}
+					</div>
+					<div>
+						<label for="{{ formEndereco.end_cidade.id_for_label }}" class="glot-label">Cidade</label>
+						{{ formEndereco.end_cidade }}
+						{% if formEndereco.end_cidade.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ formEndereco.end_cidade.errors|striptags }}</div>{% endif %}
+					</div>
+					<div class="tw:md:col-span-2">
+						<label for="{{ formEndereco.end_estado.id_for_label }}" class="glot-label">Estado</label>
+						{{ formEndereco.end_estado }}
+						{% if formEndereco.end_estado.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ formEndereco.end_estado.errors|striptags }}</div>{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="secaoConjuge" hidden class="glot-card">
+			<div class="glot-card-body">
+				<div class="tw:flex tw:items-center tw:justify-between tw:gap-5 tw:flex-wrap">
+					<div>
+						<h2 class="glot-section-title">Dados Conjugais</h2>
+						<p class="glot-section-subtitle">InformaÃ§Ãµes do cÃ´njuge quando aplicÃ¡vel.</p>
 					</div>
 				</div>
 
-                <hr>
-
-				<!-- Cônjuge (visível apenas quando casado) -->
-				<div id="secaoConjuge" style="display:none">
-					<h5 class="mb-3">Cônjuge</h5>
-					<div class="row">
-						<div class="col-md-6">
-							{% for field in formConjuge %}
-								{% if field.field.widget.attrs.col == 'left' %}
-									<div class="mb-3">
-										<label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-										{{ field }}
-										{% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>{% endif %}
-									</div>
-								{% endif %}
-							{% endfor %}
-						</div>
-						<div class="col-md-6">
-							{% for field in formConjuge %}
-								{% if field.field.widget.attrs.col == 'right' %}
-									<div class="mb-3">
-										<label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-										{{ field }}
-										{% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>{% endif %}
-									</div>
-								{% endif %}
-							{% endfor %}
-						</div>
+				<div class="tw:mt-4 tw:grid tw:grid-cols-1 tw:md:grid-cols-2 tw:gap-5">
+					<div>
+						<label for="{{ formConjuge.conj_nome.id_for_label }}" class="glot-label">Nome do cÃ´njuge <span class="tw:text-red-600">*</span></label>
+						{{ formConjuge.conj_nome }}
+						{% if formConjuge.conj_nome.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ formConjuge.conj_nome.errors|striptags }}</div>{% endif %}
 					</div>
-					<hr>
-				</div>
-
-				<hr>
-
-				<!-- Endereço -->
-				<h5 class="mb-3">Endereço</h5>
-				<div class="row">
-					<div class="col-md-6">
-						{% for field in formEndereco %}
-							{% if field.field.widget.attrs.col == 'left' %}
-								<div class="mb-3">
-									<label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-									{{ field }}
-									{% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>{% endif %}
-								</div>
-							{% endif %}
-						{% endfor %}
+					<div>
+						<label for="{{ formConjuge.conj_documento.id_for_label }}" class="glot-label">CPF do cÃ´njuge</label>
+						{{ formConjuge.conj_documento }}
+						{% if formConjuge.conj_documento.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ formConjuge.conj_documento.errors|striptags }}</div>{% endif %}
 					</div>
-					<div class="col-md-6">
-						{% for field in formEndereco %}
-							{% if field.field.widget.attrs.col == 'right' %}
-								<div class="mb-3">
-									<label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-									{{ field }}
-									{% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>{% endif %}
-								</div>
-							{% endif %}
-						{% endfor %}
+					<div>
+						<label for="{{ formConjuge.conj_numero_rg.id_for_label }}" class="glot-label">RG do cÃ´njuge</label>
+						{{ formConjuge.conj_numero_rg }}
+						{% if formConjuge.conj_numero_rg.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ formConjuge.conj_numero_rg.errors|striptags }}</div>{% endif %}
+					</div>
+					<div>
+						<label for="{{ formConjuge.conj_orgao_emissor_rg.id_for_label }}" class="glot-label">Ã“rgÃ£o emissor do RG</label>
+						{{ formConjuge.conj_orgao_emissor_rg }}
+						{% if formConjuge.conj_orgao_emissor_rg.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ formConjuge.conj_orgao_emissor_rg.errors|striptags }}</div>{% endif %}
+					</div>
+
+					<!-- Campos visuais (nÃ£o persistidos no model atualmente) -->
+					<div>
+						<label class="glot-label">Telefone do cÃ´njuge</label>
+						<input type="text" class="glot-input" disabled aria-disabled="true">
+					</div>
+					<div>
+						<label class="glot-label">E-mail do cÃ´njuge</label>
+						<input type="email" class="glot-input" disabled aria-disabled="true">
+					</div>
+					<div>
+						<label class="glot-label">ProfissÃ£o do cÃ´njuge</label>
+						<input type="text" class="glot-input" disabled aria-disabled="true">
+					</div>
+					<div>
+						<label class="glot-label">Nacionalidade do cÃ´njuge</label>
+						<input type="text" class="glot-input" disabled aria-disabled="true">
+					</div>
+					<div class="tw:md:col-span-2">
+						<label class="glot-label">Naturalidade do cÃ´njuge</label>
+						<input type="text" class="glot-input" disabled aria-disabled="true">
 					</div>
 				</div>
+			</div>
+		</div>
 
+		<div class="glot-card">
+			<div class="glot-card-body">
+				<h2 class="glot-section-title">ObservaÃ§Ãµes</h2>
+				<p class="glot-section-subtitle">AnotaÃ§Ãµes internas.</p>
 
-
-				<!-- Botões -->
-				<div class="row">
-					<div class="col">
-						<a class="btn btn-secondary py-2 w-100 rounded-pill"
-						   data-bs-toggle="modal" data-bs-target="#modalTelefones">Contatos</a>
-					</div>
-                    <div class="col">
-						{% if veio_da_lista %}
-							<a href="{% url 'lista-cliente' %}" class="btn btn-danger py-2 w-100 rounded-pill">Cancelar</a>
-						{% else %}
-							<a href="{% url 'lista-empreendimento' %}" class="btn btn-danger py-2 w-100 rounded-pill">Cancelar</a>
-						{% endif %}
-					</div>
-					<div class="col">
-						<button type="submit" class="btn btn-success py-2 w-100 rounded-pill">Salvar</button>
-					</div>
+				<div class="tw:mt-4">
+					<label for="{{ form.observacao.id_for_label }}" class="glot-label">ObservaÃ§Ã£o</label>
+					{{ form.observacao }}
+					{% if form.observacao.errors %}<div class="tw:mt-1 tw:text-sm tw:text-red-600">{{ form.observacao.errors|striptags }}</div>{% endif %}
 				</div>
+			</div>
+		</div>
 
-				{% if lote_uuid %}
-					<input type="hidden" name="lote_uuid" value="{{ lote_uuid }}">
+		<div class="tw:flex tw:flex-col tw:sm:flex-row tw:gap-5 tw:sm:items-center tw:sm:justify-between">
+			<div class="tw:flex tw:gap-5 tw:flex-wrap">
+				<button type="button" class="glot-btn-secondary" data-bs-toggle="modal" data-bs-target="#modalTelefones">
+					<i class="fas fa-plus"></i>
+					Adicionar telefone
+				</button>
+
+				<button type="reset" class="glot-btn-ghost">
+					<i class="fas fa-eraser"></i>
+					Limpar formulÃ¡rio
+				</button>
+			</div>
+
+			<div class="tw:flex tw:gap-5 tw:flex-wrap tw:justify-start tw:sm:justify-end">
+				{% if origem == 'reserva' and lote_uuid %}
+					<a href="{% url 'reserva-create' reserva_uuid=lote_uuid %}" class="glot-btn-danger">
+						<i class="fas fa-times"></i>
+						Cancelar
+					</a>
+				{% else %}
+					<a href="{% url 'lista-cliente' %}" class="glot-btn-danger">
+						<i class="fas fa-times"></i>
+						Cancelar
+					</a>
 				{% endif %}
 
-			</form>
+				<button type="submit" class="glot-btn-primary">
+					<i class="fas fa-save"></i>
+					Salvar cliente
+				</button>
+			</div>
 		</div>
-		<hr/>
-	</div>
+	</form>
 </div>
 
 <!-- Modal Telefones -->
-<div class="modal fade" id="modalTelefones" tabindex="-1">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title">Cadastrar Contatos</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<div class="modal fade" id="modalTelefones" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-lg modal-dialog-centered">
+		<div class="modal-content tw:rounded-xl tw:overflow-hidden">
+			<div class="modal-header tw:flex tw:items-center tw:justify-between">
+				<h5 class="modal-title tw:font-semibold">Telefones do Cliente</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
 			</div>
 			<div class="modal-body">
-				<div class="row g-2">
-					<div class="col-12 col-md-3">
+				<div class="tw:grid tw:grid-cols-1 tw:md:grid-cols-4 tw:gap-5">
+					<div>
+						<label class="glot-label">Telefone</label>
 						{% for field in formTelefone %}
 							{% if field.field.widget.attrs.col == 'left' %}
-								<div class="mb-3">{{ field }}</div>
+								{{ field }}
 							{% endif %}
 						{% endfor %}
 					</div>
-					<div class="col-12 col-md-3">
+					<div>
+						<label class="glot-label">Tipo</label>
 						{% for field in formTelefone %}
 							{% if field.field.widget.attrs.col == 'center' %}
-								<div class="mb-3">{{ field }}</div>
+								{{ field }}
 							{% endif %}
 						{% endfor %}
 					</div>
-					<div class="col-12 col-md-3">
+					<div>
+						<label class="glot-label">ObservaÃ§Ã£o</label>
 						{% for field in formTelefone %}
 							{% if field.field.widget.attrs.col == 'right' %}
-								<div class="mb-3">{{ field }}</div>
+								{{ field }}
 							{% endif %}
 						{% endfor %}
 					</div>
-					<div class="col-12 col-md-3 d-flex align-items-start">
-						<button type="button" class="btn btn-success py-2 w-100 rounded-pill" onclick="addTelefone()">ADD</button>
+					<div class="tw:flex tw:items-end">
+						<button type="button" class="glot-btn-primary tw:w-full" onclick="addTelefone()">
+							<i class="fas fa-plus"></i>
+							Adicionar
+						</button>
 					</div>
 				</div>
-				<hr>
+
 				<div id="telefoneErro" style="display:none"></div>
-				<ul id="listaTelefones" class="list-group"></ul>
+				<div id="listaTelefones" class="tw:mt-4 tw:space-y-2"></div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+				<button type="button" class="glot-btn-secondary" data-bs-dismiss="modal">Fechar</button>
 			</div>
 		</div>
 	</div>
 </div>
 
 <script>
+	// usado por static/js/telefone.js
 	window.telefonesTemp = {{ telefones_json|safe }};
-
-	function atualizarConjuge() {
-		const val = document.getElementById('id_estado_civil')?.value
-				 || (typeof $ !== 'undefined' ? $('select[name="estado_civil"]').val() : '')
-				 || '';
-		const sec = document.getElementById('secaoConjuge');
-		if (sec) sec.style.display = val === 'casado' ? 'block' : 'none';
-	}
-
-	const _sel = document.getElementById('id_estado_civil');
-	if (_sel) _sel.addEventListener('change', atualizarConjuge);
-
-	if (typeof $ !== 'undefined') {
-		$(document).on('change select2:select select2:unselect', '[name="estado_civil"]', atualizarConjuge);
-	}
-
-	let _tentativas = 0;
-	const _intervalo = setInterval(() => {
-		atualizarConjuge();
-		if (++_tentativas >= 6) clearInterval(_intervalo);
-	}, 500);
 </script>
 {% endblock %}
+

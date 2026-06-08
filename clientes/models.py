@@ -116,52 +116,6 @@ class Cliente(models.Model):
         return self.name
 
 # ==========================================================
-# CÔNJUGE (OneToOne → Cliente)
-# ==========================================================
-class ClienteConjuge(models.Model):
-    cliente = models.OneToOneField(
-        Cliente, on_delete=models.SET_NULL, null=True, blank=True, related_name="conjuge"
-    )
-    nome_conjuge = models.CharField(max_length=100)
-    numero_rg_conjuge = models.CharField(max_length=20, blank=True)
-    orgao_emissor_rg_conjuge = models.CharField(max_length=20, blank=True)
-    documento_conjuge = models.CharField(
-        max_length=14, unique=True, blank=True, null=True,
-        help_text="Informe CPF do cônjuge (apenas números)."
-    )
-    is_ativo = models.BooleanField(default=True)
-
-    def save(self, *args, **kwargs):
-        if self.nome_conjuge:
-            self.nome_conjuge = self.nome_conjuge.strip().upper()
-        if self.documento_conjuge:
-            self.documento_conjuge = re.sub(r'\D', '', self.documento_conjuge)
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return self.nome_conjuge
-
-# ==========================================================
-# ENDEREÇO (OneToOne → Cliente)
-# ==========================================================
-class ClienteEndereco(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    cliente = models.OneToOneField(
-        Cliente, on_delete=models.CASCADE, related_name="endereco", null=True, blank=True
-    )
-    rua = models.CharField(max_length=100, blank=True)
-    complemento = models.CharField(max_length=50, blank=True)
-    numero = models.CharField(max_length=20, blank=True)
-    bairro = models.CharField(max_length=100, blank=True)
-    cep = models.CharField(max_length=8, blank=True, validators=[RegexValidator(r'^\d{8}$', 'CEP deve ter 8 números')])
-    cidade = models.CharField(max_length=100, blank=True)
-    estado = models.CharField(max_length=2, choices=choices_estado, default='PB', blank=True)
-    is_ativo = models.BooleanField(default=True)
-
-    def __str__(self):
-        return f"{self.rua}, {self.numero} - {self.bairro} - {self.cep} - {self.cidade}/{self.estado}"
-
-# ==========================================================
 # TELEFONES (FK → Cliente)
 # ==========================================================
 class ClienteTelefone(models.Model):

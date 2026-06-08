@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Prefetch, Q
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from rolepermissions.decorators import has_permission_decorator
 
@@ -15,7 +15,7 @@ from .forms import (
     ClienteTelefoneForm,
     ClienteUpdateForm,
 )
-from .models import Cliente, ClienteEndereco, ClienteTelefone
+from .models import Cliente, ClienteTelefone
 
 
 # ===================================================================
@@ -81,18 +81,7 @@ def selectCliente(request, cliente_uuid):
 
 # @has_permission_decorator('selectClienteEndereco')
 def selectClienteEndereco(request, endereco_id):
-    endereco = get_object_or_404(ClienteEndereco, id=endereco_id)
-    data = {
-        "idEndereco": endereco.id,
-        "rua": endereco.rua,
-        "complemento": endereco.complemento,
-        "numero": endereco.numero,
-        "bairro": endereco.bairro,
-        "cep": endereco.cep,
-        "cidade": endereco.cidade,
-        "estado": endereco.estado,
-    }
-    return JsonResponse(data)
+    raise Http404
 
 
 # ===================================================================

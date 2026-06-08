@@ -54,6 +54,28 @@ class Cliente(models.Model):
     is_ativo = models.BooleanField(default=True)
 
     # ======================================================
+    # ENDEREÇO (desnormalizado de ClienteEndereco)
+    # ======================================================
+    end_rua = models.CharField(max_length=100, blank=True, null=True)
+    end_complemento = models.CharField(max_length=50, blank=True, null=True)
+    end_numero = models.CharField(max_length=20, blank=True, null=True)
+    end_bairro = models.CharField(max_length=100, blank=True, null=True)
+    end_cep = models.CharField(
+        max_length=8, blank=True, null=True,
+        validators=[RegexValidator(r'^\d{8}$', 'CEP deve ter 8 números')]
+    )
+    end_cidade = models.CharField(max_length=100, blank=True, null=True)
+    end_estado = models.CharField(max_length=2, choices=choices_estado, blank=True, null=True)
+
+    # ======================================================
+    # CÔNJUGE (desnormalizado de ClienteConjuge)
+    # ======================================================
+    conj_nome = models.CharField(max_length=100, blank=True, null=True)
+    conj_numero_rg = models.CharField(max_length=20, blank=True, null=True)
+    conj_orgao_emissor_rg = models.CharField(max_length=20, blank=True, null=True)
+    conj_documento = models.CharField(max_length=14, blank=True, null=True)
+
+    # ======================================================
     # MÉTODO PARA VALIDAR CPF
     # ======================================================
     @staticmethod

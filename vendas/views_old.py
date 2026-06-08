@@ -21,7 +21,7 @@ from babel.dates import format_date
 from django.core.paginator import Paginator
 
 from .forms import RegisterVendaForm
-from clientes.models import ClienteEndereco, ClienteTelefone, ClienteConjuge
+from clientes.models import ClienteTelefone
 from .models import RegisterVenda
 from documentos.models import CadastroDocumento
 from empreendimentos.models import Lote, Empreendimento

@@ -21,7 +21,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_JUSTIFY
 
 from .models import CadastroDocumento
-from clientes.models import ClienteEndereco, ClienteTelefone, ClienteConjuge
+from clientes.models import ClienteTelefone
 from vendas.models import RegisterVenda
 from weasyprint import HTML, CSS
 from django.utils.decorators import method_decorator
@@ -109,15 +109,7 @@ def proposta(request, venda_uuid):
         uuid=venda_uuid
     )
 
-    endereco_cliente = ClienteEndereco.objects.filter(
-        cliente=venda.cliente
-    ).first()
-
     contato_cliente = ClienteTelefone.objects.filter(
-        cliente=venda.cliente
-    ).first()
-
-    conjuge = ClienteConjuge.objects.filter(
         cliente=venda.cliente
     ).first()
 
@@ -368,13 +360,13 @@ def proposta(request, venda_uuid):
             venda,
 
         'endereco_cliente':
-            endereco_cliente,
+            venda.cliente,
 
         'contato_cliente':
             contato_cliente,
 
         'conjuge':
-            conjuge,
+            venda.cliente,
 
         'data_por_extenso':
             data_por_extenso,
@@ -442,15 +434,7 @@ def propostaRascunho(request, venda_uuid):
         lote__uuid=venda_uuid
     )
 
-    endereco_cliente = ClienteEndereco.objects.filter(
-        cliente=venda.cliente
-    ).first()
-
     contato_cliente = ClienteTelefone.objects.filter(
-        cliente=venda.cliente
-    ).first()
-
-    conjuge = ClienteConjuge.objects.filter(
         cliente=venda.cliente
     ).first()
 
@@ -701,13 +685,13 @@ def propostaRascunho(request, venda_uuid):
             venda,
 
         'endereco_cliente':
-            endereco_cliente,
+            venda.cliente,
 
         'contato_cliente':
             contato_cliente,
 
         'conjuge':
-            conjuge,
+            venda.cliente,
 
         'data_por_extenso':
             data_por_extenso,
@@ -806,15 +790,7 @@ def proposta_pdf(request, venda_uuid):
         uuid=venda_uuid
     )
 
-    endereco_cliente = ClienteEndereco.objects.filter(
-        cliente=venda.cliente
-    ).first()
-
     contato_cliente = ClienteTelefone.objects.filter(
-        cliente=venda.cliente
-    ).first()
-
-    conjuge = ClienteConjuge.objects.filter(
         cliente=venda.cliente
     ).first()
 
@@ -1099,13 +1075,13 @@ def proposta_pdf(request, venda_uuid):
             venda,
 
         'endereco_cliente':
-            endereco_cliente,
+            venda.cliente,
 
         'contato_cliente':
             contato_cliente,
 
         'conjuge':
-            conjuge,
+            venda.cliente,
 
         # =================================================
         # DATAS
@@ -1376,9 +1352,7 @@ def preparar_contrato(request):
 
 def contrato(request, venda_uuid):
     venda = get_object_or_404(RegisterVenda, uuid=venda_uuid)
-    enderecoCliente = ClienteEndereco.objects.filter(id=venda.cliente.id)
-    contatoCliente = ClienteEndereco.objects.filter(id=venda.cliente.id)
-    conjuge = ClienteConjuge.objects.filter(id=venda.cliente.id)
+    contatoCliente = ClienteTelefone.objects.filter(cliente=venda.cliente).first()
 
     documento = get_object_or_404(
         CadastroDocumento,
@@ -1392,9 +1366,9 @@ def contrato(request, venda_uuid):
     html_final = template.render(Context({
         'empreendimento': venda,
         'comprador': venda.cliente,
-        'enderecoCliente': enderecoCliente,
+        'enderecoCliente': venda.cliente,
         'contatoCliente': contatoCliente,
-        'conjuge': conjuge,
+        'conjuge': venda.cliente,
         # 'cpf': venda.cliente.cpf,
         # 'lote': venda.lote.numero,
         # 'quadra': venda.lote.quadra.nome,
@@ -1407,9 +1381,7 @@ def contrato(request, venda_uuid):
 
 def contrato_pdf1(request):
     venda = get_object_or_404(RegisterVenda, id=request.GET.get('venda_id'))
-    enderecoCliente = ClienteEndereco.objects.filter(id=venda.cliente.id)
-    contatoCliente = ClienteEndereco.objects.filter(id=venda.cliente.id)
-    conjuge = ClienteConjuge.objects.filter(id=venda.cliente.id)
+    contatoCliente = ClienteTelefone.objects.filter(cliente=venda.cliente).first()
 
     documento = get_object_or_404(
         CadastroDocumento,
@@ -1423,9 +1395,9 @@ def contrato_pdf1(request):
     html_final = template.render(Context({
         'empreendimento': venda,
         'comprador': venda.cliente,
-        'enderecoCliente': enderecoCliente,
+        'enderecoCliente': venda.cliente,
         'contatoCliente': contatoCliente,
-        'conjuge': conjuge,
+        'conjuge': venda.cliente,
         # 'cpf': venda.cliente.cpf,
         # 'lote': venda.lote.numero,
         # 'quadra': venda.lote.quadra.nome,

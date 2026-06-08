@@ -1,7 +1,7 @@
 // static/js/telefone.js
 document.addEventListener("DOMContentLoaded", function () {
 
-    // ✅ Se vier do backend usa, senão inicia vazio
+    // se vier do backend, usa; senão inicia vazio
     window.telefonesTemp = Array.isArray(window.telefonesTemp)
         ? window.telefonesTemp
         : [];
@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!box) {
             box = document.createElement("div");
             box.id = "telefoneErro";
-            box.className = "alert alert-danger mt-2";
+            box.className = "tw:mt-2 tw:rounded-xl tw:bg-red-50 tw:text-red-700 tw:px-4 tw:py-2 tw:text-sm";
             const formRow = document.querySelector("#telefoneNumero")?.parentNode;
             if (formRow) formRow.appendChild(box);
         }
@@ -75,25 +75,34 @@ document.addEventListener("DOMContentLoaded", function () {
     // LISTAR
     // ===============================
     window.atualizarLista = function () {
-        const ul = document.getElementById("listaTelefones");
-        if (!ul) return;
+        const container = document.getElementById("listaTelefones");
+        if (!container) return;
 
-        ul.innerHTML = "";
+        container.innerHTML = "";
 
-        window.telefonesTemp.forEach((tel, index) => {
-            const li = document.createElement("li");
-            li.className =
-                "list-group-item d-flex justify-content-between align-items-center";
-            li.innerHTML = `
-                <span>${tel}</span>
-                <button type="button"
-                        class="btn btn-sm btn-outline-danger"
-                        onclick="removerTelefone(${index})">
-                    ✕
-                </button>
-            `;
-            ul.appendChild(li);
-        });
+        if (!window.telefonesTemp.length) {
+            const empty = document.createElement("div");
+            empty.className = "tw:rounded-xl tw:border tw:border-dashed tw:border-slate-700 tw:bg-slate-950/40 tw:p-4 tw:text-sm tw:text-slate-400";
+            empty.textContent = "Nenhum telefone adicionado.";
+            container.appendChild(empty);
+        } else {
+            window.telefonesTemp.forEach((tel, index) => {
+                const row = document.createElement("div");
+                row.className = "tw:flex tw:items-center tw:justify-between tw:gap-5 tw:rounded-xl tw:border tw:border-slate-200 tw:bg-white tw:px-4 tw:py-2";
+                row.innerHTML = `
+                    <div class="tw:flex tw:flex-col tw:min-w-0">
+                        <span class="tw:font-semibold tw:text-slate-900">${tel}</span>
+                    </div>
+                    <button type="button"
+                            class="tw:inline-flex tw:items-center tw:justify-center tw:rounded-xl tw:px-4 tw:py-2 tw:font-semibold tw:text-white tw:bg-red-600 tw:transition"
+                            onclick="removerTelefone(${index})"
+                            aria-label="Remover telefone">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                container.appendChild(row);
+            });
+        }
 
         const hidden = document.getElementById("telefones_json");
         if (hidden) hidden.value = JSON.stringify(window.telefonesTemp);
@@ -108,11 +117,11 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     // ===============================
-    // FECHAR MODAL
+    // FECHAR MODAL (se usado)
     // ===============================
     window.fecharModal = function () {
-        const modalEl = document.getElementById("modalTelefone");
-        if (!modalEl) return;
+        const modalEl = document.getElementById("modalTelefones");
+        if (!modalEl || !window.bootstrap) return;
 
         const instance =
             bootstrap.Modal.getInstance(modalEl) ||
@@ -121,6 +130,6 @@ document.addEventListener("DOMContentLoaded", function () {
         instance.hide();
     };
 
-    // ✅ CARREGA AUTOMATICAMENTE AO ABRIR
     atualizarLista();
 });
+

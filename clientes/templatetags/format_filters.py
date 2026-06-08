@@ -4,6 +4,25 @@ from django import template
 register = template.Library()
 
 @register.filter
+def initials(value):
+    """
+    Retorna iniciais (2 letras) a partir de um nome.
+    Ex.: "David Nóbrega" -> "DN", "Maria" -> "MA"
+    """
+    if not value:
+        return ""
+
+    parts = [p for p in re.split(r"\s+", str(value).strip()) if p]
+    if not parts:
+        return ""
+
+    if len(parts) == 1:
+        return (parts[0][:2]).upper()
+
+    return (parts[0][:1] + parts[-1][:1]).upper()
+
+
+@register.filter
 def format_documento(value):
     """Formata CPF ou CNPJ automaticamente."""
     if not value:

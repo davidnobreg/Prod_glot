@@ -3,5 +3,207 @@
 @import "tailwindcss/theme.css" layer(theme) prefix(tw);
 @import "tailwindcss/utilities.css" layer(utilities) prefix(tw);
 
+@layer components {
+	/* =====================================================
+	   App Listing Pattern (Tables + Toolbars)
+	   ===================================================== */
+
+	.glot-page {
+		@apply tw:mx-auto tw:max-w-6xl tw:px-4 tw:sm:px-6 tw:lg:px-8 tw:py-6;
+	}
+
+	.glot-page-header {
+		@apply tw:flex tw:flex-col tw:gap-4 tw:sm:flex-row tw:sm:items-start tw:sm:justify-between;
+	}
+
+	.glot-page-banner {
+		@apply tw:rounded-xl tw:border tw:border-slate-200 tw:shadow
+			tw:bg-gradient-to-r tw:from-blue-50 tw:via-white tw:to-cyan-50
+			tw:px-5 tw:py-4 tw:sm:px-6 tw:sm:py-5;
+	}
+
+	.glot-banner-title {
+		@apply tw:text-2xl tw:font-bold tw:text-slate-900;
+	}
+
+	.glot-banner-subtitle {
+		@apply tw:mt-1 tw:text-sm tw:text-slate-700;
+	}
+
+	.glot-accent-bar {
+		@apply tw:h-1.5 tw:w-full tw:bg-gradient-to-r tw:from-blue-600 tw:to-cyan-600;
+	}
+
+	.glot-header-actions {
+		@apply tw:flex tw:gap-3 tw:flex-wrap tw:justify-start tw:sm:justify-end;
+	}
+
+	.glot-toolbar {
+		@apply tw:flex tw:flex-col tw:gap-4 tw:md:flex-row tw:md:items-end tw:md:justify-between;
+	}
+
+	.glot-search {
+		@apply tw:relative tw:w-full;
+	}
+
+	.glot-search-input {
+		@apply tw:w-full tw:rounded-xl tw:border tw:border-slate-200 tw:bg-slate-50 tw:pl-10 tw:pr-4 tw:py-2 tw:text-base tw:text-slate-900 tw:transition tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-blue-500 tw:focus:ring-offset-2 tw:focus:ring-offset-white;
+	}
+
+	.glot-search-icon {
+		@apply tw:absolute tw:left-3 tw:top-1/2 tw:-translate-y-1/2 tw:text-slate-400;
+	}
+
+	.glot-table-wrap {
+		@apply tw:bg-white tw:rounded-xl tw:border tw:border-slate-200 tw:shadow tw:overflow-x-auto;
+	}
+
+	.glot-table {
+		@apply tw:w-full tw:text-sm;
+	}
+
+	.glot-thead {
+		@apply tw:bg-gradient-to-r tw:from-slate-50 tw:to-slate-100 tw:text-slate-700;
+	}
+
+	.glot-th {
+		@apply tw:px-4 tw:py-3 tw:text-xs tw:font-semibold tw:uppercase tw:tracking-wide tw:whitespace-nowrap;
+	}
+
+	.glot-td {
+		@apply tw:px-4 tw:py-4 tw:align-top;
+	}
+
+	.glot-tr {
+		@apply tw:border-t tw:border-slate-200;
+	}
+
+	.glot-row-primary {
+		@apply tw:flex tw:items-center tw:gap-3 tw:min-w-0;
+	}
+
+	.glot-avatar {
+		@apply tw:inline-flex tw:items-center tw:justify-center tw:w-10 tw:h-10 tw:rounded-full tw:bg-slate-900 tw:text-white tw:font-bold tw:text-sm tw:flex-shrink-0;
+	}
+
+	.glot-row-title {
+		@apply tw:font-semibold tw:text-slate-900 tw:truncate;
+	}
+
+	.glot-row-subtitle {
+		@apply tw:mt-1 tw:text-slate-400 tw:truncate;
+	}
+
+	.glot-actions {
+		@apply tw:flex tw:items-center tw:gap-2;
+	}
+
+	.glot-footer {
+		@apply tw:flex tw:flex-col tw:gap-3 tw:sm:flex-row tw:sm:items-center tw:sm:justify-between tw:px-4 tw:py-4;
+	}
+
+	.glot-footer-muted {
+		@apply tw:text-sm tw:text-slate-400;
+	}
+
+	.glot-pagination {
+		@apply tw:flex tw:items-center tw:justify-center tw:gap-3;
+	}
+
+	.glot-page-pill {
+		@apply tw:inline-flex tw:items-center tw:justify-center tw:rounded-xl tw:border tw:border-slate-200 tw:bg-white tw:px-3 tw:py-2 tw:text-sm tw:font-semibold tw:text-slate-800;
+	}
+
+	.glot-card {
+		@apply tw:rounded-xl tw:border tw:border-slate-200 tw:shadow
+			tw:bg-gradient-to-b tw:from-white tw:to-slate-50;
+	}
+
+	.glot-card-body {
+		@apply tw:p-5 tw:sm:px-6 tw:sm:py-6 tw:lg:px-8;
+	}
+
+	.glot-h1 {
+		@apply tw:text-2xl tw:font-bold tw:text-slate-900;
+	}
+
+	.glot-subtitle {
+		@apply tw:mt-1 tw:text-sm tw:text-slate-400;
+	}
+
+	.glot-section-title {
+		@apply tw:text-lg tw:font-semibold tw:text-slate-900;
+	}
+
+	.glot-section-subtitle {
+		@apply tw:mt-1 tw:text-sm tw:text-slate-400;
+	}
+
+	.glot-label {
+		@apply tw:block tw:text-sm tw:font-semibold tw:text-slate-900 tw:mb-1;
+	}
+
+	.glot-input {
+		@apply tw:w-full tw:rounded-xl tw:border tw:border-slate-200 tw:bg-white tw:px-4 tw:py-2 tw:text-base tw:text-slate-900 tw:transition tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-blue-500 tw:focus:ring-offset-2 tw:focus:ring-offset-white;
+	}
+
+	.glot-textarea {
+		@apply tw:w-full tw:rounded-xl tw:border tw:border-slate-200 tw:bg-white tw:px-4 tw:py-2 tw:text-base tw:text-slate-900 tw:transition tw:min-h-28 tw:resize-y tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-blue-500 tw:focus:ring-offset-2 tw:focus:ring-offset-white;
+	}
+
+	.glot-select {
+		@apply tw:w-full tw:rounded-xl tw:border tw:border-slate-200 tw:bg-white tw:px-4 tw:py-2 tw:text-base tw:text-slate-900 tw:transition tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-blue-500 tw:focus:ring-offset-2 tw:focus:ring-offset-white;
+	}
+
+	.glot-btn {
+		@apply tw:inline-flex tw:items-center tw:justify-center tw:gap-2 tw:rounded-xl tw:px-4 tw:py-2 tw:font-semibold tw:transition tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-blue-500 tw:focus:ring-offset-2 tw:focus:ring-offset-white;
+	}
+
+	.glot-btn-primary {
+		@apply tw:inline-flex tw:items-center tw:justify-center tw:gap-2 tw:rounded-xl tw:px-4 tw:py-2 tw:font-semibold tw:text-white tw:bg-blue-600 tw:transition tw:hover:bg-blue-700 tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-blue-500 tw:focus:ring-offset-2 tw:focus:ring-offset-white;
+	}
+
+	.glot-btn-secondary {
+		@apply tw:inline-flex tw:items-center tw:justify-center tw:gap-2 tw:rounded-xl tw:px-4 tw:py-2 tw:font-semibold tw:text-white tw:bg-slate-800 tw:transition tw:hover:bg-slate-800 tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-blue-500 tw:focus:ring-offset-2 tw:focus:ring-offset-white;
+	}
+
+	.glot-btn-danger {
+		@apply tw:inline-flex tw:items-center tw:justify-center tw:gap-2 tw:rounded-xl tw:px-4 tw:py-2 tw:font-semibold tw:text-white tw:bg-red-600 tw:transition tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-blue-500 tw:focus:ring-offset-2 tw:focus:ring-offset-white;
+	}
+
+	.glot-btn-ghost {
+		@apply tw:inline-flex tw:items-center tw:justify-center tw:gap-2 tw:rounded-xl tw:px-4 tw:py-2 tw:font-semibold tw:text-slate-800 tw:bg-white tw:border tw:border-slate-200 tw:transition tw:hover:border-blue-500/50 tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-blue-500 tw:focus:ring-offset-2 tw:focus:ring-offset-white;
+	}
+
+	.glot-icon-btn {
+		@apply tw:inline-flex tw:items-center tw:justify-center tw:rounded-xl tw:w-10 tw:h-10 tw:transition tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-blue-500 tw:focus:ring-offset-2 tw:focus:ring-offset-white;
+	}
+
+	.glot-icon-btn-edit {
+		@apply tw:inline-flex tw:items-center tw:justify-center tw:rounded-xl tw:w-10 tw:h-10 tw:bg-amber-100 tw:text-amber-900 tw:transition tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-blue-500 tw:focus:ring-offset-2 tw:focus:ring-offset-white;
+	}
+
+	.glot-icon-btn-delete {
+		@apply tw:inline-flex tw:items-center tw:justify-center tw:rounded-xl tw:w-10 tw:h-10 tw:bg-red-100 tw:text-red-900 tw:transition tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-blue-500 tw:focus:ring-offset-2 tw:focus:ring-offset-white;
+	}
+
+	.glot-badge {
+		@apply tw:inline-flex tw:items-center tw:rounded-full tw:px-3 tw:py-1 tw:text-sm tw:font-semibold;
+	}
+
+	.glot-badge-success {
+		@apply tw:inline-flex tw:items-center tw:rounded-full tw:px-3 tw:py-1 tw:text-sm tw:font-semibold tw:bg-green-100 tw:text-green-800;
+	}
+
+	.glot-badge-warning {
+		@apply tw:inline-flex tw:items-center tw:rounded-full tw:px-3 tw:py-1 tw:text-sm tw:font-semibold tw:bg-amber-100 tw:text-amber-900;
+	}
+
+	.glot-badge-muted {
+		@apply tw:inline-flex tw:items-center tw:rounded-full tw:px-3 tw:py-1 tw:text-sm tw:font-semibold tw:bg-slate-100 tw:text-slate-800;
+	}
+}
+
 @source "../../../**/*.html";
 @source "../../../**/*.py";
+@source "../../../**/*.js";

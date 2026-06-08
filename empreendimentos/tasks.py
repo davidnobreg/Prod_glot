@@ -49,7 +49,7 @@ def destravar_lotes_expirados(self):
 
         logger.info(
             "📦 [CELERY] %s lotes encontrados para destravamento",
-            total
+            total,
         )
 
         destravados = 0
@@ -73,7 +73,7 @@ def destravar_lotes_expirados(self):
 
     logger.info(
         "✅ [CELERY] %s lotes destravados com sucesso",
-        destravados
+        destravados,
     )
 
     return destravados
@@ -140,7 +140,7 @@ def liberar_lotes_expirados(self):
 
         logger.info(
             "📦 [CELERY] %s pré-reservas encontradas para liberação",
-            total
+            total,
         )
 
         total_processados = 0
@@ -162,7 +162,7 @@ def liberar_lotes_expirados(self):
 
     logger.info(
         "✅ [CELERY] Total de pré-reservas liberadas: %s",
-        total_processados
+        total_processados,
     )
 
     return total_processados
@@ -187,7 +187,7 @@ def voltar_lote_para_disponivel(self, lote_id):
 
     logger.info(
         "↩️ [CELERY] Solicitada liberação manual do lote ID=%s",
-        lote_id
+        lote_id,
     )
 
     try:
@@ -215,13 +215,13 @@ def voltar_lote_para_disponivel(self, lote_id):
     except Lote.DoesNotExist:
         logger.warning(
             "⚠️ [CELERY] Lote ID=%s não encontrado",
-            lote_id
+            lote_id,
         )
         return False
 
     logger.info(
         "✅ [CELERY] Lote ID=%s liberado manualmente",
-        lote_id
+        lote_id,
     )
 
     return True

@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if modelo %}Editar modelo{% else %}Novo modelo{% endif %}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'documentos/css/documento_a4.css' %}">
+
+<div class="container-fluid px-3">
+
+	<!-- TOPBAR -->
+	<div class="card shadow-sm mb-3">
+		<div class="card-body d-flex flex-wrap gap-2 align-items-end">
+			<div class="flex-fill">
+				<label class="form-label small text-muted">Título</label>
+				<input type="text" id="modeloTitulo" class="form-control form-control-sm"
+					value="{{ modelo.titulo|default:'' }}" placeholder="Título do modelo">
+			</div>
+			<div>
+				<label class="form-label small text-muted">Tipo</label>
+				<select id="modeloTipo" class="form-select form-select-sm">
+					{% for valor, rotulo in tipos %}
+						<option value="{{ valor }}" {% if modelo.tipo == valor %}selected{% endif %}>{{ rotulo }}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<div class="d-flex gap-2">
+				<a href="{% url 'documentos:modelos-lista' %}" class="btn btn-outline-secondary btn-sm rounded-pill">Voltar</a>
+				<button id="btnSalvar" class="btn btn-success btn-sm rounded-pill">
+					<i class="bi bi-save me-1"></i>Salvar
+				</button>
+				<span class="small text-muted align-self-center" id="salvarStatus"></span>
+			</div>
+		</div>
+	</div>
+
+	<div class="row g-3">
+		<!-- EDITOR -->
+		<div class="col-12 col-xl-9">
+			<!-- TOOLBAR -->
+			<div class="card shadow-sm mb-2">
+				<div class="card-body py-2 d-flex flex-wrap gap-1 align-items-center">
+					<button type="button" class="btn btn-light btn-sm" data-action="undo" title="Desfazer"><i class="bi bi-arrow-counterclockwise"></i></button>
+						<button type="button" class="btn btn-light btn-sm" data-action="redo" title="Refazer"><i class="bi bi-arrow-clockwise"></i></button>
+						<span class="vr mx-1"></span>
+						<button class="btn btn-light btn-sm" data-action="bold"><b>B</b></button>
+					<button class="btn btn-light btn-sm" data-action="italic"><i>I</i></button>
+					<button class="btn btn-light btn-sm" data-action="underline"><u>U</u></button>
+						<button type="button" class="btn btn-light btn-sm" data-action="subscript" title="Subscrito"><i class="bi bi-subscript"></i></button>
+						<button type="button" class="btn btn-light btn-sm" data-action="superscript" title="Sobrescrito"><i class="bi bi-superscript"></i></button>
+						<span class="vr mx-1"></span>
+						<div class="dropdown d-inline">
+							<button type="button" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" title="Cor do texto"><i class="bi bi-fonts" style="color:#dc3545"></i></button>
+							<div class="dropdown-menu p-2" style="min-width:auto">
+								<div class="d-flex flex-wrap gap-1" style="width:128px">
+									{% for cor in cores_texto %}
+									<button type="button" class="border rounded p-0" style="width:24px;height:24px;background:{{ cor }}" data-color="{{ cor }}" title="{{ cor }}"></button>
+									{% endfor %}
+								</div>
+								<button type="button" class="btn btn-link btn-sm p-0 mt-2 text-decoration-none" data-action="color-clear">Remover cor</button>
+							</div>
+						</div>
+						<div class="dropdown d-inline">
+							<button type="button" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" title="Realce"><i class="bi bi-highlighter"></i></button>
+							<div class="dropdown-menu p-2" style="min-width:auto">
+								<div class="d-flex flex-wrap gap-1" style="width:128px">
+									{% for cor in cores_realce %}
+									<button type="button" class="border rounded p-0" style="width:24px;height:24px;background:{{ cor }}" data-highlight="{{ cor }}" title="{{ cor }}"></button>
+									{% endfor %}
+								</div>
+								<button type="button" class="btn btn-link btn-sm p-0 mt-2 text-decoration-none" data-action="highlight-clear">Remover realce</button>
+							</div>
+						</div>
+					<span class="vr mx-1"></span>
+					<button class="btn btn-light btn-sm" data-action="h1">H1</button>
+					<button class="btn btn-light btn-sm" data-action="h2">H2</button>
+					<button class="btn btn-light btn-sm" data-action="p">¶</button>
+					<span class="vr mx-1"></span>
+					<button class="btn btn-light btn-sm" data-action="left"><i class="bi bi-text-left"></i></button>
+					<button class="btn btn-light btn-sm" data-action="center"><i class="bi bi-text-center"></i></button>
+					<button class="btn btn-light btn-sm" data-action="justify"><i class="bi bi-justify"></i></button>
+					<span class="vr mx-1"></span>
+					<button class="btn btn-light btn-sm" data-action="bullet"><i class="bi bi-list-ul"></i></button>
+					<button class="btn btn-light btn-sm" data-action="table"><i class="bi bi-table"></i></button>
+						<button type="button" class="btn btn-light btn-sm" data-action="hr" title="Linha horizontal"><i class="bi bi-dash-lg"></i></button>
+						<span class="vr mx-1"></span>
+						<button type="button" class="btn btn-light btn-sm" data-action="clear" title="Limpar formatação"><i class="bi bi-eraser"></i></button>
+				</div>
+			</div>
+			<div class="card shadow-sm">
+				<div class="card-body" style="background:#e9ecef;overflow:auto;max-height:78vh;">
+					<div class="editor-a4-page">
+						<div id="tiptapEditor"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- SIDEBAR VARIÁVEIS -->
+		<div class="col-12 col-xl-3">
+			<div class="card shadow-sm">
+				<div class="card-header bg-white fw-semibold">
+					<i class="bi bi-braces me-1"></i>Variáveis
+				</div>
+				<div class="card-body">
+					<input type="text" id="buscaVariavel" class="form-control form-control-sm mb-2" placeholder="Buscar...">
+					<div style="max-height:70vh;overflow:auto;">
+						{% for categoria, itens in variaveis_por_categoria %}
+							<div class="text-uppercase text-muted small fw-bold mt-2">{{ categoria }}</div>
+							{% for v in itens %}
+								<div class="d-flex justify-content-between align-items-center py-1 px-2 rounded variavel-item"
+									 data-var-slug="{{ v.tag_slug }}" style="cursor:pointer" title="{{ v.tag_slug }}">
+									<span class="small">{{ v.label }}</span>
+									<code class="small text-primary">{{ v.tag_slug }}</code>
+								</div>
+							{% endfor %}
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script id="variaveisJson" type="application/json">{{ variaveis_json|safe }}</script>
+<script>
+	window.EDITOR_CONFIG = {
+		csrf: '{{ csrf_token }}',
+		salvarUrl: '{{ salvar_url }}',
+		conteudoInicial: {{ conteudo_inicial_json|safe }},
+	}
+</script>
+<script src="{% static 'documentos/js/vendor/tiptap.bundle.min.js' %}"></script>
+<script src="{% static 'documentos/js/editor/variavel-node.js' %}"></script>
+<script src="{% static 'documentos/js/editor/editor-init.js' %}"></script>
+
+<style>
+	.variavel-item:hover { background:#eef4ff; }
+	#tiptapEditor .ProseMirror { outline:none; min-height:60vh; }
+</style>
+{% endblock %}

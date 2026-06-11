@@ -11,7 +11,7 @@
 	const T = window.TipTapBundle
 	const cfg = window.EDITOR_CONFIG || {}
 	const csrf = cfg.csrf
-	const salvarUrl = cfg.salvarUrl
+	let salvarUrl = cfg.salvarUrl
 
 	const editor = new T.Editor({
 		element: elEditor,
@@ -21,6 +21,11 @@
 			T.TextAlign.configure({ types: ['heading', 'paragraph'] }),
 			T.Table.configure({ resizable: true }),
 			T.TableRow, T.TableHeader, T.TableCell,
+			T.TextStyle,
+			T.Color,
+			T.Highlight.configure({ multicolor: true }),
+			T.Subscript,
+			T.Superscript,
 			window.VariavelNode,
 		],
 		content: cfg.conteudoInicial || '',
@@ -45,8 +50,32 @@
 				case 'justify': chain.setTextAlign('justify').run(); break
 				case 'bullet': chain.toggleBulletList().run(); break
 				case 'table': chain.insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(); break
+				case 'subscript': chain.toggleSubscript().run(); break
+				case 'superscript': chain.toggleSuperscript().run(); break
+				case 'hr': chain.setHorizontalRule().run(); break
+				case 'undo': chain.undo().run(); break
+				case 'redo': chain.redo().run(); break
+				case 'clear': chain.unsetAllMarks().clearNodes().run(); break
+				case 'color-clear': chain.unsetColor().run(); break
+				case 'highlight-clear': chain.unsetHighlight().run(); break
 				default: break
 			}
+		})
+	})
+
+	// ---- Cor do texto (paleta fixa) ----
+	document.querySelectorAll('[data-color]').forEach(sw => {
+		sw.addEventListener('click', e => {
+			e.preventDefault()
+			editor.chain().focus().setColor(sw.dataset.color).run()
+		})
+	})
+
+	// ---- Realce / highlight (paleta fixa) ----
+	document.querySelectorAll('[data-highlight]').forEach(sw => {
+		sw.addEventListener('click', e => {
+			e.preventDefault()
+			editor.chain().focus().toggleHighlight({ color: sw.dataset.highlight }).run()
 		})
 	})
 
@@ -79,7 +108,7 @@
 		}
 	}
 
-	function salvar() {
+	function salvar(redirecionar = false) {
 		const status = document.getElementById('salvarStatus')
 		if (status) { status.textContent = 'salvando...' }
 		fetch(salvarUrl, {
@@ -91,7 +120,10 @@
 			.then(d => {
 				if (d.ok) {
 					if (status) { status.textContent = 'salvo' }
-					if (d.redirect) { window.location.href = d.redirect }
+					// Modelo novo: passa a salvar no endpoint com pk (evita duplicar).
+					if (d.salvar_url) { salvarUrl = d.salvar_url }
+					// Só o salvamento manual navega; autosave permanece no editor.
+					if (redirecionar && d.redirect) { window.location.href = d.redirect }
 				} else {
 					if (status) { status.textContent = 'erro' }
 					alert((d.erros || ['Erro ao salvar']).join('\n'))
@@ -101,7 +133,7 @@
 	}
 
 	const btnSalvar = document.getElementById('btnSalvar')
-	if (btnSalvar) { btnSalvar.addEventListener('click', salvar) }
+	if (btnSalvar) { btnSalvar.addEventListener('click', () => salvar(true)) }
 
 	// ---- Autosave 30s quando houver mudança ----
 	let sujo = false

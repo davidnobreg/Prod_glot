@@ -72,6 +72,14 @@ def modelo_editor(request, pk=None):
 		)),
 		'salvar_url': salvar_url,
 		'conteudo_inicial_json': json.dumps(conteudo),
+		'cores_texto': [
+			'#000000', '#dc3545', '#fd7e14', '#ffc107',
+			'#198754', '#0d6efd', '#6f42c1', '#6c757d',
+		],
+		'cores_realce': [
+			'#fff3cd', '#d1e7dd', '#cfe2ff', '#f8d7da',
+			'#e2e3e5', '#ffe5b4', '#d3f9d8', '#e5dbff',
+		],
 	})
 
 
@@ -103,7 +111,14 @@ def modelo_salvar(request, pk=None):
 		modelo = ModeloDocumento.objects.create(
 			titulo=titulo, tipo=tipo, conteudo_html=conteudo, criado_por=request.user,
 		)
-	return JsonResponse({'ok': True, 'redirect': reverse('documentos:modelos-lista')})
+	return JsonResponse({
+		'ok': True,
+		'id': modelo.pk,
+		# URL de salvamento já vinculada ao pk — o autosave de um modelo novo
+		# passa a atualizar o mesmo registro em vez de criar duplicatas.
+		'salvar_url': reverse('documentos:modelo-salvar', args=[modelo.pk]),
+		'redirect': reverse('documentos:modelos-lista'),
+	})
 
 
 @has_permission_decorator('documentoModelos')

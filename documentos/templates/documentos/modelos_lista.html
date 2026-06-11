@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Modelos de documento{% endblock %}
+{% block content %}
+<div class="container-fluid px-3">
+	<div class="d-flex justify-content-between align-items-center mb-3">
+		<h4 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>Modelos de documento</h4>
+		<div class="d-flex gap-2">
+			<a href="{% url 'documentos:variaveis-lista' %}" class="btn btn-outline-secondary btn-sm rounded-pill">Variáveis</a>
+			<a href="{% url 'documentos:modelo-novo' %}" class="btn btn-primary btn-sm rounded-pill"><i class="bi bi-plus-lg me-1"></i>Novo modelo</a>
+		</div>
+	</div>
+	<div class="card shadow-sm">
+		<div class="table-responsive">
+			<table class="table table-hover align-middle mb-0">
+				<thead class="table-light">
+					<tr><th>Título</th><th>Tipo</th><th>Global</th><th>Versão</th><th>Ativo</th><th>Atualizado</th><th></th></tr>
+				</thead>
+				<tbody>
+					{% for m in modelos %}
+					<tr>
+						<td>{{ m.titulo }}</td>
+						<td><span class="badge bg-secondary">{{ m.get_tipo_display }}</span></td>
+						<td>{% if m.eh_global %}<i class="bi bi-globe text-success"></i>{% else %}—{% endif %}</td>
+						<td>v{{ m.versao }}</td>
+						<td>{% if m.ativo %}<span class="badge bg-success">sim</span>{% else %}<span class="badge bg-danger">não</span>{% endif %}</td>
+						<td class="small text-muted">{{ m.atualizado_em|date:'d/m/Y H:i' }}</td>
+						<td class="text-end">
+							<a href="{% url 'documentos:modelo-preview' m.pk %}" class="btn btn-sm btn-light" title="Preview" target="_blank"><i class="bi bi-eye"></i></a>
+							<a href="{% url 'documentos:modelo-editar' m.pk %}" class="btn btn-sm btn-light" title="Editar"><i class="bi bi-pencil"></i></a>
+							<a href="{% url 'documentos:modelo-historico' m.pk %}" class="btn btn-sm btn-light" title="Versões"><i class="bi bi-clock-history"></i></a>
+							<form method="post" action="{% url 'documentos:modelo-duplicar' m.pk %}" class="d-inline">{% csrf_token %}
+								<button class="btn btn-sm btn-light" title="Duplicar"><i class="bi bi-files"></i></button>
+							</form>
+							<form method="post" action="{% url 'documentos:modelo-toggle-ativo' m.pk %}" class="d-inline">{% csrf_token %}
+								{% if m.ativo %}
+								<button class="btn btn-sm btn-outline-danger" title="Inativar" onclick="return confirm('Inativar o modelo {{ m.titulo|escapejs }}?');"><i class="bi bi-slash-circle me-1"></i>Inativar</button>
+								{% else %}
+								<button class="btn btn-sm btn-outline-success" title="Ativar"><i class="bi bi-check-circle me-1"></i>Ativar</button>
+								{% endif %}
+							</form>
+						</td>
+					</tr>
+					{% empty %}
+					<tr><td colspan="7" class="text-center text-muted py-4">Nenhum modelo cadastrado.</td></tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+{% endblock %}

@@ -187,6 +187,35 @@
             {% endif %}
         </div>
 
+        <!-- ================================================= -->
+        <!-- DOCUMENTOS -->
+        <!-- ================================================= -->
+        {% if user.tipo_usuario == "ADMINISTRADOR" %}
+        <button
+                class="mt-4 mb-1 px-2 sidebar-section-title"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#sidebarDocumentos"
+                aria-expanded="false"
+                aria-controls="sidebarDocumentos"
+        >
+            <span class="sidebar-text">Documentos</span>
+            <i class="bi bi-chevron-down sidebar-chevron"></i>
+        </button>
+
+        <div id="sidebarDocumentos" class="collapse sidebar-submenu">
+            <a href="{% url 'documentos:modelos-lista' %}" class="nav-link">
+                <i class="bi bi-file-earmark-text"></i>
+                <span class="sidebar-text">Modelos</span>
+            </a>
+
+            <a href="{% url 'documentos:variaveis-lista' %}" class="nav-link">
+                <i class="bi bi-braces"></i>
+                <span class="sidebar-text">Variáveis</span>
+            </a>
+        </div>
+        {% endif %}
+
     </nav>
 
     <!-- ===================================================== -->

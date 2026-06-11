@@ -5,7 +5,6 @@
 import { Editor, Node, mergeAttributes } from '@tiptap/core'
 import { StarterKit } from '@tiptap/starter-kit'
 import { TextAlign } from '@tiptap/extension-text-align'
-import { Underline } from '@tiptap/extension-underline'
 import { Table, TableRow, TableCell, TableHeader } from '@tiptap/extension-table'
 import { TextStyle } from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
@@ -13,8 +12,10 @@ import { Highlight } from '@tiptap/extension-highlight'
 import { Subscript } from '@tiptap/extension-subscript'
 import { Superscript } from '@tiptap/extension-superscript'
 
+// Underline NÃO é importado aqui: StarterKit v3 já o inclui (evita
+// "Duplicate extension names found: ['underline']").
 window.TipTapBundle = {
   Editor, Node, mergeAttributes, StarterKit,
-  TextAlign, Underline, Table, TableRow, TableCell, TableHeader,
+  TextAlign, Table, TableRow, TableCell, TableHeader,
   TextStyle, Color, Highlight, Subscript, Superscript,
 }

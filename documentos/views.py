@@ -27,17 +27,11 @@ from .services import (
     montar_contexto_venda,
     renderizar_variaveis,
 )
-from .conversor import docx_para_html_template
-from .mappings import MARCADORES, DESCRICOES
 from clientes.models import ClienteTelefone
 from vendas.models import RegisterVenda
 from weasyprint import HTML, CSS
 from django.utils.decorators import method_decorator
 from rolepermissions.decorators import has_permission_decorator
-
-
-# tipos liberados para upload (subconjunto dos choices do model)
-TIPOS_UPLOAD = ['proposta', 'contrato', 'distrato', 'distrato_inadimp']
 
 
 def draw_header_footer(canvas, doc):
@@ -453,138 +447,3 @@ def contrato_pdf1(request):
 
     HTML(string=html_final).write_pdf(response)
     return response
-
-
-# =====================================================
-# UPLOAD DE DOCUMENTO (.docx -> template HTML)
-# =====================================================
-
-def _tipos_upload():
-    """Choices do model restritos aos tipos liberados para upload."""
-    rotulos = dict(CadastroDocumento._meta.get_field('tipo').choices)
-    return [(t, rotulos.get(t, t)) for t in TIPOS_UPLOAD]
-
-
-def _ultimas_vendas():
-    return RegisterVenda.objects.select_related(
-        'cliente', 'lote', 'lote__quadra', 'lote__quadra__empr'
-    ).filter(is_ativo=True).order_by('-id')[:10]
-
-
-def _render_preview(venda, html_template):
-    """Renderiza o template com dados reais da venda."""
-    contato_cliente = ClienteTelefone.objects.filter(cliente=venda.cliente).first()
-    contexto = construir_contexto_venda(venda, contato_cliente)
-    return Template(html_template).render(Context(contexto))
-
-
-@has_permission_decorator('uploadDocumento')
-def upload_documento(request):
-    contexto = {
-        'tipos': _tipos_upload(),
-        'vendas': _ultimas_vendas(),
-    }
-
-    if request.method == 'POST':
-        acao = request.POST.get('acao')
-
-        # -------- etapa 1: converter e pré-visualizar --------
-        if acao == 'preview':
-            arquivo = request.FILES.get('arquivo')
-            tipo = request.POST.get('tipo')
-            venda = get_object_or_404(RegisterVenda, id=request.POST.get('venda_id'))
-
-            if not arquivo or not arquivo.name.lower().endswith('.docx'):
-                messages.error(request, 'Envie um arquivo .docx válido.')
-                return render(request, 'documentos/upload_documento.html', contexto)
-
-            html_template = docx_para_html_template(arquivo)
-
-            css_match = re.search(
-                r'<!-- GLOT:CSS -->(.*?)<!-- /GLOT:CSS -->', html_template, re.DOTALL
-            )
-            css_editor = css_match.group(1).strip() if css_match else ''
-            html_editor = re.sub(
-                r'<!-- GLOT:CSS -->.*?<!-- /GLOT:CSS -->\n?', '',
-                html_template, flags=re.DOTALL
-            ).strip()
-
-            html_editor_safe = (
-                html_editor
-                .replace('{{', '__OPEN2__')
-                .replace('}}', '__CLOSE2__')
-                .replace('{%', '__OPENTAG__')
-                .replace('%}', '__CLOSETAG__')
-            )
-
-            contexto.update({
-                'tipo': tipo,
-                'venda_id': venda.id,
-                'titulo_sugerido': arquivo.name.rsplit('.', 1)[0],
-                'html_template': html_template,
-                'css_editor': css_editor,
-                'html_editor': html_editor_safe,
-                'preview_html': _render_preview(venda, html_template),
-                'documento_existente': CadastroDocumento.objects.filter(
-                    tipo=tipo, ativo=True
-                ).first(),
-            })
-            return render(request, 'documentos/upload_documento.html', contexto)
-
-        # -------- etapa 2: salvar --------
-        if acao in ('salvar', 'substituir'):
-            tipo = request.POST.get('tipo')
-            texto = request.POST.get('html_template', '')
-            titulo = request.POST.get('titulo') or f'Documento {tipo}'
-
-            versao = 1
-            if acao == 'substituir':
-                anterior = CadastroDocumento.objects.filter(
-                    tipo=tipo, ativo=True
-                ).first()
-                if anterior:
-                    anterior.ativo = False
-                    anterior.save(update_fields=['ativo'])
-                    versao = anterior.versao + 1
-
-            CadastroDocumento.objects.create(
-                titulo=titulo,
-                tipo=tipo,
-                texto=texto,
-                versao=versao,
-                ativo=True,
-            )
-            messages.success(request, 'Documento salvo com sucesso.')
-            return redirect('upload-documento')
-
-    return render(request, 'documentos/upload_documento.html', contexto)
-
-
-@has_permission_decorator('uploadDocumento')
-def preview_documento(request):
-    """Endpoint AJAX: re-renderiza o preview quando o textarea é editado."""
-    if request.method != 'POST':
-        return JsonResponse({'erro': 'método inválido'}, status=405)
-
-    venda = get_object_or_404(RegisterVenda, id=request.POST.get('venda_id'))
-    html_template = request.POST.get('html_template', '')
-    try:
-        html = _render_preview(venda, html_template)
-    except Exception as e:
-        return JsonResponse({'erro': str(e)}, status=400)
-    return JsonResponse({'html': html})
-
-
-@has_permission_decorator('uploadDocumento')
-def marcadores_disponiveis(request):
-    marcadores = [
-        {
-            'marcador': m,
-            'variavel': v,
-            'descricao': DESCRICOES.get(m, ''),
-        }
-        for m, v in MARCADORES.items()
-    ]
-    return render(request, 'documentos/marcadores_disponiveis.html', {
-        'marcadores': marcadores,
-    })

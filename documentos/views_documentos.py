@@ -3,7 +3,9 @@
 Views finas — toda regra em services.py. Permissões via rolepermissions.
 """
 import json
+import os
 
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.http import FileResponse, Http404, JsonResponse
@@ -35,6 +37,24 @@ def _variaveis_por_categoria():
 	for v in VariavelDocumento.objects.filter(ativo=True):
 		agrupado.setdefault(v.categoria, []).append(v)
 	return [(rotulos.get(cat, cat), itens) for cat, itens in agrupado.items()]
+
+
+def _asset_ver():
+	"""Versão dos estáticos do editor (mtime) para cache-busting automático.
+
+	Sem pipeline de build, os arquivos têm nome fixo; o navegador cacheia o
+	bundle antigo. O ?v={mtime} força recarga quando o bundle/JS muda.
+	"""
+	base = os.path.join(settings.BASE_DIR, 'documentos', 'static', 'documentos', 'js')
+	arquivos = [
+		os.path.join(base, 'vendor', 'tiptap.bundle.min.js'),
+		os.path.join(base, 'editor', 'editor-init.js'),
+		os.path.join(base, 'editor', 'variavel-node.js'),
+	]
+	try:
+		return int(max(os.path.getmtime(a) for a in arquivos))
+	except OSError:
+		return 0
 
 
 def _contexto_exemplo():
@@ -72,6 +92,7 @@ def modelo_editor(request, pk=None):
 		)),
 		'salvar_url': salvar_url,
 		'conteudo_inicial_json': json.dumps(conteudo),
+		'asset_ver': str(_asset_ver()),
 		'cores_texto': [
 			'#000000', '#dc3545', '#fd7e14', '#ffc107',
 			'#198754', '#0d6efd', '#6f42c1', '#6c757d',

@@ -45,11 +45,12 @@ def _asset_ver():
 	Sem pipeline de build, os arquivos têm nome fixo; o navegador cacheia o
 	bundle antigo. O ?v={mtime} força recarga quando o bundle/JS muda.
 	"""
-	base = os.path.join(settings.BASE_DIR, 'documentos', 'static', 'documentos', 'js')
+	raiz = os.path.join(settings.BASE_DIR, 'documentos', 'static', 'documentos')
 	arquivos = [
-		os.path.join(base, 'vendor', 'tiptap.bundle.min.js'),
-		os.path.join(base, 'editor', 'editor-init.js'),
-		os.path.join(base, 'editor', 'variavel-node.js'),
+		os.path.join(raiz, 'js', 'vendor', 'tiptap.bundle.min.js'),
+		os.path.join(raiz, 'js', 'editor', 'editor-init.js'),
+		os.path.join(raiz, 'js', 'editor', 'variavel-node.js'),
+		os.path.join(raiz, 'css', 'documento_a4.css'),
 	]
 	try:
 		return int(max(os.path.getmtime(a) for a in arquivos))

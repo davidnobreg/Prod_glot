@@ -63,6 +63,24 @@ p,
 	vertical-align: top;
 }
 
+/* Bordas visíveis das tabelas no editor (não afeta o PDF, que usa
+   .documento-conteudo e controla bordas via template). */
+.editor-a4-page table td,
+.editor-a4-page table th {
+	border: 1px solid #000;
+	padding: 6px 10px;
+	min-width: 40px;
+}
+
+.editor-a4-page table th {
+	background-color: #f0f0f0;
+	font-weight: bold;
+}
+
+.editor-a4-page .selectedCell {
+	background-color: #dbeafe;
+}
+
 /* ----- Bloco de assinaturas ----- */
 .assinatura-bloco {
 	display: flex;

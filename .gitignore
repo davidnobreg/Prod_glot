@@ -125,6 +125,10 @@ base/static/css/*
 !base/static/css/tailwind.input.css
 !base/static/css/tailwind.css
 
+# documentos: estáticos-fonte do app são versionados (bundle TipTap vendorizado
+# + JS/CSS do editor). O collectstatic os copia para static/ na build/deploy.
+!documentos/static/
+
 # Se algum dia você decidir versionar static/ manualmente,
 # comente a linha acima.
 

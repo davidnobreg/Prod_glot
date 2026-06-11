@@ -17,7 +17,6 @@
 		element: elEditor,
 		extensions: [
 			T.StarterKit,
-			T.Underline,
 			T.TextAlign.configure({ types: ['heading', 'paragraph'] }),
 			T.Table.configure({ resizable: true }),
 			T.TableRow, T.TableHeader, T.TableCell,

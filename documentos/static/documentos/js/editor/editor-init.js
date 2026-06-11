@@ -58,10 +58,28 @@
 				case 'clear': chain.unsetAllMarks().clearNodes().run(); break
 				case 'color-clear': chain.unsetColor().run(); break
 				case 'highlight-clear': chain.unsetHighlight().run(); break
+				case 'col-before': chain.addColumnBefore().run(); break
+				case 'col-after': chain.addColumnAfter().run(); break
+				case 'col-del': chain.deleteColumn().run(); break
+				case 'row-before': chain.addRowBefore().run(); break
+				case 'row-after': chain.addRowAfter().run(); break
+				case 'row-del': chain.deleteRow().run(); break
+				case 'table-del': chain.deleteTable().run(); break
 				default: break
 			}
 		})
 	})
+
+	// ---- Grupo "Tabela": só visível com cursor dentro de tabela ----
+	const grupoTabela = document.getElementById('grupoTabela')
+	function atualizarGrupoTabela() {
+		if (grupoTabela) {
+			grupoTabela.style.display = editor.isActive('table') ? '' : 'none'
+		}
+	}
+	editor.on('selectionUpdate', atualizarGrupoTabela)
+	editor.on('transaction', atualizarGrupoTabela)
+	atualizarGrupoTabela()
 
 	// ---- Cor do texto (paleta fixa) ----
 	document.querySelectorAll('[data-color]').forEach(sw => {

@@ -8,14 +8,13 @@ from rolepermissions.decorators import has_permission_decorator
 from empreendimentos.models import Lote
 from vendas.models import RegisterVenda
 from clientes.models import ClienteTelefone
-from rolepermissions.checkers import has_role
-from core.roles import Administrador, Corretor
 from documentos.models import (
 	DocumentoGerado,
 	ModeloDocumento,
 	StatusDocumento,
 	TipoDocumento,
 )
+from documentos.views_gerar import _tipos_permitidos
 
 @method_decorator(has_permission_decorator('reservado'), name='dispatch')
 class ReservadoView(TemplateView):
@@ -101,13 +100,7 @@ class AnaliseView(TemplateView):
 
         modelos_por_tipo = {}
         if empreendimento:
-            _tipos_ok = (
-                {t.value for t in TipoDocumento}
-                if has_role(self.request.user, Administrador)
-                else {'proposta'}
-                if has_role(self.request.user, Corretor)
-                else set()
-            )
+            _tipos_ok = _tipos_permitidos(self.request.user)
             for tipo in TipoDocumento:
                 if tipo.value not in _tipos_ok:
                     continue
@@ -243,7 +236,7 @@ class ReservadoDetalheView(TemplateView):
 
         modelos_por_tipo = {}
         if empreendimento:
-            _tipos_ok = {t.value for t in TipoDocumento} if has_role(self.request.user, Administrador) else {'proposta'} if has_role(self.request.user, Corretor) else set()
+            _tipos_ok = _tipos_permitidos(self.request.user)
             for tipo in TipoDocumento:
                 if tipo.value not in _tipos_ok:
                     continue

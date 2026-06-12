@@ -1,0 +1,117 @@
+﻿{# documentos/templates/documentos/documento_detalhe.html #}
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-3">
+
+  <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <div>
+      <h5 class="mb-0 fw-bold">{{ doc.numero }}</h5>
+      <small class="text-muted">{{ doc.titulo }}</small>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <button onclick="document.getElementById('preview-frame').contentWindow.print()"
+              class="btn btn-primary btn-sm">
+        <i class="bi bi-printer me-1"></i>Imprimir / PDF
+      </button>
+      {% if doc.status == 'rascunho' %}
+      <form method="post" action="{% url 'documentos:documento-finalizar' doc.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success btn-sm"
+                onclick="return confirm('Finalizar documento?')">
+          <i class="bi bi-check-circle me-1"></i>Finalizar
+        </button>
+      </form>
+      {% endif %}
+      {% if doc.status == 'finalizado' and doc.arquivo_pdf %}
+      <a href="{{ doc.arquivo_pdf.url }}" class="btn btn-outline-primary btn-sm" target="_blank">
+        <i class="bi bi-file-pdf me-1"></i>Baixar PDF
+      </a>
+      {% endif %}
+      {% if doc.status == 'rascunho' or doc.status == 'processando' %}
+      <form method="post" action="{% url 'documentos:documento-cancelar' doc.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-danger btn-sm"
+                onclick="return confirm('Cancelar este documento?')">
+          <i class="bi bi-x-circle me-1"></i>Cancelar
+        </button>
+      </form>
+      {% endif %}
+      <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">Voltar</a>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    {% if doc.status == 'rascunho' %}
+      <span class="badge bg-secondary">Rascunho</span>
+    {% elif doc.status == 'processando' %}
+      <span class="badge bg-warning text-dark">Processando PDF...</span>
+    {% elif doc.status == 'finalizado' %}
+      <span class="badge bg-success">Finalizado</span>
+    {% elif doc.status == 'cancelado' %}
+      <span class="badge bg-danger">Cancelado</span>
+    {% elif doc.status == 'substituido' %}
+      <span class="badge bg-secondary">Substituído</span>
+    {% endif %}
+    <small class="text-muted ms-2">
+      Gerado por {{ doc.criado_por.get_full_name|default:doc.criado_por.username }}
+      em {{ doc.criado_em|date:"d/m/Y H:i" }}
+    </small>
+  </div>
+
+  {% if doc.status == 'processando' %}
+  <div class="alert alert-info d-flex align-items-center gap-2" id="alertProcessando">
+    <div class="spinner-border spinner-border-sm" role="status"></div>
+    Gerando PDF, aguarde...
+  </div>
+  <div id="status-mensagem"
+       style="display:none; color: var(--bs-danger); padding: 0.75rem 1rem;
+              background: #fff3f3; border: 1px solid #f5c2c7; border-radius: 6px; margin-top: 1rem;">
+  </div>
+  <script>
+    (function poll() {
+      setTimeout(function () {
+        fetch("{% url 'documentos:documento-status' doc.pk %}")
+          .then(r => r.json())
+          .then(data => {
+            if (data.status === 'finalizado' || data.status === 'cancelado') {
+              location.reload();
+            } else if (data.status === 'erro') {
+              document.getElementById('alertProcessando').style.display = 'none';
+              const msg = document.getElementById('status-mensagem');
+              msg.textContent = 'Falha ao gerar o PDF. Tente finalizar novamente ou contate o suporte.';
+              msg.style.display = 'block';
+            } else {
+              poll();
+            }
+          });
+      }, 2000);
+    })();
+  </script>
+  {% endif %}
+
+  {% if doc.status == 'erro' %}
+  <div class="alert alert-danger d-flex align-items-center gap-2">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    Falha ao gerar o PDF. Tente finalizar novamente ou contate o suporte.
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span class="fw-semibold">Conteúdo do documento</span>
+      <small class="text-muted">Modelo: {{ doc.modelo.titulo }} v{{ doc.modelo_versao_snapshot }}</small>
+    </div>
+    <div class="card-body p-0" style="background:#6c757d; min-height:90vh;">
+      <iframe
+        id="preview-frame"
+        src="{% url 'documentos:documento-preview' doc.pk %}"
+        style="width:100%; height:90vh; border:0; display:block;"
+        title="Preview do documento">
+      </iframe>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

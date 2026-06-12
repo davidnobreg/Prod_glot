@@ -192,6 +192,47 @@
 				</div>
 			</div>
 
+            <!-- ============================================================
+			     CÔNJUGE (oculto — aparece quando estado_civil == casado)
+			     ============================================================ -->
+			<div id="secaoConjuge" hidden class="card form-card">
+				<div class="card-header" style="background:#fff8e1;color:#e65100;">
+					<i class="fas fa-heart me-2"></i>Cônjuge
+				</div>
+				<div class="card-body">
+					<div class="row g-3">
+						<div class="col-md-6">
+							<label class="form-label">Nome do cônjuge <span class="text-danger">*</span></label>
+							{{ formConjuge.conj_nome }}
+							{% if formConjuge.conj_nome.errors %}
+								<div class="text-danger" style="font-size:.8rem;">{{ formConjuge.conj_nome.errors|striptags }}</div>
+							{% endif %}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">CPF do cônjuge</label>
+							{{ formConjuge.conj_documento }}
+							{% if formConjuge.conj_documento.errors %}
+								<div class="text-danger" style="font-size:.8rem;">{{ formConjuge.conj_documento.errors|striptags }}</div>
+							{% endif %}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">RG do cônjuge</label>
+							{{ formConjuge.conj_numero_rg }}
+							{% if formConjuge.conj_numero_rg.errors %}
+								<div class="text-danger" style="font-size:.8rem;">{{ formConjuge.conj_numero_rg.errors|striptags }}</div>
+							{% endif %}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Órgão emissor do RG</label>
+							{{ formConjuge.conj_orgao_emissor_rg }}
+							{% if formConjuge.conj_orgao_emissor_rg.errors %}
+								<div class="text-danger" style="font-size:.8rem;">{{ formConjuge.conj_orgao_emissor_rg.errors|striptags }}</div>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<!-- ============================================================
 			     ENDEREÇO
 			     ============================================================ -->
@@ -254,46 +295,7 @@
 				</div>
 			</div>
 
-			<!-- ============================================================
-			     CÔNJUGE (oculto — aparece quando estado_civil == casado)
-			     ============================================================ -->
-			<div id="secaoConjuge" hidden class="card form-card">
-				<div class="card-header" style="background:#fff8e1;color:#e65100;">
-					<i class="fas fa-heart me-2"></i>Cônjuge
-				</div>
-				<div class="card-body">
-					<div class="row g-3">
-						<div class="col-md-6">
-							<label class="form-label">Nome do cônjuge <span class="text-danger">*</span></label>
-							{{ formConjuge.conj_nome }}
-							{% if formConjuge.conj_nome.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ formConjuge.conj_nome.errors|striptags }}</div>
-							{% endif %}
-						</div>
-						<div class="col-md-6">
-							<label class="form-label">CPF do cônjuge</label>
-							{{ formConjuge.conj_documento }}
-							{% if formConjuge.conj_documento.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ formConjuge.conj_documento.errors|striptags }}</div>
-							{% endif %}
-						</div>
-						<div class="col-md-6">
-							<label class="form-label">RG do cônjuge</label>
-							{{ formConjuge.conj_numero_rg }}
-							{% if formConjuge.conj_numero_rg.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ formConjuge.conj_numero_rg.errors|striptags }}</div>
-							{% endif %}
-						</div>
-						<div class="col-md-6">
-							<label class="form-label">Órgão emissor do RG</label>
-							{{ formConjuge.conj_orgao_emissor_rg }}
-							{% if formConjuge.conj_orgao_emissor_rg.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ formConjuge.conj_orgao_emissor_rg.errors|striptags }}</div>
-							{% endif %}
-						</div>
-					</div>
-				</div>
-			</div>
+
 
 			<!-- ============================================================
 			     BARRA DE AÇÕES

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Preview — {{ modelo.titulo }}{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'documentos/css/documento_a4.css' %}">
+<div class="container-fluid px-3">
+	<div class="d-flex justify-content-between align-items-center mb-3">
+		<h5 class="mb-0">Preview: {{ modelo.titulo }} <span class="badge bg-secondary">{{ modelo.get_tipo_display }}</span></h5>
+		<a href="{% url 'documentos:modelos-lista' %}" class="btn btn-outline-secondary btn-sm rounded-pill">Voltar</a>
+	</div>
+	<div style="background:#e9ecef;padding:20px;overflow:auto;">
+		<div class="editor-a4-page">
+			<div class="documento-conteudo">{{ html|safe }}</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

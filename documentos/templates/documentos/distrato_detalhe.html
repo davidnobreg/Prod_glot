@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Distrato #{{ distrato.id }}{% endblock %}
+{% block content %}
+<div class="container-fluid px-3">
+	<div class="d-flex justify-content-between align-items-center mb-3">
+		<h5 class="mb-0">Distrato #{{ distrato.id }} — Venda #{{ distrato.venda_id }}
+			<span class="badge bg-secondary">{{ distrato.get_status_display }}</span>
+		</h5>
+		<div class="d-flex gap-2">
+			<a href="{% url 'documentos:gerar-documento' distrato.venda_id %}" class="btn btn-outline-primary btn-sm rounded-pill">Gerar documento</a>
+			{% if distrato.status == 'rascunho' %}
+			<form method="post" action="{% url 'documentos:distrato-concluir' distrato.pk %}"
+				onsubmit="return confirm('Concluir distrato? A venda será desativada e o lote voltará a DISPONÍVEL.')">{% csrf_token %}
+				<button class="btn btn-success btn-sm rounded-pill">Concluir distrato</button>
+			</form>
+			{% endif %}
+		</div>
+	</div>
+	<div class="card shadow-sm" style="max-width:640px;">
+		<div class="card-body">
+			<p><strong>Cliente:</strong> {{ distrato.cliente.name }}</p>
+			<p><strong>Motivo:</strong> {{ distrato.motivo }}</p>
+			<p><strong>Data:</strong> {{ distrato.data_distrato|date:'d/m/Y' }}</p>
+			<p><strong>Devolução:</strong> {{ distrato.valor_devolucao }} — <strong>Retenção:</strong> {{ distrato.percentual_retencao }}%</p>
+			{% if distrato.observacao %}<p><strong>Obs:</strong> {{ distrato.observacao }}</p>{% endif %}
+			<hr>
+			<p class="small text-muted mb-1">Documentos vinculados:</p>
+			<ul class="small">
+				{% for d in distrato.documentos.all %}
+					<li><a href="{% url 'documentos:documento-detalhe' d.pk %}">{{ d.numero }}</a> — {{ d.get_status_display }}</li>
+				{% empty %}
+					<li class="text-muted">Nenhum. Gere e finalize um documento antes de concluir.</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+</div>
+{% endblock %}

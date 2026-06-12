@@ -1,0 +1,90 @@
+﻿{# Incluir em detalhes-do-empreendimento.html onde fizer sentido #}
+{# Requer modelos_vinculados e modelos_disponiveis no contexto (ver patch da view) #}
+
+<div class="card mt-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span class="fw-semibold"><i class="bi bi-file-earmark-text me-2"></i>Modelos de Documento</span>
+    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalVincularModelo">
+      <i class="bi bi-plus-lg me-1"></i>Vincular modelo
+    </button>
+  </div>
+  <div class="card-body p-0">
+    {% if modelos_vinculados %}
+    <table class="table table-sm table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Modelo</th>
+          <th>Tipo</th>
+          <th>Versão</th>
+          <th>Padrão</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in modelos_vinculados %}
+        <tr class="{% if not v.ativo %}text-muted{% endif %}">
+          <td>{{ v.modelo.titulo }}</td>
+          <td><span class="badge bg-secondary">{{ v.modelo.get_tipo_display }}</span></td>
+          <td>v{{ v.modelo.versao }}</td>
+          <td>
+            {% if v.padrao %}
+              <span class="badge bg-success">Padrão</span>
+            {% else %}
+              <form method="post" action="{% url 'modelo-set-padrao' empreendimento.pk v.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-xs btn-outline-secondary btn-sm py-0 px-1">Definir padrão</button>
+              </form>
+            {% endif %}
+          </td>
+          <td>
+            <form method="post" action="{% url 'modelo-desvincular' empreendimento.pk v.pk %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-1"
+                      onclick="return confirm('Desvincular este modelo?')">
+                <i class="bi bi-trash"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted p-3 mb-0">Nenhum modelo vinculado. Use o admin ou clique em "Vincular modelo".</p>
+    {% endif %}
+  </div>
+</div>
+
+{# Modal vincular modelo #}
+<div class="modal fade" id="modalVincularModelo" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Vincular modelo de documento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="{% url 'modelo-vincular' empreendimento.pk %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Modelo</label>
+            <select name="modelo_id" class="form-select" required>
+              <option value="">— Selecione —</option>
+              {% for m in modelos_disponiveis %}
+                <option value="{{ m.pk }}">{{ m.titulo }} - ({{ m.get_tipo_display }}) - v{{ m.versao }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="padrao" id="checkPadrao" value="1">
+            <label class="form-check-label" for="checkPadrao">Definir como padrão do tipo</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Vincular</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

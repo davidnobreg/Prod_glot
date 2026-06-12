@@ -1,10 +1,9 @@
-import uuid
+﻿import uuid
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
-from documentos.models import CadastroDocumento
 
 
 
@@ -67,12 +66,6 @@ class Empreendimento(models.Model):
     estado = models.CharField(max_length=2, choices=choices_estado, default='PB', null=True, blank=True)
     #registroCartorio = models.TextField(blank=True, null=True)
     observacao = models.TextField(blank=True, null=True)
-    contrato = models.ForeignKey(
-        CadastroDocumento,
-        on_delete=models.CASCADE,
-        verbose_name='Contrato padrão',
-        blank=True, null=True
-    )
     tipo_correcao = models.CharField(max_length=10, null=True, blank=True, default='IGPM')
     desconto = models.CharField(verbose_name='Desconto', max_length=2, null=True, blank=True, default='0')
     is_ativo = models.BooleanField(default=True)
@@ -91,8 +84,8 @@ class Empreendimento(models.Model):
 class Quadra(models.Model):
     id = models.BigAutoField(primary_key=True)
     namequadra = models.CharField(max_length=50)
-    empr = models.ForeignKey(Empreendimento, on_delete=models.CASCADE, related_name='empreendimento')
 
+    empr = models.ForeignKey(Empreendimento, on_delete=models.CASCADE, related_name='empreendimento')
     def __str__(self):
         return "{}".format(self.namequadra)
 

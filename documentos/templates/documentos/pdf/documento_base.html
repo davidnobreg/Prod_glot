@@ -1,0 +1,57 @@
+{% load static %}<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<meta charset="UTF-8">
+	<title>{{ doc.numero }}</title>
+	<style>
+		/* Configuração de página vem do ConfiguracaoDocumento (cfg) ou defaults */
+		@page {
+			size: A4;
+			margin:
+				{{ cfg.margem_sup|default:25 }}mm
+				{{ cfg.margem_dir|default:20 }}mm
+				{{ cfg.margem_inf|default:20 }}mm
+				{{ cfg.margem_esq|default:30 }}mm;
+
+			@top-center { content: element(cabecalho); }
+			@bottom-center { content: element(rodape); }
+			@bottom-right {
+				content: "Página " counter(page) " de " counter(pages);
+				font-size: 8pt;
+				color: #555;
+			}
+		}
+
+		body {
+			font-family: "{{ cfg.fonte_familia|default:'Times New Roman' }}", serif;
+			font-size: {{ cfg.fonte_tamanho|default:12 }}pt;
+		}
+
+		#cabecalho { position: running(cabecalho); }
+		#rodape    { position: running(rodape); }
+
+		.cabecalho-logo {
+			max-width: {{ cfg.logo_largura|default:120 }}px;
+			height: auto;
+		}
+	</style>
+</head>
+<body>
+
+	<div id="cabecalho">
+		{% if cfg.logo %}
+			<img class="cabecalho-logo" src="{{ cfg.logo.url }}" alt="logo">
+		{% endif %}
+		{% if cfg.cabecalho_html %}{{ cfg.cabecalho_html|safe }}{% endif %}
+	</div>
+
+	<div id="rodape">
+		{% if cfg.rodape_html %}{{ cfg.rodape_html|safe }}{% endif %}
+	</div>
+
+	<main class="documento-conteudo">
+		{{ doc.conteudo_final_html|safe }}
+	</main>
+
+</body>
+</html>

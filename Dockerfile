@@ -28,10 +28,11 @@ RUN apt-get update && \
     libglib2.0-0 \
     shared-mime-info \
     fonts-dejavu \
+    nano \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # ===================================
-# Dependências Python
+# Dependências Python (cache-friendly)
 # ===================================
 COPY requirements.txt .
 RUN pip install --upgrade pip && \
@@ -52,11 +53,20 @@ RUN mkdir -p \
     /app/configuration
 
 # ===================================
-# Porta
+# Commit hash injetado no build
 # ===================================
+ARG GIT_COMMIT=unknown
+ENV GIT_COMMIT=${GIT_COMMIT}
+
+# ===================================
+# Entrypoint + CMD
+# ===================================
+RUN chmod +x /app/docker/entrypoint.sh
+
 EXPOSE 8000
 
+ENTRYPOINT ["/app/docker/entrypoint.sh"]
 CMD ["gunicorn", "core.wsgi:application", \
      "--bind", "0.0.0.0:8000", \
-     "--workers", "4", \
+     "--workers", "3", \
      "--timeout", "120"]

@@ -39,6 +39,7 @@ jobs:
 
       - name: Redeploy via API do Portainer
         env:
+          DOCKER_DEFAULT_PLATFORM: linux/arm64
           GIT_COMMIT: ${{ github.sha }}
           PORTAINER_TOKEN: ${{ secrets.PORTAINER_TOKEN }}
           PORTAINER_URL: ${{ secrets.PORTAINER_URL }}

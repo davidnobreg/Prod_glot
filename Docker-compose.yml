@@ -3,7 +3,6 @@ version: "3.9"
 services:
   web:
     image: davidnobrega/glot:latest
-    platform: linux/arm64
 
     ports:
       - "8000:8000"
@@ -42,7 +41,6 @@ services:
 
   worker_empreendimentos:
     image: davidnobrega/glot:latest
-    platform: linux/arm64
 
     command: celery -A core worker -Q empreendimentos -l info
 
@@ -67,7 +65,6 @@ services:
 
   worker_mensagens:
     image: davidnobrega/glot:latest
-    platform: linux/arm64
 
     command: celery -A core worker -Q mensagens -l info
 
@@ -92,7 +89,6 @@ services:
 
   beat:
     image: davidnobrega/glot:latest
-    platform: linux/arm64
 
     command: celery -A core beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
 
@@ -117,7 +113,6 @@ services:
 
   flower:
     image: davidnobrega/glot:latest
-    platform: linux/arm64
 
     command: celery -A core flower --port=5555
 

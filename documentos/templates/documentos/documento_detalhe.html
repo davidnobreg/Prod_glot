@@ -15,7 +15,7 @@
               class="btn btn-primary btn-sm">
         <i class="bi bi-printer me-1"></i>Imprimir / PDF
       </button>
-      {% if doc.status == 'rascunho' %}
+      {% if doc.status == 'rascunho' and user.tipo_usuario == "ADMINISTRADOR" %}
       <form method="post" action="{% url 'documentos:documento-finalizar' doc.pk %}">
         {% csrf_token %}
         <button type="submit" class="btn btn-success btn-sm"
@@ -29,7 +29,7 @@
         <i class="bi bi-file-pdf me-1"></i>Baixar PDF
       </a>
       {% endif %}
-      {% if doc.status == 'rascunho' or doc.status == 'processando' %}
+      {% if user.tipo_usuario == "ADMINISTRADOR" and doc.status == 'rascunho' or user.tipo_usuario == "ADMINISTRADOR" and doc.status == 'processando' %}
       <form method="post" action="{% url 'documentos:documento-cancelar' doc.pk %}">
         {% csrf_token %}
         <button type="submit" class="btn btn-outline-danger btn-sm"

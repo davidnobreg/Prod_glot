@@ -1,4 +1,7 @@
-﻿from django.db import migrations
+﻿# Numeração 0010: 0008/0009 pulados intencionalmente (reservados durante
+# desenvolvimento paralelo das fases do módulo documentos). Sem impacto —
+# Django resolve migrations pelo grafo de dependencies, não pela numeração.
+from django.db import migrations
 from django.conf import settings
 
 

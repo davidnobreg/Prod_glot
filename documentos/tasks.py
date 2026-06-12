@@ -13,7 +13,7 @@ def debug_task():
 	return 'ok'
 
 
-@shared_task(bind=True, max_retries=3, default_retry_delay=10)
+@shared_task(bind=True, max_retries=3, default_retry_delay=10, queue='empreendimentos')
 def gerar_pdf_documento(self, documento_id):
 	from .models import DocumentoGerado, StatusDocumento
 

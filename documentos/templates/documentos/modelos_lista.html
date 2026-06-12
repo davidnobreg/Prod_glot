@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% block title %}Modelos de documento{% endblock %}
 {% block content %}
 <div class="container-fluid px-3">
@@ -26,7 +26,7 @@
 						<td class="small text-muted">{{ m.atualizado_em|date:'d/m/Y H:i' }}</td>
 						<td class="text-end">
 							<a href="{% url 'documentos:modelo-preview' m.pk %}" class="btn btn-sm btn-light" title="Preview" target="_blank"><i class="bi bi-eye"></i></a>
-							<a href="{% url 'documentos:modelo-editar' m.pk %}" class="btn btn-sm btn-light" title="Editar"><i class="bi bi-pencil"></i></a>
+							<a href="{% url 'documentos:modelo-editor' m.pk %}" class="btn btn-sm btn-light" title="Editar"><i class="bi bi-pencil"></i></a>
 							<a href="{% url 'documentos:modelo-historico' m.pk %}" class="btn btn-sm btn-light" title="Versões"><i class="bi bi-clock-history"></i></a>
 							<form method="post" action="{% url 'documentos:modelo-duplicar' m.pk %}" class="d-inline">{% csrf_token %}
 								<button class="btn btn-sm btn-light" title="Duplicar"><i class="bi bi-files"></i></button>

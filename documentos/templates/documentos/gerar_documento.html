@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Gerar documento{% endblock %}
+{% block content %}
+<div class="container-fluid px-3">
+	<h5 class="mb-3">Gerar documento — Venda #{{ venda.id }} ({{ venda.cliente.name }})</h5>
+	<div class="card shadow-sm" style="max-width:560px;">
+		<div class="card-body">
+			<form method="post">
+				{% csrf_token %}
+				<div class="mb-3">
+					<label class="form-label small">Tipo</label>
+					<select name="tipo" class="form-select form-select-sm" required>
+						{% for valor, rotulo in tipos %}<option value="{{ valor }}">{{ rotulo }}</option>{% endfor %}
+					</select>
+				</div>
+				<div class="mb-3">
+					<label class="form-label small">Modelo (vazio = padrão do empreendimento)</label>
+					<select name="modelo_id" class="form-select form-select-sm">
+						<option value="">— padrão —</option>
+						{% for m in modelos %}<option value="{{ m.id }}">{{ m.titulo }} ({{ m.get_tipo_display }})</option>{% endfor %}
+					</select>
+				</div>
+				<div class="d-flex gap-2">
+					<button class="btn btn-success btn-sm rounded-pill flex-fill"><i class="bi bi-file-earmark-plus me-1"></i>Gerar rascunho</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}

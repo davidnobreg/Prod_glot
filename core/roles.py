@@ -25,6 +25,16 @@ class Administrador(AbstractUserRole):
 
         'proposta': True,
         'propostaRascunho': True,
+        'uploadDocumento': True,
+
+        # MODULO DOCUMENTOS (reestruturação)
+        'documentoModelos': True,
+        'documentoConfig': True,
+        'documentoGerar': True,
+        'documentoFinalizar': True,
+        'documentoVisualizar': True,
+        'distratoGerenciar': True,
+        'distratoConcluir': True,
 
         # MODULO EMPREENDIMENTO
 
@@ -79,6 +89,10 @@ class Corretor(AbstractUserRole):
 
         'proposta': True,
         'propostaRascunho': True,
+
+        # MODULO DOCUMENTOS (reestruturação)
+        'documentoGerar': True,
+        'documentoVisualizar': True,
 
         # MODULO EMPREENDIMENTO
 

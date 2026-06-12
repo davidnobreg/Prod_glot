@@ -1,4 +1,4 @@
-from django.views.generic import TemplateView
+﻿from django.views.generic import TemplateView
 from django.shortcuts import render, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.http import Http404
@@ -8,6 +8,14 @@ from rolepermissions.decorators import has_permission_decorator
 from empreendimentos.models import Lote
 from vendas.models import RegisterVenda
 from clientes.models import ClienteTelefone
+from rolepermissions.checkers import has_role
+from core.roles import Administrador, Corretor
+from documentos.models import (
+	DocumentoGerado,
+	ModeloDocumento,
+	StatusDocumento,
+	TipoDocumento,
+)
 
 @method_decorator(has_permission_decorator('reservado'), name='dispatch')
 class ReservadoView(TemplateView):
@@ -86,11 +94,50 @@ class AnaliseView(TemplateView):
 
         valor_lote = area * valor_metro
 
+        empreendimento = getattr(
+            getattr(getattr(venda, 'lote', None), 'quadra', None),
+            'empr', None
+        )
+
+        modelos_por_tipo = {}
+        if empreendimento:
+            _tipos_ok = (
+                {t.value for t in TipoDocumento}
+                if has_role(self.request.user, Administrador)
+                else {'proposta'}
+                if has_role(self.request.user, Corretor)
+                else set()
+            )
+            for tipo in TipoDocumento:
+                if tipo.value not in _tipos_ok:
+                    continue
+                modelos = ModeloDocumento.objects.para_empreendimento(
+                    empreendimento, tipo=tipo.value
+                )
+                if modelos.exists():
+                    padrao = ModeloDocumento.objects.padrao_para(
+                        empreendimento, tipo.value
+                    )
+                    modelos_por_tipo[tipo.value] = {
+                        'label': tipo.label,
+                        'modelos': list(modelos.values('id', 'titulo', 'versao')),
+                        'padrao_id': padrao.pk if padrao else None,
+                    }
+
+        docs_existentes = (
+            DocumentoGerado.objects.filter(venda=venda)
+            .exclude(status=StatusDocumento.CANCELADO)
+            .order_by('-criado_em')
+            if venda else DocumentoGerado.objects.none()
+        )
+
         context.update({
             'valor_lote': valor_lote,
             'lote': lote,
             'reservas': venda,
-            'contatoCliente': cliente_contato
+            'contatoCliente': cliente_contato,
+            'modelos_por_tipo': modelos_por_tipo,
+            'docs_existentes': docs_existentes,
         })
 
         return context
@@ -187,5 +234,37 @@ class ReservadoDetalheView(TemplateView):
 
         context = super().get_context_data(**kwargs)
         context.update(kwargs)
+
+        venda = kwargs.get('reservas')
+        empreendimento = getattr(
+            getattr(getattr(venda, 'lote', None), 'quadra', None),
+            'empr', None
+        )
+
+        modelos_por_tipo = {}
+        if empreendimento:
+            _tipos_ok = {t.value for t in TipoDocumento} if has_role(self.request.user, Administrador) else {'proposta'} if has_role(self.request.user, Corretor) else set()
+            for tipo in TipoDocumento:
+                if tipo.value not in _tipos_ok:
+                    continue
+                modelos = ModeloDocumento.objects.para_empreendimento(
+                    empreendimento, tipo=tipo.value
+                )
+                if modelos.exists():
+                    padrao = ModeloDocumento.objects.padrao_para(
+                        empreendimento, tipo.value
+                    )
+                    modelos_por_tipo[tipo.value] = {
+                        'label': tipo.label,
+                        'modelos': list(modelos.values('id', 'titulo', 'versao')),
+                        'padrao_id': padrao.pk if padrao else None,
+                    }
+
+        docs_existentes = DocumentoGerado.objects.filter(
+            venda=venda,
+        ).exclude(status=StatusDocumento.CANCELADO).order_by('-criado_em') if venda else DocumentoGerado.objects.none()
+
+        context['modelos_por_tipo'] = modelos_por_tipo
+        context['docs_existentes'] = docs_existentes
 
         return context

@@ -1,4 +1,4 @@
-import re
+﻿import re
 from django import forms
 from .models import Empreendimento, Lote
 
@@ -58,7 +58,7 @@ class EmpreendimentoForm(forms.ModelForm):
                                            ('', 'Selecione o Banco'),
                                        ] + list(self.fields['banco'].choices)
 
-        self.fields['contrato'].empty_label = 'Selecione o Contrato'
+        # campo contrato removido (Opcao B)
 
         # Classes padrão
         for field_name, field in self.fields.items():
@@ -66,7 +66,7 @@ class EmpreendimentoForm(forms.ModelForm):
 
         # Campos à esquerda e direita
         left_fields = ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'tipo_correcao', 'desconto']
-        right_fields = ['cnpj', 'razaoSocial', 'banco', 'agencia', 'conta', 'contrato', 'observacao']
+        right_fields = ['cnpj', 'razaoSocial', 'banco', 'agencia', 'conta', 'observacao']
 
         config = {
             'nome': {'placeholder': 'Nome do Empreendimento'},
@@ -81,7 +81,7 @@ class EmpreendimentoForm(forms.ModelForm):
             'razaoSocial': {'placeholder': 'Razão Social'},
             'tipo_correcao': {'placeholder': 'Tipo de Correção'},
             'desconto': {'placeholder': 'Desconto'},
-            'contrato': {'placeholder': 'contrato'},
+
             'observacao': {'placeholder': 'Observação'},
 
 
@@ -208,7 +208,7 @@ class EmpreendimentoUpdateForm(forms.ModelForm):
                                            ('', 'Selecione o Banco'),
                                        ] + list(self.fields['banco'].choices)
 
-        self.fields['contrato'].empty_label = 'Selecione o Contrato'
+        # campo contrato removido (Opcao B)
 
         # Classes padrão
         for field_name, field in self.fields.items():
@@ -217,11 +217,11 @@ class EmpreendimentoUpdateForm(forms.ModelForm):
         # Campos à esquerda e direita
         left_fields = ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'tipo_correcao', 'cnpj', 'banco',
                        'agencia', 'conta', 'reajuste', 'desconto']
-        right_fields = ['razaoSocial', 'cep', 'rua', 'complemento', 'numero', 'bairro', 'cidade', 'estado', 'contrato',
+        right_fields = ['razaoSocial', 'cep', 'rua', 'complemento', 'numero', 'bairro', 'cidade', 'estado',
                         'observacao']
 
         #left_fields = ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'tipo_correcao']
-        #right_fields = ['cnpj', 'razaoSocial', 'banco', 'agencia', 'conta', 'contrato', 'observacao']
+        #right_fields = ['cnpj', 'razaoSocial', 'banco', 'agencia', 'conta', 'observacao']
 
         config = {
             'nome': {'placeholder': 'Nome do Empreendimento'},
@@ -245,7 +245,7 @@ class EmpreendimentoUpdateForm(forms.ModelForm):
             'observacao': {'placeholder': 'Observação'},
             'reajuste': {'placeholder': 'reajuste'},
             'desconto': {'placeholder': 'desconto'},
-            'contrato': {'placeholder': 'contrato', 'class': 'form-select'},
+
         }
 
         # 🔽 FORÇAR TEXTAREA APENAS NOS CAMPOS NECESSÁRIOS

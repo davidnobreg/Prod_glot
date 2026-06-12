@@ -1,126 +1,667 @@
 
 {% extends 'base.html' %}
 
-{% block title %}
-    Detalhe do Empreendimento
-{% endblock %}
+{% block title %}{{ empreendimento.nome }} — Detalhe{% endblock %}
 
 {% block content %}
-    <div class="container mt-4" xmlns="http://www.w3.org/1999/html">
-        <div class="row align-items-center g-4">
-            <hr/>
+    <style>
+        .empreendimento-page {
+            background: #f5f7fb;
+            min-height: calc(100vh - 80px);
+            padding: 24px;
+        }
 
-            <!-- Formulário -->
-            <div class="col-lg-10 mx-auto alert-items-center">
-                <div class="card p-4 shadow">
-                <div class="row">
-                    <div class="col">
-                        <h4 class="mb-3 text-center fw-bold">{{ empreendimento.nome }}</h4>
-                    </div>
-                    <div class="col">
-                        <h4 class="mb-3 text-center fw-bold">Contato</h4>
-                        <h5 class="mb-3 text-center">{{ empreendimento.telefone}}</h5>
+        .empreendimento-header {
+            background: linear-gradient(135deg, #ffffff 0%, #eef7ff 100%);
+            border: 1px solid #e5edf5;
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+            margin-bottom: 24px;
+        }
+
+        .empreendimento-logo {
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+            border-radius: 16px;
+            border: 1px solid #dbeafe;
+            background: #fff;
+            padding: 6px;
+        }
+
+        .empreendimento-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .empreendimento-subtitle {
+            color: #64748b;
+            font-size: .9rem;
+        }
+
+        .btn-modern-back {
+            border-radius: 999px;
+            padding: 9px 16px;
+            font-weight: 700;
+            border: 1px solid #dbeafe;
+            background: #fff;
+            color: #0f172a;
+            text-decoration: none;
+            transition: all .2s ease;
+        }
+
+        .btn-modern-back:hover {
+            background: #0d6efd;
+            color: #fff;
+            border-color: #0d6efd;
+            transform: translateY(-1px);
+        }
+
+        .modern-card {
+            border: 0;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 12px 35px rgba(15, 23, 42, 0.08);
+            background: #fff;
+        }
+
+        .modern-card .card-header {
+            background: #fff;
+            border-bottom: 1px solid #edf2f7;
+            padding: 16px 18px;
+            min-height: 67px;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .card-header-title i {
+            width: 34px;
+            height: 34px;
+            border-radius: 12px;
+            background: #eff6ff;
+            color: #0d6efd;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .table-modern {
+            margin-bottom: 0;
+        }
+
+        .table-modern thead th {
+            background: #f8fafc;
+            color: #475569;
+            font-size: .78rem;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 13px 16px;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .table-modern tbody td {
+            padding: 14px 16px;
+            vertical-align: middle;
+            border-color: #eef2f7;
+        }
+
+        .table-modern tbody tr:hover {
+            background: #f8fbff;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0d6efd, #38bdf8);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: .85rem;
+            margin-right: 10px;
+            text-transform: uppercase;
+        }
+
+        .badge-modern {
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-weight: 700;
+        }
+
+        .btn-action {
+            border-radius: 10px;
+            font-weight: 700;
+            padding: 6px 10px;
+        }
+
+        .btn-main-action {
+            border: 0;
+            border-radius: 14px;
+            padding: 13px 16px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            color: #fff;
+            box-shadow: 0 10px 22px rgba(13, 110, 253, .25);
+            transition: all .2s ease;
+        }
+
+        .btn-main-action:hover {
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 14px 28px rgba(13, 110, 253, .32);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 34px 18px;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 2rem;
+            color: #cbd5e1;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .corretores-row {
+            align-items: stretch;
+        }
+
+        .equal-card-col {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .corretor-form {
+            height: 100%;
+        }
+
+        .corretor-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .corretor-card .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .corretor-card .table-responsive {
+            flex: 1;
+        }
+
+        .add-middle-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-middle-button {
+            min-height: 74px;
+            white-space: normal;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.25;
+        }
+
+        .section-divider {
+            border: 0;
+            height: 1px;
+            background: #dbeafe;
+            margin: 28px 0;
+        }
+
+        .pagination .page-link {
+            border-radius: 10px;
+            margin: 0 3px;
+            color: #0d6efd;
+            border-color: #dbeafe;
+            font-weight: 700;
+        }
+
+        .modal-content {
+            border: 0;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 25px 70px rgba(15, 23, 42, .25);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            color: #fff;
+            border-bottom: 0;
+        }
+
+        .modal-header .btn-close {
+            filter: invert(1);
+        }
+
+        @media (max-width: 1199px) {
+            .add-middle-wrapper {
+                order: 2;
+            }
+
+            .corretores-vinculados-col {
+                order: 3;
+            }
+
+            .add-middle-button {
+                min-height: auto;
+                margin-bottom: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .empreendimento-page {
+                padding: 16px;
+            }
+
+            .empreendimento-header {
+                padding: 16px;
+            }
+
+            .empreendimento-title {
+                font-size: 1.1rem;
+            }
+
+            .table-modern thead th,
+            .table-modern tbody td {
+                padding: 12px;
+            }
+        }
+    </style>
+
+    <div class="empreendimento-page">
+
+        {# Cabeçalho #}
+        <div class="empreendimento-header">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    {% if empreendimento.logo %}
+                        <img src="{{ empreendimento.logo.url }}"
+                             alt="{{ empreendimento.nome }}"
+                             class="empreendimento-logo">
+                    {% else %}
+                        <div class="empreendimento-logo d-flex align-items-center justify-content-center">
+                            <i class="bi bi-building text-primary fs-3"></i>
+                        </div>
+                    {% endif %}
+
+                    <div>
+                        <h4 class="empreendimento-title">{{ empreendimento.nome }}</h4>
+
+                        <div class="empreendimento-subtitle mt-1">
+                            <i class="bi bi-telephone me-1"></i>
+                            {{ empreendimento.telefone|default:"Telefone não informado" }}
+                        </div>
                     </div>
                 </div>
 
+                <a href="{% url 'lista-empreendimento-tabela' %}" class="btn-modern-back">
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Voltar
+                </a>
+            </div>
+        </div>
 
-                    <div class="container text-center">
-                        <div class="row">
+        {# Linha superior: Adicionar Corretores + Botão + Corretores Vinculados #}
+        <div class="row g-4 corretores-row">
 
-                            <div class="col-lg-6 g-4">
-                                <div class="row g-3">
-                                    {% if empreendimento.logo %}
-                                        <div class="image-container">
-                                            <img src="{{ empreendimento.logo.url }}" width="200px" height="200px"
-                                                 alt="{{ empreendimento.nome }}" class="card-img-top">
-                                        </div>
-                                    {% endif %}
+            {# Coluna esquerda: Adicionar Corretores #}
+            <div class="col-xl-5 equal-card-col">
+                <form id="formAdicionarCorretores"
+                      method="post"
+                      action="{% url 'criar-usuario-empreendimento' %}"
+                      class="corretor-form">
+                    {% csrf_token %}
 
-                                    <!-- Formulário para seleção múltipla de usuários -->
-                                    <form method="post" action="{% url 'criar-usuario-empreendimento' %}">
-                                        {% csrf_token %}
-                                        <label for="usuarios" class="form-label fw-bold">Selecione Usuários</label>
-                                        <select name="users" id="usuarios" class="form-select text-center" multiple
-                                                size="5" required>
-                                            {% for usuario in usuarios %}
-                                                <option value="{{ usuario.id }}">
-                                                    {{ usuario.first_name }} &mdash; <small
-                                                        class="text-muted">{{ usuario.email }}</small>
-                                                </option>
+                    <input type="hidden"
+                           name="empreendimento"
+                           value="{{ empreendimento.id }}">
 
-                                            {% endfor %}
-                                        </select>
-
-                                        <input type="hidden" name="empreendimento" value="{{ empreendimento.id }}">
-
-                                        <button type="submit" class="btn btn-secondary w-100 text-center py-3 mt-3">
-                                            <label class="form-label fw-bold d-block mb-0">Adicionar Corretores</label>
-                                        </button>
-                                    </form>
-
-                                </div>
-                            </div>
-
-                            <div class="col-lg-6 g-4">
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold d-block">Lotes Livres</label>
-                                        <div class="btn btn-success text-center py-3 w-100">
-                                            <p class="mb-0">{{ livre }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold d-block">Lotes Reservados</label>
-                                        <div class="btn btn-warning text-center py-3 w-100 botao-quadra-reservada">
-                                            <p class="mb-0">{{ reserva }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold d-block">Lotes Vendidos</label>
-                                        <div class="btn btn-primary text-center py-3 w-100 botao-quadra-vendida">
-                                            <p class="mb-0">{{ vendido }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold d-block">Outros Lotes</label>
-                                        <div class="btn btn-secondary text-center py-3 w-100">
-                                            <p class="mb-0">{{ outros }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold d-block">Total de Lotes</label>
-                                        <div class="btn btn-dark text-center py-3 w-100">
-                                            <p class="mb-0">{{ total }}</p>
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="card modern-card corretor-card">
+                        <div class="card-header">
+                            <div class="card-header-title">
+                                <i class="bi bi-person-plus"></i>
+                                <span>Adicionar Corretores</span>
                             </div>
                         </div>
-                        <hr/>
-                        <div class="row">
+
+                        <div class="card-body p-0">
                             <div class="table-responsive">
-                                <table class="table table-striped text-center table-group-divider table-responsive md-4">
+                                <table class="table table-hover align-middle table-modern">
                                     <thead>
                                     <tr>
-                                        <th scope="col">Nome</th>
-                                        <th scope="col">Usuario ou E-mail</th>
-                                        <th scope="col">Contato</th>
-                                        <th scope="col"></th>
+                                        <th style="width: 50px;">
+                                            <input type="checkbox"
+                                                   id="checkAll"
+                                                   class="form-check-input"
+                                                   title="Selecionar todos">
+                                        </th>
+                                        <th>Nome</th>
+                                        <th>E-mail</th>
                                     </tr>
                                     </thead>
-                                    <tbody class="featurette-heading fw-normal lh-1">
-                                    {% for corretore in corretores %}
+
+                                    <tbody>
+                                    {% for usuario in usuarios %}
                                         <tr>
-                                            <td>{{ corretore.usuario.first_name }}</td>
-                                            <td>{{ corretore.usuario.email }}</td>
-                                            <td>{{ corretore.usuario.contato }}</td>
                                             <td>
-                                                <form action="{% url 'delete-usuario-empreendimento' corretore.id %}"
-                                                      method="post"
+                                                <input type="checkbox"
+                                                       name="users"
+                                                       value="{{ usuario.pk }}"
+                                                       class="form-check-input user-check"
+                                                       id="usuario_{{ usuario.pk }}">
+                                            </td>
+
+                                            <td>
+                                                <label for="usuario_{{ usuario.pk }}"
+                                                       class="d-flex align-items-center mb-0"
+                                                       style="cursor: pointer;">
+                                                    <span class="user-avatar">
+                                                        {{ usuario.first_name|first|default:"U" }}
+                                                    </span>
+
+                                                    <span class="fw-semibold text-dark">
+                                                        {{ usuario.first_name|default:"Sem nome" }}
+                                                    </span>
+                                                </label>
+                                            </td>
+
+                                            <td class="text-muted small">
+                                                {{ usuario.email|default:"E-mail não informado" }}
+                                            </td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="3">
+                                                <div class="empty-state">
+                                                    <i class="bi bi-person-x"></i>
+                                                    Nenhum usuário disponível para vincular.
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {# Paginação usuários #}
+                            {% if usuarios.has_other_pages %}
+                                <div class="px-3 py-3 border-top bg-white">
+                                    <nav>
+                                        <ul class="pagination pagination-sm justify-content-center mb-0">
+                                            {% if usuarios.has_previous %}
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                       href="?page_usuarios={{ usuarios.previous_page_number }}&page_corretores={{ corretores.number }}">
+                                                        ‹
+                                                    </a>
+                                                </li>
+                                            {% else %}
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">‹</span>
+                                                </li>
+                                            {% endif %}
+
+                                            <li class="page-item disabled">
+                                                <span class="page-link">
+                                                    {{ usuarios.number }} / {{ usuarios.paginator.num_pages }}
+                                                </span>
+                                            </li>
+
+                                            {% if usuarios.has_next %}
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                       href="?page_usuarios={{ usuarios.next_page_number }}&page_corretores={{ corretores.number }}">
+                                                        ›
+                                                    </a>
+                                                </li>
+                                            {% else %}
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">›</span>
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                    </nav>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            {# Coluna central: botão de adicionar #}
+            <div class="col-xl-2 add-middle-wrapper">
+                <button type="submit"
+                        form="formAdicionarCorretores"
+                        class="btn btn-main-action w-100 add-middle-button">
+                    <i class="bi bi-person-check me-2"></i>
+                    Adicionar Selecionados
+                </button>
+            </div>
+
+            {# Coluna direita: Corretores Vinculados #}
+            <div class="col-xl-5 corretores-vinculados-col equal-card-col">
+                <div class="card modern-card corretor-card">
+                    <div class="card-header">
+                        <div class="card-header-title">
+                            <i class="bi bi-people"></i>
+                            <span>Corretores Vinculados</span>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle table-modern">
+                                <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>E-mail</th>
+                                    <th>Contato</th>
+                                    <th class="text-end">Ação</th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                {% for corretore in corretores %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <span class="user-avatar">
+                                                    {{ corretore.usuario.first_name|first|default:"C" }}
+                                                </span>
+
+                                                <span class="fw-semibold text-dark">
+                                                    {{ corretore.usuario.first_name|default:"Sem nome" }}
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        <td class="text-muted small">
+                                            {{ corretore.usuario.email|default:"E-mail não informado" }}
+                                        </td>
+
+                                        <td class="text-muted small">
+                                            {{ corretore.usuario.contato|default:"Contato não informado" }}
+                                        </td>
+
+                                        <td class="text-end">
+                                            <form action="{% url 'delete-usuario-empreendimento' corretore.id %}"
+                                                  method="post"
+                                                  class="d-inline">
+                                                {% csrf_token %}
+
+                                                <button type="submit"
+                                                        class="btn btn-outline-danger btn-sm btn-action"
+                                                        onclick="return confirm('Remover corretor?')">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="4">
+                                            <div class="empty-state">
+                                                <i class="bi bi-people"></i>
+                                                Nenhum corretor vinculado.
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {# Paginação corretores #}
+                        {% if corretores.has_other_pages %}
+                            <div class="px-3 py-3 border-top bg-white">
+                                <nav>
+                                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                                        {% if corretores.has_previous %}
+                                            <li class="page-item">
+                                                <a class="page-link"
+                                                   href="?page_corretores={{ corretores.previous_page_number }}&page_usuarios={{ usuarios.number }}">
+                                                    ‹
+                                                </a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item disabled">
+                                                <span class="page-link">‹</span>
+                                            </li>
+                                        {% endif %}
+
+                                        <li class="page-item disabled">
+                                            <span class="page-link">
+                                                {{ corretores.number }} / {{ corretores.paginator.num_pages }}
+                                            </span>
+                                        </li>
+
+                                        {% if corretores.has_next %}
+                                            <li class="page-item">
+                                                <a class="page-link"
+                                                   href="?page_corretores={{ corretores.next_page_number }}&page_usuarios={{ usuarios.number }}">
+                                                    ›
+                                                </a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item disabled">
+                                                <span class="page-link">›</span>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        {# Linha inferior: Modelos de Documento #}
+        <div class="row g-4">
+            <div class="col-xl-12">
+                <div class="card modern-card">
+                    <div class="card-header d-flex justify-content-between align-items-center gap-2">
+                        <div class="card-header-title">
+                            <i class="bi bi-file-earmark-text"></i>
+                            <span>Modelos de Documento</span>
+                        </div>
+
+                        <button class="btn btn-primary btn-sm btn-action"
+                                type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalVincularModelo">
+                            <i class="bi bi-plus-lg me-1"></i>
+                            Vincular
+                        </button>
+                    </div>
+
+                    <div class="card-body p-0">
+                        {% if modelos_vinculados %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle table-modern">
+                                    <thead>
+                                    <tr>
+                                        <th>Modelo</th>
+                                        <th>Tipo</th>
+                                        <th>Versão</th>
+                                        <th>Padrão</th>
+                                        <th class="text-end">Ação</th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    {% for v in modelos_vinculados %}
+                                        <tr class="{% if not v.ativo %}opacity-50{% endif %}">
+                                            <td class="fw-semibold text-dark">
+                                                {{ v.modelo.titulo }}
+                                            </td>
+
+                                            <td>
+                                                <span class="badge bg-secondary badge-modern">
+                                                    {{ v.modelo.get_tipo_display }}
+                                                </span>
+                                            </td>
+
+                                            <td class="text-muted small">
+                                                v{{ v.modelo.versao }}
+                                            </td>
+
+                                            <td>
+                                                {% if v.padrao %}
+                                                    <span class="badge bg-success badge-modern">
+                                                        <i class="bi bi-star-fill me-1"></i>
+                                                        Padrão
+                                                    </span>
+                                                {% else %}
+                                                    <form method="post"
+                                                          action="{% url 'modelo-set-padrao' empreendimento.pk v.pk %}"
+                                                          class="d-inline">
+                                                        {% csrf_token %}
+
+                                                        <button type="submit"
+                                                                class="btn btn-outline-secondary btn-sm btn-action">
+                                                            Definir
+                                                        </button>
+                                                    </form>
+                                                {% endif %}
+                                            </td>
+
+                                            <td class="text-end">
+                                                <form method="post"
+                                                      action="{% url 'modelo-desvincular' empreendimento.pk v.pk %}"
                                                       class="d-inline">
                                                     {% csrf_token %}
-                                                    <button type="submit" class="btn btn-danger">
-                                                        <i class="fas fa-window-close" aria-hidden="true"></i>
+
+                                                    <button type="submit"
+                                                            class="btn btn-outline-danger btn-sm btn-action"
+                                                            onclick="return confirm('Desvincular este modelo?')">
+                                                        <i class="bi bi-trash"></i>
                                                     </button>
                                                 </form>
                                             </td>
@@ -129,16 +670,129 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <hr/>
-                            <a href="{% url 'lista-empreendimento-tabela' %}"
-                               class="btn mx-auto btn-primary w-50 mt-2">
-                                Voltar
-                            </a>
-                        </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="bi bi-file-earmark-x"></i>
+                                Nenhum modelo de documento vinculado.
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
-            <hr/>
+        </div>
+
+    </div>
+
+    {# Modal — Vincular modelo de documento #}
+    <div class="modal fade"
+         id="modalVincularModelo"
+         tabindex="-1"
+         aria-labelledby="modalVincularModeloLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalVincularModeloLabel">
+                        <i class="bi bi-file-earmark-plus me-2"></i>
+                        Vincular modelo
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Fechar"></button>
+                </div>
+
+                <form method="post" action="{% url 'modelo-vincular' empreendimento.pk %}">
+                    {% csrf_token %}
+
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Modelo</label>
+
+                            <select name="modelo_id" class="form-select" required>
+                                <option value="">— Selecione —</option>
+
+                                {% for m in modelos_disponiveis %}
+                                    <option value="{{ m.pk }}">
+                                        {{ m.titulo }} — {{ m.get_tipo_display }} — v{{ m.versao }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="padrao"
+                                   id="checkPadrao"
+                                   value="1">
+
+                            <label class="form-check-label" for="checkPadrao">
+                                Definir como padrão do tipo
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer bg-light">
+                        <button type="button"
+                                class="btn btn-outline-secondary btn-action"
+                                data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-primary btn-action">
+                            <i class="bi bi-check2-circle me-1"></i>
+                            Vincular
+                        </button>
+                    </div>
+                </form>
+
+            </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const checkAll = document.getElementById('checkAll');
+            const userChecks = document.querySelectorAll('.user-check');
+            const formAdicionarCorretores = document.getElementById('formAdicionarCorretores');
+
+            if (checkAll) {
+                checkAll.addEventListener('change', function () {
+                    userChecks.forEach(function (checkbox) {
+                        checkbox.checked = checkAll.checked;
+                    });
+
+                    checkAll.indeterminate = false;
+                });
+            }
+
+            userChecks.forEach(function (checkbox) {
+                checkbox.addEventListener('change', function () {
+                    const total = userChecks.length;
+                    const totalMarcados = document.querySelectorAll('.user-check:checked').length;
+
+                    if (checkAll) {
+                        checkAll.checked = total > 0 && total === totalMarcados;
+                        checkAll.indeterminate = totalMarcados > 0 && totalMarcados < total;
+                    }
+                });
+            });
+
+            if (formAdicionarCorretores) {
+                formAdicionarCorretores.addEventListener('submit', function (event) {
+                    const selecionados = document.querySelectorAll('.user-check:checked');
+
+                    if (selecionados.length === 0) {
+                        event.preventDefault();
+                        alert('Selecione pelo menos um corretor para adicionar.');
+                    }
+                });
+            }
+        });
+    </script>
 {% endblock %}
+

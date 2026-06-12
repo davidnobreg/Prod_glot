@@ -1,4 +1,4 @@
-import json
+﻿import json
 import os
 import re
 from django.shortcuts import render, redirect, get_object_or_404
@@ -14,6 +14,7 @@ from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
 
 from rolepermissions.decorators import has_permission_decorator
 
@@ -24,6 +25,12 @@ from django.db import transaction
 from django.utils import timezone
 from datetime import datetime, timedelta
 
+from documentos.models import ModeloDocumento, EmpreendimentoDocumento
+
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+
+
 from tornado.http1connection import parse_int
 
 from .forms import (EmpreendimentoForm, ArquivoForm, LoteForm, EmpreendimentoEnderecoForm, EmpreendimentoUpdateForm,
@@ -31,6 +38,7 @@ from .forms import (EmpreendimentoForm, ArquivoForm, LoteForm, EmpreendimentoEnd
 from .models import Empreendimento, Quadra, Lote
 from accounts.models import User, UsuarioEmpreendimento
 from vendas.models import RegisterVenda
+from documentos.models import ModeloDocumento, EmpreendimentoDocumento
 
 
 from reportlab.platypus import (
@@ -317,16 +325,29 @@ def listaQuadra(request, empreendimento_uuid):
 
         for lote in lotes:
             try:
-                area = float(str(lote.area or 0).replace(',', '.'))
-                valor_metro = float(str(lote.valor_metro_quadrado or 0).replace(',', '.'))
-                valor_lote = area * valor_metro
-            except (TypeError, ValueError):
-                valor_lote = 0
+                area = Decimal(str(lote.area or "0").replace(",", "."))
+                valor_metro = Decimal(str(lote.valor_metro_quadrado or "0").replace(",", "."))
+
+                quantidade_parcela = lote.quadra.empr.quantidade_parcela or 0
+                quantidade_parcela = int(quantidade_parcela)
+
+                valor_total = area * valor_metro
+
+                if quantidade_parcela > 0:
+                    valor_parcela = (valor_total / Decimal(quantidade_parcela)).quantize(
+                        Decimal("0.01"),
+                        rounding=ROUND_HALF_UP
+                    )
+                else:
+                    valor_parcela = Decimal("0.00")
+
+            except (TypeError, ValueError, InvalidOperation, AttributeError):
+                valor_parcela = Decimal("0.00")
 
             lotes_info.append({
-                'lote': lote,
-                'situacao': lote.situacao,
-                'valor_lote_formatado': formatar_moeda(valor_lote),
+                "lote": lote,
+                "situacao": lote.situacao,
+                "valor_parcela_formatado": formatar_moeda(valor_parcela),
             })
 
 
@@ -499,10 +520,45 @@ def detalheEmpreendimento(request, id):
 
     empreendimento = get_object_or_404(Empreendimento, id=id)
 
-    usuarios = User.objects.all()
-    empreendimentos = Empreendimento.objects.all()
-    corretores = UsuarioEmpreendimento.objects.filter(empreendimento=id, ativo=True)
+    # =========================
+    # Paginação de usuários disponíveis
+    # =========================
+    ids_corretores = UsuarioEmpreendimento.objects.filter(
+        empreendimento=empreendimento,
+        ativo=True
+    ).values_list('usuario_id', flat=True)
 
+    usuarios_qs = User.objects.exclude(
+        id__in=ids_corretores
+    ).order_by('first_name', 'email')
+
+    paginator_usuarios = Paginator(usuarios_qs, 5)
+    page_usuarios = request.GET.get('page_usuarios', 1)
+    usuarios = paginator_usuarios.get_page(page_usuarios)
+
+    # =========================
+    # Paginação de corretores vinculados
+    # =========================
+    corretores_qs = UsuarioEmpreendimento.objects.filter(
+        empreendimento=empreendimento,
+        ativo=True
+    ).select_related('usuario').order_by(
+        'usuario__first_name',
+        'usuario__email'
+    )
+
+    paginator_corretores = Paginator(corretores_qs, 5)
+    page_corretores = request.GET.get('page_corretores', 1)
+    corretores = paginator_corretores.get_page(page_corretores)
+
+    # =========================
+    # Empreendimentos
+    # =========================
+    empreendimentos = Empreendimento.objects.all()
+
+    # =========================
+    # Estatísticas dos lotes
+    # =========================
     lotes = Lote.objects.filter(quadra__empr=empreendimento)
 
     total = lotes.count()
@@ -515,16 +571,36 @@ def detalheEmpreendimento(request, id):
         Q(situacao='INDISPONIVEL')
     ).count()
 
+    # =========================
+    # Modelos de documento vinculados
+    # =========================
+    modelos_vinculados = EmpreendimentoDocumento.objects.filter(
+        empreendimento=empreendimento
+    ).select_related('modelo').order_by(
+        'modelo__tipo',
+        'ordem'
+    )
+
+    ids_vinculados = modelos_vinculados.values_list('modelo_id', flat=True)
+
+    modelos_disponiveis = ModeloDocumento.objects.filter(
+        ativo=True
+    ).exclude(
+        id__in=ids_vinculados
+    )
+
     context = {
         'empreendimento': empreendimento,
-        'empreendimentos': empreendimentos,  # <- necessário para o <select>
+        'empreendimentos': empreendimentos,
         'usuarios': usuarios,
         'corretores': corretores,
         'total': total,
         'livre': livre,
         'reserva': reserva,
         'vendido': vendido,
-        'outros': outros
+        'outros': outros,
+        'modelos_vinculados': modelos_vinculados,
+        'modelos_disponiveis': modelos_disponiveis,
     }
 
     return render(request, template_name, context)
@@ -1096,7 +1172,46 @@ def gerarRelatorioLotes(request):
     return response"""
 
 
-@require_http_methods(["POST"])
+@require_POST
+def criarUsuarioEmpreendimento(request):
+    empreendimento_id = request.POST.get('empreendimento')
+    users_ids = request.POST.getlist('users')
+
+    empreendimento = get_object_or_404(Empreendimento, id=empreendimento_id)
+
+    if not users_ids:
+        messages.warning(request, 'Selecione pelo menos um corretor para adicionar.')
+        return redirect('detalhe-empreendimento', id=empreendimento.id)
+
+    usuarios = User.objects.filter(id__in=users_ids)
+
+    adicionados = 0
+    reativados = 0
+
+    for usuario in usuarios:
+        vinculo, created = UsuarioEmpreendimento.objects.get_or_create(
+            empreendimento=empreendimento,
+            usuario=usuario,
+            defaults={'ativo': True}
+        )
+
+        if created:
+            adicionados += 1
+
+        elif not vinculo.ativo:
+            vinculo.ativo = True
+            vinculo.save(update_fields=['ativo'])
+            reativados += 1
+
+    if adicionados or reativados:
+        messages.success(request, 'Corretor(es) vinculado(s) com sucesso.')
+    else:
+        messages.info(request, 'Os corretores selecionados já estavam vinculados.')
+
+    return redirect('detalhe-empreendimento', id=empreendimento.id)
+
+    return redirect('detalhe-empreendimento', id=empreendimento.id)
+"""@require_http_methods(["POST"])
 def criarUsuarioEmpreendimento(request):
     users_ids = request.POST.getlist('users')  # Lista de usuários
     empreendimento_id = request.POST.get('empreendimento')
@@ -1117,7 +1232,74 @@ def criarUsuarioEmpreendimento(request):
             usuario_empreendimento.save()
 
     messages.success(request, "Usuários adicionados com sucesso!")
-    return redirect('detalhe-empreendimento', id=empreendimento.id)
+    return redirect('detalhe-empreendimento', id=empreendimento.id)"""
+
+@require_POST
+def deleteUsuarioEmpreendimento(request, id):
+    vinculo = get_object_or_404(UsuarioEmpreendimento, id=id)
+
+    empreendimento_id = vinculo.empreendimento_id
+
+    vinculo.ativo = False
+    vinculo.save(update_fields=['ativo'])
+
+    messages.success(request, 'Corretor removido com sucesso.')
+
+    return redirect('detalhe-empreendimento', id=empreendimento_id)
 
 
+@require_POST
+@login_required
+def modelo_vincular(request, empr_id):
+    empreendimento = get_object_or_404(Empreendimento, pk=empr_id)
+    modelo_id = request.POST.get('modelo_id')
+    padrao = request.POST.get('padrao') == '1'
 
+    modelo = get_object_or_404(ModeloDocumento, pk=modelo_id)
+
+    try:
+        vinculo, created = EmpreendimentoDocumento.objects.get_or_create(
+            empreendimento=empreendimento,
+            modelo=modelo,
+            defaults={'padrao': padrao, 'ativo': True},
+        )
+        if not created:
+            messages.warning(request, 'Modelo já vinculado.')
+        else:
+            if padrao:
+                # Garante que só um padrão por tipo
+                EmpreendimentoDocumento.objects.filter(
+                    empreendimento=empreendimento,
+                    modelo__tipo=modelo.tipo,
+                    padrao=True,
+                ).exclude(pk=vinculo.pk).update(padrao=False)
+            messages.success(request, f'Modelo "{modelo.titulo}" vinculado.')
+    except Exception as e:
+        messages.error(request, str(e))
+
+    return redirect('detalhe-empreendimento', id=empr_id)
+
+
+@require_POST
+@login_required
+def modelo_desvincular(request, empr_id, vinculo_id):
+    vinculo = get_object_or_404(EmpreendimentoDocumento, pk=vinculo_id, empreendimento_id=empr_id)
+    vinculo.delete()
+    messages.success(request, 'Modelo desvinculado.')
+    return redirect('detalhe-empreendimento', id=empr_id)
+
+
+@require_POST
+@login_required
+def modelo_set_padrao(request, empr_id, vinculo_id):
+    vinculo = get_object_or_404(EmpreendimentoDocumento, pk=vinculo_id, empreendimento_id=empr_id)
+    # Remove padrão dos outros do mesmo tipo
+    EmpreendimentoDocumento.objects.filter(
+        empreendimento_id=empr_id,
+        modelo__tipo=vinculo.modelo.tipo,
+        padrao=True,
+    ).update(padrao=False)
+    vinculo.padrao = True
+    vinculo.save(update_fields=['padrao'])
+    messages.success(request, f'"{vinculo.modelo.titulo}" definido como padrão.')
+    return redirect('detalhe-empreendimento', id=empr_id)

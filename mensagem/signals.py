@@ -1,4 +1,4 @@
-from django.db.models.signals import pre_save, post_save
+﻿from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from clientes.models import Cliente
 from empreendimentos.models import Lote
@@ -109,6 +109,8 @@ def post_save_venda(sender, instance, created, **kwargs):
     if tipo_atual == tipo_antigo:
         return
 
+    if not instance.cliente or not instance.user or not instance.lote:
+        return
     cliente = instance.cliente.name
     usuario = instance.user.first_name
 

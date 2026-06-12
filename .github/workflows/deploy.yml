@@ -28,7 +28,7 @@ jobs:
         with:
           context: .
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/glot:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/glot:${{ github.sha }}
@@ -46,29 +46,34 @@ jobs:
         run: |
           set -e
 
-          echo "Obtendo docker-compose da stack..."
+          echo "Lendo stack file do repositório..."
+          STACK_FILE_JSON=$(python3 -c "
+          import json
+          with open('Docker-compose.yml', 'r') as f:
+              content = f.read()
+          print(json.dumps(content))
+          ")
 
-          STACK_FILE=$(curl -s \
-            -H "X-API-Key: $PORTAINER_TOKEN" \
-            "$PORTAINER_URL/api/stacks/48/file" \
-            | python3 -c "import sys,json; print(json.load(sys.stdin)['StackFileContent'])")
-
-          STACK_FILE_JSON=$(echo "$STACK_FILE" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read()))")
-
-          echo "Atualizando stack..."
-
+          echo "Atualizando stack no Portainer..."
           RESPONSE=$(curl -s -o /tmp/portainer_response.json -w "%{http_code}" -X PUT \
             -H "X-API-Key: $PORTAINER_TOKEN" \
             -H "Content-Type: application/json" \
             "$PORTAINER_URL/api/stacks/48?endpointId=1" \
-            -d "{\"stackFileContent\": $STACK_FILE_JSON, \"env\": [{\"name\": \"GIT_COMMIT\", \"value\": \"$GIT_COMMIT\"}, {\"name\": \"SENTRY_DSN\", \"value\": \"$SENTRY_DSN\"}], \"pullImage\": true, \"prune\": true}")
+            -d "{
+              \"stackFileContent\": $STACK_FILE_JSON,
+              \"env\": [
+                {\"name\": \"GIT_COMMIT\", \"value\": \"$GIT_COMMIT\"},
+                {\"name\": \"SENTRY_DSN\",  \"value\": \"$SENTRY_DSN\"}
+              ],
+              \"pullImage\": true,
+              \"prune\": true
+            }")
 
-          echo "Status PUT stack: $RESPONSE"
-
+          echo "Status: $RESPONSE"
           if [ "$RESPONSE" != "200" ]; then
-            echo "Erro ao atualizar stack"
+            echo "Erro ao atualizar stack:"
             cat /tmp/portainer_response.json
             exit 1
           fi
 
-          echo "Deploy concluido!"
+          echo "Deploy concluído. Commit: $GIT_COMMIT"

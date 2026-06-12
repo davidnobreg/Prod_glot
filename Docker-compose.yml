@@ -11,6 +11,7 @@ services:
       - SENTRY_DSN=${SENTRY_DSN}
       - ENVIRONMENT=production
       - GIT_COMMIT=${GIT_COMMIT}
+      - RUN_MIGRATIONS=true
 
     volumes:
       - configuration:/app/configuration

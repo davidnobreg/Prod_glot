@@ -1,0 +1,106 @@
+﻿{# documentos/templates/documentos/gerar_documento_modal.html #}
+{# Incluir esta página via {% include %} ou acessar diretamente via GET #}
+
+{% load static %}
+
+<div class="modal fade" id="modalGerarDocumento" tabindex="-1" aria-labelledby="modalGerarDocumentoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalGerarDocumentoLabel">
+          <i class="bi bi-file-earmark-plus me-2"></i>Gerar Documento
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form method="post" action="{% url 'documentos:gerar-documento' venda.pk %}">
+        {% csrf_token %}
+
+        <div class="modal-body">
+
+          {# Tipo do documento #}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Tipo do documento</label>
+            <select name="tipo" id="selectTipo" class="form-select" required>
+              <option value="">— Selecione —</option>
+              {% for tipo_val, dados in modelos_por_tipo.items %}
+                <option value="{{ tipo_val }}">{{ dados.label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          {# Modelo (atualizado via JS ao trocar tipo) #}
+          <div class="mb-3" id="wrapperModelo" style="display:none">
+            <label class="form-label fw-semibold">Modelo</label>
+            <select name="modelo_id" id="selectModelo" class="form-select">
+            </select>
+          </div>
+
+          {# Substituir documento existente (opcional) #}
+          {% if docs_existentes and request.user.tipo_usuario == 'ADMINISTRADOR' %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Substituir documento existente <span class="text-muted fw-normal">(opcional)</span></label>
+            <select name="substitui_id" class="form-select">
+              <option value="">— Nenhum —</option>
+              {% for d in docs_existentes %}
+                <option value="{{ d.pk }}">{{ d.numero }} — {{ d.titulo }} ({{ d.get_status_display }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% endif %}
+
+          {# Venda resumo #}
+          <div class="alert alert-light border small mb-0">
+            <strong>Venda:</strong> {{ venda.cliente }} &nbsp;|&nbsp;
+            <strong>Lote:</strong> {{ venda.lote }} &nbsp;|&nbsp;
+            <strong>Quadra:</strong> {{ venda.lote.quadra }} &nbsp;|&nbsp;
+            <strong>Empreendimento:</strong> {{ venda.lote.quadra.empr }}
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-file-earmark-check me-1"></i>Gerar
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+{{ modelos_por_tipo|json_script:"modelos-por-tipo-data" }}
+<script>
+// Dados dos modelos por tipo (injetados pelo Django)
+const modelosPorTipo = JSON.parse(document.getElementById('modelos-por-tipo-data').textContent);
+
+document.getElementById('selectTipo').addEventListener('change', function () {
+    const tipo = this.value;
+    const wrapper = document.getElementById('wrapperModelo');
+    const selectModelo = document.getElementById('selectModelo');
+
+    selectModelo.innerHTML = '';
+
+    if (!tipo || !modelosPorTipo[tipo]) {
+        wrapper.style.display = 'none';
+        return;
+    }
+
+    const dados = modelosPorTipo[tipo];
+    dados.modelos.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.textContent = `${m.titulo} (v${m.versao})`;
+        if (m.id === dados.padrao_id) {
+            opt.selected = true;
+            opt.textContent += ' ★ padrão';
+        }
+        selectModelo.appendChild(opt);
+    });
+
+    wrapper.style.display = dados.modelos.length > 0 ? 'block' : 'none';
+});
+</script>

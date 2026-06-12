@@ -497,8 +497,11 @@
     {% if user.is_authenticated %}
         <header class="glot-mobile-topbar d-md-none">
             <a href="{% url 'lista-empreendimento' %}" class="d-flex align-items-center gap-2 text-decoration-none text-dark">
-                <span class="glot-brand-mark">G</span>
-                <span class="fw-bold">GLOT</span>
+                <img
+                        src="{% static 'images/logo_carlos_e_celso.jpg' %}"
+                        alt="logo_carlos_e_celso"
+                        style="max-height: 40px; width: auto;"
+                >
             </a>
 
             <button

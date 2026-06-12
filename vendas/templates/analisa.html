@@ -1,578 +1,793 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 
 {% block title %}
-	Análise de Reserva
+    Análise de Reserva
 {% endblock %}
 
 {% load static %}
 {% load humanize %}
 
 {% block content %}
-	<style>
-		.analise-page {
-			background: #fff;
-			border-radius: 12px;
-			box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
-			overflow: hidden;
-		}
+    <style>
+        .analise-page {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+            overflow: hidden;
+        }
 
-		.analise-hero {
-			background: linear-gradient(180deg, #0b7a95 0%, #e8f6f9 100%);
-			border-bottom: 1px solid #08748d;
-			padding: 28px 24px 34px;
-			text-align: center;
-		}
+        .analise-hero {
+            background: linear-gradient(180deg, #0b7a95 0%, #e8f6f9 100%);
+            border-bottom: 1px solid #08748d;
+            padding: 28px 24px 34px;
+            text-align: center;
+        }
 
-		.analise-title {
-			color: #031523;
-			font-size: clamp(1.7rem, 3vw, 2.55rem);
-			font-weight: 900;
-			margin: 0;
-			text-transform: uppercase;
-		}
+        .analise-title {
+            color: #031523;
+            font-size: clamp(1.7rem, 3vw, 2.55rem);
+            font-weight: 900;
+            margin: 0;
+            text-transform: uppercase;
+        }
 
-		.analise-subtitle {
-			color: rgba(3, 21, 35, 0.74);
-			font-size: 1rem;
-			font-weight: 600;
-			margin: 10px auto 0;
-			max-width: 720px;
-		}
+        .analise-subtitle {
+            color: rgba(3, 21, 35, 0.74);
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 10px auto 0;
+            max-width: 720px;
+        }
 
-		.analise-panel {
-			background: linear-gradient(180deg, #08789a 0%, #b9d9df 100%);
-			border: 1px solid #04728f;
-			border-radius: 8px;
-			box-shadow: 6px 6px 12px rgba(4, 80, 105, 0.45);
-			margin: 16px;
-			padding: 24px;
-		}
+        .analise-panel {
+            background: linear-gradient(180deg, #08789a 0%, #b9d9df 100%);
+            border: 1px solid #04728f;
+            border-radius: 8px;
+            box-shadow: 6px 6px 12px rgba(4, 80, 105, 0.45);
+            margin: 16px;
+            padding: 24px;
+        }
 
-		.analise-grid {
-			display: grid;
-			gap: 24px;
-			grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-		}
+        .analise-grid {
+            display: grid;
+            gap: 24px;
+            grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+        }
 
-		.analise-card {
-			background: rgba(255, 255, 255, 0.96);
-			border-radius: 16px;
-			box-shadow: 0 14px 24px rgba(15, 23, 42, 0.22);
-			overflow: hidden;
-		}
+        .analise-card {
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 16px;
+            box-shadow: 0 14px 24px rgba(15, 23, 42, 0.22);
+            overflow: hidden;
+        }
 
-		.analise-logo-area {
-			align-items: center;
-			background: #fff;
-			display: flex;
-			justify-content: center;
-			min-height: 245px;
-			padding: 24px;
-		}
+        .analise-logo-area {
+            align-items: center;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            min-height: 245px;
+            padding: 24px;
+        }
 
-		.analise-logo {
-			display: block;
-			max-height: 220px;
-			max-width: 100%;
-			object-fit: contain;
-		}
+        .analise-logo {
+            display: block;
+            max-height: 220px;
+            max-width: 100%;
+            object-fit: contain;
+        }
 
-		.analise-placeholder {
-			align-items: center;
-			background: linear-gradient(135deg, #edf9fb, #fff);
-			border: 1px solid #c8e8ef;
-			border-radius: 18px;
-			color: #08789a;
-			display: flex;
-			font-size: 4rem;
-			font-weight: 900;
-			height: 200px;
-			justify-content: center;
-			width: 100%;
-		}
+        .analise-placeholder {
+            align-items: center;
+            background: linear-gradient(135deg, #edf9fb, #fff);
+            border: 1px solid #c8e8ef;
+            border-radius: 18px;
+            color: #08789a;
+            display: flex;
+            font-size: 4rem;
+            font-weight: 900;
+            height: 200px;
+            justify-content: center;
+            width: 100%;
+        }
 
-		.analise-info,
-		.analise-section {
-			padding: 24px;
-		}
+        .analise-info,
+        .analise-section {
+            padding: 24px;
+        }
 
-		.analise-empreendimento {
-			border-bottom: 1px solid #d7e6e9;
-			color: #031523;
-			font-size: 1.15rem;
-			font-weight: 900;
-			margin: 0 0 18px;
-			padding-bottom: 14px;
-			text-align: center;
-			text-transform: uppercase;
-		}
+        .analise-empreendimento {
+            border-bottom: 1px solid #d7e6e9;
+            color: #031523;
+            font-size: 1.15rem;
+            font-weight: 900;
+            margin: 0 0 18px;
+            padding-bottom: 14px;
+            text-align: center;
+            text-transform: uppercase;
+        }
 
-		.analise-section-title {
-			color: #031523;
-			font-size: 1.5rem;
-			font-weight: 900;
-			letter-spacing: -0.03em;
-			margin: 0 0 6px;
-		}
+        .analise-section-title {
+            color: #031523;
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            margin: 0 0 6px;
+        }
 
-		.analise-section-text {
-			color: rgba(3, 21, 35, 0.64);
-			font-weight: 500;
-			margin: 0 0 20px;
-		}
+        .analise-section-text {
+            color: rgba(3, 21, 35, 0.64);
+            font-weight: 500;
+            margin: 0 0 20px;
+        }
 
-		.analise-facts {
-			display: grid;
-			gap: 12px;
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
+        .analise-facts {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
 
-		.analise-fact {
-			background: #f8fafc;
-			border: 1px solid #dbe8ec;
-			border-radius: 12px;
-			padding: 13px;
-			text-align: center;
-		}
+        .analise-fact {
+            background: #f8fafc;
+            border: 1px solid #dbe8ec;
+            border-radius: 12px;
+            padding: 13px;
+            text-align: center;
+        }
 
-		.analise-fact-wide {
-			grid-column: 1 / -1;
-		}
+        .analise-fact-wide {
+            grid-column: 1 / -1;
+        }
 
-		.analise-fact span {
-			color: #08789a;
-			display: block;
-			font-size: 0.74rem;
-			font-weight: 900;
-			letter-spacing: 0.08em;
-			margin-bottom: 5px;
-			text-transform: uppercase;
-		}
+        .analise-fact span {
+            color: #08789a;
+            display: block;
+            font-size: 0.74rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
 
-		.analise-fact strong {
-			color: #031523;
-			font-size: 1.04rem;
-			font-weight: 900;
-		}
+        .analise-fact strong {
+            color: #031523;
+            font-size: 1.04rem;
+            font-weight: 900;
+        }
 
-		.analise-badge {
-			border-radius: 999px;
-			display: inline-flex;
-			font-size: 0.72rem;
-			font-weight: 900;
-			margin-top: 8px;
-			padding: 6px 10px;
-			text-transform: uppercase;
-		}
+        .analise-badge {
+            border-radius: 999px;
+            display: inline-flex;
+            font-size: 0.72rem;
+            font-weight: 900;
+            margin-top: 8px;
+            padding: 6px 10px;
+            text-transform: uppercase;
+        }
 
-		.analise-badge-whatsapp {
-			background: #dcfce7;
-			color: #15803d;
-		}
+        .analise-badge-whatsapp {
+            background: #dcfce7;
+            color: #15803d;
+        }
 
-		.analise-badge-info {
-			background: #dbeafe;
-			color: #1d4ed8;
-		}
+        .analise-badge-info {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
 
-		.analise-observacao {
-			background: #f8fafc;
-			border: 1px solid #dbe8ec;
-			border-radius: 14px;
-			color: #031523;
-			font-weight: 600;
-			line-height: 1.5;
-			margin-top: 18px;
-			padding: 16px;
-		}
+        .analise-observacao {
+            background: #f8fafc;
+            border: 1px solid #dbe8ec;
+            border-radius: 14px;
+            color: #031523;
+            font-weight: 600;
+            line-height: 1.5;
+            margin-top: 18px;
+            padding: 16px;
+        }
 
-		.analise-financeiro {
-			background: linear-gradient(135deg, #031523 0%, #08789a 100%);
-			border-radius: 16px;
-			box-shadow: 0 14px 24px rgba(15, 23, 42, 0.22);
-			color: #fff;
-			margin-top: 24px;
-			padding: 24px;
-		}
+        .analise-financeiro {
+            background: linear-gradient(135deg, #031523 0%, #08789a 100%);
+            border-radius: 16px;
+            box-shadow: 0 14px 24px rgba(15, 23, 42, 0.22);
+            color: #fff;
+            margin-top: 24px;
+            padding: 24px;
+        }
 
-		.analise-financeiro-header {
-			align-items: center;
-			display: flex;
-			flex-wrap: wrap;
-			gap: 12px;
-			justify-content: space-between;
-			margin-bottom: 18px;
-		}
+        .analise-financeiro-header {
+            align-items: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
 
-		.analise-financeiro-title {
-			font-size: 1.25rem;
-			font-weight: 900;
-			margin: 0;
-		}
+        .analise-financeiro-title {
+            font-size: 1.25rem;
+            font-weight: 900;
+            margin: 0;
+        }
 
-		.analise-correcao {
-			border-radius: 999px;
-			font-size: 0.8rem;
-			font-weight: 900;
-			padding: 7px 12px;
-			text-transform: uppercase;
-		}
+        .analise-correcao {
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 900;
+            padding: 7px 12px;
+            text-transform: uppercase;
+        }
 
-		.analise-correcao-sim {
-			background: #dcfce7;
-			color: #15803d;
-		}
+        .analise-correcao-sim {
+            background: #dcfce7;
+            color: #15803d;
+        }
 
-		.analise-correcao-nao {
-			background: #fee2e2;
-			color: #b91c1c;
-		}
+        .analise-correcao-nao {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
 
-		.analise-financeiro-grid {
-			display: grid;
-			gap: 14px;
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
+        .analise-financeiro-grid {
+            display: grid;
+            gap: 14px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
 
-		.analise-financeiro-item {
-			background: rgba(255, 255, 255, 0.11);
-			border: 1px solid rgba(255, 255, 255, 0.16);
-			border-radius: 14px;
-			padding: 14px;
-		}
+        .analise-financeiro-item {
+            background: rgba(255, 255, 255, 0.11);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 14px;
+            padding: 14px;
+        }
 
-		.analise-financeiro-item span {
-			color: rgba(255, 255, 255, 0.76);
-			display: block;
-			font-size: 0.82rem;
-			font-weight: 800;
-			margin-bottom: 6px;
-		}
+        .analise-financeiro-item span {
+            color: rgba(255, 255, 255, 0.76);
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
 
-		.analise-financeiro-item strong {
-			font-size: 1.1rem;
-			font-weight: 900;
-		}
+        .analise-financeiro-item strong {
+            font-size: 1.1rem;
+            font-weight: 900;
+        }
 
-		.analise-financeiro-total {
-			border-top: 1px solid rgba(255, 255, 255, 0.18);
-			margin-top: 18px;
-			padding-top: 18px;
-			text-align: right;
-		}
+        .analise-financeiro-total {
+            border-top: 1px solid rgba(255, 255, 255, 0.18);
+            margin-top: 18px;
+            padding-top: 18px;
+            text-align: right;
+        }
 
-		.analise-financeiro-total span {
-			color: rgba(255, 255, 255, 0.76);
-			display: block;
-			font-weight: 800;
-		}
+        .analise-financeiro-total span {
+            color: rgba(255, 255, 255, 0.76);
+            display: block;
+            font-weight: 800;
+        }
 
-		.analise-financeiro-total strong {
-			color: #fde68a;
-			font-size: 2rem;
-			font-weight: 900;
-		}
+        .analise-financeiro-total strong {
+            color: #fde68a;
+            font-size: 2rem;
+            font-weight: 900;
+        }
 
-		.analise-actions {
-			display: grid;
-			gap: 12px;
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-			margin-top: 24px;
-		}
+        /* Ações */
+        .analise-actions {
+            align-items: stretch;
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            margin-top: 24px;
+        }
 
-		.analise-button {
-			align-items: center;
-			border: 1px solid transparent;
-			border-radius: 999px;
-			display: inline-flex;
-			font-weight: 900;
-			gap: 10px;
-			justify-content: center;
-			min-height: 50px;
-			padding: 12px 20px;
-			text-decoration: none;
-			transition: filter 0.18s ease, transform 0.18s ease;
-			width: 100%;
-		}
+        .analise-action-form {
+            display: flex;
+            margin: 0;
+            width: 100%;
+        }
 
-		.analise-button-danger {
-			background: #ef4444;
-			border-color: #fecaca;
-			color: #fff;
-		}
+        .analise-button {
+            align-items: center;
+            border: 1px solid transparent;
+            border-radius: 999px;
+            box-shadow: 0 10px 18px rgba(15, 23, 42, 0.18);
+            cursor: pointer;
+            display: inline-flex;
+            font-size: 0.95rem;
+            font-weight: 900;
+            gap: 10px;
+            justify-content: center;
+            line-height: 1;
+            min-height: 52px;
+            padding: 13px 20px;
+            text-align: center;
+            text-decoration: none;
+            transition: filter 0.18s ease,
+            transform 0.18s ease,
+            box-shadow 0.18s ease;
+            width: 100%;
+        }
 
-		.analise-button-success {
-			background: #059669;
-			border-color: #bbf7d0;
-			color: #fff;
-		}
+        .analise-button i {
+            font-size: 1.1rem;
+            line-height: 1;
+        }
 
-		.analise-button:hover,
-		.analise-button:focus {
-			color: #fff;
-			filter: brightness(1.06);
-			transform: translateY(-1px);
-		}
+        .analise-button-danger {
+            background: #ef4444;
+            border-color: #fecaca;
+            color: #fff;
+        }
 
-		.analise-modal-content {
-			border: 0;
-			border-radius: 18px;
-			box-shadow: 0 24px 48px rgba(15, 23, 42, 0.24);
-			overflow: hidden;
-		}
+        .analise-button-success {
+            background: #059669;
+            border-color: #bbf7d0;
+            color: #fff;
+        }
 
-		.analise-modal-header {
-			background: linear-gradient(180deg, #0b7a95 0%, #e8f6f9 100%);
-			border-bottom: 1px solid #c8e8ef;
-		}
+        .analise-button-secondary {
+            background: #64748b;
+            border-color: #cbd5e1;
+            color: #fff;
+        }
 
-		.analise-modal-title {
-			color: #031523;
-			font-weight: 900;
-		}
+        .analise-button:hover,
+        .analise-button:focus {
+            color: #fff;
+            filter: brightness(1.06);
+            transform: translateY(-1px);
+            box-shadow: 0 14px 24px rgba(15, 23, 42, 0.24);
+        }
 
-		@media (max-width: 991.98px) {
-			.analise-grid {
-				grid-template-columns: 1fr;
-			}
-		}
+        .analise-button:active {
+            transform: translateY(0);
+        }
 
-		@media (max-width: 575.98px) {
-			.analise-panel {
-				margin: 10px 0 0;
-				padding: 14px;
-			}
+        .analise-modal-content {
+            border: 0;
+            border-radius: 18px;
+            box-shadow: 0 24px 48px rgba(15, 23, 42, 0.24);
+            overflow: hidden;
+        }
 
-			.analise-facts,
-			.analise-financeiro-grid,
-			.analise-actions {
-				grid-template-columns: 1fr;
-			}
-		}
-	</style>
+        .analise-modal-header {
+            background: linear-gradient(180deg, #0b7a95 0%, #e8f6f9 100%);
+            border-bottom: 1px solid #c8e8ef;
+        }
 
-	<div class="analise-page">
-		<header class="analise-hero">
-			<h1 class="analise-title">
-				Análise de reserva
-			</h1>
+        .analise-modal-title {
+            color: #031523;
+            font-weight: 900;
+        }
 
-			<p class="analise-subtitle">
-				Confira os dados comerciais antes de aceitar ou recusar esta reserva.
-			</p>
-		</header>
+        .analise-modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
 
-		<section class="analise-panel">
-			<div class="analise-grid">
-				<article class="analise-card">
-					<div class="analise-logo-area">
-						{% if reservas.lote.quadra.empr.logo %}
-							<img src="{{ reservas.lote.quadra.empr.logo.url }}" alt="Logo de {{ reservas.lote.quadra.empr }}" class="analise-logo">
-						{% else %}
-							<div class="analise-placeholder" aria-hidden="true">
-								{{ reservas.lote.quadra.empr.nome|first|upper }}
-							</div>
-						{% endif %}
-					</div>
+        @media (max-width: 991.98px) {
+            .analise-grid {
+                grid-template-columns: 1fr;
+            }
 
-					<div class="analise-info">
-						<h2 class="analise-empreendimento">
-							{{ reservas.lote.quadra.empr }}
-						</h2>
+            .analise-actions {
+                grid-template-columns: 1fr;
+            }
+        }
 
-						<div class="analise-facts">
-							<div class="analise-fact">
-								<span>Quadra</span>
-								<strong>{{ reservas.lote.quadra.namequadra }}</strong>
-							</div>
+        @media (max-width: 575.98px) {
+            .analise-panel {
+                margin: 10px 0 0;
+                padding: 14px;
+            }
 
-							<div class="analise-fact">
-								<span>Lote</span>
-								<strong>{{ reservas.lote.lote }}</strong>
-							</div>
+            .analise-facts,
+            .analise-financeiro-grid {
+                grid-template-columns: 1fr;
+            }
 
-							<div class="analise-fact">
-								<span>Valor do lote</span>
-								<strong>R$ {{ valor_lote|floatformat:2|intcomma }}</strong>
-							</div>
+            .analise-actions {
+                grid-template-columns: 1fr;
+            }
 
-							<div class="analise-fact">
-								<span>Data da reserva</span>
-								<strong>{{ reservas.dt_reserva }}</strong>
-							</div>
-						</div>
-					</div>
-				</article>
+            .analise-button {
+                min-height: 50px;
+                padding: 12px 16px;
+            }
 
-				<article class="analise-card analise-section">
-					<h2 class="analise-section-title">
-						Cliente e corretor
-					</h2>
+            .analise-financeiro-total {
+                text-align: left;
+            }
 
-					<p class="analise-section-text">
-						Dados de contato vinculados à solicitação.
-					</p>
+            .analise-financeiro-total strong {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
 
-					<div class="analise-facts">
-						<div class="analise-fact">
-							<span>Corretor</span>
-							<strong>{{ reservas.user.first_name }}</strong>
-						</div>
+    <div class="analise-page">
+        <header class="analise-hero">
+            <h1 class="analise-title">
+                Análise de reserva
+            </h1>
 
-						<div class="analise-fact">
-							<span>Contato corretor</span>
-							<strong>{{ reservas.user.contato }}</strong>
-						</div>
+            <p class="analise-subtitle">
+                Confira os dados comerciais antes de aceitar ou recusar esta reserva.
+            </p>
+        </header>
 
-						<div class="analise-fact">
-							<span>Cliente</span>
-							<strong>{{ reservas.cliente.name }}</strong>
-						</div>
+        <section class="analise-panel">
+            <div class="analise-grid">
+                <article class="analise-card">
+                    <div class="analise-logo-area">
+                        {% if reservas.lote.quadra.empr.logo %}
+                            <img
+                                    src="{{ reservas.lote.quadra.empr.logo.url }}"
+                                    alt="Logo de {{ reservas.lote.quadra.empr }}"
+                                    class="analise-logo"
+                            >
+                        {% else %}
+                            <div class="analise-placeholder" aria-hidden="true">
+                                {{ reservas.lote.quadra.empr.nome|first|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
 
-						<div class="analise-fact">
-							<span>Contato cliente</span>
-							<strong>{{ contatoCliente.numero|default:"Não informado" }}</strong>
+                    <div class="analise-info">
+                        <h2 class="analise-empreendimento">
+                            {{ reservas.lote.quadra.empr }}
+                        </h2>
 
-							{% if contatoCliente.tipo %}
-								{% if contatoCliente.tipo == 'whatsapp' %}
-									<small class="analise-badge analise-badge-whatsapp">WhatsApp</small>
-								{% elif contatoCliente.tipo == 'celular' %}
-									<small class="analise-badge analise-badge-info">Celular</small>
-								{% elif contatoCliente.tipo == 'fixo' %}
-									<small class="analise-badge analise-badge-info">Fixo</small>
-								{% elif contatoCliente.tipo == 'recado' %}
-									<small class="analise-badge analise-badge-info">Recado</small>
-								{% elif contatoCliente.tipo == 'outro' %}
-									<small class="analise-badge analise-badge-info">Outros</small>
-								{% endif %}
+                        <div class="analise-facts">
+                            <div class="analise-fact">
+                                <span>Quadra</span>
+                                <strong>{{ reservas.lote.quadra.namequadra }}</strong>
+                            </div>
+
+                            <div class="analise-fact">
+                                <span>Lote</span>
+                                <strong>{{ reservas.lote.lote }}</strong>
+                            </div>
+
+                            <div class="analise-fact">
+                                <span>Valor do lote</span>
+                                <strong>R$ {{ valor_lote|floatformat:2|intcomma }}</strong>
+                            </div>
+
+                            <div class="analise-fact">
+                                <span>Data da reserva</span>
+                                <strong>{{ reservas.dt_reserva }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="analise-card analise-section">
+                    <h2 class="analise-section-title">
+                        Cliente e corretor
+                    </h2>
+
+                    <p class="analise-section-text">
+                        Dados de contato vinculados à solicitação.
+                    </p>
+
+                    <div class="analise-facts">
+                        <div class="analise-fact">
+                            <span>Corretor</span>
+                            <strong>{{ reservas.user.first_name }}</strong>
+                        </div>
+
+                        <div class="analise-fact">
+                            <span>Contato corretor</span>
+                            <strong>{{ reservas.user.contato }}</strong>
+                        </div>
+
+                        <div class="analise-fact">
+                            <span>Cliente</span>
+                            <strong>{{ reservas.cliente.name }}</strong>
+                        </div>
+
+                        <div class="analise-fact">
+                            <span>Contato cliente</span>
+                            <strong>{{ contatoCliente.numero|default:"Não informado" }}</strong>
+
+                            {% if contatoCliente.tipo %}
+                                {% if contatoCliente.tipo == 'whatsapp' %}
+                                    <small class="analise-badge analise-badge-whatsapp">
+                                        WhatsApp
+                                    </small>
+                                {% elif contatoCliente.tipo == 'celular' %}
+                                    <small class="analise-badge analise-badge-info">
+                                        Celular
+                                    </small>
+                                {% elif contatoCliente.tipo == 'fixo' %}
+                                    <small class="analise-badge analise-badge-info">
+                                        Fixo
+                                    </small>
+                                {% elif contatoCliente.tipo == 'recado' %}
+                                    <small class="analise-badge analise-badge-info">
+                                        Recado
+                                    </small>
+                                {% elif contatoCliente.tipo == 'outro' %}
+                                    <small class="analise-badge analise-badge-info">
+                                        Outros
+                                    </small>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="analise-observacao">
+                        <strong>Observação:</strong><br>
+                        {{ reservas.observacao|default:"Sem observação." }}
+                    </div>
+                </article>
+            </div>
+
+            <div class="analise-financeiro">
+                <div class="analise-financeiro-header">
+                    <h2 class="analise-financeiro-title">
+                        Resumo financeiro
+                    </h2>
+
+                    {% if reservas.reajuste == True %}
+                        <span class="analise-correcao analise-correcao-sim">
+                            {{ reservas.lote.quadra.empr.tipo_correcao }}
+                        </span>
+                    {% else %}
+                        <span class="analise-correcao analise-correcao-nao">
+                            Sem correção
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="analise-financeiro-grid">
+                    <div class="analise-financeiro-item">
+                        <span>Valor do lote</span>
+                        <strong>R$ {{ valor_lote|floatformat:2|intcomma }}</strong>
+                    </div>
+
+                    <div class="analise-financeiro-item">
+                        <span>Desconto</span>
+                        <strong>R$ {{ reservas.valor_desconto|floatformat:2|intcomma }}</strong>
+                    </div>
+
+                    <div class="analise-financeiro-item">
+                        <span>Entrada</span>
+                        <strong>R$ {{ reservas.valor_entrada|floatformat:2|intcomma }}</strong>
+                    </div>
+
+                    <div class="analise-financeiro-item">
+                        <span>Sinal</span>
+                        <strong>R$ {{ reservas.valor_sinal|floatformat:2|intcomma }}</strong>
+                    </div>
+
+                    <div class="analise-financeiro-item">
+                        <span>Quantidade de parcelas</span>
+                        <strong>{{ reservas.quantidade_parcelas }}x</strong>
+                    </div>
+
+                    <div class="analise-financeiro-item">
+                        <span>Valor da parcela</span>
+                        <strong>R$ {{ reservas.valor_parcela|floatformat:2|intcomma }}</strong>
+                    </div>
+                </div>
+
+                <div class="analise-financeiro-total">
+                    <span>Valor financiado</span>
+                    <strong>R$ {{ reservas.valor_financiado|floatformat:2|intcomma }}</strong>
+                </div>
+            </div>
+
+            <div class="analise-actions">
+                {% if user.tipo_usuario == "CORRETOR" %}
+                    <form
+                            method="post"
+                            action="{% url 'delete-aceite' reservas.uuid %}"
+                            class="analise-action-form"
+                    >
+                        {% csrf_token %}
+                        {% if user.is_authenticated %}
+							{% if user.tipo_usuario == "ADMINISTRADOR" or reservas.corretor == user %}
+								<button type="button" class="analise-button analise-button-secondary" data-bs-toggle="modal" data-bs-target="#modalGerarDocumento">
+									<i class="bi bi-file-earmark-plus"></i>
+									Gerar Documento
+								</button>
 							{% endif %}
-						</div>
-					</div>
+						{% endif %}
+                    </form>
 
-					<div class="analise-observacao">
-						<strong>Observação:</strong><br>
-						{{ reservas.observacao|default:"Sem observação." }}
-					</div>
-				</article>
-			</div>
+                {% elif user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
+                    <a
+                            href="#"
+                            class="analise-button analise-button-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#ReservaModalDelete"
+                    >
+                        <i class="bi bi-x-circle"></i>
+                        <span>Não aceita</span>
+                    </a>
 
-			<div class="analise-financeiro">
-				<div class="analise-financeiro-header">
-					<h2 class="analise-financeiro-title">
-						Resumo financeiro
-					</h2>
+                    <!--<a
+                            href="{#  {% url 'documentos:proposta' reservas.uuid %} #}"
+                            class="analise-button analise-button-secondary"
+                    >
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span>Proposta</span>
+                    </a>-->
+                    <button type="button" class="analise-button analise-button-secondary" data-bs-toggle="modal" data-bs-target="#modalGerarDocumento">
+									<i class="bi bi-file-earmark-plus"></i>
+									Gerar Documento
+								</button>
 
-					{% if reservas.reajuste == True %}
-						<span class="analise-correcao analise-correcao-sim">
-							{{ reservas.lote.quadra.empr.tipo_correcao }}
-						</span>
-					{% else %}
-						<span class="analise-correcao analise-correcao-nao">
-							Sem correção
-						</span>
-					{% endif %}
-				</div>
+                    <form
+                            method="post"
+                            action="{% url 'aceita-analise' reservas.uuid %}"
+                            class="analise-action-form"
+                    >
+                        {% csrf_token %}
+                        <button type="submit" class="analise-button analise-button-success">
+                            <i class="bi bi-check2-circle"></i>
+                            <span>Aceita reserva</span>
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </section>
+    </div>
 
-				<div class="analise-financeiro-grid">
-					<div class="analise-financeiro-item">
-						<span>Valor do lote</span>
-						<strong>R$ {{ valor_lote|floatformat:2|intcomma }}</strong>
-					</div>
+    <div class="modal fade" id="ReservaModalDelete" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content analise-modal-content">
+                <div class="modal-header analise-modal-header">
+                    <h5 class="modal-title analise-modal-title">
+                        Excluir reserva
+                    </h5>
 
-					<div class="analise-financeiro-item">
-						<span>Desconto</span>
-						<strong>R$ {{ reservas.valor_desconto|floatformat:2|intcomma }}</strong>
-					</div>
+                    <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Fechar"
+                    ></button>
+                </div>
 
-					<div class="analise-financeiro-item">
-						<span>Entrada</span>
-						<strong>R$ {{ reservas.valor_entrada|floatformat:2|intcomma }}</strong>
-					</div>
+                <form method="post" action="{% url 'delete-reservado' reservas.uuid %}">
+                    {% csrf_token %}
 
-					<div class="analise-financeiro-item">
-						<span>Sinal</span>
-						<strong>R$ {{ reservas.valor_sinal|floatformat:2|intcomma }}</strong>
-					</div>
+                    <div class="modal-body">
+                        <p><strong>Cliente:</strong> {{ reservas.cliente }}</p>
+                        <p><strong>Empreendimento:</strong> {{ reservas.lote.quadra.empr.nome }}</p>
+                        <p><strong>Quadra:</strong> {{ reservas.lote.quadra }}</p>
+                        <p><strong>Lote:</strong> {{ reservas.lote }}</p>
+                        <p><strong>Corretor:</strong> {{ reservas.corretor }}</p>
+                    </div>
 
-					<div class="analise-financeiro-item">
-						<span>Quantidade de parcelas</span>
-						<strong>{{ reservas.quantidade_parcelas }}x</strong>
-					</div>
+                    <div class="modal-footer analise-modal-footer">
+                        <button type="submit" class="btn btn-danger rounded-pill px-4">
+                            Deletar
+                        </button>
 
-					<div class="analise-financeiro-item">
-						<span>Valor da parcela</span>
-						<strong>R$ {{ reservas.valor_parcela|floatformat:2|intcomma }}</strong>
-					</div>
-				</div>
+                        <button
+                                type="button"
+                                class="btn btn-secondary rounded-pill px-4"
+                                data-bs-dismiss="modal"
+                        >
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="propostaModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content reserva-modal-content">
+                <div class="modal-header reserva-modal-header">
+                    <h5 class="modal-title reserva-modal-title">
+                        Tipos de proposta
+                    </h5>
 
-				<div class="analise-financeiro-total">
-					<span>Valor financiado</span>
-					<strong>R$ {{ reservas.valor_financiado|floatformat:2|intcomma }}</strong>
-				</div>
-			</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
 
-			<div class="analise-actions">
-				{% if user.tipo_usuario == "CORRETOR" %}
-					<form method="post" action="{% url 'delete-aceite' reservas.uuid %}">
-						{% csrf_token %}
-						<button type="submit" class="analise-button analise-button-danger">
-							<i class="bi bi-x-circle"></i>
-							Cancelar reserva
-						</button>
-					</form>
-				{% elif user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
-					<a href="#" class="analise-button analise-button-danger" data-bs-toggle="modal" data-bs-target="#ReservaModalDelete">
-						<i class="bi bi-x-circle"></i>
-						Não aceita
-					</a>
-				{% endif %}
+                <div class="modal-body text-center">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <a href="{% url 'documentos:proposta' reservas.uuid %}"
+                               class="btn btn-primary w-100 py-2 rounded-pill">
+                                Visualizar
+                            </a>
+                        </div>
 
-				{% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
-					<form method="post" action="{% url 'aceita-analise' reservas.uuid %}">
-						{% csrf_token %}
-						<button type="submit" class="analise-button analise-button-success">
-							<i class="bi bi-check2-circle"></i>
-							Aceita reserva
-						</button>
-					</form>
-				{% endif %}
-			</div>
-		</section>
-	</div>
+                        <div class="col-6">
+                            <button
+                                    type="button"
+                                    class="btn btn-secondary w-100 py-2 rounded-pill"
+                                    data-proposta-url="{% url 'documentos:proposta_pdf' reservas.uuid %}"
+                                    data-proposta-nome="proposta_{{ reservas.cliente.name|slugify }}.pdf"
+                                    onclick="compartilharProposta(this)"
+                            >
+                                Compartilhar PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% with venda=reservas %}
+		{% include 'documentos/gerar_documento_modal.html' %}
+	{% endwith %}
+    <script>
+		async function compartilharProposta(botao) {
+			const url = botao.dataset.propostaUrl;
+			const nomeArquivo = botao.dataset.propostaNome || 'proposta.pdf';
+			const textoOriginal = botao.innerText;
 
-	<div class="modal fade" id="ReservaModalDelete" tabindex="-1">
-		<div class="modal-dialog">
-			<div class="modal-content analise-modal-content">
-				<div class="modal-header analise-modal-header">
-					<h5 class="modal-title analise-modal-title">
-						Excluir reserva
-					</h5>
+			if (!url) {
+				alert('Proposta nao identificada para gerar o PDF.');
+				return;
+			}
 
-					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-				</div>
+			const baixarPdf = (blob, fileName) => {
+				const urlBlob = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = urlBlob;
+				a.download = fileName;
+				a.style.display = 'none';
+				document.body.appendChild(a);
+				a.click();
 
-				<form method="post" action="{% url 'delete-reservado' reservas.uuid %}">
-					{% csrf_token %}
+				setTimeout(() => {
+					URL.revokeObjectURL(urlBlob);
+					document.body.removeChild(a);
+				}, 1000);
+			};
 
-					<div class="modal-body">
-						<p><strong>Cliente:</strong> {{ reservas.cliente }}</p>
-						<p><strong>Empreendimento:</strong> {{ reservas.lote.quadra.empr.nome }}</p>
-						<p><strong>Quadra:</strong> {{ reservas.lote.quadra }}</p>
-						<p><strong>Lote:</strong> {{ reservas.lote }}</p>
-						<p><strong>Corretor:</strong> {{ reservas.corretor }}</p>
-					</div>
+			botao.disabled = true;
+			botao.innerText = 'Gerando PDF...';
 
-					<div class="modal-footer">
-						<button type="submit" class="btn btn-danger rounded-pill px-4">
-							Deletar
-						</button>
+			try {
+				const response = await fetch(url);
 
-						<button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">
-							Cancelar
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
+				if (!response.ok) {
+					alert('Erro ao gerar a proposta.');
+					return;
+				}
+
+				const blob = await response.blob();
+				const file = new File([blob], nomeArquivo, {type: 'application/pdf'});
+
+				if (navigator.canShare && navigator.canShare({files: [file]})) {
+					try {
+						botao.innerText = 'Abrindo compartilhamento...';
+						await navigator.share({
+							title: 'Proposta',
+							text: 'Segue a proposta em PDF.',
+							files: [file]
+						});
+					} catch (shareErr) {
+						if (shareErr && shareErr.name === 'AbortError') {
+							return;
+						}
+
+						console.warn('Compartilhamento indisponivel, baixando PDF:', shareErr);
+						baixarPdf(blob, file.name);
+					}
+				} else {
+					baixarPdf(blob, file.name);
+				}
+			} catch (err) {
+				console.error('Erro ao gerar proposta:', err);
+				alert('Ocorreu um erro ao gerar a proposta.');
+			} finally {
+				botao.disabled = false;
+				botao.innerText = textoOriginal;
+			}
+		}
+	</script>
 {% endblock %}

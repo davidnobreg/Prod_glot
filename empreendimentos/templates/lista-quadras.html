@@ -668,7 +668,7 @@
 											{{ lote_info.lote.lote }}
 										</a>
 									{% elif user.is_authenticated and user.tipo_usuario == "CORRETOR" %}
-										<a href="{% url 'proposta-rascunho' lote_info.lote.uuid %}" class="lote-button lote-analise" aria-label="Ver proposta do lote {{ lote_info.lote.lote }}">
+										<a href="{% url 'documentos:proposta-rascunho' lote_info.lote.uuid %}" class="lote-button lote-analise" aria-label="Ver proposta do lote {{ lote_info.lote.lote }}">
 											{{ lote_info.lote.lote }}
 										</a>
 									{% endif %}
@@ -685,13 +685,17 @@
 									{% if lote_info.situacao == 'DISPONIVEL' %}
 										<span class="lote-popup" role="tooltip">
 											<span class="lote-popup-row">
-												<strong>Valor do lote:</strong> {{ lote_info.valor_lote_formatado }}
+                                                <br>
+												<strong>Valor da parcela:</strong> <br>
+                                                {{ lote_info.valor_parcela_formatado }}
+                                                <br>
+                                                <br>
 											</span>
 
-											<span class="lote-popup-row lote-popup-medidas">
+											<!--<span class="lote-popup-row lote-popup-medidas">
 												<strong>Confrontações:</strong><br>
 												{{ lote_info.lote.medidasConfrontacoes|default:'Não informado'|linebreaksbr }}
-											</span>
+											</span>-->
 										</span>
 									{% endif %}
 								</span>

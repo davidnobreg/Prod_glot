@@ -265,3 +265,15 @@ desktop.ini
 # ==============================================================================
 
 CLAUDE.local.md
+.claude/settings.local.json
+
+
+# ==============================================================================
+# Temporários do projeto
+# ==============================================================================
+
+_backup/
+proposta_corrigida.html
+proposta_fragment*.html
+corrigir_editor_v2.md
+documentos/instrucoes_integracao.py

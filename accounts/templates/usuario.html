@@ -1,39 +1,57 @@
 {% extends 'base.html' %}
 
-{% block title %}
-    Cadastro de Usuario
-{% endblock %}
+{% block title %}Novo Usuário{% endblock %}
 
 {% block content %}
-    <div class="container mt-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-7">
-                <form action="{% url 'criar-cadastro' %}" method="POST" class="card p-4 shadow" novalidate>
-                    {% csrf_token %}
-                    <h4 class="mb-3 text-center">Cadastrar Usuario</h4>
-                    <hr>
+<div class="glot-page">
 
-                    {{ form.non_field_errors }}
+	<div class="glot-page-header">
+		<div class="glot-page-banner tw:w-full">
+			<h1 class="glot-banner-title">Novo Usuário</h1>
+			<p class="glot-banner-subtitle">Cadastre um novo usuário do sistema</p>
+		</div>
+		<div class="glot-header-actions">
+			<a href="{% url 'lista-usuario' %}" class="glot-btn-ghost"><i class="bi bi-arrow-left"></i> Voltar</a>
+		</div>
+	</div>
 
-                    {% for field in form %}
-                        <div class="mb-3">
-                            {{ field.label_tag }}
-                            {{ field }}
-                            {% if field.help_text %}
-                                <div class="form-text">{{ field.help_text }}</div>
-                            {% endif %}
-                            {% if field.errors %}
-                                <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
+	<div class="glot-card tw:mt-6 tw:max-w-3xl">
+		<div class="glot-card-body">
+			<form action="{% url 'criar-cadastro' %}" method="POST" novalidate>
+				{% csrf_token %}
 
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Salvar</button>
-                        <a href="{% url 'lista-usuario' %}" class="btn btn-secondary">Cancelar</a>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+				{% if form.non_field_errors %}
+					<div class="tw:mb-4 tw:rounded-xl tw:bg-red-50 tw:border tw:border-red-200 tw:px-4 tw:py-3 tw:text-sm tw:text-red-700">
+						{{ form.non_field_errors }}
+					</div>
+				{% endif %}
+
+				{% for field in form %}
+					{% if field.field.widget.input_type == 'checkbox' %}
+						<div class="tw:mb-4 tw:flex tw:items-center tw:gap-2">
+							{{ field }}
+							<label class="glot-label tw:mb-0" for="{{ field.id_for_label }}">{{ field.label }}</label>
+						</div>
+					{% else %}
+						<div class="tw:mb-4">
+							<label class="glot-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+							{{ field }}
+						</div>
+					{% endif %}
+					{% if field.help_text %}
+						<p class="glot-section-subtitle tw:-mt-2 tw:mb-3">{{ field.help_text }}</p>
+					{% endif %}
+					{% if field.errors %}
+						<p class="tw:-mt-2 tw:mb-3 tw:text-sm tw:text-red-600">{{ field.errors|striptags }}</p>
+					{% endif %}
+				{% endfor %}
+
+				<div class="tw:flex tw:gap-3 tw:justify-end tw:mt-6">
+					<a href="{% url 'lista-usuario' %}" class="glot-btn-ghost">Cancelar</a>
+					<button type="submit" class="glot-btn-primary"><i class="bi bi-check-lg"></i> Salvar</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
 {% endblock %}

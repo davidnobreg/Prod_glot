@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% load static %}
+
+{% block content %}
+<div class="glot-page">
+
+	<div class="glot-page-header">
+		<div class="glot-page-banner tw:w-full">
+			<h1 class="glot-banner-title">{{ titulo }}</h1>
+			<p class="glot-banner-subtitle">Configure o nome e as permissões do grupo</p>
+		</div>
+		<div class="glot-header-actions">
+			<a href="{% url 'lista_grupos' %}" class="glot-btn-ghost"><i class="bi bi-arrow-left"></i> Voltar</a>
+		</div>
+	</div>
+
+	<form method="post" novalidate>
+		{% csrf_token %}
+
+		<!-- Dados do grupo -->
+		<div class="glot-card tw:mt-6 tw:max-w-2xl">
+			<div class="glot-card-body">
+				<h2 class="glot-section-title tw:mb-4">Dados do Grupo</h2>
+				<label class="glot-label" for="id_nome">Nome do grupo</label>
+				<input type="text" name="nome" id="id_nome" class="glot-input"
+				       value="{{ nome }}" {% if protegido %}readonly{% endif %} required>
+				{% if protegido %}
+					<p class="glot-section-subtitle tw:mt-1">Grupo padrão do sistema — o nome não pode ser alterado.</p>
+				{% endif %}
+			</div>
+		</div>
+
+		<!-- Permissões -->
+		<div class="glot-card tw:mt-6">
+			<div class="glot-card-body">
+				<h2 class="glot-section-title tw:mb-4">Permissões</h2>
+				<div class="glot-table-wrap">
+					<table class="glot-table">
+						<thead class="glot-thead">
+							<tr>
+								<th class="glot-th tw:text-left">Módulo</th>
+								{% for acao in acoes %}
+									<th class="glot-th tw:text-center">
+										{{ acao|capfirst }}<br>
+										<input type="checkbox" class="check-coluna tw:mt-1" data-acao="{{ acao }}" title="Marcar coluna">
+									</th>
+								{% endfor %}
+								<th class="glot-th tw:text-center">Todos</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for linha in matriz %}
+								<tr class="glot-tr">
+									<td class="glot-td tw:font-semibold">{{ linha.nome }}</td>
+									{% for item in linha.acoes %}
+										<td class="glot-td tw:text-center">
+											<input type="checkbox" class="perm-check"
+											       name="permissoes[]" value="{{ item.codename }}"
+											       data-modulo="{{ linha.codigo }}" data-acao="{{ item.acao }}"
+											       {% if item.marcado %}checked{% endif %}>
+										</td>
+									{% endfor %}
+									<td class="glot-td tw:text-center">
+										<input type="checkbox" class="check-linha" data-modulo="{{ linha.codigo }}" title="Marcar linha">
+									</td>
+								</tr>
+							{% endfor %}
+							<tr class="glot-tr">
+								<td class="glot-td tw:font-semibold">Todos</td>
+								{% for acao in acoes %}<td class="glot-td"></td>{% endfor %}
+								<td class="glot-td tw:text-center">
+									<input type="checkbox" class="check-tudo" title="Marcar tudo">
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<div class="tw:flex tw:gap-3 tw:justify-end tw:mt-6">
+					<a href="{% url 'lista_grupos' %}" class="glot-btn-ghost">Cancelar</a>
+					<button type="submit" class="glot-btn-primary"><i class="bi bi-check-lg"></i> Salvar</button>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		const perms = Array.from(document.querySelectorAll('.perm-check'));
+
+		function permsLinha(modulo) {
+			return perms.filter(c => c.dataset.modulo === modulo);
+		}
+		function permsColuna(acao) {
+			return perms.filter(c => c.dataset.acao === acao);
+		}
+		function sincroniza() {
+			document.querySelectorAll('.check-linha').forEach(function (cl) {
+				const grupo = permsLinha(cl.dataset.modulo);
+				cl.checked = grupo.length > 0 && grupo.every(c => c.checked);
+			});
+			document.querySelectorAll('.check-coluna').forEach(function (cc) {
+				const grupo = permsColuna(cc.dataset.acao);
+				cc.checked = grupo.length > 0 && grupo.every(c => c.checked);
+			});
+			const tudo = document.querySelector('.check-tudo');
+			if (tudo) tudo.checked = perms.length > 0 && perms.every(c => c.checked);
+		}
+
+		document.querySelectorAll('.check-linha').forEach(function (cl) {
+			cl.addEventListener('change', function () {
+				permsLinha(cl.dataset.modulo).forEach(c => c.checked = cl.checked);
+				sincroniza();
+			});
+		});
+		document.querySelectorAll('.check-coluna').forEach(function (cc) {
+			cc.addEventListener('change', function () {
+				permsColuna(cc.dataset.acao).forEach(c => c.checked = cc.checked);
+				sincroniza();
+			});
+		});
+		const tudo = document.querySelector('.check-tudo');
+		if (tudo) {
+			tudo.addEventListener('change', function () {
+				perms.forEach(c => c.checked = tudo.checked);
+				sincroniza();
+			});
+		}
+		perms.forEach(function (c) {
+			c.addEventListener('change', sincroniza);
+		});
+
+		sincroniza();
+	});
+</script>
+
+{% endblock %}

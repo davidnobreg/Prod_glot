@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Grupos de Acesso — {{ usuario.get_full_name|default:usuario.username }}{% endblock %}
+
+{% load static %}
+
+{% block content %}
+<div class="glot-page">
+
+	<div class="glot-page-header">
+		<div class="glot-page-banner tw:w-full">
+			<h1 class="glot-banner-title">Grupos de Acesso</h1>
+			<p class="glot-banner-subtitle">{{ usuario.get_full_name|default:usuario.username }}</p>
+		</div>
+		<div class="glot-header-actions">
+			<a href="{% url 'update-usuario' usuario.pk %}" class="glot-btn-ghost"><i class="bi bi-arrow-left"></i> Voltar</a>
+		</div>
+	</div>
+
+	<form method="post" novalidate>
+		{% csrf_token %}
+		<div class="glot-card tw:mt-6 tw:max-w-2xl">
+			<div class="glot-card-body">
+				<h2 class="glot-section-title tw:mb-4">Grupos disponíveis</h2>
+
+				{% for grupo in grupos %}
+					<label for="grupo_{{ grupo.id }}"
+					       class="tw:flex tw:items-center tw:gap-3 tw:rounded-xl tw:border tw:border-slate-200 tw:px-4 tw:py-3 tw:mb-2 tw:cursor-pointer tw:hover:border-blue-500/50">
+						<input type="checkbox" name="grupos" id="grupo_{{ grupo.id }}"
+						       value="{{ grupo.id }}" {% if grupo.marcado %}checked{% endif %}>
+						<span class="tw:font-semibold tw:text-slate-900">{{ grupo.name }}</span>
+						<span class="tw:ml-auto tw:text-sm tw:text-slate-400">
+							{{ grupo.outros }} usuário{{ grupo.outros|pluralize }}
+						</span>
+					</label>
+				{% empty %}
+					<p class="tw:text-slate-400">Nenhum grupo cadastrado.</p>
+				{% endfor %}
+
+				<div class="tw:flex tw:gap-3 tw:justify-end tw:mt-6">
+					<a href="{% url 'update-usuario' usuario.pk %}" class="glot-btn-ghost">Cancelar</a>
+					<button type="submit" class="glot-btn-primary"><i class="bi bi-check-lg"></i> Salvar</button>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+{% endblock %}

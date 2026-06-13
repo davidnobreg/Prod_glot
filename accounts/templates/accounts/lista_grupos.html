@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Grupos de Acesso{% endblock %}
+
+{% load static %}
+
+{% block content %}
+<div class="glot-page">
+
+	<div class="glot-page-header">
+		<div class="glot-page-banner tw:w-full">
+			<h1 class="glot-banner-title">Grupos de Acesso</h1>
+			<p class="glot-banner-subtitle">Defina os grupos e suas permissões</p>
+		</div>
+		<div class="glot-header-actions">
+			<a href="{% url 'criar_grupo' %}" class="glot-btn-primary"><i class="bi bi-plus-lg"></i> Novo Grupo</a>
+		</div>
+	</div>
+
+	<div class="glot-table-wrap tw:mt-6">
+		<table class="glot-table">
+			<thead class="glot-thead">
+				<tr>
+					<th class="glot-th tw:text-left">Grupo</th>
+					<th class="glot-th tw:text-center">Permissões</th>
+					<th class="glot-th tw:text-center">Usuários</th>
+					<th class="glot-th tw:text-right">Ações</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for grupo in grupos %}
+					<tr class="glot-tr">
+						<td class="glot-td">
+							<span class="glot-row-title">{{ grupo.name }}</span>
+							{% if grupo.name in grupos_protegidos %}
+								<span class="glot-badge-muted tw:ml-2">Padrão</span>
+							{% endif %}
+						</td>
+						<td class="glot-td tw:text-center">
+							<span class="glot-badge tw:bg-indigo-100 tw:text-indigo-800">{{ grupo.num_permissoes }}</span>
+						</td>
+						<td class="glot-td tw:text-center">
+							<span class="glot-badge tw:bg-indigo-100 tw:text-indigo-800">{{ grupo.num_usuarios }}</span>
+						</td>
+						<td class="glot-td">
+							<div class="glot-actions tw:justify-end">
+								<a href="{% url 'editar_grupo' grupo.pk %}" class="glot-icon-btn-edit" title="Editar">
+									<i class="bi bi-pencil"></i>
+								</a>
+								{% if grupo.name not in grupos_protegidos %}
+									{% if grupo.num_usuarios > 0 %}
+										<span class="glot-icon-btn tw:bg-slate-100 tw:text-slate-300" title="Grupo possui usuários vinculados">
+											<i class="bi bi-trash"></i>
+										</span>
+									{% else %}
+										<button type="button" class="glot-icon-btn-delete" title="Excluir"
+										        data-bs-toggle="modal" data-bs-target="#modalExcluir{{ grupo.pk }}">
+											<i class="bi bi-trash"></i>
+										</button>
+									{% endif %}
+								{% endif %}
+							</div>
+						</td>
+					</tr>
+				{% empty %}
+					<tr class="glot-tr">
+						<td class="glot-td tw:text-center tw:text-slate-400" colspan="4">Nenhum grupo cadastrado.</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<!-- Modais de exclusão (Bootstrap — funcional) -->
+{% for grupo in grupos %}
+	{% if grupo.name not in grupos_protegidos and grupo.num_usuarios == 0 %}
+		<div class="modal fade" id="modalExcluir{{ grupo.pk }}" tabindex="-1" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Excluir grupo</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+					</div>
+					<div class="modal-body">
+						Confirma a exclusão do grupo <strong>{{ grupo.name }}</strong>?
+					</div>
+					<div class="modal-footer">
+						<form action="{% url 'excluir_grupo' grupo.pk %}" method="post" class="d-inline">
+							{% csrf_token %}
+							<button type="submit" class="btn btn-danger">Excluir</button>
+						</form>
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+{% endfor %}
+
+{% endblock %}

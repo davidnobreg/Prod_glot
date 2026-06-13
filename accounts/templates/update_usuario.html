@@ -1,44 +1,213 @@
 {% extends 'base.html' %}
 
-{% block title %}
-    Alterar Usuario
-{% endblock %}
+{% block title %}Editar Usuário{% endblock %}
+
+{% load humanize %}
 
 {% block content %}
-    <div class="container mt-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-7">
-                <form method="post" class="card p-4 shadow" novalidate>
-                    {% csrf_token %}
-                    <h4 class="mb-3 text-center">Alterar Usuario</h4>
-                    <hr>
+<div class="glot-page">
 
-                    {{ form.non_field_errors }}
+	<!-- Cabeçalho -->
+	<div class="glot-page-header">
+		<div class="glot-page-banner tw:w-full">
+			<h1 class="glot-banner-title">{{ usuario.first_name }} {{ usuario.last_name }}</h1>
+			<p class="glot-banner-subtitle">
+				{{ usuario.email }}
+				{% if usuario.is_active %}
+					<span class="glot-badge-success tw:ml-2">Ativo</span>
+				{% else %}
+					<span class="glot-badge-muted tw:ml-2">Inativo</span>
+				{% endif %}
+			</p>
+			<div class="tw:mt-2">
+				{% for g in usuario.groups.all %}
+					<span class="glot-badge-muted tw:mr-1">{{ g.name }}</span>
+				{% endfor %}
+			</div>
+		</div>
+		<div class="glot-header-actions">
+			{% if user.tipo_usuario == "ADMINISTRADOR" %}
+				<a href="{% url 'associar_grupos' usuario.pk %}" class="glot-btn-secondary">
+					<i class="bi bi-people"></i> Gerenciar Grupos
+				</a>
+				{% if user.pk != usuario.pk %}
+					<a href="{% url 'impersonate_start' usuario.pk %}" class="glot-btn-ghost"
+					   onclick="return confirm('Acessar o sistema como {{ usuario.get_full_name|default:usuario.username|escapejs }}?');">
+						<i class="bi bi-person-badge"></i> Acessar como este usuário
+					</a>
+				{% endif %}
+			{% endif %}
+			<a href="{% url 'lista-usuario' %}" class="glot-btn-ghost"><i class="bi bi-arrow-left"></i> Voltar</a>
+		</div>
+	</div>
 
-                    {% for field in form %}
-                        <div class="{% if field.field.widget.input_type == 'checkbox' %}form-check mb-3{% else %}mb-3{% endif %}">
-                            {% if field.field.widget.input_type == 'checkbox' %}
-                                {{ field }}
-                                <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            {% else %}
-                                {{ field.label_tag }}
-                                {{ field }}
-                            {% endif %}
-                            {% if field.help_text %}
-                                <div class="form-text">{{ field.help_text }}</div>
-                            {% endif %}
-                            {% if field.errors %}
-                                <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
+	<!-- Formulário -->
+	<div class="glot-card tw:mt-6 tw:max-w-3xl">
+		<div class="glot-card-body">
+			<h2 class="glot-section-title tw:mb-4">Dados do usuário</h2>
+			<form method="post" novalidate>
+				{% csrf_token %}
 
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Salvar</button>
-                        <a href="{% url 'lista-usuario' %}" class="btn btn-secondary">Cancelar</a>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+				{% if form.non_field_errors %}
+					<div class="tw:mb-4 tw:rounded-xl tw:bg-red-50 tw:border tw:border-red-200 tw:px-4 tw:py-3 tw:text-sm tw:text-red-700">
+						{{ form.non_field_errors }}
+					</div>
+				{% endif %}
+
+				{% for field in form %}
+					{% if field.field.widget.input_type == 'checkbox' %}
+						<div class="tw:mb-4 tw:flex tw:items-center tw:gap-2">
+							{{ field }}
+							<label class="glot-label tw:mb-0" for="{{ field.id_for_label }}">{{ field.label }}</label>
+						</div>
+					{% else %}
+						<div class="tw:mb-4">
+							<label class="glot-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+							{{ field }}
+						</div>
+					{% endif %}
+					{% if field.help_text %}
+						<p class="glot-section-subtitle tw:-mt-2 tw:mb-3">{{ field.help_text }}</p>
+					{% endif %}
+					{% if field.errors %}
+						<p class="tw:-mt-2 tw:mb-3 tw:text-sm tw:text-red-600">{{ field.errors|striptags }}</p>
+					{% endif %}
+				{% endfor %}
+
+				<div class="tw:flex tw:gap-3 tw:justify-end tw:mt-6">
+					<a href="{% url 'lista-usuario' %}" class="glot-btn-ghost">Cancelar</a>
+					<button type="submit" class="glot-btn-primary"><i class="bi bi-check-lg"></i> Salvar</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	{% if eh_corretor %}
+		<!-- ============================================ -->
+		<!-- VENDAS DO CORRETOR -->
+		<!-- ============================================ -->
+		<div class="tw:mt-8">
+			<h2 class="glot-section-title tw:mb-4"><i class="bi bi-cash-coin"></i> Vendas do Corretor</h2>
+
+			<!-- Cards de totais -->
+			<div class="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:gap-4 tw:mb-6">
+				<div class="glot-card">
+					<div class="glot-card-body tw:text-center">
+						<div class="glot-section-subtitle tw:uppercase">Total de Vendas</div>
+						<div class="tw:text-3xl tw:font-bold tw:text-slate-900 tw:mt-1">{{ totais.qtd|default:0 }}</div>
+					</div>
+				</div>
+				<div class="glot-card">
+					<div class="glot-card-body tw:text-center">
+						<div class="glot-section-subtitle tw:uppercase">Valor Financiado Total</div>
+						<div class="tw:text-3xl tw:font-bold tw:text-blue-600 tw:mt-1">
+							R$ {{ totais.valor_total|default:0|floatformat:2|intcomma }}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Filtros -->
+			<div class="glot-card tw:mb-6">
+				<div class="glot-card-body">
+					<form method="get" class="tw:grid tw:grid-cols-1 tw:md:grid-cols-4 tw:gap-3 tw:items-end">
+						<div>
+							<label class="glot-label">Data início</label>
+							<input type="date" name="data_inicio" class="glot-input" value="{{ filtros_venda.data_inicio }}">
+						</div>
+						<div>
+							<label class="glot-label">Data fim</label>
+							<input type="date" name="data_fim" class="glot-input" value="{{ filtros_venda.data_fim }}">
+						</div>
+						<div>
+							<label class="glot-label">Empreendimento</label>
+							<select name="empreendimento" class="glot-select">
+								<option value="">Todos</option>
+								{% for emp in empreendimentos %}
+									<option value="{{ emp.id }}" {% if filtros_venda.empreendimento == emp.id|stringformat:"s" %}selected{% endif %}>{{ emp.nome }}</option>
+								{% endfor %}
+							</select>
+						</div>
+						<div class="tw:flex tw:gap-2">
+							<button type="submit" class="glot-btn-primary tw:w-full">Filtrar</button>
+							<a href="{% url 'update-usuario' usuario.pk %}" class="glot-btn-ghost tw:w-full">Limpar</a>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- Tabela -->
+			<div class="glot-table-wrap">
+				<table class="glot-table">
+					<thead class="glot-thead">
+						<tr>
+							<th class="glot-th tw:text-left">Nº</th>
+							<th class="glot-th tw:text-left">Cliente</th>
+							<th class="glot-th tw:text-left">Empreendimento</th>
+							<th class="glot-th tw:text-left">Lote</th>
+							<th class="glot-th tw:text-left">Valor</th>
+							<th class="glot-th tw:text-left">Data</th>
+							<th class="glot-th tw:text-left">Status</th>
+							<th class="glot-th tw:text-right">Ação</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for venda in vendas %}
+							<tr class="glot-tr">
+								<td class="glot-td">#{{ venda.id }}</td>
+								<td class="glot-td">{{ venda.cliente|default:"-" }}</td>
+								<td class="glot-td">{% if venda.lote and venda.lote.quadra %}{{ venda.lote.quadra.empr.nome }}{% else %}-{% endif %}</td>
+								<td class="glot-td">{{ venda.lote.lote|default:"-" }}</td>
+								<td class="glot-td">R$ {{ venda.valor_financiado|default:0|floatformat:2|intcomma }}</td>
+								<td class="glot-td">{{ venda.dt_venda|date:"d/m/Y"|default:"-" }}</td>
+								<td class="glot-td">
+									{% if venda.tipo_venda == 'VENDIDO' %}
+										<span class="glot-badge-success">Vendido</span>
+									{% elif venda.tipo_venda == 'RESERVADO' %}
+										<span class="glot-badge tw:bg-blue-100 tw:text-blue-800">Reservado</span>
+									{% elif venda.tipo_venda == 'ANALISE' %}
+										<span class="glot-badge-warning">Análise</span>
+									{% elif venda.tipo_venda == 'CANCELADA' %}
+										<span class="glot-badge tw:bg-red-100 tw:text-red-800">Cancelada</span>
+									{% else %}
+										<span class="glot-badge-muted">{{ venda.tipo_venda }}</span>
+									{% endif %}
+								</td>
+								<td class="glot-td">
+									<div class="glot-actions tw:justify-end">
+										<a href="/vendas/{{ venda.id }}/" class="glot-btn-ghost tw:py-1 tw:px-3">Ver</a>
+									</div>
+								</td>
+							</tr>
+						{% empty %}
+							<tr class="glot-tr">
+								<td class="glot-td tw:text-center tw:text-slate-400" colspan="8">
+									Nenhuma venda encontrada para os filtros selecionados.
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+
+				{% if page_obj.paginator.num_pages > 1 %}
+					<div class="glot-footer">
+						<span class="glot-footer-muted">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+						<div class="glot-pagination">
+							{% if page_obj.has_previous %}
+								<a class="glot-page-pill" href="?page={{ page_obj.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}">
+									<i class="bi bi-chevron-left"></i> Voltar
+								</a>
+							{% endif %}
+							{% if page_obj.has_next %}
+								<a class="glot-page-pill" href="?page={{ page_obj.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}">
+									Avançar <i class="bi bi-chevron-right"></i>
+								</a>
+							{% endif %}
+						</div>
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	{% endif %}
+</div>
 {% endblock %}

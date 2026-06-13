@@ -489,6 +489,23 @@
 <body>
 
 <!-- ========================================================= -->
+<!-- BANNER IMPERSONATE -->
+<!-- ========================================================= -->
+
+{% if request.session.impersonator_id %}
+    <div style="background:#fbbf24;color:#78350f;padding:.6rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;font-size:.9rem;font-weight:600;position:sticky;top:0;z-index:1060;">
+        <span>
+            ⚠️ Você está visualizando o sistema como
+            <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+        </span>
+        <a href="{% url 'impersonate_stop' %}"
+           style="background:#78350f;color:#fef3c7;padding:.3rem .8rem;border-radius:8px;text-decoration:none;white-space:nowrap;">
+            Voltar à minha conta
+        </a>
+    </div>
+{% endif %}
+
+<!-- ========================================================= -->
 <!-- PAGE WRAPPER -->
 <!-- ========================================================= -->
 

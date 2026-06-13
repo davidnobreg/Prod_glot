@@ -22,4 +22,17 @@ urlpatterns = [
     path('usuariosempreendimento/multiplos/', views.criarUsuariosEmpreendimento, name='criar-usuarios-empreendimento'),
 
     path('delete_usuarios_empreendimento/<int:id>/', views.deleteUsuarioEmpreendimento, name='delete-usuario-empreendimento'),
+
+    # Grupos de acesso (Fase 2)
+    path('grupos/', views.lista_grupos, name='lista_grupos'),
+    path('grupos/novo/', views.criar_grupo, name='criar_grupo'),
+    path('grupos/<int:pk>/editar/', views.editar_grupo, name='editar_grupo'),
+    path('grupos/<int:pk>/excluir/', views.excluir_grupo, name='excluir_grupo'),
+
+    # Associar usuario a grupos (Fase 2 complemento)
+    path('usuario/<int:pk>/grupos/', views.associar_grupos, name='associar_grupos'),
+
+    # Impersonate (Fase 3)
+    path('usuario/impersonate/stop/', views.impersonate_stop, name='impersonate_stop'),
+    path('usuario/<int:pk>/impersonate/', views.impersonate_start, name='impersonate_start'),
 ]

@@ -1,70 +1,68 @@
-// ==============================
-// UTILITÁRIOS
-// ==============================
-const eNumero = (numero) => /^[0-9]+$/.test(numero);
+const CEP_MAPEAMENTOS = [
+	{ cep: 'id_end_cep', rua: 'id_end_rua', complemento: 'id_end_complemento', bairro: 'id_end_bairro', cidade: 'id_end_cidade', estado: 'id_end_estado' },
+	{ cep: 'id_cep', rua: 'id_rua', complemento: 'id_complemento', bairro: 'id_bairro', cidade: 'id_cidade', estado: 'id_estado' },
+];
 
-const cepValido = (cep) => cep.length === 8 && eNumero(cep);
+const cepValido = (cep) => cep.length === 8 && /^[0-9]+$/.test(cep);
 
-// ==============================
-// LIMPAR FORMULÁRIO
-// ==============================
-const limparFormulario = () => {
-	document.getElementById("id_end_rua").value = "";
-	document.getElementById("id_end_complemento").value = "";
-	document.getElementById("id_end_bairro").value = "";
-	document.getElementById("id_end_cidade").value = "";
-	document.getElementById("id_end_estado").value = "";
-};
+function limparCampos(mapa) {
+	['rua', 'complemento', 'bairro', 'cidade', 'estado'].forEach((campo) => {
+		const el = document.getElementById(mapa[campo]);
+		if (el) el.value = "";
+	});
+}
 
-// ==============================
-// PREENCHER FORMULÁRIO
-// ==============================
-const preencherFormulario = (endereco) => {
-	document.getElementById("id_end_rua").value = endereco.logradouro || "";
-	document.getElementById("id_end_complemento").value = endereco.complemento || "";
-	document.getElementById("id_end_bairro").value = endereco.bairro || "";
-	document.getElementById("id_end_cidade").value = endereco.localidade || "";
-	document.getElementById("id_end_estado").value = endereco.uf || "";
-};
+function preencherCampos(mapa, endereco) {
+	const preencher = { rua: 'logradouro', complemento: 'complemento', bairro: 'bairro', cidade: 'localidade', estado: 'uf' };
+	for (const [campo, chave] of Object.entries(preencher)) {
+		const el = document.getElementById(mapa[campo]);
+		if (el) el.value = endereco[chave] || "";
+	}
+}
 
-// ==============================
-// BUSCAR CEP
-// ==============================
-const pesquisarCep = async () => {
-	const inputCep = document.getElementById("id_end_cep");
+async function pesquisarCep(mapa) {
+	const inputCep = document.getElementById(mapa.cep);
 	if (!inputCep) return;
 
 	const cep = inputCep.value.replace(/\D/g, "");
-	const url = `https://viacep.com.br/ws/${cep}/json/`;
 
 	if (!cepValido(cep)) {
-		limparFormulario();
+		limparCampos(mapa);
 		alert("CEP incorreto!");
 		return;
 	}
 
 	try {
-		const response = await fetch(url);
+		const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
 		const endereco = await response.json();
 
 		if (endereco.erro) {
-			limparFormulario();
+			limparCampos(mapa);
 			alert("CEP não encontrado!");
 		} else {
-			preencherFormulario(endereco);
+			preencherCampos(mapa, endereco);
 		}
 	} catch (error) {
 		console.error("Erro ao buscar CEP:", error);
 		alert("Erro ao consultar CEP.");
 	}
-};
+}
 
-// ==============================
-// EVENTOS
-// ==============================
-document.addEventListener("DOMContentLoaded", () => {
-	const cepInput = document.getElementById("id_end_cep");
-	if (cepInput) {
-		cepInput.addEventListener("focusout", pesquisarCep);
+const _handlers = new Map();
+
+function registrarListenersCep() {
+	for (const mapa of CEP_MAPEAMENTOS) {
+		const cepInput = document.getElementById(mapa.cep);
+		if (!cepInput) continue;
+		if (_handlers.has(cepInput)) {
+			cepInput.removeEventListener('focusout', _handlers.get(cepInput));
+		}
+		const handler = () => pesquisarCep(mapa);
+		_handlers.set(cepInput, handler);
+		cepInput.addEventListener('focusout', handler);
 	}
-});
+}
+
+document.addEventListener("DOMContentLoaded", registrarListenersCep);
+
+document.addEventListener("shown.bs.modal", registrarListenersCep);

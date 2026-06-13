@@ -1,108 +1,175 @@
 {% extends 'base.html' %}
 
-{% block title %}
-    Altera Empreendimento
-{% endblock %}
+{% block title %}Editar Empreendimento{% endblock %}
 
 {% load static %}
 
 {% block content %}
-    <div class="container mt-4">
-        <div class="row align-items-center g-4">
-            <hr/>
-            <!-- Imagem -->
-            <div class="col-lg-6">
-                <img src="{% static 'images/carlos.jpg' %}" class="img-fluid rounded shadow" alt="Imóvel"/>
-            </div>
+<style>
+	.form-card {
+		border-radius: 12px;
+		box-shadow: 0 2px 8px rgba(0,0,0,.08);
+		border: 1px solid #e9ecef;
+		margin-bottom: 1.5rem;
+	}
+	.form-card .card-header {
+		border-radius: 12px 12px 0 0;
+		padding: .7rem 1.25rem;
+		font-weight: 700;
+		font-size: .82rem;
+		letter-spacing: .06em;
+		text-transform: uppercase;
+		border-bottom: 1px solid rgba(0,0,0,.08);
+	}
+	.form-card .card-body { padding: 1.5rem; }
+	.form-label { font-weight: 600; font-size: .83rem; margin-bottom: .35rem; }
+	.action-bar {
+		background: #fff;
+		border-top: 2px solid #e9ecef;
+		padding: 1rem 1.5rem;
+		border-radius: 0 0 12px 12px;
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		flex-wrap: wrap;
+		gap: .75rem;
+		box-shadow: 0 -2px 8px rgba(0,0,0,.05);
+	}
+</style>
 
-            <!-- Formulário -->
-            <div class="col-lg-6">
-                <form action="{% url 'alterar-empreendimento' empreendimento.id %}" method="post"
-                      enctype="multipart/form-data"
-                      class="card p-4 shadow">
-                    {% csrf_token %}
-                    <h4 class="mb-3 text-center">Altera Empreendimentos</h4>
+<div class="content-header">
+	<div class="container-fluid">
+		<div class="row align-items-center">
+			<div class="col">
+				<h1 class="mb-0" style="font-size:1.4rem;font-weight:700;">Editar Empreendimento</h1>
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb mb-0" style="font-size:.8rem;">
+						<li class="breadcrumb-item"><a href="/">Início</a></li>
+						<li class="breadcrumb-item">
+							<a href="{% url 'lista-empreendimento-tabela' %}">Empreendimentos</a>
+						</li>
+						<li class="breadcrumb-item active">Editar</li>
+					</ol>
+				</nav>
+			</div>
+			<div class="col-auto">
+				<a href="{% url 'lista-empreendimento-tabela' %}"
+				   class="btn btn-outline-secondary btn-sm" style="border-radius:8px;">
+					<i class="fas fa-arrow-left me-1"></i>Voltar
+				</a>
+			</div>
+		</div>
+	</div>
+</div>
 
-                    <!-- Mensagens -->
-                    {% if status == '0' %}
-                        <div class="alert alert-success" role="alert">Cliente cadastrado com sucesso!</div>
-                    {% elif status == '1' %}
-                        <div class="alert alert-danger" role="alert">Preencha o nome corretamente.</div>
-                    {% elif status == '2' %}
-                        <div class="alert alert-danger" role="alert">Preencha o e-mail corretamente.</div>
-                    {% elif status == '3' %}
-                        <div class="alert alert-danger" role="alert">Preencha o telefone corretamente.</div>
-                    {% endif %}
+<section class="content">
+	<div class="container-fluid">
+		<form action="{% url 'alterar-empreendimento' empreendimento.id %}" method="post"
+		      enctype="multipart/form-data" novalidate>
+			{% csrf_token %}
 
-                    <hr>
+			{% if messages %}
+				{% for message in messages %}
+					<div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+						{{ message }}
+						<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+					</div>
+				{% endfor %}
+			{% endif %}
 
-                    <!-- 📌 Duas colunas -->
-                    <div class="row">
-                        <!-- COLUNA ESQUERDA -->
-                        <div class="col-md-6">
-                            {% for field in form %}
-                                {% if field.field.widget.attrs.col == 'left' %}
-                                    <div class="mb-3">
+			<!-- Dados Principais -->
+			<div class="card form-card">
+				<div class="card-header" style="background:#e8f5e9;color:#2e7d32;">
+					<i class="fas fa-building me-2"></i>Dados Principais
+				</div>
+				<div class="card-body">
+					<div class="row g-3">
+						{% for field in form %}
+							{% if field.field.widget.attrs.col == 'left' %}
+								<div class="col-md-6">
+									<label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+									{{ field }}
+									{% if field.errors %}
+										<div class="text-danger" style="font-size:.8rem;">{{ field.errors|striptags }}</div>
+									{% endif %}
+								</div>
+							{% endif %}
+						{% endfor %}
+						{% for field in form %}
+							{% if field.field.widget.attrs.col == 'right' %}
+								<div class="col-md-6">
+									<label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+									{{ field }}
+									{% if field.errors %}
+										<div class="text-danger" style="font-size:.8rem;">{{ field.errors|striptags }}</div>
+									{% endif %}
+								</div>
+							{% endif %}
+						{% endfor %}
+						<div class="col-md-6">
+							<label class="form-label" for="id_logo">Logo</label>
+							<input type="file" name="logo" accept="image/*" class="form-control" id="id_logo">
+						</div>
+					</div>
+				</div>
+			</div>
 
-                                        {{ field }}
-                                        {% if field.errors %}
-                                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
+			<!-- Endereço -->
+			<div class="card form-card">
+				<div class="card-header" style="background:#e3f2fd;color:#1565c0;">
+					<i class="fas fa-map-marker-alt me-2"></i>Endereço
+				</div>
+				<div class="card-body">
+					<div class="row g-3">
+						{% for field in form %}
+							{% if field.field.widget.attrs.col == 'endereco' %}
+								<div class="col-md-6">
+									<label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+									{{ field }}
+									{% if field.errors %}
+										<div class="text-danger" style="font-size:.8rem;">{{ field.errors|striptags }}</div>
+									{% endif %}
+								</div>
+							{% endif %}
+						{% endfor %}
+					</div>
+				</div>
+			</div>
 
-                            <div class="mb-3">
-                                <label for="id_logo" class="form-label">Logo</label>
-                                <input type="file" name="logo" accept="image/*" class="form-control" id="id_logo">
-                            </div>
-                        </div>
-                        <!-- COLUNA DIREITA -->
-                        <div class="col-md-6">
-                            {% for field in form %}
-                                {% if field.field.widget.attrs.col == 'right' %}
-                                    <div class="mb-3">
+			<!-- Representante Legal -->
+			<div class="card form-card">
+				<div class="card-header" style="background:#fff8e1;color:#e65100;">
+					<i class="fas fa-user-tie me-2"></i>Representante Legal
+				</div>
+				<div class="card-body">
+					<div class="row g-3">
+						{% for field in form %}
+							{% if field.field.widget.attrs.col == 'representante' %}
+								<div class="col-md-6">
+									<label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+									{{ field }}
+									{% if field.errors %}
+										<div class="text-danger" style="font-size:.8rem;">{{ field.errors|striptags }}</div>
+									{% endif %}
+								</div>
+							{% endif %}
+						{% endfor %}
+					</div>
+				</div>
+			</div>
 
-                                        {{ field }}
-                                        {% if field.errors %}
-                                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
+			<!-- Botões -->
+			<div class="action-bar">
+				<a href="{% url 'lista-empreendimento-tabela' %}"
+				   class="btn btn-outline-danger" style="border-radius:8px;">
+					<i class="fas fa-times me-1"></i>Cancelar
+				</a>
+				<button type="submit" class="btn btn-success" style="border-radius:8px;">
+					<i class="fas fa-save me-1"></i>Salvar
+				</button>
+			</div>
 
-                            <div class="row">
-
-                                <div class="col">
-                                    <button type="submit" class="btn btn-success py-2 w-100 rounded-pill">Salvar
-                                    </button>
-                                </div>
-                                <div class="col">
-                                    <a href="{% url 'lista-empreendimento-tabela' %}"
-                                       class="btn btn-danger py-2 w-100 rounded-pill">
-                                        Cancelar
-                                    </a>
-
-                                </div>
-
-
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <hr>
-
-                    <!-- Botões
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-success rounded-pill">Salvar</button>
-                        <a href="{% url 'lista-empreendimento-tabela' %}" class="btn btn-danger rounded-pill">
-                            Cancelar
-                        </a>
-                    </div>-->
-                </form>
-            </div>
-            <hr/>
-        </div>
-    </div>
+		</form>
+	</div>
+</section>
 {% endblock %}

@@ -1,5 +1,6 @@
 ﻿import re
 from django import forms
+from django.core.exceptions import ValidationError
 from .models import Empreendimento, Lote
 
 
@@ -27,6 +28,27 @@ class EmpreendimentoForm(forms.ModelForm):
         model = Empreendimento
         fields = '__all__'  # ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'cnpj', 'codBanco', 'banco', 'agencia', 'conta', 'favorecido']
         exclude = ('is_ativo',)
+
+    def clean_nome(self):
+        nome = self.cleaned_data.get('nome')
+        if not nome:
+            return nome
+
+        inativo = Empreendimento.objects.filter(nome__iexact=nome, is_ativo=False).first()
+        if inativo:
+            if not self.instance.pk or inativo.pk != self.instance.pk:
+                raise ValidationError(
+                    'Já existe um empreendimento com este nome cadastrado, porém inativo. '
+                    'Reative-o em vez de criar um novo.'
+                )
+
+        qs = Empreendimento.objects.filter(nome__iexact=nome, is_ativo=True)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise ValidationError('Já existe um empreendimento ativo com este nome.')
+
+        return nome
 
     def clean_cnpj(self):
         cnpj = self.cleaned_data.get('cnpj')
@@ -67,6 +89,8 @@ class EmpreendimentoForm(forms.ModelForm):
         # Campos à esquerda e direita
         left_fields = ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'tipo_correcao', 'desconto']
         right_fields = ['cnpj', 'razaoSocial', 'banco', 'agencia', 'conta', 'observacao']
+        endereco_fields = ['cep', 'rua', 'complemento', 'numero', 'bairro', 'cidade', 'estado']
+        representante_fields = ['representante_nome', 'representante_cpf', 'representante_rg', 'matricula', 'cidade_foro']
 
         config = {
             'nome': {'placeholder': 'Nome do Empreendimento'},
@@ -81,10 +105,18 @@ class EmpreendimentoForm(forms.ModelForm):
             'razaoSocial': {'placeholder': 'Razão Social'},
             'tipo_correcao': {'placeholder': 'Tipo de Correção'},
             'desconto': {'placeholder': 'Desconto'},
-
             'observacao': {'placeholder': 'Observação'},
-
-
+            'cep': {'placeholder': 'Digite o CEP'},
+            'rua': {'placeholder': 'Rua ou Avenida'},
+            'complemento': {'placeholder': 'Complemento'},
+            'numero': {'placeholder': 'Número'},
+            'bairro': {'placeholder': 'Bairro'},
+            'cidade': {'placeholder': 'Cidade'},
+            'representante_nome': {'placeholder': 'Nome do representante'},
+            'representante_cpf': {'placeholder': 'CPF do representante'},
+            'representante_rg': {'placeholder': 'RG do representante'},
+            'matricula': {'placeholder': 'Matrícula do imóvel'},
+            'cidade_foro': {'placeholder': 'Cidade do foro (ex: Mauriti - CE)'},
         }
 
         # 🔽 FORÇAR TEXTAREA APENAS NOS CAMPOS NECESSÁRIOS
@@ -118,6 +150,12 @@ class EmpreendimentoForm(forms.ModelForm):
         for name in right_fields:
             if name in self.fields:
                 self.fields[name].widget.attrs['col'] = 'right'
+        for name in endereco_fields:
+            if name in self.fields:
+                self.fields[name].widget.attrs['col'] = 'endereco'
+        for name in representante_fields:
+            if name in self.fields:
+                self.fields[name].widget.attrs['col'] = 'representante'
 
         # Formatação inicial de CNPJ
         if self.instance and self.instance.pk:
@@ -214,14 +252,11 @@ class EmpreendimentoUpdateForm(forms.ModelForm):
         for field_name, field in self.fields.items():
             field.widget.attrs.update({'class': 'form-control mb-3'})
 
-        # Campos à esquerda e direita
-        left_fields = ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'tipo_correcao', 'cnpj', 'banco',
-                       'agencia', 'conta', 'reajuste', 'desconto']
-        right_fields = ['razaoSocial', 'cep', 'rua', 'complemento', 'numero', 'bairro', 'cidade', 'estado',
-                        'observacao']
-
-        #left_fields = ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'tipo_correcao']
-        #right_fields = ['cnpj', 'razaoSocial', 'banco', 'agencia', 'conta', 'observacao']
+        # Campos por seção
+        left_fields = ['nome', 'telefone', 'tempo_reserva', 'quantidade_parcela', 'tipo_correcao', 'desconto']
+        right_fields = ['cnpj', 'razaoSocial', 'banco', 'agencia', 'conta', 'reajuste', 'observacao']
+        endereco_fields = ['cep', 'rua', 'complemento', 'numero', 'bairro', 'cidade', 'estado']
+        representante_fields = ['representante_nome', 'representante_cpf', 'representante_rg', 'matricula', 'cidade_foro']
 
         config = {
             'nome': {'placeholder': 'Nome do Empreendimento'},
@@ -241,11 +276,14 @@ class EmpreendimentoUpdateForm(forms.ModelForm):
             'numero': {'placeholder': 'Número'},
             'bairro': {'placeholder': 'Bairro'},
             'cidade': {'placeholder': 'Cidade'},
-            'registroCartorio': {'placeholder': 'Registro em Cartorio'},
             'observacao': {'placeholder': 'Observação'},
             'reajuste': {'placeholder': 'reajuste'},
             'desconto': {'placeholder': 'desconto'},
-
+            'representante_nome': {'placeholder': 'Nome do representante'},
+            'representante_cpf': {'placeholder': 'CPF do representante'},
+            'representante_rg': {'placeholder': 'RG do representante'},
+            'matricula': {'placeholder': 'Matrícula do imóvel'},
+            'cidade_foro': {'placeholder': 'Cidade do foro (ex: Mauriti - CE)'},
         }
 
         # 🔽 FORÇAR TEXTAREA APENAS NOS CAMPOS NECESSÁRIOS
@@ -278,6 +316,12 @@ class EmpreendimentoUpdateForm(forms.ModelForm):
         for name in right_fields:
             if name in self.fields:
                 self.fields[name].widget.attrs['col'] = 'right'
+        for name in endereco_fields:
+            if name in self.fields:
+                self.fields[name].widget.attrs['col'] = 'endereco'
+        for name in representante_fields:
+            if name in self.fields:
+                self.fields[name].widget.attrs['col'] = 'representante'
 
         # Formatação inicial de CNPJ
         if self.instance and self.instance.pk:

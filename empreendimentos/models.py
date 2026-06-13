@@ -69,6 +69,11 @@ class Empreendimento(models.Model):
     tipo_correcao = models.CharField(max_length=10, null=True, blank=True, default='IGPM')
     desconto = models.CharField(verbose_name='Desconto', max_length=2, null=True, blank=True, default='0')
     is_ativo = models.BooleanField(default=True)
+    representante_nome = models.CharField(max_length=255, blank=True, default='')
+    representante_cpf = models.CharField(max_length=20, blank=True, default='')
+    representante_rg = models.CharField(max_length=30, blank=True, default='')
+    matricula = models.CharField(max_length=100, blank=True, default='')
+    cidade_foro = models.CharField(max_length=100, blank=True, default='')
 
     def __str__(self):
         # return self.nome

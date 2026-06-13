@@ -238,10 +238,10 @@
 		}
 
 		.reserva-button-primary {
-			background: linear-gradient(180deg, #f7ffff 0%, #4fb4cf 34%, #057897 100%);
-			border-color: #08748d;
-			box-shadow: 0 12px 24px rgba(4, 80, 105, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-			color: #fff;
+			background: linear-gradient(180deg, #ffe066 0%, #f5c400 50%, #d4a000 100%);
+			border-color: #c49a00;
+			box-shadow: 0 12px 24px rgba(180, 130, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+			color: #2d2000;
 		}
 
 		.reserva-button-danger {
@@ -382,15 +382,15 @@
 					{% endfor %}
 
 					<div class="reserva-actions">
-						<button type="submit" class="reserva-button reserva-button-primary">
-							<i class="bi bi-check2-circle"></i>
-							Salvar
-						</button>
-
 						<a href="{% url 'cancela-lote-pre-reserva' lote.uuid %}" class="reserva-button reserva-button-danger">
 							<i class="bi bi-x-circle"></i>
 							Cancelar
 						</a>
+
+                        <button type="submit" class="reserva-button reserva-button-primary">
+							<i class="bi bi-check2-circle"></i>
+							Pré-Reserva
+						</button>
 					</div>
 				</form>
 			</div>

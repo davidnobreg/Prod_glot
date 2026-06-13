@@ -33,7 +33,7 @@ from django.contrib.auth.models import User
 
 from tornado.http1connection import parse_int
 
-from .forms import (EmpreendimentoForm, ArquivoForm, LoteForm, EmpreendimentoEnderecoForm, EmpreendimentoUpdateForm,
+from .forms import (EmpreendimentoForm, ArquivoForm, LoteForm, EmpreendimentoUpdateForm,
                     AtualizarLoteForm)
 from .models import Empreendimento, Quadra, Lote
 from accounts.models import User, UsuarioEmpreendimento
@@ -68,50 +68,20 @@ def selectEmpreendimento(request, empreendimento_id):
 def criarEmpreendimento(request):
     if request.method == 'POST':
         form = EmpreendimentoForm(request.POST, request.FILES)
-        formEndereco = EmpreendimentoEnderecoForm(request.POST)
 
         if not form.is_valid():
             messages.error(request, "Verifique os campos obrigatórios.")
             return render(request, 'empreendimento.html', {
                 'form': form,
-                'formEndereco': formEndereco,
             })
 
         try:
             with transaction.atomic():
 
-                # =========================
-                # 1️⃣ Salvar Empreendimento
-                # =========================
                 empreendimento = form.save()
 
                 # =========================
-                # 2️⃣ Salvar Endereço (JSON do Modal)
-                # =========================
-                endereco_json = request.POST.get('endereco_json')
-
-                if endereco_json:
-                    try:
-                        endereco_data = json.loads(endereco_json)
-                    except json.JSONDecodeError:
-                        raise ValidationError("JSON de endereço inválido")
-
-                    endereco = EmpreendimentoEndereco(
-                        empreendimento=empreendimento,
-                        cep=endereco_data.get('cep', ''),
-                        rua=endereco_data.get('rua', ''),
-                        numero=endereco_data.get('numero', ''),
-                        complemento=endereco_data.get('complemento', ''),
-                        bairro=endereco_data.get('bairro', ''),
-                        cidade=endereco_data.get('cidade', ''),
-                        estado=endereco_data.get('estado', ''),
-                        is_ativo=True
-                    )
-                    endereco.full_clean()
-                    endereco.save()
-
-                # =========================
-                # 3️⃣ Salvar Imagens
+                # Salvar Imagens
                 # =========================
                 files = request.FILES.getlist('Empreendimento')
                 erros = []
@@ -150,7 +120,6 @@ def criarEmpreendimento(request):
     # =========================
     return render(request, 'empreendimento.html', {
         'form': EmpreendimentoForm(),
-        'formEndereco': EmpreendimentoEnderecoForm(),
     })
 
 

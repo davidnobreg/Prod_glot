@@ -205,10 +205,14 @@ def montar_contexto_venda(venda, usuario):
 			'nome': empr.nome if empr else '',
 			'razao_social': empr.razaoSocial if empr else '',
 			'cnpj_formatado': _formatar_cpf_cnpj(empr.cnpj) if empr else '',
-			'matricula': '',        # sem campo matricula no model
+			'matricula': empr.matricula if empr else '',
 			'endereco': ', '.join(p for p in [empr.rua, empr.numero] if p) if empr else '',
 			'cidade': empr.cidade if empr else '',
 			'estado': empr.estado if empr else '',
+			'representante_nome': empr.representante_nome if empr else '',
+			'representante_cpf': _formatar_cpf_cnpj(empr.representante_cpf) if empr else '',
+			'representante_rg': empr.representante_rg if empr else '',
+			'cidade_foro': empr.cidade_foro or (empr.cidade if empr else ''),
 		},
 		'quadra': {
 			'nome': quadra.namequadra if quadra else '',
@@ -217,6 +221,8 @@ def montar_contexto_venda(venda, usuario):
 			'numero': lote.lote if lote else '',
 			'area_formatada': f'{area:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.'),
 			'valor_formatado': formatar_moeda_br(valor_lote),
+			'medidas': lote.dimenssoes if lote else '',
+			'confrontacoes': lote.medidasConfrontacoes if lote else '',
 		},
 		'venda': {
 			'numero': str(venda.id),
@@ -230,6 +236,10 @@ def montar_contexto_venda(venda, usuario):
 			'data_venda': _data_br(venda.dt_venda),
 			'data_venda_extenso': _data_extenso(venda.dt_venda),
 			'forma_pagamento': 'Parcelado' if qtd_parcelas > 1 else 'À vista',
+			'valor_sinal': formatar_moeda_br(_para_float(venda.valor_sinal)) if venda else '',
+			'valor_sinal_extenso': _extenso_moeda(venda.valor_sinal) if venda else '',
+			'data_primeira_parcela': _data_br(venda.dt_primeira_parcela) if venda else '',
+			'corretor_nome': venda.corretor_nome if venda else '',
 		},
 		'sistema': {
 			'data_hoje': _data_br(hoje),

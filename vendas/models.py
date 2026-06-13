@@ -50,8 +50,7 @@ class RegisterVenda(models.Model):
         verbose_name='Desconto'
     )
     observacao = models.TextField(blank=True)
-
-    
+    corretor_nome = models.CharField(max_length=255, blank=True, default='')
 
 
     def __str__(self):

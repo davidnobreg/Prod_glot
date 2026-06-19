@@ -43,3 +43,31 @@ class ValidacaoModeloTest(TestCase):
 	def test_multiplas_variaveis_validas(self):
 		conteudo = '{{ cliente.nome }} {{ venda.valor_total }} {{ sistema.data_hoje }}'
 		self.assertEqual(services.validar_conteudo_modelo(conteudo), [])
+
+
+class ExtensoInteiroFemininoTest(TestCase):
+	"""Conversão de inteiro para extenso feminino (usado em qtd_parcelas_extenso)."""
+
+	def _f(self, n):
+		return services._extenso_inteiro_feminino(n)
+
+	def test_1_retorna_uma(self):
+		self.assertEqual(self._f(1), 'uma')
+
+	def test_2_retorna_duas(self):
+		self.assertEqual(self._f(2), 'duas')
+
+	def test_12_retorna_doze(self):
+		self.assertEqual(self._f(12), 'doze')
+
+	def test_21_retorna_vinte_e_uma(self):
+		self.assertEqual(self._f(21), 'vinte e uma')
+
+	def test_100_retorna_cem(self):
+		self.assertEqual(self._f(100), 'cem')
+
+	def test_0_retorna_zero(self):
+		self.assertEqual(self._f(0), 'zero')
+
+	def test_none_retorna_vazio(self):
+		self.assertEqual(self._f(None), '')

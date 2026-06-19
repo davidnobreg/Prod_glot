@@ -106,6 +106,8 @@ def construir_contexto_venda(venda, contato_cliente):
 		'valor_extenso': valor_extenso,
 		# parcelas / correção
 		'total_parcelas': total_parcelas,
+		'qtd_parcelas_extenso': _extenso_inteiro_feminino(total_parcelas),
+		'valor_parcela_extenso': _extenso_moeda(valor_parcela),
 		'correcao': correcao,
 		'frase_reajuste': frase_reajuste,
 		# observação
@@ -134,6 +136,23 @@ def _formatar_cpf_cnpj(valor):
 def _extenso_moeda(valor):
 	try:
 		return num2words(_para_float(valor), lang='pt_BR', to='currency')
+	except (TypeError, ValueError):
+		return ''
+
+
+def _extenso_inteiro_feminino(n):
+	"""Converte inteiro para extenso em português, gênero feminino.
+
+	num2words gera masculino por padrão (um, dois, duzentos).
+	Aplica substituições para concordar com 'parcela' (feminino):
+	  1 → 'uma', 2 → 'duas', 21 → 'vinte e uma', 201 → 'duzentas e uma'.
+	"""
+	try:
+		texto = num2words(int(n), lang='pt_BR')
+		texto = re.sub(r'\bduzentos\b', 'duzentas', texto)
+		texto = re.sub(r'\bdois\b', 'duas', texto)
+		texto = re.sub(r'\bum\b', 'uma', texto)
+		return texto
 	except (TypeError, ValueError):
 		return ''
 
@@ -231,6 +250,7 @@ def montar_contexto_venda(venda, usuario):
 			'valor_entrada': formatar_moeda_br(entrada),
 			'valor_entrada_extenso': _extenso_moeda(entrada),
 			'qtd_parcelas': str(qtd_parcelas),
+			'qtd_parcelas_extenso': _extenso_inteiro_feminino(qtd_parcelas),
 			'valor_parcela': formatar_moeda_br(parcela),
 			'valor_parcela_extenso': _extenso_moeda(parcela),
 			'data_venda': _data_br(venda.dt_venda),

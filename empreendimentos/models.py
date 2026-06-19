@@ -6,7 +6,16 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 
 
+def _validate_logo_arquivo(value):
+    ext = value.name.rsplit('.', 1)[-1].lower() if '.' in value.name else ''
+    if ext not in ('jpg', 'jpeg'):
+        raise ValidationError('Envie JPG ou PNG.')
+    if value.size > 10 * 1024 * 1024:
+        raise ValidationError('Arquivo não pode exceder 10 MB.')
 
+
+def _upload_logo_empreendimento(instance, filename):
+    return f'empreendimentos/{instance.uuid}/documentos/{filename}'
 
 # ==========================================================
 # LISTA DE ESTADOS
@@ -49,8 +58,11 @@ class Empreendimento(models.Model):
     )
     tempo_reserva = models.IntegerField()
     quantidade_parcela = models.IntegerField()
-    logo = models.ImageField(verbose_name='Logo',
-                             null=True, blank=True)
+    logo = models.ImageField(
+        upload_to=_upload_logo_empreendimento,
+        null=True, blank=True,
+        verbose_name='Logo',
+    )
     cnpj = models.CharField(max_length=18, unique=True, null=True, blank=True, help_text="Informe CNPJ (apenas números).")
     codBanco = models.CharField(max_length=10, null=True, blank=True)
     banco = models.CharField(max_length=100, choices=TypeBancos.choices, verbose_name='Banco', blank=True)
@@ -74,6 +86,8 @@ class Empreendimento(models.Model):
     representante_rg = models.CharField(max_length=30, blank=True, default='')
     matricula = models.CharField(max_length=100, blank=True, default='')
     cidade_foro = models.CharField(max_length=100, blank=True, default='')
+
+
 
     def __str__(self):
         # return self.nome

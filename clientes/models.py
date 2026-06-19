@@ -5,6 +5,18 @@ from django.db import models
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 
+
+def _validate_doc_arquivo(value):
+    ext = value.name.rsplit('.', 1)[-1].lower() if '.' in value.name else ''
+    if ext not in ('jpg', 'jpeg', 'png', 'pdf'):
+        raise ValidationError('Envie JPG, PNG ou PDF.')
+    if value.size > 10 * 1024 * 1024:
+        raise ValidationError('Arquivo não pode exceder 10 MB.')
+
+
+def _upload_doc_cliente(instance, filename):
+    return f'clientes/{instance.uuid}/documentos/{filename}'
+
 # ==========================================================
 # LISTA DE ESTADOS
 # ==========================================================
@@ -74,6 +86,34 @@ class Cliente(models.Model):
     conj_numero_rg = models.CharField(max_length=20, blank=True, null=True)
     conj_orgao_emissor_rg = models.CharField(max_length=20, blank=True, null=True)
     conj_documento = models.CharField(max_length=14, blank=True, null=True)
+
+    # ======================================================
+    # DOCUMENTOS (fotos — armazenadas no B2/S3)
+    # ======================================================
+    foto_rg_frente = models.FileField(
+        upload_to=_upload_doc_cliente,
+        blank=True, null=True,
+        validators=[_validate_doc_arquivo],
+        verbose_name='RG (frente)',
+    )
+    foto_rg_verso = models.FileField(
+        upload_to=_upload_doc_cliente,
+        blank=True, null=True,
+        validators=[_validate_doc_arquivo],
+        verbose_name='RG (verso)',
+    )
+    foto_cpf = models.FileField(
+        upload_to=_upload_doc_cliente,
+        blank=True, null=True,
+        validators=[_validate_doc_arquivo],
+        verbose_name='CPF',
+    )
+    comprovante_residencia = models.FileField(
+        upload_to=_upload_doc_cliente,
+        blank=True, null=True,
+        validators=[_validate_doc_arquivo],
+        verbose_name='Comprovante de residência',
+    )
 
     # ======================================================
     # MÉTODO PARA VALIDAR CPF

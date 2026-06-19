@@ -105,7 +105,7 @@ def criarUsuario(request):
 
 
 def _contexto_vendas_corretor(usuario, request):
-    eh_corretor = usuario.groups.filter(name='Corretor').exists()
+    eh_corretor = usuario.groups.filter(name__in=['Corretor', 'corretor']).exists()
     if not eh_corretor:
         return {'eh_corretor': False}
 

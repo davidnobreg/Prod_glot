@@ -10,6 +10,7 @@ from rolepermissions.decorators import has_permission_decorator
 
 from .forms import (
     ClienteConjugeForm,
+    ClienteDocumentosForm,
     ClienteEnderecoForm,
     ClienteForm,
     ClienteTelefoneForm,
@@ -335,6 +336,28 @@ def listaClienteRelatorio(request):
         'page_obj': page_obj,
         'clientes': page_obj.object_list,
     })
+
+
+# ===================================================================
+# uploadDocumentosCliente
+# ===================================================================
+
+@has_permission_decorator('alterarCliente')
+def uploadDocumentosCliente(request, cliente_uuid):
+    cliente = get_object_or_404(Cliente, uuid=cliente_uuid)
+    if request.method != 'POST':
+        return redirect('atualizar-cliente', cliente_uuid=cliente_uuid)
+
+    form = ClienteDocumentosForm(request.POST, request.FILES, instance=cliente)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Documentos salvos com sucesso!")
+    else:
+        for erros in form.errors.values():
+            for erro in erros:
+                messages.error(request, erro)
+
+    return redirect('atualizar-cliente', cliente_uuid=cliente_uuid)
 
 
 # ===================================================================

@@ -4,7 +4,7 @@ from decimal import Decimal, InvalidOperation
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import Cliente, ClienteTelefone, choices_estado
+from .models import Cliente, ClienteTelefone, choices_estado, _validate_doc_arquivo
 
 
 # ===================================================================
@@ -493,6 +493,23 @@ class ClienteConjugeForm(forms.ModelForm):
                     self.initial['conj_documento'] = f"{doc[:3]}.{doc[3:6]}.{doc[6:9]}-{doc[9:]}"
                 elif len(doc) == 14:
                     self.initial['conj_documento'] = f"{doc[:2]}.{doc[2:5]}.{doc[5:8]}/{doc[8:12]}-{doc[12:]}"
+
+
+# ===================================================================
+# FORM DOCUMENTOS — upload de arquivos (RG, CPF, comprovante)
+# ===================================================================
+class ClienteDocumentosForm(forms.ModelForm):
+
+    class Meta:
+        model = Cliente
+        fields = ['foto_rg_frente', 'foto_rg_verso', 'foto_cpf', 'comprovante_residencia']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.required = False
+            field.widget.attrs['class'] = 'glot-input'
+            field.widget.attrs['accept'] = '.jpg,.jpeg,.png,.pdf'
 
 
 # ===================================================================

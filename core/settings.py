@@ -174,7 +174,10 @@ EVOLUTION_TOKEN = config("EVOLUTION_TOKEN")
 
 
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+if IS_PRODUCTION:
+	STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+else:
+	STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 
 
@@ -375,6 +378,38 @@ MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')  # usado pelo collectstatic
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # usado para uploads
+
+
+
+# --- Backblaze B2 / S3-compatible storage ---
+
+USE_REMOTE_STORAGE = config('USE_REMOTE_STORAGE', cast=bool, default=False)
+
+if USE_REMOTE_STORAGE:
+	AWS_ACCESS_KEY_ID = config('B2_KEY_ID')
+	AWS_SECRET_ACCESS_KEY = config('B2_APPLICATION_KEY')
+	AWS_STORAGE_BUCKET_NAME = config('B2_BUCKET_NAME')
+	AWS_S3_ENDPOINT_URL = config('B2_ENDPOINT_URL')
+	AWS_S3_REGION_NAME = config('B2_REGION')
+	AWS_DEFAULT_ACL = 'private'
+	AWS_S3_FILE_OVERWRITE = False
+	AWS_QUERYSTRING_AUTH = True
+	AWS_QUERYSTRING_EXPIRE = 3600
+
+	_staticfiles_backend = (
+		'whitenoise.storage.CompressedManifestStaticFilesStorage'
+		if IS_PRODUCTION
+		else 'django.contrib.staticfiles.storage.StaticFilesStorage'
+	)
+	STORAGES = {
+		'default': {
+			'BACKEND': 'storages.backends.s3.S3Storage',
+		},
+		'staticfiles': {
+			'BACKEND': _staticfiles_backend,
+		},
+	}
+	MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/"
 
 
 

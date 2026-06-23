@@ -6,12 +6,13 @@ from empreendimentos.models import Lote, Empreendimento
 from accounts.models import User
 
 
-class TypeLote(models.TextChoices):
+class TypeVenda(models.TextChoices):
     CANCELADA = 'CANCELADA', 'CANCELADA'
     RESERVADO = 'RESERVADO', 'RESERVADO'
     VENDIDO = 'VENDIDO', 'VENDIDO'
     ANALISE = 'ANALISE', 'ANALISE'
-    NAO_ACEITE = 'NAO-ACEITE','NAO-ACEITE'
+    NAO_ACEITE = 'NAO-ACEITE', 'NAO-ACEITE'
+    PRE_VENDA = 'PRE-VENDA', 'PRE-VENDA'
 
 ## Registrar Venda
 
@@ -27,7 +28,7 @@ class RegisterVenda(models.Model):
     lote = models.OneToOneField(Lote, on_delete=models.SET_NULL, blank=True, null=True, related_name='reg_venda')
     cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, blank=True, null=True)
     corretor = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="corretor")
-    tipo_venda = models.CharField(max_length=100, choices=TypeLote.choices)
+    tipo_venda = models.CharField(max_length=100, choices=TypeVenda.choices)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="vendas")
     aceite_proposta = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="aceite_proposta")
     dt_reserva = models.DateField(default=datetime.now, blank=True)

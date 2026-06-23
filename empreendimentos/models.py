@@ -162,7 +162,6 @@ class Lote(models.Model):
     medidasConfrontacoes = models.TextField(blank=True)
 
     def save(self, *args, **kwargs):
-        self.tempo_reservado = timezone.localtime(timezone.now()) + timedelta(minutes=1)
         super().save(*args, **kwargs)
 
     def __str__(self):

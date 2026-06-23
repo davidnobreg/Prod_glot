@@ -19,12 +19,12 @@ class CancelarVendaView(View):
 
         lote = venda.lote
 
-        # 🔄 Atualiza lote
+        # Atualiza lote
         if lote:
             lote.situacao = 'DISPONIVEL'
             lote.save(update_fields=['situacao'])
 
-        # 🔄 Atualiza venda
+        # Atualiza venda
         venda.tipo_venda = 'CANCELADA'
         venda.is_ativo = True
         venda.save(update_fields=['tipo_venda', 'is_ativo'])
@@ -42,15 +42,14 @@ class CancelarVendaView(View):
 )
 class CancelarReservadoCadastroView(View):
 
-    @transaction.atomic
     def post(self, request, *args, **kwargs):
         lote = get_object_or_404(Lote, uuid=kwargs.get('cancelaReserva_uuid'))
 
-        # 🔄 Atualiza situação do lote
+        # Atualiza situação do lote
         lote.situacao = 'DISPONIVEL'
         lote.save(update_fields=['situacao'])
 
-        # 🔄 Atualiza venda vinculada, se existir
+        # Atualiza venda vinculada, se existir
         venda = getattr(lote, 'reg_venda', None)
         if venda:
             venda.tipo_venda = 'CANCELADA'
@@ -68,11 +67,11 @@ class CancelarReservaView(View):
 
         lote = venda.lote
 
-        # 🔥 Atualiza lote
+        # Atualiza lote
         lote.situacao = 'PRE-RESERVA'
         lote.save(update_fields=['situacao'])
 
-        # 🔥 Atualiza venda
+        # Atualiza venda
         venda.is_ativo = False
         venda.tipo_venda = 'NAO_ACEITE'
         venda.aceite_proposta = None
@@ -91,11 +90,11 @@ class CancelarAceiteReservaView(View):
 
         lote = venda.lote
 
-        # 🔥 Atualiza lote
+        # Atualiza lote
         lote.situacao = 'DISPONIVEL'
         lote.save(update_fields=['situacao'])
 
-        # 🔥 Atualiza venda
+        # Atualiza venda
         venda.is_ativo = False
         venda.tipo_venda = 'NAO_ACEITE'
         venda.save(update_fields=['is_ativo', 'tipo_venda'])

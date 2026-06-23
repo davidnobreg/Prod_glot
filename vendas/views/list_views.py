@@ -62,7 +62,7 @@ class RelatorioReservaView(ListView):
     def get_queryset(self):
         queryset = RegisterVenda.objects.filter(
             tipo_venda='RESERVADO',
-            is_ativo=False
+            is_ativo=True
         )
 
         # 🔎 Filtros
@@ -118,7 +118,7 @@ class RelatorioReservaView(ListView):
         context = super().get_context_data(**kwargs)
 
         context['empreendimentos'] = Empreendimento.objects.filter(
-            is_ativo=False
+            is_ativo=True
         ).order_by('id')
 
         # 🔄 Mantém filtros no template

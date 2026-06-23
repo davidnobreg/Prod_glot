@@ -42,15 +42,19 @@ class CancelarVendaView(View):
 )
 class CancelarReservadoCadastroView(View):
 
-    def get_lote(self, cancelaReserva_uuid):
-        return get_object_or_404(Lote, uuid=cancelaReserva_uuid)
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        lote = get_object_or_404(Lote, uuid=kwargs.get('cancelaReserva_uuid'))
 
-    def get(self, request, *args, **kwargs):
-        lote = self.get_lote(kwargs.get('cancelaReserva_uuid'))
-
-        # 🔄 Atualiza situação
-        lote.situacao = "PRE-RESERVA"
+        # 🔄 Atualiza situação do lote
+        lote.situacao = 'DISPONIVEL'
         lote.save(update_fields=['situacao'])
+
+        # 🔄 Atualiza venda vinculada, se existir
+        venda = getattr(lote, 'reg_venda', None)
+        if venda:
+            venda.tipo_venda = 'CANCELADA'
+            venda.save(update_fields=['tipo_venda'])
 
         messages.success(request, "Reserva cancelada com sucesso!")
         return redirect('lista-empreendimento')

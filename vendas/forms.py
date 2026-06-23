@@ -265,6 +265,11 @@ class RegisterVendaForm(forms.ModelForm):
             self.cleaned_data.get('valor_sinal')
         )
 
+    def clean_valor_parcela(self):
+        return self._parse_money(
+            self.cleaned_data.get('valor_parcela')
+        )
+
     def clean_valor_desconto(self):
 
         desconto = self._parse_money(

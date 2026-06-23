@@ -79,11 +79,11 @@ detalher reserva.
                     {% endfor %}
 
                     <button type="submit" class="btn btn-primary w-100 mt-3">Salvar</button>
+                </form>
 
-                    <form action="{% url 'cancelar-reservado-cadastro' lote.uuid %}" method="post" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger w-100 mt-3">Cancelar</button>
-                    </form>
+                <form action="{% url 'cancelar-reservado-cadastro' lote.uuid %}" method="post" class="mt-2">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger w-100">Cancelar</button>
                 </form>
             </div>
         </div>

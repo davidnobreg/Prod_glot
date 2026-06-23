@@ -278,7 +278,7 @@
             align-items: stretch;
             display: grid;
             gap: 12px;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             margin-top: 24px;
         }
 
@@ -405,6 +405,74 @@
             .analise-financeiro-total strong {
                 font-size: 1.6rem;
             }
+        }
+
+        /* Documentos */
+        .analise-documentos {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 16px;
+            margin-top: 24px;
+            padding: 20px;
+        }
+
+        .analise-documentos-title {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 900;
+            margin: 0 0 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .analise-documentos-grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        }
+
+        .analise-doc-item {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            transition: transform 0.15s ease;
+        }
+
+        .analise-doc-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .analise-doc-thumb {
+            border-radius: 10px;
+            height: 80px;
+            width: 100%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .analise-doc-img {
+            background: #fff;
+        }
+
+        .analise-doc-pdf {
+            background: rgba(255,255,255,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #fde68a;
+        }
+
+        .analise-doc-label {
+            color: rgba(255,255,255,0.85);
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            line-height: 1.3;
         }
     </style>
 
@@ -580,6 +648,96 @@
                     <span>Valor financiado</span>
                     <strong>R$ {{ reservas.valor_financiado|floatformat:2|intcomma }}</strong>
                 </div>
+
+                {% with cliente=reservas.cliente %}
+                {% if cliente.foto_rg_frente or cliente.foto_rg_verso or cliente.foto_cpf or cliente.comprovante_residencia or cliente.certidao_estado_civil or cliente.conj_rg_frente or cliente.conj_rg_verso %}
+                <div class="analise-documentos">
+                    <h2 class="analise-documentos-title">
+                        <i class="bi bi-folder2-open me-2"></i>Documentos do cliente
+                    </h2>
+                    <div class="analise-documentos-grid">
+
+                        {% if cliente.foto_rg_frente %}
+                        <div class="analise-doc-item" onclick="abrirDocumento('{{ cliente.foto_rg_frente.url }}', 'RG — Frente')">
+                            {% if cliente.foto_rg_frente.name|lower|slice:"-3:" == "pdf" %}
+                                <div class="analise-doc-thumb analise-doc-pdf"><i class="bi bi-file-earmark-pdf"></i></div>
+                            {% else %}
+                                <img src="{{ cliente.foto_rg_frente.url }}" alt="RG Frente" class="analise-doc-thumb analise-doc-img">
+                            {% endif %}
+                            <span class="analise-doc-label">RG — Frente</span>
+                        </div>
+                        {% endif %}
+
+                        {% if cliente.foto_rg_verso %}
+                        <div class="analise-doc-item" onclick="abrirDocumento('{{ cliente.foto_rg_verso.url }}', 'RG — Verso')">
+                            {% if cliente.foto_rg_verso.name|lower|slice:"-3:" == "pdf" %}
+                                <div class="analise-doc-thumb analise-doc-pdf"><i class="bi bi-file-earmark-pdf"></i></div>
+                            {% else %}
+                                <img src="{{ cliente.foto_rg_verso.url }}" alt="RG Verso" class="analise-doc-thumb analise-doc-img">
+                            {% endif %}
+                            <span class="analise-doc-label">RG — Verso</span>
+                        </div>
+                        {% endif %}
+
+                        {% if cliente.foto_cpf %}
+                        <div class="analise-doc-item" onclick="abrirDocumento('{{ cliente.foto_cpf.url }}', 'CPF')">
+                            {% if cliente.foto_cpf.name|lower|slice:"-3:" == "pdf" %}
+                                <div class="analise-doc-thumb analise-doc-pdf"><i class="bi bi-file-earmark-pdf"></i></div>
+                            {% else %}
+                                <img src="{{ cliente.foto_cpf.url }}" alt="CPF" class="analise-doc-thumb analise-doc-img">
+                            {% endif %}
+                            <span class="analise-doc-label">CPF</span>
+                        </div>
+                        {% endif %}
+
+                        {% if cliente.comprovante_residencia %}
+                        <div class="analise-doc-item" onclick="abrirDocumento('{{ cliente.comprovante_residencia.url }}', 'Comprovante de Residência')">
+                            {% if cliente.comprovante_residencia.name|lower|slice:"-3:" == "pdf" %}
+                                <div class="analise-doc-thumb analise-doc-pdf"><i class="bi bi-file-earmark-pdf"></i></div>
+                            {% else %}
+                                <img src="{{ cliente.comprovante_residencia.url }}" alt="Comprovante" class="analise-doc-thumb analise-doc-img">
+                            {% endif %}
+                            <span class="analise-doc-label">Comprovante de Residência</span>
+                        </div>
+                        {% endif %}
+
+                        {% if cliente.certidao_estado_civil %}
+                        <div class="analise-doc-item" onclick="abrirDocumento('{{ cliente.certidao_estado_civil.url }}', 'Certidão Estado Civil')">
+                            {% if cliente.certidao_estado_civil.name|lower|slice:"-3:" == "pdf" %}
+                                <div class="analise-doc-thumb analise-doc-pdf"><i class="bi bi-file-earmark-pdf"></i></div>
+                            {% else %}
+                                <img src="{{ cliente.certidao_estado_civil.url }}" alt="Certidão" class="analise-doc-thumb analise-doc-img">
+                            {% endif %}
+                            <span class="analise-doc-label">Certidão Estado Civil</span>
+                        </div>
+                        {% endif %}
+
+                        {% if cliente.conj_rg_frente %}
+                        <div class="analise-doc-item" onclick="abrirDocumento('{{ cliente.conj_rg_frente.url }}', 'RG Cônjuge — Frente')">
+                            {% if cliente.conj_rg_frente.name|lower|slice:"-3:" == "pdf" %}
+                                <div class="analise-doc-thumb analise-doc-pdf"><i class="bi bi-file-earmark-pdf"></i></div>
+                            {% else %}
+                                <img src="{{ cliente.conj_rg_frente.url }}" alt="RG Cônjuge Frente" class="analise-doc-thumb analise-doc-img">
+                            {% endif %}
+                            <span class="analise-doc-label">RG Cônjuge — Frente</span>
+                        </div>
+                        {% endif %}
+
+                        {% if cliente.conj_rg_verso %}
+                        <div class="analise-doc-item" onclick="abrirDocumento('{{ cliente.conj_rg_verso.url }}', 'RG Cônjuge — Verso')">
+                            {% if cliente.conj_rg_verso.name|lower|slice:"-3:" == "pdf" %}
+                                <div class="analise-doc-thumb analise-doc-pdf"><i class="bi bi-file-earmark-pdf"></i></div>
+                            {% else %}
+                                <img src="{{ cliente.conj_rg_verso.url }}" alt="RG Cônjuge Verso" class="analise-doc-thumb analise-doc-img">
+                            {% endif %}
+                            <span class="analise-doc-label">RG Cônjuge — Verso</span>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+                {% endif %}
+                {% endwith %}
             </div>
 
             <div class="analise-actions">
@@ -611,13 +769,15 @@
                         <span>Não aceita</span>
                     </a>
 
-                    <!--<a
-                            href="{#  {% url 'documentos:proposta' reservas.uuid %} #}"
+                    <a
+                            href="{% url 'documentos:proposta' reservas.uuid %}"
                             class="analise-button analise-button-secondary"
+                            target="_blank"
                     >
                         <i class="bi bi-file-earmark-text"></i>
-                        <span>Proposta</span>
-                    </a>-->
+                        <span>Ver proposta</span>
+                    </a>
+
                     <button type="button" class="analise-button analise-button-secondary" data-bs-toggle="modal" data-bs-target="#modalGerarDocumento">
 									<i class="bi bi-file-earmark-plus"></i>
 									Gerar Documento
@@ -722,6 +882,27 @@
     {% with venda=reservas %}
 		{% include 'documentos/gerar_documento_modal.html' %}
 	{% endwith %}
+
+    <!-- Modal documentos -->
+    <div class="modal fade" id="modalDocumento" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" style="border-radius:16px;overflow:hidden;border:0;">
+                <div class="modal-header" style="background:linear-gradient(180deg,#0b7a95 0%,#e8f6f9 100%);border-bottom:1px solid #c8e8ef;">
+                    <h5 class="modal-title fw-bold text-dark" id="modalDocumentoTitulo"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0 text-center bg-dark" id="modalDocumentoBody" style="min-height:400px;display:flex;align-items:center;justify-content:center;">
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <a id="modalDocumentoDownload" href="#" download class="btn btn-outline-secondary btn-sm rounded-pill">
+                        <i class="bi bi-download me-1"></i>Baixar
+                    </a>
+                    <button type="button" class="btn btn-secondary btn-sm rounded-pill" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
 		async function compartilharProposta(botao) {
 			const url = botao.dataset.propostaUrl;
@@ -788,6 +969,22 @@
 				botao.disabled = false;
 				botao.innerText = textoOriginal;
 			}
+		}
+
+		function abrirDocumento(url, titulo) {
+			document.getElementById('modalDocumentoTitulo').textContent = titulo;
+			document.getElementById('modalDocumentoDownload').href = url;
+
+			const body = document.getElementById('modalDocumentoBody');
+			const ext = url.split('?')[0].split('.').pop().toLowerCase();
+
+			if (ext === 'pdf') {
+				body.innerHTML = `<iframe src="${url}" style="width:100%;height:70vh;border:0;"></iframe>`;
+			} else {
+				body.innerHTML = `<img src="${url}" alt="${titulo}" style="max-width:100%;max-height:70vh;object-fit:contain;padding:16px;">`;
+			}
+
+			new bootstrap.Modal(document.getElementById('modalDocumento')).show();
 		}
 	</script>
 {% endblock %}

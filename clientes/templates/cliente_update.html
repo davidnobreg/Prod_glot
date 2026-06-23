@@ -5,540 +5,448 @@
 {% load static %}
 
 {% block content %}
-    <style>
-        .form-card {
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
-            border: 1px solid #e9ecef;
-            margin-bottom: 1.5rem;
-        }
+<style>
+	/* ===== ABAS ===== */
+	#upd-card { border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);border:1px solid #e9ecef;overflow:hidden; }
+	.upd-tabs-nav {
+		display:flex;overflow-x:auto;border-bottom:2px solid #e9ecef;
+		background:#f8f9fa;padding:0 .75rem;gap:.25rem;
+		flex-wrap:nowrap;scrollbar-width:thin;
+	}
+	.upd-tab-btn {
+		border:none;background:transparent;padding:.7rem .9rem;
+		font-size:.8rem;font-weight:600;color:#868e96;cursor:pointer;
+		border-bottom:3px solid transparent;white-space:nowrap;
+		transition:color .15s,border-color .15s;flex-shrink:0;
+	}
+	.upd-tab-btn:hover { color:#0097a7; }
+	.upd-tab-btn.active { color:#0097a7;border-bottom-color:#0097a7; }
+	.upd-tab-pane { padding:1.5rem; }
+	/* Labels */
+	.form-label { font-weight:600;font-size:.83rem;margin-bottom:.35rem; }
+	.section-sep { border:none;border-top:1px solid #e9ecef;margin:1.25rem 0; }
+	.step-sublabel { font-size:.8rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.6rem; }
+	/* Barra de ações */
+	.action-bar {
+		background:#fff;border-top:2px solid #e9ecef;padding:1rem 1.5rem;
+		border-radius:0 0 12px 12px;display:flex;align-items:center;
+		justify-content:flex-end;flex-wrap:wrap;gap:.75rem;
+		box-shadow:0 -2px 8px rgba(0,0,0,.05);
+	}
+</style>
 
-        .form-card .card-header {
-            border-radius: 12px 12px 0 0;
-            padding: .7rem 1.25rem;
-            font-weight: 700;
-            font-size: .82rem;
-            letter-spacing: .06em;
-            text-transform: uppercase;
-            border-bottom: 1px solid rgba(0, 0, 0, .08);
-        }
+<div class="content-header">
+	<div class="container-fluid">
+		<div class="row align-items-center">
+			<div class="col">
+				<h1 class="mb-0" style="font-size:1.4rem;font-weight:700;">Editar Cliente</h1>
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb mb-0" style="font-size:.8rem;">
+						<li class="breadcrumb-item"><a href="/">Início</a></li>
+						<li class="breadcrumb-item"><a href="{% url 'lista-cliente' %}">Clientes</a></li>
+						<li class="breadcrumb-item active">{{ cliente.name }}</li>
+					</ol>
+				</nav>
+			</div>
+			<div class="col-auto">
+				{% if origem == 'reserva' and lote_uuid %}
+					<a href="{% url 'reserva-create' reserva_uuid=lote_uuid %}"
+					   class="btn btn-outline-secondary btn-sm" style="border-radius:8px;">
+						<i class="fas fa-arrow-left me-1"></i>Voltar
+					</a>
+				{% else %}
+					<a href="{% url 'lista-cliente' %}"
+					   class="btn btn-outline-secondary btn-sm" style="border-radius:8px;">
+						<i class="fas fa-arrow-left me-1"></i>Voltar
+					</a>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</div>
 
-        .form-card .card-body {
-            padding: 1.5rem;
-        }
+<section class="content">
+	<div class="container-fluid">
 
-        .form-label {
-            font-weight: 600;
-            font-size: .83rem;
-            margin-bottom: .35rem;
-        }
+		<div id="upd-card" class="card">
 
-        .section-sep {
-            border: none;
-            border-top: 1px solid #e9ecef;
-            margin: 1.25rem 0;
-        }
+			<!-- ====================================================
+			     NAVEGAÇÃO POR ABAS
+			     ==================================================== -->
+			<div class="upd-tabs-nav" role="tablist">
+				<button class="upd-tab-btn active" data-tab="dados" type="button">
+					<i class="fas fa-user me-1"></i>Dados pessoais
+				</button>
+				<button class="upd-tab-btn" data-tab="conjuge" type="button">
+					<i class="fas fa-heart me-1"></i>Cônjuge
+				</button>
+				<button class="upd-tab-btn" data-tab="documentos" type="button">
+					<i class="fas fa-id-card me-1"></i>Documentos
+				</button>
+				<button class="upd-tab-btn" data-tab="endereco" type="button">
+					<i class="fas fa-map-marker-alt me-1"></i>Endereço
+				</button>
+				<button class="upd-tab-btn" data-tab="contatos" type="button">
+					<i class="fas fa-phone me-1"></i>Contatos
+				</button>
+			</div>
 
-        .action-bar {
-            background: #fff;
-            border-top: 2px solid #e9ecef;
-            padding: 1rem 1.5rem;
-            border-radius: 0 0 12px 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: .75rem;
-            box-shadow: 0 -2px 8px rgba(0, 0, 0, .05);
-        }
-    </style>
+			<!-- ====================================================
+			     FORMULÁRIO
+			     ==================================================== -->
+			<form id="cliente-form"
+			      action="{% url 'atualizar-cliente' cliente.uuid %}"
+			      method="POST" enctype="multipart/form-data" novalidate>
+				{% csrf_token %}
+				<input type="hidden" name="telefones_json" id="telefones_json">
+				<input type="hidden" name="origem" value="{{ origem }}">
+				{% if lote_uuid %}<input type="hidden" name="lote_uuid" value="{{ lote_uuid }}">{% endif %}
+				{% if form.lote_id %}{{ form.lote_id }}{% endif %}
 
-    <div class="content-header">
-        <div class="container-fluid">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h1 class="mb-0" style="font-size:1.4rem;font-weight:700;">Editar Cliente</h1>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb mb-0" style="font-size:.8rem;">
-                            <li class="breadcrumb-item"><a href="/">Início</a></li>
-                            <li class="breadcrumb-item">
-                                <a href="{% url 'lista-cliente' %}">Clientes</a>
-                            </li>
-                            <li class="breadcrumb-item active">{{ cliente.name }}</li>
-                        </ol>
-                    </nav>
-                </div>
-                <div class="col-auto">
-                    {% if origem == 'reserva' and lote_uuid %}
-                        <a href="{% url 'reserva-create' reserva_uuid=lote_uuid %}"
-                           class="btn btn-outline-secondary btn-sm" style="border-radius:8px;">
-                            <i class="fas fa-arrow-left me-1"></i>Voltar
-                        </a>
-                    {% else %}
-                        <a href="{% url 'lista-cliente' %}"
-                           class="btn btn-outline-secondary btn-sm" style="border-radius:8px;">
-                            <i class="fas fa-arrow-left me-1"></i>Voltar
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
+				<!-- ================================================
+				     ABA 1 — Dados pessoais
+				     ================================================ -->
+				<div id="tab-dados" class="upd-tab-pane">
+					<div class="row g-3">
+						<div class="col-md-6">
+							<label class="form-label">Nome <span class="text-danger">*</span></label>
+							{{ form.name }}
+							{% if form.name.errors %}
+								<div class="text-danger" style="font-size:.8rem;">{{ form.name.errors|striptags }}</div>
+							{% endif %}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Nome usual</label>
+							{{ form.nome_usual }}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Data de nascimento</label>
+							{{ form.data_ns }}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Estado civil</label>
+							{{ form.estado_civil }}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Naturalidade</label>
+							{{ form.naturalidade }}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Nacionalidade</label>
+							{{ form.nacionalidade }}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Profissão</label>
+							{{ form.profissao }}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Renda</label>
+							{{ form.renda }}
+						</div>
+					</div>
+					<hr class="section-sep">
+					<div class="row g-3">
+						<div class="col-md-6">
+							<label class="form-label">CPF / CNPJ <span class="text-danger">*</span></label>
+							{{ form.documento }}
+							{% if form.documento.errors %}
+								<div class="text-danger" style="font-size:.8rem;">{{ form.documento.errors|striptags }}</div>
+							{% endif %}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">E-mail <span class="text-danger">*</span></label>
+							{{ form.email }}
+							{% if form.email.errors %}
+								<div class="text-danger" style="font-size:.8rem;">{{ form.email.errors|striptags }}</div>
+							{% endif %}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">RG</label>
+							{{ form.numero_rg }}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Órgão emissor</label>
+							{{ form.orgao_emissor_rg }}
+						</div>
+						{% if form.observacao %}
+						<div class="col-12">
+							<label class="form-label">Observações</label>
+							{{ form.observacao }}
+						</div>
+						{% endif %}
+					</div>
+				</div>
 
-    <section class="content">
-        <div class="container-fluid">
-            <form id="cliente-form"
-                  action="{% url 'atualizar-cliente' cliente.uuid %}"
-                  method="POST" novalidate>
-                {% csrf_token %}
-                <input type="hidden" name="telefones_json" id="telefones_json">
-                <input type="hidden" name="origem" value="{{ origem }}">
-                {% if lote_uuid %}<input type="hidden" name="lote_uuid" value="{{ lote_uuid }}">{% endif %}
-                {% if form.lote_id %}{{ form.lote_id }}{% endif %}
+				<!-- ================================================
+				     ABA 2 — Cônjuge (sempre visível na edição)
+				     ================================================ -->
+				<div id="tab-conjuge" class="upd-tab-pane" style="display:none;">
+					<div class="row g-3">
+						<div class="col-md-6">
+							<label class="form-label">Nome do cônjuge</label>
+							{{ formConjuge.conj_nome }}
+							{% if formConjuge.conj_nome.errors %}
+								<div class="text-danger" style="font-size:.8rem;">{{ formConjuge.conj_nome.errors|striptags }}</div>
+							{% endif %}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">CPF do cônjuge</label>
+							{{ formConjuge.conj_documento }}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">RG do cônjuge</label>
+							{{ formConjuge.conj_numero_rg }}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Órgão emissor do RG</label>
+							{{ formConjuge.conj_orgao_emissor_rg }}
+						</div>
+					</div>
+					<hr class="section-sep">
+					<p class="step-sublabel"><i class="fas fa-id-badge me-1"></i>Documentos do cônjuge</p>
+					<div class="row g-3">
+						<div class="col-md-6">
+							<label class="form-label">RG cônjuge — frente</label>
+							{{ form.conj_rg_frente }}
+							{% if cliente.conj_rg_frente %}
+								<div class="mt-1" style="font-size:.8rem;">
+									<a href="{{ cliente.conj_rg_frente.url }}" target="_blank" class="text-primary">
+										<i class="fas fa-file me-1"></i>Ver arquivo atual
+									</a>
+									<span class="text-muted ms-2">· deixe vazio para manter</span>
+								</div>
+							{% endif %}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">RG cônjuge — verso</label>
+							{{ form.conj_rg_verso }}
+							{% if cliente.conj_rg_verso %}
+								<div class="mt-1" style="font-size:.8rem;">
+									<a href="{{ cliente.conj_rg_verso.url }}" target="_blank" class="text-primary">
+										<i class="fas fa-file me-1"></i>Ver arquivo atual
+									</a>
+									<span class="text-muted ms-2">· deixe vazio para manter</span>
+								</div>
+							{% endif %}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Certidão de estado civil</label>
+							{{ form.certidao_estado_civil }}
+							{% if cliente.certidao_estado_civil %}
+								<div class="mt-1" style="font-size:.8rem;">
+									<a href="{{ cliente.certidao_estado_civil.url }}" target="_blank" class="text-primary">
+										<i class="fas fa-file me-1"></i>Ver arquivo atual
+									</a>
+									<span class="text-muted ms-2">· deixe vazio para manter</span>
+								</div>
+							{% endif %}
+						</div>
+					</div>
+				</div>
 
-                <!-- ============================================================
-                     IDENTIFICAÇÃO
-                     ============================================================ -->
-                <div class="card form-card">
-                    <div class="card-header" style="background:#e8f5e9;color:#2e7d32;">
-                        <i class="fas fa-user me-2"></i>Identificação
-                    </div>
-                    <div class="card-body">
+				<!-- ================================================
+				     ABA 3 — Documentos pessoais
+				     ================================================ -->
+				<div id="tab-documentos" class="upd-tab-pane" style="display:none;">
+					<p style="font-size:.8rem;color:#aaa;margin-bottom:1rem;">
+						JPG, PNG ou PDF · máx. 10 MB · deixe vazio para manter o arquivo atual
+					</p>
+					<p class="step-sublabel"><i class="fas fa-id-badge me-1"></i>RG do cliente</p>
+					<div class="row g-3">
+						<div class="col-md-6">
+							<label class="form-label">Frente</label>
+							{{ form.foto_rg_frente }}
+							{% if cliente.foto_rg_frente %}
+								<div class="mt-1" style="font-size:.8rem;">
+									<a href="{{ cliente.foto_rg_frente.url }}" target="_blank" class="text-primary">
+										<i class="fas fa-file me-1"></i>Ver arquivo atual
+									</a>
+									<span class="text-muted ms-2">· deixe vazio para manter</span>
+								</div>
+							{% endif %}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Verso</label>
+							{{ form.foto_rg_verso }}
+							{% if cliente.foto_rg_verso %}
+								<div class="mt-1" style="font-size:.8rem;">
+									<a href="{{ cliente.foto_rg_verso.url }}" target="_blank" class="text-primary">
+										<i class="fas fa-file me-1"></i>Ver arquivo atual
+									</a>
+									<span class="text-muted ms-2">· deixe vazio para manter</span>
+								</div>
+							{% endif %}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">CPF (foto)</label>
+							{{ form.foto_cpf }}
+							{% if cliente.foto_cpf %}
+								<div class="mt-1" style="font-size:.8rem;">
+									<a href="{{ cliente.foto_cpf.url }}" target="_blank" class="text-primary">
+										<i class="fas fa-file me-1"></i>Ver arquivo atual
+									</a>
+									<span class="text-muted ms-2">· deixe vazio para manter</span>
+								</div>
+							{% endif %}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Comprovante de residência</label>
+							{{ form.comprovante_residencia }}
+							{% if cliente.comprovante_residencia %}
+								<div class="mt-1" style="font-size:.8rem;">
+									<a href="{{ cliente.comprovante_residencia.url }}" target="_blank" class="text-primary">
+										<i class="fas fa-file me-1"></i>Ver arquivo atual
+									</a>
+									<span class="text-muted ms-2">· deixe vazio para manter</span>
+								</div>
+							{% endif %}
+						</div>
+					</div>
+				</div>
 
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Nome <span class="text-danger">*</span></label>
-                                {{ form.name }}
-                                {% if form.name.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ form.name.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Nome usual</label>
-                                {{ form.nome_usual }}
-                                {% if form.nome_usual.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ form.nome_usual.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Data de nascimento</label>
-                                {{ form.data_ns }}
-                                {% if form.data_ns.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ form.data_ns.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Estado civil</label>
-                                {{ form.estado_civil }}
-                                {% if form.estado_civil.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ form.estado_civil.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Naturalidade</label>
-                                {{ form.naturalidade }}
-                                {% if form.naturalidade.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ form.naturalidade.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Nacionalidade</label>
-                                {{ form.nacionalidade }}
-                                {% if form.nacionalidade.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ form.nacionalidade.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Profissão</label>
-                                {{ form.profissao }}
-                                {% if form.profissao.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ form.profissao.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Renda</label>
-                                {{ form.renda }}
-                                {% if form.renda.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ form.renda.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
+				<!-- ================================================
+				     ABA 4 — Endereço
+				     ================================================ -->
+				<div id="tab-endereco" class="upd-tab-pane" style="display:none;">
+					<div class="row g-3">
+						<div class="col-md-3 col-sm-6">
+							<label class="form-label">CEP</label>
+							{{ formEndereco.end_cep }}
+							{% if formEndereco.end_cep.errors %}
+								<div class="text-danger" style="font-size:.8rem;">{{ formEndereco.end_cep.errors|striptags }}</div>
+							{% endif %}
+						</div>
+						<div class="col-md-9 col-sm-6">
+							<label class="form-label">Rua</label>
+							{{ formEndereco.end_rua }}
+						</div>
+						<div class="col-md-3 col-sm-4">
+							<label class="form-label">Número</label>
+							{{ formEndereco.end_numero }}
+						</div>
+						<div class="col-md-4 col-sm-8">
+							<label class="form-label">Complemento</label>
+							{{ formEndereco.end_complemento }}
+						</div>
+						<div class="col-md-5 col-sm-12">
+							<label class="form-label">Bairro</label>
+							{{ formEndereco.end_bairro }}
+						</div>
+						<div class="col-md-8">
+							<label class="form-label">Cidade</label>
+							{{ formEndereco.end_cidade }}
+						</div>
+						<div class="col-md-4">
+							<label class="form-label">Estado</label>
+							{{ formEndereco.end_estado }}
+						</div>
+					</div>
+				</div>
 
-                        <hr class="section-sep">
+				<!-- ================================================
+				     ABA 5 — Contatos
+				     ================================================ -->
+				<div id="tab-contatos" class="upd-tab-pane" style="display:none;">
+					<div class="row g-3 align-items-end">
+						<div class="col-md-5">
+							<label class="form-label">Telefone</label>
+							<input type="text" id="telefoneNumero" class="glot-input mask-phone"
+							       placeholder="(99) 99999-9999">
+						</div>
+						<div class="col-md-3">
+							<label class="form-label">Tipo</label>
+							<select class="glot-select">
+								<option value="">Selecione</option>
+								<option value="celular">Celular</option>
+								<option value="fixo">Fixo</option>
+								<option value="whatsapp">WhatsApp</option>
+								<option value="recado">Recado</option>
+								<option value="outro">Outro</option>
+							</select>
+						</div>
+						<div class="col-md-2">
+							<label class="form-label">Obs.</label>
+							<input type="text" class="glot-input" placeholder="Ex: Principal">
+						</div>
+						<div class="col-md-2">
+							<button type="button" class="btn btn-success w-100"
+							        onclick="addTelefone()" style="border-radius:8px;">
+								<i class="fas fa-plus me-1"></i>ADD
+							</button>
+						</div>
+					</div>
+					<div id="telefoneErro" class="alert alert-danger mt-2" style="display:none;"></div>
+					<ul id="listaTelefones" class="list-group list-group-flush mt-3"></ul>
+				</div>
 
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">CPF / CNPJ <span class="text-danger">*</span></label>
-                                {{ form.documento }}
-                                {% if form.documento.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ form.documento.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">E-mail <span class="text-danger">*</span></label>
-                                {{ form.email }}
-                                {% if form.email.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ form.email.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">RG</label>
-                                {{ form.numero_rg }}
-                                {% if form.numero_rg.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ form.numero_rg.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Órgão emissor</label>
-                                {{ form.orgao_emissor_rg }}
-                                {% if form.orgao_emissor_rg.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ form.orgao_emissor_rg.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            {% if form.observacao %}
-                                <div class="col-12">
-                                    <label class="form-label">Observações</label>
-                                    {{ form.observacao }}
-                                    {% if form.observacao.errors %}
-                                        <div class="text-danger"
-                                             style="font-size:.8rem;">{{ form.observacao.errors|striptags }}</div>
-                                    {% endif %}
-                                </div>
-                            {% endif %}
-                        </div>
+				<!-- ================================================
+				     BARRA DE AÇÕES (sempre visível, rodapé do card)
+				     ================================================ -->
+				<div class="action-bar">
+					{% if origem == 'reserva' and lote_uuid %}
+						<a href="{% url 'reserva-create' reserva_uuid=lote_uuid %}"
+						   class="btn btn-outline-danger" style="border-radius:8px;">
+							<i class="fas fa-times me-1"></i>Cancelar
+						</a>
+					{% else %}
+						<a href="{% url 'lista-cliente' %}"
+						   class="btn btn-outline-danger" style="border-radius:8px;">
+							<i class="fas fa-times me-1"></i>Cancelar
+						</a>
+					{% endif %}
+					<button type="submit" class="btn text-white"
+					        style="background:#0097a7;border-color:#0097a7;border-radius:8px;">
+						<i class="fas fa-save me-1"></i>Salvar alterações
+					</button>
+				</div>
 
-                    </div>
-                </div>
+			</form>
+		</div><!-- #upd-card -->
 
-                <!-- ============================================================
-                     CÔNJUGE (oculto — aparece quando estado_civil == casado)
-                     ============================================================ -->
-                <div id="secaoConjuge" hidden class="card form-card">
-                    <div class="card-header" style="background:#fff8e1;color:#e65100;">
-                        <i class="fas fa-heart me-2"></i>Cônjuge
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Nome do cônjuge <span class="text-danger">*</span></label>
-                                {{ formConjuge.conj_nome }}
-                                {% if formConjuge.conj_nome.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ formConjuge.conj_nome.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">CPF do cônjuge</label>
-                                {{ formConjuge.conj_documento }}
-                                {% if formConjuge.conj_documento.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ formConjuge.conj_documento.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">RG do cônjuge</label>
-                                {{ formConjuge.conj_numero_rg }}
-                                {% if formConjuge.conj_numero_rg.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ formConjuge.conj_numero_rg.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Órgão emissor do RG</label>
-                                {{ formConjuge.conj_orgao_emissor_rg }}
-                                {% if formConjuge.conj_orgao_emissor_rg.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ formConjuge.conj_orgao_emissor_rg.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+	</div><!-- container-fluid -->
+</section>
 
-                <!-- ============================================================
-                     ENDEREÇO
-                     ============================================================ -->
-                <div class="card form-card">
-                    <div class="card-header" style="background:#e3f2fd;color:#1565c0;">
-                        <i class="fas fa-map-marker-alt me-2"></i>Endereço
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-3 col-sm-6">
-                                <label class="form-label">CEP</label>
-                                {{ formEndereco.end_cep }}
-                                {% if formEndereco.end_cep.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ formEndereco.end_cep.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-9 col-sm-6">
-                                <label class="form-label">Rua</label>
-                                {{ formEndereco.end_rua }}
-                                {% if formEndereco.end_rua.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ formEndereco.end_rua.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-3 col-sm-4">
-                                <label class="form-label">Número</label>
-                                {{ formEndereco.end_numero }}
-                                {% if formEndereco.end_numero.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ formEndereco.end_numero.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-4 col-sm-8">
-                                <label class="form-label">Complemento</label>
-                                {{ formEndereco.end_complemento }}
-                                {% if formEndereco.end_complemento.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ formEndereco.end_complemento.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-5 col-sm-12">
-                                <label class="form-label">Bairro</label>
-                                {{ formEndereco.end_bairro }}
-                                {% if formEndereco.end_bairro.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ formEndereco.end_bairro.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-8">
-                                <label class="form-label">Cidade</label>
-                                {{ formEndereco.end_cidade }}
-                                {% if formEndereco.end_cidade.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ formEndereco.end_cidade.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Estado</label>
-                                {{ formEndereco.end_estado }}
-                                {% if formEndereco.end_estado.errors %}
-                                    <div class="text-danger"
-                                         style="font-size:.8rem;">{{ formEndereco.end_estado.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- ================================================================
-                     DOCUMENTOS DO CLIENTE
-                     ================================================================ -->
+<script>
+	window.telefonesTemp = {{ telefones_json|default:"[]"|safe }};
 
-                <div class="container-fluid">
-                    <form method="POST"
-                          action="{% url 'upload-documentos-cliente' cliente.uuid %}"
-                          enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <div class="card form-card">
-                            <div class="card-header" style="background:#f3e5f5;color:#6a1b9a;">
-                                <i class="fas fa-id-card me-2"></i>Documentos
-                                <small class="fw-normal ms-2 text-muted"
-                                       style="font-size:.75rem;text-transform:none;letter-spacing:0;">
-                                    JPG, PNG ou PDF · máx. 10 MB por arquivo
-                                </small>
-                            </div>
-                            <div class="card-body">
-                                <div class="row g-3">
+	// Chaveamento de abas
+	(function () {
+		var btns = document.querySelectorAll('.upd-tab-btn');
+		var panes = document.querySelectorAll('.upd-tab-pane');
 
-                                    <div class="col-md-6">
-                                        <label class="form-label">RG — frente</label>
-                                        <input type="file" name="foto_rg_frente" accept=".jpg,.jpeg,.png,.pdf"
-                                               class="form-control">
-                                        {% if cliente.foto_rg_frente %}
-                                            <div class="mt-1" style="font-size:.8rem;">
-                                                <a href="{{ cliente.foto_rg_frente.url }}" target="_blank"
-                                                   class="text-primary">
-                                                    <i class="fas fa-file me-1"></i>Ver arquivo atual
-                                                </a>
-                                            </div>
-                                        {% endif %}
-                                    </div>
+		btns.forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				btns.forEach(function (b) { b.classList.remove('active'); });
+				panes.forEach(function (p) { p.style.display = 'none'; });
+				btn.classList.add('active');
+				var pane = document.getElementById('tab-' + btn.dataset.tab);
+				if (pane) pane.style.display = '';
+			});
+		});
+	})();
 
-                                    <div class="col-md-6">
-                                        <label class="form-label">RG — verso</label>
-                                        <input type="file" name="foto_rg_verso" accept=".jpg,.jpeg,.png,.pdf"
-                                               class="form-control">
-                                        {% if cliente.foto_rg_verso %}
-                                            <div class="mt-1" style="font-size:.8rem;">
-                                                <a href="{{ cliente.foto_rg_verso.url }}" target="_blank"
-                                                   class="text-primary">
-                                                    <i class="fas fa-file me-1"></i>Ver arquivo atual
-                                                </a>
-                                            </div>
-                                        {% endif %}
-                                    </div>
+	// Aba Cônjuge: visível apenas quando estado_civil === 'casado'
+	(function () {
+		var sel = document.getElementById('id_estado_civil');
+		var tabBtn = document.querySelector('[data-tab="conjuge"]');
 
-                                    <div class="col-md-6">
-                                        <label class="form-label">CPF</label>
-                                        <input type="file" name="foto_cpf" accept=".jpg,.jpeg,.png,.pdf"
-                                               class="form-control">
-                                        {% if cliente.foto_cpf %}
-                                            <div class="mt-1" style="font-size:.8rem;">
-                                                <a href="{{ cliente.foto_cpf.url }}" target="_blank"
-                                                   class="text-primary">
-                                                    <i class="fas fa-file me-1"></i>Ver arquivo atual
-                                                </a>
-                                            </div>
-                                        {% endif %}
-                                    </div>
+		function update() {
+			if (!tabBtn) return;
+			var casado = sel && sel.value === 'casado';
+			tabBtn.style.display = casado ? '' : 'none';
+			if (!casado && tabBtn.classList.contains('active')) {
+				tabBtn.classList.remove('active');
+				document.getElementById('tab-conjuge').style.display = 'none';
+				var dadosBtn = document.querySelector('[data-tab="dados"]');
+				var dadosPane = document.getElementById('tab-dados');
+				if (dadosBtn) dadosBtn.classList.add('active');
+				if (dadosPane) dadosPane.style.display = '';
+			}
+		}
 
-                                    <div class="col-md-6">
-                                        <label class="form-label">Comprovante de residência</label>
-                                        <input type="file" name="comprovante_residencia" accept=".jpg,.jpeg,.png,.pdf"
-                                               class="form-control">
-                                        {% if cliente.comprovante_residencia %}
-                                            <div class="mt-1" style="font-size:.8rem;">
-                                                <a href="{{ cliente.comprovante_residencia.url }}" target="_blank"
-                                                   class="text-primary">
-                                                    <i class="fas fa-file me-1"></i>Ver arquivo atual
-                                                </a>
-                                            </div>
-                                        {% endif %}
-                                    </div>
+		update();
+		if (sel) sel.addEventListener('change', update);
+	})();
+</script>
 
-                                </div>
-                            </div>
-                            <div class="action-bar">
-					<span style="font-size:.8rem;color:#888;">
-						<i class="fas fa-lock me-1"></i>Acesso restrito — URLs assinadas
-					</span>
-                                <button type="submit" class="btn text-white"
-                                        style="background:#6a1b9a;border-color:#6a1b9a;border-radius:8px;">
-                                    <i class="fas fa-upload me-1"></i>Salvar documentos
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-
-                <!-- ============================================================
-                     BARRA DE AÇÕES
-                     ============================================================ -->
-                <div class="action-bar">
-                    <button type="button" class="btn btn-outline-secondary"
-                            data-bs-toggle="modal" data-bs-target="#modalTelefones"
-                            style="border-radius:8px;">
-                        <i class="fas fa-phone me-2"></i>Contatos
-                    </button>
-                    <div class="d-flex gap-2 flex-wrap">
-                        {% if origem == 'reserva' and lote_uuid %}
-                            <a href="{% url 'reserva-create' reserva_uuid=lote_uuid %}"
-                               class="btn btn-outline-danger" style="border-radius:8px;">
-                                <i class="fas fa-times me-1"></i>Cancelar
-                            </a>
-                        {% else %}
-                            <a href="{% url 'lista-cliente' %}"
-                               class="btn btn-outline-danger" style="border-radius:8px;">
-                                <i class="fas fa-times me-1"></i>Cancelar
-                            </a>
-                        {% endif %}
-                        <button type="submit" class="btn text-white"
-                                style="background:#0097a7;border-color:#0097a7;border-radius:8px;">
-                            <i class="fas fa-save me-1"></i>Salvar alterações
-                        </button>
-                    </div>
-                </div>
-
-            </form>
-        </div>
-    </section>
-
-
-
-    <!-- ================================================================
-         MODAL TELEFONES
-         — formTelefone não está no GET context de atualizarCliente,
-           por isso usa inputs diretos com os IDs esperados pelo JS
-         ================================================================ -->
-    <div class="modal fade" id="modalTelefones" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content" style="border-radius:12px;overflow:hidden;">
-                <div class="modal-header" style="background:#0097a7;">
-                    <h5 class="modal-title text-white">
-                        <i class="fas fa-phone me-2"></i>Telefones do Cliente
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white"
-                            data-bs-dismiss="modal" aria-label="Fechar"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-4">
-                            <label class="form-label">Telefone</label>
-                            <input type="text" id="telefoneNumero" class="form-control mask-phone"
-                                   placeholder="(99) 99999-9999">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Tipo</label>
-                            <select class="form-select">
-                                <option value="">Selecione</option>
-                                <option>WhatsApp</option>
-                                <option>Residencial</option>
-                                <option>Comercial</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Observação</label>
-                            <input type="text" class="form-control" placeholder="Ex: Principal">
-                        </div>
-                        <div class="col-md-2">
-                            <button type="button" class="btn btn-success w-100"
-                                    onclick="addTelefone()" style="border-radius:8px;">
-                                <i class="fas fa-plus me-1"></i>ADD
-                            </button>
-                        </div>
-                    </div>
-                    <hr>
-                    <div id="telefoneErro" style="display:none;"></div>
-                    <ul id="listaTelefones" class="list-group list-group-flush mt-2"></ul>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary"
-                            data-bs-dismiss="modal" style="border-radius:8px;">
-                        <i class="fas fa-times me-1"></i>Fechar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        window.telefonesTemp = {{ telefones_json|safe }};
-
-        function atualizarConjuge() {
-            var val = (document.getElementById('id_estado_civil') || {}).value || '';
-            if (!val && typeof $ !== 'undefined') val = $('select[name="estado_civil"]').val() || '';
-            var sec = document.getElementById('secaoConjuge');
-            if (!sec) return;
-            if (val === 'casado') sec.removeAttribute('hidden');
-            else sec.setAttribute('hidden', '');
-        }
-
-        var _sel = document.getElementById('id_estado_civil');
-        if (_sel) _sel.addEventListener('change', atualizarConjuge);
-
-        if (typeof $ !== 'undefined') {
-            $(document).on('change select2:select select2:unselect', '[name="estado_civil"]', atualizarConjuge);
-        }
-
-        var _t = 0, _iv = setInterval(function () {
-            atualizarConjuge();
-            if (++_t >= 8) clearInterval(_iv);
-        }, 400);
-    </script>
 {% endblock %}

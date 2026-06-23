@@ -6,36 +6,42 @@
 
 {% block content %}
 <style>
-	.form-card {
-		border-radius: 12px;
-		box-shadow: 0 2px 8px rgba(0,0,0,.08);
-		border: 1px solid #e9ecef;
-		margin-bottom: 1.5rem;
+	/* ===== WIZARD ===== */
+	#wizard-card { border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);border:1px solid #e9ecef;overflow:hidden; }
+	#wizard-progress { background:#f8f9fa;padding:1.25rem 1.5rem;border-bottom:1px solid #e9ecef; }
+	#wizard-progress-items { display:flex;align-items:flex-start; }
+	.wz-step { display:flex;flex-direction:column;align-items:center;text-align:center; }
+	.wz-circle { width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem; }
+	.wz-done .wz-circle { background:#0097a7;color:#fff; }
+	.wz-active .wz-circle { background:#0097a7;color:#fff;box-shadow:0 0 0 4px rgba(0,151,167,.15); }
+	.wz-future .wz-circle { background:#e9ecef;color:#868e96; }
+	.wz-label { font-size:.7rem;font-weight:600;margin-top:.35rem;white-space:nowrap; }
+	.wz-done .wz-label,.wz-active .wz-label { color:#0097a7; }
+	.wz-future .wz-label { color:#adb5bd; }
+	.wz-connector { flex:1;height:2px;background:#e9ecef;margin-top:15px;min-width:8px; }
+	.wz-connector.done { background:#0097a7; }
+	#wizard-progress-mobile { display:none;font-weight:600;font-size:.85rem;color:#0097a7;text-align:center; }
+	@media (max-width:575px) {
+		#wizard-progress-items { display:none !important; }
+		#wizard-progress-mobile { display:block; }
 	}
-	.form-card .card-header {
-		border-radius: 12px 12px 0 0;
-		padding: .7rem 1.25rem;
-		font-weight: 700;
-		font-size: .82rem;
-		letter-spacing: .06em;
-		text-transform: uppercase;
-		border-bottom: 1px solid rgba(0,0,0,.08);
-	}
-	.form-card .card-body { padding: 1.5rem; }
-	.form-label { font-weight: 600; font-size: .83rem; margin-bottom: .35rem; }
-	.section-sep { border: none; border-top: 1px solid #e9ecef; margin: 1.25rem 0; }
-	.action-bar {
-		background: #fff;
-		border-top: 2px solid #e9ecef;
-		padding: 1rem 1.5rem;
-		border-radius: 0 0 12px 12px;
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		flex-wrap: wrap;
-		gap: .75rem;
-		box-shadow: 0 -2px 8px rgba(0,0,0,.05);
-	}
+	/* Erros */
+	#wizard-errors { margin:1rem 1.5rem 0;padding:.65rem 1rem;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;color:#856404;font-size:.85rem; }
+	/* Etapas */
+	.wizard-step { padding:1.5rem; }
+	.wz-step-head { font-weight:700;font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:1rem; }
+	.step-sublabel { font-size:.8rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.6rem; }
+	.section-sep { border:none;border-top:1px solid #e9ecef;margin:1.25rem 0; }
+	/* Revisão */
+	.wz-rv-section { margin-bottom:1.25rem; }
+	.wz-rv-head { font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #e9ecef;padding-bottom:.4rem;margin-bottom:.5rem; }
+	.wz-rv-row { display:flex;gap:.75rem;padding:.3rem 0;font-size:.88rem;border-bottom:1px dotted #f0f0f0; }
+	.wz-rv-label { color:#868e96;min-width:130px;font-weight:600;flex-shrink:0; }
+	.wz-rv-val { color:#212529;word-break:break-word; }
+	/* Navegação */
+	.wizard-nav { background:#fff;border-top:2px solid #e9ecef;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;box-shadow:0 -2px 8px rgba(0,0,0,.05); }
+	/* Labels */
+	.form-label { font-weight:600;font-size:.83rem;margin-bottom:.35rem; }
 </style>
 
 <div class="content-header">
@@ -46,9 +52,7 @@
 				<nav aria-label="breadcrumb">
 					<ol class="breadcrumb mb-0" style="font-size:.8rem;">
 						<li class="breadcrumb-item"><a href="/">Início</a></li>
-						<li class="breadcrumb-item">
-							<a href="{% url 'lista-cliente' %}">Clientes</a>
-						</li>
+						<li class="breadcrumb-item"><a href="{% url 'lista-cliente' %}">Clientes</a></li>
 						<li class="breadcrumb-item active">Cadastrar</li>
 					</ol>
 				</nav>
@@ -72,22 +76,38 @@
 
 <section class="content">
 	<div class="container-fluid">
-		<form id="cliente-form" action="{% url 'criar-cliente' %}" method="POST" novalidate>
-			{% csrf_token %}
-			<input type="hidden" name="telefones_json" id="telefones_json">
-			<input type="hidden" name="origem" value="{{ origem }}">
-			{% if lote_uuid %}<input type="hidden" name="lote_uuid" value="{{ lote_uuid }}">{% endif %}
-			{% if form.lote_id %}{{ form.lote_id }}{% endif %}
 
-			<!-- ============================================================
-			     IDENTIFICAÇÃO
-			     ============================================================ -->
-			<div class="card form-card">
-				<div class="card-header" style="background:#e8f5e9;color:#2e7d32;">
-					<i class="fas fa-user me-2"></i>Identificação
-				</div>
-				<div class="card-body">
+		<div class="card" id="wizard-card">
 
+			<!-- ====================================================
+			     BARRA DE PROGRESSO
+			     ==================================================== -->
+			<div id="wizard-progress">
+				<div id="wizard-progress-items"></div>
+				<div id="wizard-progress-mobile"></div>
+			</div>
+
+			<!-- ====================================================
+			     FORMULÁRIO
+			     ==================================================== -->
+			<form id="cliente-form" action="{% url 'criar-cliente' %}" method="POST"
+			      enctype="multipart/form-data" novalidate>
+				{% csrf_token %}
+				<input type="hidden" name="telefones_json" id="telefones_json">
+				<input type="hidden" name="origem" value="{{ origem }}">
+				{% if lote_uuid %}<input type="hidden" name="lote_uuid" value="{{ lote_uuid }}">{% endif %}
+				{% if form.lote_id %}{{ form.lote_id }}{% endif %}
+
+				<!-- Caixa de erros de validação JS -->
+				<div id="wizard-errors" style="display:none;"></div>
+
+				<!-- ================================================
+				     ETAPA 1 — Dados pessoais
+				     ================================================ -->
+				<div id="step-1" class="wizard-step">
+					<p class="wz-step-head" style="color:#2e7d32;">
+						<i class="fas fa-user me-2"></i>Dados pessoais
+					</p>
 					<div class="row g-3">
 						<div class="col-md-6">
 							<label class="form-label">Nome <span class="text-danger">*</span></label>
@@ -99,56 +119,33 @@
 						<div class="col-md-6">
 							<label class="form-label">Nome usual</label>
 							{{ form.nome_usual }}
-							{% if form.nome_usual.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ form.nome_usual.errors|striptags }}</div>
-							{% endif %}
 						</div>
 						<div class="col-md-6">
 							<label class="form-label">Data de nascimento</label>
 							{{ form.data_ns }}
-							{% if form.data_ns.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ form.data_ns.errors|striptags }}</div>
-							{% endif %}
 						</div>
 						<div class="col-md-6">
 							<label class="form-label">Estado civil</label>
 							{{ form.estado_civil }}
-							{% if form.estado_civil.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ form.estado_civil.errors|striptags }}</div>
-							{% endif %}
 						</div>
 						<div class="col-md-6">
 							<label class="form-label">Naturalidade</label>
 							{{ form.naturalidade }}
-							{% if form.naturalidade.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ form.naturalidade.errors|striptags }}</div>
-							{% endif %}
 						</div>
 						<div class="col-md-6">
 							<label class="form-label">Nacionalidade</label>
 							{{ form.nacionalidade }}
-							{% if form.nacionalidade.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ form.nacionalidade.errors|striptags }}</div>
-							{% endif %}
 						</div>
 						<div class="col-md-6">
 							<label class="form-label">Profissão</label>
 							{{ form.profissao }}
-							{% if form.profissao.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ form.profissao.errors|striptags }}</div>
-							{% endif %}
 						</div>
 						<div class="col-md-6">
 							<label class="form-label">Renda</label>
 							{{ form.renda }}
-							{% if form.renda.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ form.renda.errors|striptags }}</div>
-							{% endif %}
 						</div>
 					</div>
-
 					<hr class="section-sep">
-
 					<div class="row g-3">
 						<div class="col-md-6">
 							<label class="form-label">CPF / CNPJ <span class="text-danger">*</span></label>
@@ -167,39 +164,27 @@
 						<div class="col-md-6">
 							<label class="form-label">RG</label>
 							{{ form.numero_rg }}
-							{% if form.numero_rg.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ form.numero_rg.errors|striptags }}</div>
-							{% endif %}
 						</div>
 						<div class="col-md-6">
 							<label class="form-label">Órgão emissor</label>
 							{{ form.orgao_emissor_rg }}
-							{% if form.orgao_emissor_rg.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ form.orgao_emissor_rg.errors|striptags }}</div>
-							{% endif %}
 						</div>
 						{% if form.observacao %}
 						<div class="col-12">
 							<label class="form-label">Observações</label>
 							{{ form.observacao }}
-							{% if form.observacao.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ form.observacao.errors|striptags }}</div>
-							{% endif %}
 						</div>
 						{% endif %}
 					</div>
-
 				</div>
-			</div>
 
-            <!-- ============================================================
-			     CÔNJUGE (oculto — aparece quando estado_civil == casado)
-			     ============================================================ -->
-			<div id="secaoConjuge" hidden class="card form-card">
-				<div class="card-header" style="background:#fff8e1;color:#e65100;">
-					<i class="fas fa-heart me-2"></i>Cônjuge
-				</div>
-				<div class="card-body">
+				<!-- ================================================
+				     ETAPA 2 — Cônjuge (condicional: só se casado)
+				     ================================================ -->
+				<div id="step-2" class="wizard-step" style="display:none;">
+					<p class="wz-step-head" style="color:#e65100;">
+						<i class="fas fa-heart me-2"></i>Cônjuge
+					</p>
 					<div class="row g-3">
 						<div class="col-md-6">
 							<label class="form-label">Nome do cônjuge <span class="text-danger">*</span></label>
@@ -211,200 +196,193 @@
 						<div class="col-md-6">
 							<label class="form-label">CPF do cônjuge</label>
 							{{ formConjuge.conj_documento }}
-							{% if formConjuge.conj_documento.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ formConjuge.conj_documento.errors|striptags }}</div>
-							{% endif %}
 						</div>
 						<div class="col-md-6">
 							<label class="form-label">RG do cônjuge</label>
 							{{ formConjuge.conj_numero_rg }}
-							{% if formConjuge.conj_numero_rg.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ formConjuge.conj_numero_rg.errors|striptags }}</div>
-							{% endif %}
 						</div>
 						<div class="col-md-6">
 							<label class="form-label">Órgão emissor do RG</label>
 							{{ formConjuge.conj_orgao_emissor_rg }}
-							{% if formConjuge.conj_orgao_emissor_rg.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ formConjuge.conj_orgao_emissor_rg.errors|striptags }}</div>
-							{% endif %}
+						</div>
+					</div>
+					<hr class="section-sep">
+					<p class="step-sublabel"><i class="fas fa-id-badge me-1"></i>Documentos do cônjuge</p>
+					<div class="row g-3">
+						<div class="col-md-6">
+							<label class="form-label">RG cônjuge — frente</label>
+							{{ form.conj_rg_frente }}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">RG cônjuge — verso</label>
+							{{ form.conj_rg_verso }}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Certidão de estado civil</label>
+							{{ form.certidao_estado_civil }}
 						</div>
 					</div>
 				</div>
-			</div>
 
-			<!-- ============================================================
-			     ENDEREÇO
-			     ============================================================ -->
-			<div class="card form-card">
-				<div class="card-header" style="background:#e3f2fd;color:#1565c0;">
-					<i class="fas fa-map-marker-alt me-2"></i>Endereço
+				<!-- ================================================
+				     ETAPA 3 — Documentos pessoais
+				     ================================================ -->
+				<div id="step-3" class="wizard-step" style="display:none;">
+					<p class="wz-step-head" style="color:#6a1b9a;">
+						<i class="fas fa-id-card me-2"></i>Documentos pessoais
+						<small style="font-weight:normal;font-size:.75rem;color:#aaa;text-transform:none;letter-spacing:0;">
+							· JPG, PNG ou PDF · máx. 10 MB · todos opcionais
+						</small>
+					</p>
+					<p class="step-sublabel"><i class="fas fa-id-badge me-1"></i>RG do cliente</p>
+					<div class="row g-3">
+						<div class="col-md-6">
+							<label class="form-label">Frente</label>
+							{{ form.foto_rg_frente }}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Verso</label>
+							{{ form.foto_rg_verso }}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">CPF (foto)</label>
+							{{ form.foto_cpf }}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Comprovante de residência</label>
+							{{ form.comprovante_residencia }}
+						</div>
+					</div>
 				</div>
-				<div class="card-body">
+
+				<!-- ================================================
+				     ETAPA 4 — Endereço
+				     ================================================ -->
+				<div id="step-4" class="wizard-step" style="display:none;">
+					<p class="wz-step-head" style="color:#1565c0;">
+						<i class="fas fa-map-marker-alt me-2"></i>Endereço
+					</p>
 					<div class="row g-3">
 						<div class="col-md-3 col-sm-6">
-							<label class="form-label">CEP</label>
+							<label class="form-label">CEP <span class="text-danger">*</span></label>
 							{{ formEndereco.end_cep }}
 							{% if formEndereco.end_cep.errors %}
 								<div class="text-danger" style="font-size:.8rem;">{{ formEndereco.end_cep.errors|striptags }}</div>
 							{% endif %}
 						</div>
 						<div class="col-md-9 col-sm-6">
-							<label class="form-label">Rua</label>
+							<label class="form-label">Rua <span class="text-danger">*</span></label>
 							{{ formEndereco.end_rua }}
-							{% if formEndereco.end_rua.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ formEndereco.end_rua.errors|striptags }}</div>
-							{% endif %}
 						</div>
 						<div class="col-md-3 col-sm-4">
-							<label class="form-label">Número</label>
+							<label class="form-label">Número <span class="text-danger">*</span></label>
 							{{ formEndereco.end_numero }}
-							{% if formEndereco.end_numero.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ formEndereco.end_numero.errors|striptags }}</div>
-							{% endif %}
 						</div>
 						<div class="col-md-4 col-sm-8">
 							<label class="form-label">Complemento</label>
 							{{ formEndereco.end_complemento }}
-							{% if formEndereco.end_complemento.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ formEndereco.end_complemento.errors|striptags }}</div>
-							{% endif %}
 						</div>
 						<div class="col-md-5 col-sm-12">
-							<label class="form-label">Bairro</label>
+							<label class="form-label">Bairro <span class="text-danger">*</span></label>
 							{{ formEndereco.end_bairro }}
-							{% if formEndereco.end_bairro.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ formEndereco.end_bairro.errors|striptags }}</div>
-							{% endif %}
 						</div>
 						<div class="col-md-8">
-							<label class="form-label">Cidade</label>
+							<label class="form-label">Cidade <span class="text-danger">*</span></label>
 							{{ formEndereco.end_cidade }}
-							{% if formEndereco.end_cidade.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ formEndereco.end_cidade.errors|striptags }}</div>
-							{% endif %}
 						</div>
 						<div class="col-md-4">
-							<label class="form-label">Estado</label>
+							<label class="form-label">Estado <span class="text-danger">*</span></label>
 							{{ formEndereco.end_estado }}
-							{% if formEndereco.end_estado.errors %}
-								<div class="text-danger" style="font-size:.8rem;">{{ formEndereco.end_estado.errors|striptags }}</div>
-							{% endif %}
 						</div>
 					</div>
 				</div>
-			</div>
 
-
-
-			<!-- ============================================================
-			     BARRA DE AÇÕES
-			     ============================================================ -->
-			<div class="action-bar">
-				<button type="button" class="btn btn-outline-secondary"
-				        data-bs-toggle="modal" data-bs-target="#modalTelefones"
-				        style="border-radius:8px;">
-					<i class="fas fa-phone me-2"></i>Contatos
-				</button>
-				<div class="d-flex gap-2 flex-wrap">
-					{% if origem == 'reserva' and lote_uuid %}
-						<a href="{% url 'reserva-create' reserva_uuid=lote_uuid %}"
-						   class="btn btn-outline-danger" style="border-radius:8px;">
-							<i class="fas fa-times me-1"></i>Cancelar
-						</a>
-					{% else %}
-						<a href="{% url 'lista-cliente' %}"
-						   class="btn btn-outline-danger" style="border-radius:8px;">
-							<i class="fas fa-times me-1"></i>Cancelar
-						</a>
-					{% endif %}
-					<button type="submit" class="btn text-white"
-					        style="background:#0097a7;border-color:#0097a7;border-radius:8px;">
-						<i class="fas fa-save me-1"></i>Salvar cliente
-					</button>
+				<!-- ================================================
+				     ETAPA 5 — Contatos
+				     ================================================ -->
+				<div id="step-5" class="wizard-step" style="display:none;">
+					<p class="wz-step-head" style="color:#0097a7;">
+						<i class="fas fa-phone me-2"></i>Contatos
+						<small style="font-weight:normal;font-size:.75rem;color:#aaa;text-transform:none;letter-spacing:0;">
+							· ao menos um telefone é obrigatório
+						</small>
+					</p>
+					<div class="row g-3 align-items-end">
+						<div class="col-md-5">
+							<label class="form-label">Telefone</label>
+							{{ formTelefone.numero }}
+						</div>
+						<div class="col-md-3">
+							<label class="form-label">Tipo</label>
+							{{ formTelefone.tipo }}
+						</div>
+						<div class="col-md-2">
+							<label class="form-label">Obs.</label>
+							{{ formTelefone.observacao }}
+						</div>
+						<div class="col-md-2">
+							<button type="button" class="btn btn-success w-100"
+							        onclick="addTelefone()" style="border-radius:8px;">
+								<i class="fas fa-plus me-1"></i>ADD
+							</button>
+						</div>
+					</div>
+					<div id="telefoneErro" class="alert alert-danger mt-2" style="display:none;"></div>
+					<ul id="listaTelefones" class="list-group list-group-flush mt-3"></ul>
 				</div>
-			</div>
 
-		</form>
-	</div>
-</section>
+				<!-- ================================================
+				     ETAPA 6 — Revisão
+				     ================================================ -->
+				<div id="step-6" class="wizard-step" style="display:none;">
+					<p class="wz-step-head" style="color:#495057;">
+						<i class="fas fa-check-circle me-2"></i>Revisão dos dados
+					</p>
+					<div id="review-content"></div>
+				</div>
 
-<!-- ================================================================
-     MODAL TELEFONES
-     ================================================================ -->
-<div class="modal fade" id="modalTelefones" tabindex="-1" aria-hidden="true">
-	<div class="modal-dialog modal-lg modal-dialog-centered">
-		<div class="modal-content" style="border-radius:12px;overflow:hidden;">
-			<div class="modal-header" style="background:#0097a7;">
-				<h5 class="modal-title text-white">
-					<i class="fas fa-phone me-2"></i>Telefones do Cliente
-				</h5>
-				<button type="button" class="btn-close btn-close-white"
-				        data-bs-dismiss="modal" aria-label="Fechar"></button>
-			</div>
-			<div class="modal-body">
-				<div class="row g-3 align-items-end">
-					<div class="col-md-4">
-						<label class="form-label">Telefone</label>
-						{% for field in formTelefone %}
-							{% if field.field.widget.attrs.col == 'left' %}{{ field }}{% endif %}
-						{% endfor %}
-					</div>
-					<div class="col-md-3">
-						<label class="form-label">Tipo</label>
-						{% for field in formTelefone %}
-							{% if field.field.widget.attrs.col == 'center' %}{{ field }}{% endif %}
-						{% endfor %}
-					</div>
-					<div class="col-md-3">
-						<label class="form-label">Observação</label>
-						{% for field in formTelefone %}
-							{% if field.field.widget.attrs.col == 'right' %}{{ field }}{% endif %}
-						{% endfor %}
-					</div>
-					<div class="col-md-2">
-						<button type="button" class="btn btn-success w-100"
-						        onclick="addTelefone()" style="border-radius:8px;">
-							<i class="fas fa-plus me-1"></i>ADD
+				<!-- ================================================
+				     NAVEGAÇÃO
+				     ================================================ -->
+				<div class="wizard-nav">
+					<button type="button" id="wizard-btn-prev"
+					        class="btn btn-outline-secondary" style="display:none;border-radius:8px;">
+						<i class="fas fa-arrow-left me-1"></i>Voltar
+					</button>
+					<div class="d-flex gap-2 align-items-center flex-wrap">
+						{% if origem == 'reserva' and lote_uuid %}
+							<a href="{% url 'reserva-create' reserva_uuid=lote_uuid %}"
+							   class="btn btn-outline-danger" style="border-radius:8px;">
+								<i class="fas fa-times me-1"></i>Cancelar
+							</a>
+						{% else %}
+							<a href="{% url 'lista-cliente' %}"
+							   class="btn btn-outline-danger" style="border-radius:8px;">
+								<i class="fas fa-times me-1"></i>Cancelar
+							</a>
+						{% endif %}
+						<button type="button" id="wizard-btn-next"
+						        class="btn text-white"
+						        style="background:#0097a7;border-color:#0097a7;border-radius:8px;">
+							Próximo <i class="fas fa-arrow-right ms-1"></i>
+						</button>
+						<button type="submit" id="wizard-btn-submit"
+						        class="btn text-white"
+						        style="display:none;background:#0097a7;border-color:#0097a7;border-radius:8px;">
+							<i class="fas fa-save me-1"></i>Cadastrar cliente
 						</button>
 					</div>
 				</div>
-				<hr>
-				<div id="telefoneErro" style="display:none;"></div>
-				<ul id="listaTelefones" class="list-group list-group-flush mt-2"></ul>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary"
-				        data-bs-dismiss="modal" style="border-radius:8px;">
-					<i class="fas fa-times me-1"></i>Fechar
-				</button>
-			</div>
-		</div>
-	</div>
-</div>
+
+			</form>
+		</div><!-- #wizard-card -->
+
+	</div><!-- container-fluid -->
+</section>
 
 <script>
-	window.telefonesTemp = {{ telefones_json|safe }};
-
-	function atualizarConjuge() {
-		var val = (document.getElementById('id_estado_civil') || {}).value || '';
-		if (!val && typeof $ !== 'undefined') val = $('select[name="estado_civil"]').val() || '';
-		var sec = document.getElementById('secaoConjuge');
-		if (!sec) return;
-		if (val === 'casado') sec.removeAttribute('hidden');
-		else sec.setAttribute('hidden', '');
-	}
-
-	var _sel = document.getElementById('id_estado_civil');
-	if (_sel) _sel.addEventListener('change', atualizarConjuge);
-
-	if (typeof $ !== 'undefined') {
-		$(document).on('change select2:select select2:unselect', '[name="estado_civil"]', atualizarConjuge);
-	}
-
-	var _t = 0, _iv = setInterval(function () {
-		atualizarConjuge();
-		if (++_t >= 8) clearInterval(_iv);
-	}, 400);
+	window.telefonesTemp = {{ telefones_json|default:"[]"|safe }};
 </script>
+<script src="{% static 'js/cliente_wizard.js' %}"></script>
+
 {% endblock %}

@@ -416,7 +416,7 @@ class CriarReservadoView(UpdateView):
 		# STATUS
 		# =================================================
 
-		reserva.is_ativo = False
+		reserva.is_ativo = True
 
 		reserva.dt_reserva = (
 
@@ -606,22 +606,6 @@ class RenovaReservaView(View):
 
 	def post(self, request, venda_uuid, *args, **kwargs):
 		venda = get_object_or_404(RegisterVenda, uuid=venda_uuid)
-		empreendimento = venda.lote.quadra.empr
-
-		venda.dt_reserva = timezone.now() + timedelta(
-			days=empreendimento.tempo_reserva
-		)
-		venda.save(update_fields=['dt_reserva'])
-
-		messages.success(request, "Reserva renovada com sucesso!")
-
-		return redirect('listar-quadras', uuid=empreendimento.uuid)
-
-@method_decorator(has_permission_decorator('renovarReserva'), name='dispatch')
-class RenovaReservaView(View):
-
-	def post(self, request, venda_uuid, *args, **kwargs):
-		venda = get_object_or_404(RegisterVenda, uuid=venda_uuid)
 
 		empreendimento = venda.lote.quadra.empr
 
@@ -650,7 +634,7 @@ class AceitaReservaView(View):
 		lote.save(update_fields=['situacao'])
 
 		# ðŸ"¥ Atualiza venda
-		venda.is_ativo = False
+		venda.is_ativo = True
 		venda.tipo_venda = 'RESERVADO'
 		venda.aceite_proposta = request.user
 		venda.save(update_fields=['is_ativo', 'tipo_venda', 'aceite_proposta'])

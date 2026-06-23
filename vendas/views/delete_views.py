@@ -19,14 +19,14 @@ class CancelarVendaView(View):
 
         lote = venda.lote
 
-        # 🔄 Atualiza lote
+        # Atualiza lote
         if lote:
             lote.situacao = 'DISPONIVEL'
             lote.save(update_fields=['situacao'])
 
-        # 🔄 Atualiza venda
+        # Atualiza venda
         venda.tipo_venda = 'CANCELADA'
-        venda.is_ativo = True
+        venda.is_ativo = False
         venda.save(update_fields=['tipo_venda', 'is_ativo'])
 
         messages.success(request, "Venda cancelada com sucesso!")
@@ -42,15 +42,18 @@ class CancelarVendaView(View):
 )
 class CancelarReservadoCadastroView(View):
 
-    def get_lote(self, cancelaReserva_uuid):
-        return get_object_or_404(Lote, uuid=cancelaReserva_uuid)
+    def post(self, request, *args, **kwargs):
+        lote = get_object_or_404(Lote, uuid=kwargs.get('cancelaReserva_uuid'))
 
-    def get(self, request, *args, **kwargs):
-        lote = self.get_lote(kwargs.get('cancelaReserva_uuid'))
-
-        # 🔄 Atualiza situação
-        lote.situacao = "PRE-RESERVA"
+        # Atualiza situação do lote
+        lote.situacao = 'DISPONIVEL'
         lote.save(update_fields=['situacao'])
+
+        # Atualiza venda vinculada, se existir
+        venda = getattr(lote, 'reg_venda', None)
+        if venda:
+            venda.tipo_venda = 'CANCELADA'
+            venda.save(update_fields=['tipo_venda'])
 
         messages.success(request, "Reserva cancelada com sucesso!")
         return redirect('lista-empreendimento')
@@ -64,11 +67,11 @@ class CancelarReservaView(View):
 
         lote = venda.lote
 
-        # 🔥 Atualiza lote
-        lote.situacao = 'PRE-RESERVA'
+        # Atualiza lote
+        lote.situacao = 'DISPONIVEL'
         lote.save(update_fields=['situacao'])
 
-        # 🔥 Atualiza venda
+        # Atualiza venda
         venda.is_ativo = False
         venda.tipo_venda = 'NAO_ACEITE'
         venda.aceite_proposta = None
@@ -87,11 +90,11 @@ class CancelarAceiteReservaView(View):
 
         lote = venda.lote
 
-        # 🔥 Atualiza lote
+        # Atualiza lote
         lote.situacao = 'DISPONIVEL'
         lote.save(update_fields=['situacao'])
 
-        # 🔥 Atualiza venda
+        # Atualiza venda
         venda.is_ativo = False
         venda.tipo_venda = 'NAO_ACEITE'
         venda.save(update_fields=['is_ativo', 'tipo_venda'])

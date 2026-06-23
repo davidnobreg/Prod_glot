@@ -91,13 +91,6 @@
             transition: filter 0.18s ease, transform 0.18s ease;
         }
 
-        .proposta-button-primary {
-            background: linear-gradient(180deg, #f7ffff 0%, #4fb4cf 34%, #057897 100%);
-            border-color: #08748d;
-            box-shadow: 0 10px 18px rgba(4, 80, 105, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-            color: #fff;
-        }
-
         .proposta-button-secondary {
             background: #fff;
             border-color: #c8e8ef;
@@ -108,11 +101,6 @@
         .proposta-button:focus {
             filter: brightness(1.06);
             transform: translateY(-1px);
-        }
-
-        .proposta-button-primary:hover,
-        .proposta-button-primary:focus {
-            color: #fff;
         }
 
         .proposta-button-secondary:hover,
@@ -269,15 +257,9 @@
                 </div>
 
                 <div class="proposta-actions">
-                    <a href="javascript:history.back()" class="proposta-button proposta-button-secondary">
-                        <i class="bi bi-arrow-left"></i>
-                        Voltar
-                    </a>
-
-
-                    <button type="button" class="proposta-button proposta-button-primary" onclick="window.print()">
-                        <i class="bi bi-printer"></i>
-                        Imprimir
+                    <button type="button" class="proposta-button proposta-button-secondary" onclick="window.close()">
+                        <i class="bi bi-x-circle"></i>
+                        Fechar
                     </button>
                 </div>
             </div>

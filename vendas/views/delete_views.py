@@ -26,7 +26,7 @@ class CancelarVendaView(View):
 
         # Atualiza venda
         venda.tipo_venda = 'CANCELADA'
-        venda.is_ativo = True
+        venda.is_ativo = False
         venda.save(update_fields=['tipo_venda', 'is_ativo'])
 
         messages.success(request, "Venda cancelada com sucesso!")
@@ -68,7 +68,7 @@ class CancelarReservaView(View):
         lote = venda.lote
 
         # Atualiza lote
-        lote.situacao = 'PRE-RESERVA'
+        lote.situacao = 'DISPONIVEL'
         lote.save(update_fields=['situacao'])
 
         # Atualiza venda

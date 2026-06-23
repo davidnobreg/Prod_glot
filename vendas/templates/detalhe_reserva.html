@@ -80,7 +80,10 @@ detalher reserva.
 
                     <button type="submit" class="btn btn-primary w-100 mt-3">Salvar</button>
 
-                    <a href="{% url 'cancelar-reservado-cadastro' lote.id %}" class="btn btn-primary w-100 mt-3">Cancelar</a>
+                    <form action="{% url 'cancelar-reservado-cadastro' lote.uuid %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger w-100 mt-3">Cancelar</button>
+                    </form>
                 </form>
             </div>
         </div>

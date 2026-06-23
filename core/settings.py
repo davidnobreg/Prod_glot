@@ -178,6 +178,7 @@ if IS_PRODUCTION:
 	STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 else:
 	STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+	WHITENOISE_AUTOREFRESH = True
 
 
 

@@ -21,35 +21,25 @@ from decimal import Decimal
 
 
 
-@method_decorator(has_permission_decorator('criarVenda'), name='dispatch')
-class CriarVendaView(UpdateView):
+@method_decorator(has_permission_decorator(‘criarVenda’), name=’dispatch’)
+class CriarVendaView(View):
 
-    model = RegisterVenda
-    fields = []  # nÃ£o precisa de formulÃ¡rio
-    slug_field = 'uuid'
-    slug_url_kwarg = 'venda_uuid'
+	@transaction.atomic
+	def post(self, request, *args, **kwargs):
+		venda = get_object_or_404(RegisterVenda, uuid=kwargs.get(‘venda_uuid’))
+		lote = venda.lote
+		empreendimento = lote.quadra.empr
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
+		venda.dt_venda = timezone.now()
+		venda.tipo_venda = ‘VENDIDO’
+		venda.save(update_fields=[‘dt_venda’, ‘tipo_venda’])
 
-        venda = self.object
-        lote = venda.lote
-        empreendimento = lote.quadra.empr
+		lote.situacao = ‘VENDIDO’
+		lote.save(update_fields=[‘situacao’])
 
-        # ðŸ”¥ Atualiza dados da venda
-        venda.dt_venda = timezone.now()
-        venda.tipo_venda = 'VENDIDO'
+		messages.success(request, “Venda realizada com sucesso!”)
 
-        # ðŸ”¥ Atualiza lote
-        lote.situacao = 'VENDIDO'
-
-        # ðŸ’¾ Salva
-        lote.save(update_fields=['situacao'])
-        venda.save(update_fields=['dt_venda', 'tipo_venda'])
-
-        messages.success(request, "Venda realizada com sucesso!")
-
-        return redirect('listar-quadras', empreendimento_uuid=empreendimento.uuid)
+		return redirect(‘listar-quadras’, empreendimento_uuid=empreendimento.uuid)
 
 @method_decorator(
     [has_permission_decorator('criarReservado'), transaction.atomic],

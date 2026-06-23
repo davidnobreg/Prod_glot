@@ -329,7 +329,7 @@
                         {% endif %}
 
                         {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
-                            <form method="POST" action="{% url 'criar-venda' reservas.uuid %}" style="display:inline;">
+                            <form method="POST" action="{% url 'criar-venda' reservas.uuid %}" class="d-inline">
                                 {% csrf_token %}
                                 <button type="submit" class="reserva-button reserva-button-success">
                                     <i class="bi bi-cash-coin"></i>

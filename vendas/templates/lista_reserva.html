@@ -106,7 +106,7 @@
                                             </a>
                                         </div>
                                         <div class="col-4">
-                                            <form method="POST" action="{% url 'criar-venda' reserva.uuid %}" style="display:inline;">
+                                            <form method="POST" action="{% url 'criar-venda' reserva.uuid %}" class="d-inline">
                                                 {% csrf_token %}
                                                 <button type="submit" class="btn btn-success" title="Confirmar Venda">
                                                     <i class="fa fa-check"></i>

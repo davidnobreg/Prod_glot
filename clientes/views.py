@@ -97,7 +97,7 @@ def criarCliente(request):
     if request.method == 'POST':
         origem = request.POST.get('origem', origem)
         telefones_json = request.POST.get('telefones_json', '[]')
-        form = ClienteForm(request.POST)
+        form = ClienteForm(request.POST, request.FILES)
         form_endereco = ClienteEnderecoForm(request.POST)
         form_conjuge = ClienteConjugeForm(request.POST)
 
@@ -198,7 +198,7 @@ def atualizarCliente(request, cliente_uuid):
     origem = request.POST.get('origem', 'lista')
     lote_uuid = request.POST.get('lote_uuid', '')
 
-    form = ClienteUpdateForm(request.POST, instance=cliente)
+    form = ClienteUpdateForm(request.POST, request.FILES, instance=cliente)
     form_endereco = ClienteEnderecoForm(request.POST, instance=cliente)
     form_conjuge = ClienteConjugeForm(request.POST, instance=cliente)
 

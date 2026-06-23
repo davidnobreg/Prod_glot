@@ -114,6 +114,24 @@ class Cliente(models.Model):
         validators=[_validate_doc_arquivo],
         verbose_name='Comprovante de residência',
     )
+    conj_rg_frente = models.FileField(
+        upload_to=_upload_doc_cliente,
+        blank=True, null=True,
+        validators=[_validate_doc_arquivo],
+        verbose_name='RG cônjuge (frente)',
+    )
+    conj_rg_verso = models.FileField(
+        upload_to=_upload_doc_cliente,
+        blank=True, null=True,
+        validators=[_validate_doc_arquivo],
+        verbose_name='RG cônjuge (verso)',
+    )
+    certidao_estado_civil = models.FileField(
+        upload_to=_upload_doc_cliente,
+        blank=True, null=True,
+        validators=[_validate_doc_arquivo],
+        verbose_name='Certidão de estado civil',
+    )
 
     # ======================================================
     # MÉTODO PARA VALIDAR CPF

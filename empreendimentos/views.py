@@ -1,6 +1,7 @@
 ﻿import json
 import os
 import re
+from io import BytesIO
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
@@ -974,15 +975,16 @@ def gerarRelatorioLotes(request):
     )
 
     if empreendimento and empreendimento.logo:
-        logo_path = empreendimento.logo.path
-
-        if os.path.exists(logo_path):
-            logo = Image(logo_path)
+        try:
+            logo_data = BytesIO(empreendimento.logo.read())
+            logo = Image(logo_data)
             logo.drawHeight = 58
             logo.drawWidth = 150
             logo.hAlign = 'CENTER'
             elementos.append(logo)
             elementos.append(Spacer(1, 12))
+        except Exception:
+            pass
 
     titulo = Paragraph(
         f'Relatorio de Lotes - <b>{nome_empreendimento}</b>',

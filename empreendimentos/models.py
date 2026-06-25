@@ -132,7 +132,7 @@ class Lote(models.Model):
     lote = models.CharField('Nome do Lote', max_length=50)
     area = models.CharField('ÁREA', max_length=50)
     situacao = models.CharField(max_length=100, choices=TypeLote.choices)
-    tempo_reservado = models.TimeField(default=timezone.now)
+    tempo_reservado = models.DateTimeField(null=True, blank=True)
     quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE, related_name='lotes')
     valor_metro_quadrado = models.CharField('Valor Metro Quadrado', max_length=50, default=00.00)
     cliente_reserva = models.CharField(max_length=100, default=0)

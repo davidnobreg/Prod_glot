@@ -16,7 +16,7 @@ class RegisterVendaAdmin(admin.ModelAdmin):
 
     search_fields = (
         'id',
-        'cliente',
+        'cliente__name',
         'user__username',
     )
 

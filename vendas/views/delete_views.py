@@ -68,7 +68,7 @@ class CancelarReservaView(View):
         lote = venda.lote
 
         # Atualiza lote
-        lote.situacao = 'DISPONIVEL'
+        lote.situacao = 'PRE-RESERVA'
         lote.save(update_fields=['situacao'])
 
         # Atualiza venda
@@ -91,7 +91,7 @@ class CancelarAceiteReservaView(View):
         lote = venda.lote
 
         # Atualiza lote
-        lote.situacao = 'DISPONIVEL'
+        lote.situacao = 'PRE-RESERVA'
         lote.save(update_fields=['situacao'])
 
         # Atualiza venda

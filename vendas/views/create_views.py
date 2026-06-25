@@ -265,7 +265,7 @@ class CriarReservadoView(UpdateView):
 				)
 
 			lote.tempo_reservado = (
-				timezone.now().time()
+				timezone.now() + timedelta(days=lote.quadra.empr.tempo_reserva)
 			)
 
 			lote.save(
@@ -382,35 +382,18 @@ class CriarReservadoView(UpdateView):
 		# TIPO VENDA
 		# =================================================
 
-		if desconto > Decimal('0.00'):
+		reserva.tipo_venda = (
+			'ANALISE'
+		)
 
-			reserva.tipo_venda = (
-				'ANALISE'
-			)
+		lote.situacao = (
+			'ANALISE'
+		)
 
-			lote.situacao = (
-				'ANALISE'
-			)
-
-			mensagem = (
-				'Reserva enviada '
-				'para análise.'
-			)
-
-		else:
-
-			reserva.tipo_venda = (
-				'RESERVADO'
-			)
-
-			lote.situacao = (
-				'RESERVADO'
-			)
-
-			mensagem = (
-				'Reserva realizada '
-				'com sucesso!'
-			)
+		mensagem = (
+			'Reserva enviada para '
+			'análise e aguardando aprovação.'
+		)
 
 		# =================================================
 		# STATUS
@@ -570,7 +553,7 @@ class ReservaTemporariaView(UpdateView):
 
 		# ðŸ"' Reserva
 		lote.situacao = "EM_RESERVA"
-		lote.tempo_reservado = timezone.now()
+		lote.tempo_reservado = timezone.now() + timedelta(days=lote.quadra.empr.tempo_reserva)
 		lote.save(update_fields=['situacao', 'tempo_reservado'])
 
 		return super().get(request, *args, **kwargs)

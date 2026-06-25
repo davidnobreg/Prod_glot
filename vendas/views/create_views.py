@@ -382,35 +382,18 @@ class CriarReservadoView(UpdateView):
 		# TIPO VENDA
 		# =================================================
 
-		if desconto > Decimal('0.00'):
+		reserva.tipo_venda = (
+			'ANALISE'
+		)
 
-			reserva.tipo_venda = (
-				'ANALISE'
-			)
+		lote.situacao = (
+			'ANALISE'
+		)
 
-			lote.situacao = (
-				'ANALISE'
-			)
-
-			mensagem = (
-				'Reserva enviada '
-				'para análise.'
-			)
-
-		else:
-
-			reserva.tipo_venda = (
-				'RESERVADO'
-			)
-
-			lote.situacao = (
-				'RESERVADO'
-			)
-
-			mensagem = (
-				'Reserva realizada '
-				'com sucesso!'
-			)
+		mensagem = (
+			'Reserva enviada para '
+			'análise e aguardando aprovação.'
+		)
 
 		# =================================================
 		# STATUS

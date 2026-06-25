@@ -752,7 +752,7 @@ def alteraLote(request, id):
         # Ao acessar, define como EM_RESERVA
         if lote.situacao == "DISPONIVEL":
             lote.situacao = "EM_RESERVA"
-            lote.tempo_reservado = timezone.now().time()
+            lote.tempo_reservado = timezone.now() + timedelta(days=lote.quadra.empr.tempo_reserva)
             lote.save()
         form = LoteForm(instance=lote)
         context = {'form': form,

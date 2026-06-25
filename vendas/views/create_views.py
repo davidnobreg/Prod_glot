@@ -542,18 +542,19 @@ class ReservaTemporariaView(UpdateView):
 
 		# ðŸ" Defesa
 		if lote.situacao == "EM_RESERVA" and not lote.user:
+			lote.situacao = 'DISPONIVEL'
 			lote.tempo_reservado = None
-			lote.save(update_fields=['tempo_reservado'])
+			lote.save(update_fields=['situacao', 'tempo_reservado'])
 			messages.error(request, "PrÃ©-reserva cancelada automaticamente.")
 
 		# ðŸš« Bloqueio
 		if lote.situacao != "DISPONIVEL":
 			messages.warning(request, "Este lote jÃ¡ estÃ¡ em reserva ou indisponÃ­vel.")
-			return redirect('lotes_disponiveis')
+			return redirect('listar-quadras', empreendimento_uuid=lote.quadra.empr.uuid)
 
 		# ðŸ"' Reserva
 		lote.situacao = "EM_RESERVA"
-		lote.tempo_reservado = timezone.now() + timedelta(days=lote.quadra.empr.tempo_reserva)
+		lote.tempo_reservado = timezone.now() + timedelta(minutes=30)
 		lote.save(update_fields=['situacao', 'tempo_reservado'])
 
 		return super().get(request, *args, **kwargs)

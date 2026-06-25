@@ -265,7 +265,7 @@ class CriarReservadoView(UpdateView):
 				)
 
 			lote.tempo_reservado = (
-				timezone.now().time()
+				timezone.now() + timedelta(days=lote.quadra.empr.tempo_reserva)
 			)
 
 			lote.save(
@@ -553,7 +553,7 @@ class ReservaTemporariaView(UpdateView):
 
 		# ðŸ"' Reserva
 		lote.situacao = "EM_RESERVA"
-		lote.tempo_reservado = timezone.now()
+		lote.tempo_reservado = timezone.now() + timedelta(days=lote.quadra.empr.tempo_reserva)
 		lote.save(update_fields=['situacao', 'tempo_reservado'])
 
 		return super().get(request, *args, **kwargs)

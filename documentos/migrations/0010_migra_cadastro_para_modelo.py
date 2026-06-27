@@ -18,7 +18,7 @@ def migrar_contratos(apps, schema_editor):
         or User.objects.filter(is_active=True).first()
     )
     if not usuario:
-        raise Exception('Nenhum usuario encontrado para criado_por.')
+        return
 
     for empr in Empreendimento.objects.select_related('contrato').filter(contrato__isnull=False):
         cadastro = empr.contrato

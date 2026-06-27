@@ -1,0 +1,28 @@
+- generic [ref=e3]:
+  - main [ref=e4]:
+    - region "Erro interno" [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e8]: 
+        - generic [ref=e9]: Erro 500
+        - heading "Algo saiu do controle" [level=1] [ref=e10]
+        - paragraph [ref=e11]: O sistema encontrou um erro interno ao processar esta solicitação. Tente novamente em instantes ou informe o suporte/desenvolvimento.
+        - generic [ref=e12]:
+          - link " Ir para login" [ref=e13] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e14]: 
+            - text: Ir para login
+          - link " Voltar" [ref=e15] [cursor=pointer]:
+            - /url: javascript:history.back()
+            - generic [ref=e16]: 
+            - text: Voltar
+  - contentinfo [ref=e17]:
+    - navigation [ref=e18]:
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - link "Facebook" [ref=e21] [cursor=pointer]:
+            - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+            - generic [ref=e22]: 
+          - link "Instagram" [ref=e23] [cursor=pointer]:
+            - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+            - generic [ref=e24]: 
+        - paragraph [ref=e25]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

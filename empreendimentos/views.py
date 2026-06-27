@@ -1313,7 +1313,7 @@ def exportar_lotes(request, empreendimento_id):
     header_font = Font(color='FFFFFF', bold=True)
     locked_fill = PatternFill(fill_type='solid', fgColor='D3D3D3')
 
-    headers = ['id', 'numero', 'quadra', 'area', 'preco', 'status', 'descricao']
+    headers = ['id', 'numero', 'quadra', 'area', 'preco', 'status', 'descricao', 'cliente_reserva']
     for col_idx, header in enumerate(headers, 1):
         cell = ws.cell(row=1, column=col_idx, value=header)
         cell.fill = header_fill
@@ -1334,6 +1334,7 @@ def exportar_lotes(request, empreendimento_id):
         if bloqueado:
             status_cell.fill = locked_fill
         ws.cell(row=row_idx, column=7, value=lote.medidasConfrontacoes or '')
+        ws.cell(row=row_idx, column=8, value=lote.cliente_reserva or '')
 
     for col in ws.columns:
         max_len = max((len(str(c.value or '')) for c in col), default=10)
@@ -1383,8 +1384,8 @@ def importar_lotes(request, empreendimento_id):
         if not any(cell is not None for cell in row):
             continue
 
-        row_padded = (list(row) + [None] * 7)[:7]
-        lote_id_raw, numero, quadra_nome, area, preco, status, descricao = row_padded
+        row_padded = (list(row) + [None] * 8)[:8]
+        lote_id_raw, numero, quadra_nome, area, preco, status, descricao, cliente_reserva_val = row_padded
 
         if lote_id_raw is None:
             erros.append({'linha': row_idx, 'motivo': 'ID ausente'})
@@ -1457,6 +1458,12 @@ def importar_lotes(request, empreendimento_id):
             if descricao_str != atual:
                 campos['medidasConfrontacoes'] = {'atual': atual, 'novo': descricao_str}
 
+        if cliente_reserva_val is not None:
+            cr_str = str(cliente_reserva_val).strip()
+            atual_cr = (lote.cliente_reserva or '').strip()
+            if cr_str != atual_cr:
+                campos['cliente_reserva'] = {'atual': atual_cr, 'novo': cr_str}
+
         if campos:
             alteracoes.append({'id': lote_id, 'numero': lote.lote, 'campos': campos})
 
@@ -1483,7 +1490,7 @@ def importar_lotes_confirmar(request, empreendimento_id):
     ids_empr = set(
         Lote.objects.filter(quadra__empr=empr).values_list('id', flat=True)
     )
-    campos_permitidos = {'area', 'valor_metro_quadrado', 'situacao', 'medidasConfrontacoes'}
+    campos_permitidos = {'area', 'valor_metro_quadrado', 'situacao', 'medidasConfrontacoes', 'cliente_reserva'}
 
     atualizados = 0
     ignorados = 0

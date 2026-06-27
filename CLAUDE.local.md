@@ -6,58 +6,62 @@
 
 ## Sessão atual
 
-**Objetivo:** Consolidação de models — incorporar ClienteEndereco e ClienteConjuge no model Cliente  
-**Data:** 2026-06-08  
-**Fase atual:** [ ] Sessão 1 — Mapeamento
+**Objetivo:** Refactor módulo Vendas — segurança, semântica, tipos de dados
+**Data:** 2026-06-23
+**Branch:** `feature/tailwind-paralelo`
+**Método:** Subagent-Driven Development (SDD)
 
 ---
 
-## Escopo permitido
+## Progresso
 
-- `clientes/models.py`
-- `clientes/forms.py`
-- `clientes/views.py`
-- `clientes/serializers.py` (se existir)
-- `clientes/services/` (se existir)
-- `clientes/templates/clientes/`
+| Task | Descrição | Status | Commits |
+|------|-----------|--------|---------|
+| 0 | Fix `Lote.save()` — remover sobrescrita `tempo_reservado` | ✅ | `de305d2` |
+| 1 | `CriarVendaView` GET→POST + templates | ✅ | `db09418..9be2dc5` |
+| 2 | `CancelarReservadoCadastroView` GET→POST + status + RegisterVenda | ✅ | `132289d..03b4d62` |
+| 3 | `RenovaReservaView` dup + `CancelarReservaView` status + `is_ativo` | ✅ | `6859307` |
+| 4 | `TypeLote`→`TypeVenda` + `PRE-VENDA` + migration | ✅ | `a8bb02d..938d8d3` |
+| 5 | Campos financeiros `CharField`→`DecimalField` + migration RunPython | ✅ | `0062_convert_valores_to_decimal` |
+| 6 | Restaurar lógica `RESERVADO` vs `ANALISE` em `CriarReservadoView` | ⏳ pendente | — |
 
----
-
-## Fora do escopo — não tocar
-
-- Qualquer app fora de `clientes/`
-- Migrations já aplicadas
-- `ClienteTelefone` (permanece separado)
-- Sistema de autenticação
+**HEAD atual:** `938d8d3` (Task 5 não commitada — arquivos modificados na working tree)
 
 ---
 
-## Regra da sessão
+## Pendências para próxima sessão
 
-**Mapear primeiro. Não alterar nada até aprovação explícita.**
+### Task 5 — commit pendente
+Arquivos alterados (não commitados):
+- `vendas/models.py` — 4 campos DecimalField + `from decimal import Decimal`
+- `vendas/migrations/0062_convert_valores_to_decimal.py` — RunPython + AlterField × 4
+Migration já aplicada no banco local. Só falta commit.
 
----
-
-## Sequência obrigatória
-
-1. [ ] Mapear todos os usos de `ClienteEndereco` e `ClienteConjuge`
-2. [ ] Adicionar campos no `Cliente` (nullable=True)
-3. [ ] Criar data migration para copiar dados
-4. [ ] Atualizar forms, views e templates
-5. [ ] Remover `ClienteEndereco` e `ClienteConjuge` somente após validar dados
+### Task 6 — Lógica `RESERVADO` vs `ANALISE`
+Arquivo: `vendas/views/create_views.py` → `CriarReservadoView.form_valid()`
+Restaurar bloco comentado: `if desconto > Decimal('0.00'): ANALISE else: RESERVADO`
 
 ---
 
-## Convenção de nomes
+## Débitos técnicos identificados (fora do plano atual)
 
-- Campos de `ClienteEndereco` → prefixo `end_`
-- Campos de `ClienteConjuge` → prefixo `conj_`
+- `ListaVendaView` linha ~170: filtro `is_ativo=False` — semântica errada, retorna registros inativos
+- BOM character em `vendas/models.py` — cosmético
+- Mojibake em comentários de `create_views.py` (encoding) — cosmético
+- Sem testes automatizados para as views corrigidas
+
+---
+
+## Arquivos de controle SDD
+
+- Plano: `.superpowers/sdd/plan.md`
+- Ledger: `.superpowers/sdd/progress.md`
+- Reports: `.superpowers/sdd/task-N-report.md`
 
 ---
 
 ## Ambiente local
 
 - Docker: rodando
-- Banco local: (preencher)
 - Porta: 8000
 - Backup realizado: ✅

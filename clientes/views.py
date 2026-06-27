@@ -313,7 +313,7 @@ def listaCliente(request):
             Q(email__icontains=get_client)
         )
 
-    paginator = Paginator(clientes_qs, 10)
+    paginator = Paginator(clientes_qs, 12)
     page_number = request.GET.get('page')
     cliente_obj = paginator.get_page(page_number)
 
@@ -363,34 +363,34 @@ def listaClienteRelatorio(request):
 
 @has_permission_decorator('criarCliente')
 def wizard_arquivo_add(request, cliente_uuid):
-    """Adiciona ClienteDocumento a um cliente rascunho. Retorna JSON."""
-    if request.method != 'POST':
-        return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
+	"""Adiciona ClienteDocumento a um cliente rascunho. Retorna JSON."""
+	if request.method != 'POST':
+		return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
 
-    draft = get_object_or_404(Cliente, uuid=cliente_uuid, is_ativo=False)
-    tipo_pessoa = _get_tipo_pessoa(draft)
-    form = ClienteDocumentoForm(request.POST, request.FILES, tipo_pessoa=tipo_pessoa)
+	draft = get_object_or_404(Cliente, uuid=cliente_uuid, is_ativo=False)
+	tipo_pessoa = _get_tipo_pessoa(draft)
+	form = ClienteDocumentoForm(request.POST, request.FILES, tipo_pessoa=tipo_pessoa)
 
-    if form.is_valid():
-        doc = form.save(commit=False)
-        doc.cliente = draft
-        doc.status = 'processando'
-        doc.save()
-        return JsonResponse({
-            'ok': True,
-            'doc': {
-                'id': doc.id,
-                'tipo_display': doc.get_tipo_display(),
-                'descricao': doc.descricao or '',
-                'arquivo_url': doc.arquivo.url,
-            }
-        })
+	if form.is_valid():
+		doc = form.save(commit=False)
+		doc.cliente = draft
+		doc.status = 'processando'
+		doc.save()
+		return JsonResponse({
+			'ok': True,
+			'doc': {
+				'id': doc.id,
+				'tipo_display': doc.get_tipo_display(),
+				'descricao': doc.descricao or '',
+				'arquivo_url': doc.arquivo.url,
+			}
+		})
 
-    first_error = next(
-        (v[0] for v in form.errors.values() if v),
-        'Erro ao salvar documento.'
-    )
-    return JsonResponse({'ok': False, 'error': first_error})
+	first_error = next(
+		(v[0] for v in form.errors.values() if v),
+		'Erro ao salvar documento.'
+	)
+	return JsonResponse({'ok': False, 'error': first_error})
 
 
 # ===================================================================
@@ -399,16 +399,16 @@ def wizard_arquivo_add(request, cliente_uuid):
 
 @has_permission_decorator('criarCliente')
 def wizard_arquivo_del(request, documento_id):
-    """Remove ClienteDocumento de um cliente rascunho. Retorna JSON."""
-    if request.method != 'POST':
-        return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
+	"""Remove ClienteDocumento de um cliente rascunho. Retorna JSON."""
+	if request.method != 'POST':
+		return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
 
-    doc = get_object_or_404(ClienteDocumento, id=documento_id)
-    if doc.cliente.is_ativo:
-        return JsonResponse({'ok': False, 'error': 'Forbidden'}, status=403)
+	doc = get_object_or_404(ClienteDocumento, id=documento_id)
+	if doc.cliente.is_ativo:
+		return JsonResponse({'ok': False, 'error': 'Forbidden'}, status=403)
 
-    doc.delete()
-    return JsonResponse({'ok': True})
+	doc.delete()
+	return JsonResponse({'ok': True})
 
 
 # ===================================================================

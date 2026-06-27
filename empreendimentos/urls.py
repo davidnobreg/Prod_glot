@@ -40,6 +40,11 @@ from .views import (
     modelo_vincular,
     modelo_desvincular,
     modelo_set_padrao,
+
+    # Exportar / Importar lotes em massa
+    exportar_lotes,
+    importar_lotes,
+    importar_lotes_confirmar,
 )
 
 
@@ -215,5 +220,24 @@ urlpatterns = [
         'empreendimento/<int:empr_id>/modelo/<int:vinculo_id>/padrao/',
         modelo_set_padrao,
         name='modelo-set-padrao'
+    ),
+
+    # =========================
+    # Exportar / Importar lotes em massa
+    # =========================
+    path(
+        'detalhe_empreendimento/<int:empreendimento_id>/lotes/exportar/',
+        exportar_lotes,
+        name='exportar-lotes',
+    ),
+    path(
+        'detalhe_empreendimento/<int:empreendimento_id>/lotes/importar/',
+        importar_lotes,
+        name='importar-lotes',
+    ),
+    path(
+        'detalhe_empreendimento/<int:empreendimento_id>/lotes/importar/confirmar/',
+        importar_lotes_confirmar,
+        name='importar-lotes-confirmar',
     ),
 ]

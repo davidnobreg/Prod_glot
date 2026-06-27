@@ -68,6 +68,19 @@
 		return doc.length === 14 ? 'PJ' : 'PF';
 	}
 
+	function updateDocLabels() {
+		var isPJ = getTipoPessoa() === 'PJ';
+		var labelName = document.getElementById('label-name');
+		var labelNomeUsual = document.getElementById('label-nome-usual');
+		if (labelName) {
+			labelName.innerHTML = (isPJ ? 'Razão Social' : 'Nome')
+				+ ' <span class="text-danger">*</span>';
+		}
+		if (labelNomeUsual) {
+			labelNomeUsual.textContent = isPJ ? 'Nome Fantasia' : 'Nome social';
+		}
+	}
+
 	function showErrors(msgs) {
 		var box = document.getElementById('wizard-errors');
 		if (!box) return;
@@ -545,6 +558,12 @@
 			if (typeof $ !== 'undefined') {
 				$(document).on('change select2:select select2:unselect', '[name="estado_civil"]', onEstadoCivilChange);
 			}
+		}
+
+		var docField = document.getElementById('id_documento');
+		if (docField) {
+			docField.addEventListener('input', updateDocLabels);
+			updateDocLabels();
 		}
 
 		var btnNext = document.getElementById('wizard-btn-next');

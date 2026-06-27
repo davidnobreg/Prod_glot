@@ -113,14 +113,14 @@
 					</p>
 					<div class="row g-3">
 						<div class="col-md-6">
-							<label class="form-label">Nome <span class="text-danger">*</span></label>
+							<label class="form-label" id="label-name">Nome <span class="text-danger">*</span></label>
 							{{ form.name }}
 							{% if form.name.errors %}
 								<div class="text-danger" style="font-size:.8rem;">{{ form.name.errors|striptags }}</div>
 							{% endif %}
 						</div>
 						<div class="col-md-6">
-							<label class="form-label">Nome usual</label>
+							<label class="form-label" id="label-nome-usual">Nome social</label>
 							{{ form.nome_usual }}
 						</div>
 						<div class="col-md-6">

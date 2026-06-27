@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}Prévia — Importação de Lotes{% endblock %}
+{% block content %}
+<div class="content-header">
+	<div class="container-fluid">
+		<h1 class="mb-0" style="font-size:1.3rem;font-weight:700;">
+			Importação de Lotes — Prévia
+		</h1>
+		<small class="text-muted">{{ empreendimento.nome }}</small>
+	</div>
+</div>
+
+<section class="content">
+<div class="container-fluid">
+
+	<!-- Resumo -->
+	<div class="row g-3 mb-4">
+		<div class="col-md-4">
+			<div class="card text-center border-0 shadow-sm">
+				<div class="card-body py-3">
+					<div style="font-size:1.8rem;font-weight:700;color:#0097a7;">{{ alteracoes|length }}</div>
+					<div class="text-muted small">lotes a atualizar</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-4">
+			<div class="card text-center border-0 shadow-sm">
+				<div class="card-body py-3">
+					<div style="font-size:1.8rem;font-weight:700;color:#e65100;">{{ ignorados|length }}</div>
+					<div class="text-muted small">ignorados (venda ativa)</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-4">
+			<div class="card text-center border-0 shadow-sm">
+				<div class="card-body py-3">
+					<div style="font-size:1.8rem;font-weight:700;color:#c62828;">{{ erros|length }}</div>
+					<div class="text-muted small">erros</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	{% if erros %}
+	<div class="card mb-4 border-danger">
+		<div class="card-header bg-danger text-white fw-bold">❌ Erros ({{ erros|length }})</div>
+		<div class="card-body p-0">
+			<table class="table table-sm mb-0">
+				<thead><tr><th>Linha</th><th>Motivo</th></tr></thead>
+				<tbody>
+					{% for e in erros %}
+					<tr><td>{{ e.linha }}</td><td>{{ e.motivo }}</td></tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	{% endif %}
+
+	{% if ignorados %}
+	<div class="card mb-4">
+		<div class="card-header fw-bold" style="background:#fff3e0;">⚠️ Ignorados — venda ativa ({{ ignorados|length }})</div>
+		<div class="card-body p-0">
+			<table class="table table-sm mb-0">
+				<thead><tr><th>ID</th><th>Lote</th><th>Motivo</th></tr></thead>
+				<tbody>
+					{% for ig in ignorados %}
+					<tr><td>{{ ig.id }}</td><td>{{ ig.numero }}</td><td>{{ ig.motivo }}</td></tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	{% endif %}
+
+	{% if alteracoes %}
+	<div class="card mb-4">
+		<div class="card-header fw-bold" style="background:#e8f5e9;">✅ Alterações a confirmar ({{ alteracoes|length }})</div>
+		<div class="card-body p-0">
+			<table class="table table-sm mb-0">
+				<thead>
+					<tr>
+						<th>ID</th><th>Lote</th><th>Campo</th><th>Valor atual</th><th>Novo valor</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for alt in alteracoes %}
+						{% for campo, vals in alt.campos.items %}
+						<tr>
+							<td>{{ alt.id }}</td>
+							<td>{{ alt.numero }}</td>
+							<td><code>{{ campo }}</code></td>
+							<td class="text-muted">{{ vals.atual }}</td>
+							<td class="fw-bold">{{ vals.novo }}</td>
+						</tr>
+						{% endfor %}
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<form method="post"
+	      action="{% url 'importar-lotes-confirmar' empreendimento.id %}">
+		{% csrf_token %}
+		<input type="hidden" name="alteracoes_json" value="{{ alteracoes_json }}">
+		<div class="d-flex gap-2">
+			<a href="{% url 'detalhe-empreendimento' empreendimento.id %}"
+			   class="btn btn-outline-secondary">Cancelar</a>
+			<button type="submit" class="btn btn-success">
+				<i class="fas fa-check me-1"></i>Confirmar {{ alteracoes|length }} alterações
+			</button>
+		</div>
+	</form>
+
+	{% else %}
+	<div class="alert alert-info">Nenhuma alteração detectada no arquivo enviado.</div>
+	<a href="{% url 'detalhe-empreendimento' empreendimento.id %}"
+	   class="btn btn-outline-secondary">Voltar</a>
+	{% endif %}
+
+</div>
+</section>
+{% endblock %}

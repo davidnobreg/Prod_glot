@@ -116,9 +116,6 @@ class Cliente(models.Model):
         return self.name
 
 # ==========================================================
-# TELEFONES (FK → Cliente)
-# ==========================================================
-# ==========================================================
 # DOCUMENTOS DO CLIENTE (tabela auxiliar)
 # ==========================================================
 class ClienteDocumento(models.Model):

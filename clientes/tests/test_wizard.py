@@ -100,7 +100,7 @@ class TestWizardCadastroCliente:
 		assert logged_browser.is_visible('#step-3')
 		assert logged_browser.is_visible('#wz-arquivos-form')
 
-	def test_wizard_documentos_antecede_conjuge_para_casado(self, logged_browser, live_server):
+	def test_documentos_aparece_apos_contatos_para_casado(self, logged_browser, live_server):
 		"""Para casado, Documentos (step-3) aparece APÓS Contatos (step-5)."""
 		logged_browser.goto(f'{live_server.url}/clientes/insert_cliente/')
 		self._preenche_etapa1(logged_browser, estado_civil='casado', email='ordem@teste.com')
@@ -139,7 +139,7 @@ class TestWizardCadastroCliente:
 		self._next(logged_browser, 'step-4')
 		assert Cliente.objects.filter(email='rascunho@teste.com').exists()
 
-	def test_botao_anterior_de_conjuge_volta_para_documentos(self, logged_browser, live_server):
+	def test_botao_anterior_de_conjuge_volta_para_dados_pessoais(self, logged_browser, live_server):
 		"""Para casado, prev de Cônjuge (step-2) retorna para Dados pessoais (step-1)."""
 		logged_browser.goto(f'{live_server.url}/clientes/insert_cliente/')
 		self._preenche_etapa1(logged_browser, estado_civil='casado', email='prev_conj@teste.com')

@@ -97,6 +97,33 @@
 	}
 
 	// -----------------------------------------------------------------------
+	// wizardFetch — fetch com tratamento de erros HTTP e Content-Type
+	// -----------------------------------------------------------------------
+
+	function wizardFetch(url, options) {
+		var opts = Object.assign({ credentials: 'same-origin' }, options);
+		return fetch(url, opts).then(function (r) {
+			if (!r.ok) {
+				var httpMsgs = {
+					401: 'Sessão expirada — recarregue a página.',
+					403: 'Sem permissão para esta ação.',
+					404: 'Recurso não encontrado.',
+					500: 'Erro interno do servidor.',
+				};
+				var msg = httpMsgs[r.status] || ('Erro HTTP ' + r.status + '.');
+				console.error('wizardFetch', r.status, url);
+				return Promise.reject(new Error(msg));
+			}
+			var ct = r.headers.get('Content-Type') || '';
+			if (!ct.includes('application/json')) {
+				console.error('wizardFetch: resposta não-JSON', ct, url);
+				return Promise.reject(new Error('Resposta inesperada do servidor.'));
+			}
+			return r.json();
+		});
+	}
+
+	// -----------------------------------------------------------------------
 	// Validação por step
 	// -----------------------------------------------------------------------
 
@@ -118,7 +145,7 @@
 			if (!getVal('id_conj_nome')) errors.push('Nome do cônjuge é obrigatório.');
 		}
 
-		// step-3 (Arquivos) — sem campos obrigatórios
+		// step-3 (Documentos) — sem campos obrigatórios
 
 		if (stepId === 'step-4') {
 			var req = {
@@ -216,7 +243,7 @@
 	}
 
 	// -----------------------------------------------------------------------
-	// Step Arquivos — AJAX inline
+	// Step Documentos — AJAX inline
 	// -----------------------------------------------------------------------
 
 	function onArquivosStepEnter() {
@@ -259,6 +286,26 @@
 			+ '</tbody></table>';
 	}
 
+	function _wzUrlAdd() {
+		var base = (window.WIZARD_URLS && window.WIZARD_URLS.arquivoAddBase)
+			|| '/clientes/00000000-0000-0000-0000-000000000000/wizard/arquivo-add/';
+		return base.replace('00000000-0000-0000-0000-000000000000', clienteUuid);
+	}
+
+	function _wzUrlDel(id) {
+		var base = (window.WIZARD_URLS && window.WIZARD_URLS.arquivoDelBase)
+			|| '/clientes/00000000-0000-0000-0000-000000000000/wizard/arquivo-del/0/';
+		return base
+			.replace('00000000-0000-0000-0000-000000000000', clienteUuid)
+			.replace('/arquivo-del/0/', '/arquivo-del/' + id + '/');
+	}
+
+	function _wzUrlFinalizar() {
+		var base = (window.WIZARD_URLS && window.WIZARD_URLS.finalizarBase)
+			|| '/clientes/00000000-0000-0000-0000-000000000000/wizard/finalizar/';
+		return base.replace('00000000-0000-0000-0000-000000000000', clienteUuid);
+	}
+
 	window.wizardAddArquivo = function () {
 		var errEl = document.getElementById('wz-arquivos-erro');
 
@@ -287,8 +334,7 @@
 		data.append('descricao', descricao);
 		data.append('arquivo', arquivoInput.files[0]);
 
-		fetch('/clientes/' + clienteUuid + '/wizard/arquivo-add/', { method: 'POST', body: data })
-			.then(function (r) { return r.json(); })
+		wizardFetch(_wzUrlAdd(), { method: 'POST', body: data })
 			.then(function (d) {
 				if (d.ok) {
 					wizardArquivos.push(d.doc);
@@ -300,8 +346,8 @@
 					if (errEl) { errEl.textContent = d.error || 'Erro ao adicionar documento.'; errEl.style.display = ''; }
 				}
 			})
-			.catch(function () {
-				if (errEl) { errEl.textContent = 'Erro de conexão.'; errEl.style.display = ''; }
+			.catch(function (err) {
+				if (errEl) { errEl.textContent = err.message || 'Erro de conexão.'; errEl.style.display = ''; }
 			});
 	};
 
@@ -311,8 +357,7 @@
 		var data = new FormData();
 		data.append('csrfmiddlewaretoken', getCsrf());
 
-		fetch('/clientes/wizard/arquivo-del/' + id + '/', { method: 'POST', body: data })
-			.then(function (r) { return r.json(); })
+		wizardFetch(_wzUrlDel(id), { method: 'POST', body: data })
 			.then(function (d) {
 				if (d.ok) {
 					wizardArquivos = wizardArquivos.filter(function (a) { return a.id !== id; });
@@ -393,7 +438,9 @@
 			['Estado', displayVal('id_end_estado')],
 		]);
 
-		var tels = (window.telefonesTemp || []).join(', ') || 'Não informado';
+		var tels = (window.telefonesTemp || []).map(function (t) {
+			return typeof t === 'string' ? t : (t.numero || '');
+		}).join(', ') || 'Não informado';
 		html += rvSection('Contatos', 'fas fa-phone', '#0097a7', [
 			['Telefones', tels],
 		]);
@@ -433,12 +480,10 @@
 			data.append('telefones_json', JSON.stringify(window.telefonesTemp || []));
 		}
 
-		var url = (typeof WIZARD_SALVAR_PASSO_URL !== 'undefined' && WIZARD_SALVAR_PASSO_URL)
-			? WIZARD_SALVAR_PASSO_URL
-			: '/clientes/wizard/salvar-passo/';
+		var url = (window.WIZARD_URLS && window.WIZARD_URLS.salvarPasso)
+			|| '/clientes/wizard/salvar-passo/';
 
-		fetch(url, { method: 'POST', body: data })
-			.then(function (r) { return r.json(); })
+		wizardFetch(url, { method: 'POST', body: data })
 			.then(function (d) {
 				if (d.ok) {
 					if (d.uuid) {
@@ -460,8 +505,8 @@
 					callback(false);
 				}
 			})
-			.catch(function () {
-				showErrors(['Erro de conexão. Tente novamente.']);
+			.catch(function (err) {
+				showErrors([err.message || 'Erro de conexão. Tente novamente.']);
 				callback(false);
 			});
 	}
@@ -523,21 +568,26 @@
 		data.append('origem', origemEl ? origemEl.value : 'lista');
 		data.append('lote_uuid', loteEl ? loteEl.value : '');
 
-		fetch('/clientes/' + clienteUuid + '/wizard/finalizar/', { method: 'POST', body: data })
-			.then(function (r) { return r.json(); })
+		wizardFetch(_wzUrlFinalizar(), { method: 'POST', body: data })
 			.then(function (d) {
 				if (d.ok) {
 					window.location.href = d.redirect_url;
 				} else {
-					showErrors([d.error || 'Erro ao finalizar cadastro.']);
+					var msgs = [];
+					if (d.errors) {
+						Object.keys(d.errors).forEach(function (k) { msgs.push(d.errors[k]); });
+					} else {
+						msgs.push(d.error || 'Erro ao finalizar cadastro.');
+					}
+					showErrors(msgs);
 					if (btn) {
 						btn.disabled = false;
 						btn.innerHTML = '<i class="fas fa-save me-1"></i>Cadastrar cliente';
 					}
 				}
 			})
-			.catch(function () {
-				showErrors(['Erro de conexão ao finalizar.']);
+			.catch(function (err) {
+				showErrors([err.message || 'Erro de conexão ao finalizar.']);
 				if (btn) {
 					btn.disabled = false;
 					btn.innerHTML = '<i class="fas fa-save me-1"></i>Cadastrar cliente';

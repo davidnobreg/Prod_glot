@@ -34,9 +34,56 @@ def _load_json_payload(value, default):
 
 
 def _normalize_telefones(telefones):
+    """Retorna lista de strings de numero (compat com formato antigo e novo)."""
     if not isinstance(telefones, list):
         return []
-    return [t for t in telefones if t]
+    result = []
+    for t in telefones:
+        if isinstance(t, str):
+            if t.strip():
+                result.append(t.strip())
+        elif isinstance(t, dict):
+            n = (t.get('numero') or '').strip()
+            if n:
+                result.append(n)
+    return result
+
+
+def _normalize_telefones_rich(telefones):
+    """Retorna lista de dicts {numero, tipo, observacao} preservando tipo e observação."""
+    if not isinstance(telefones, list):
+        return []
+    result = []
+    for t in telefones:
+        if isinstance(t, str):
+            if t.strip():
+                result.append({'numero': t.strip(), 'tipo': 'celular', 'observacao': ''})
+        elif isinstance(t, dict):
+            numero = (t.get('numero') or '').strip()
+            if numero:
+                result.append({
+                    'numero': numero,
+                    'tipo': t.get('tipo') or 'celular',
+                    'observacao': t.get('observacao') or '',
+                })
+    return result
+
+
+def _wizard_validar_finalizacao(cliente):
+    """Valida se o rascunho tem todos os dados obrigatórios para ser ativado."""
+    erros = {}
+    for campo in ('name', 'documento', 'email'):
+        if not (getattr(cliente, campo, '') or '').strip():
+            erros[campo] = 'Campo obrigatório.'
+    for campo in ('end_cep', 'end_rua', 'end_numero', 'end_bairro', 'end_cidade', 'end_estado'):
+        if not (getattr(cliente, campo, '') or '').strip():
+            erros[campo] = 'Campo obrigatório.'
+    if not cliente.telefones.exists():
+        erros['telefones'] = 'Informe pelo menos um telefone.'
+    if (getattr(cliente, 'estado_civil', '') or '').lower() == 'casado':
+        if not (getattr(cliente, 'conj_nome', '') or '').strip():
+            erros['conj_nome'] = 'Nome do cônjuge é obrigatório.'
+    return erros
 
 
 def _endereco_preenchido(cleaned_data):
@@ -402,15 +449,17 @@ def wizard_arquivo_add(request, cliente_uuid):
 # ===================================================================
 
 @has_permission_decorator('criarCliente')
-def wizard_arquivo_del(request, documento_id):
-	"""Remove ClienteDocumento de um cliente rascunho. Retorna JSON."""
+def wizard_arquivo_del(request, cliente_uuid, documento_id):
+	"""Remove ClienteDocumento de um rascunho específico. Retorna JSON."""
 	if request.method != 'POST':
 		return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
 
-	doc = get_object_or_404(ClienteDocumento, id=documento_id)
-	if doc.cliente.is_ativo:
-		return JsonResponse({'ok': False, 'error': 'Forbidden'}, status=403)
-
+	doc = get_object_or_404(
+		ClienteDocumento,
+		id=documento_id,
+		cliente__uuid=cliente_uuid,
+		cliente__is_ativo=False,
+	)
 	doc.delete()
 	return JsonResponse({'ok': True})
 
@@ -508,13 +557,17 @@ def _wizard_save_contatos(request, cliente_uuid):
 		return JsonResponse({'ok': False, 'error': 'Rascunho não encontrado. Recarregue a página.'})
 
 	telefones_json = request.POST.get('telefones_json', '[]')
-	telefones = _normalize_telefones(_load_json_payload(telefones_json, []))
+	telefones = _normalize_telefones_rich(_load_json_payload(telefones_json, []))
 
 	with transaction.atomic():
 		ClienteTelefone.objects.filter(cliente=cliente).delete()
-		for numero in telefones:
-			if numero:
-				ClienteTelefone.objects.create(cliente=cliente, numero=numero)
+		for t in telefones:
+			ClienteTelefone.objects.create(
+				cliente=cliente,
+				numero=t['numero'],
+				tipo=t['tipo'],
+				observacao=t['observacao'],
+			)
 
 	return JsonResponse({'ok': True})
 
@@ -525,7 +578,7 @@ def _wizard_save_contatos(request, cliente_uuid):
 
 @has_permission_decorator('criarCliente')
 def wizard_finalizar(request, cliente_uuid):
-	"""Finaliza wizard: ativa cliente, dispara task Celery, retorna redirect_url."""
+	"""Finaliza wizard: valida, ativa cliente, dispara Celery após commit."""
 	if request.method != 'POST':
 		return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
 
@@ -533,12 +586,18 @@ def wizard_finalizar(request, cliente_uuid):
 	if draft is None:
 		return JsonResponse({'ok': False, 'error': 'Rascunho não encontrado.'}, status=404)
 
+	erros = _wizard_validar_finalizacao(draft)
+	if erros:
+		return JsonResponse({'ok': False, 'errors': erros}, status=400)
+
+	from clientes.tasks import processar_documentos_pendentes
+
 	with transaction.atomic():
 		draft.is_ativo = True
 		draft.save(update_fields=['is_ativo'])
-
-	from clientes.tasks import processar_documentos_pendentes
-	processar_documentos_pendentes.delay(str(draft.uuid))
+		transaction.on_commit(
+			lambda: processar_documentos_pendentes.delay(str(draft.uuid))
+		)
 
 	origem = request.POST.get('origem', 'lista')
 	lote_uuid = request.POST.get('lote_uuid', '')

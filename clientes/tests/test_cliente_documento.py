@@ -1,6 +1,7 @@
 import io
 import shutil
 import tempfile
+import uuid as _uuid_mod
 
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -12,33 +13,37 @@ from clientes.forms import ClienteDocumentoForm, ClienteBaseForm
 
 User = get_user_model()
 
-CPF_VALIDO = '52998224725'
-CNPJ_VALIDO = '11222333000181'
-
 
 def _make_user():
+	uid = _uuid_mod.uuid4().hex[:8]
 	return User.objects.create_user(
-		username='testdoc', password='pass123',
-		email='testdoc@test.com',
+		username=f'testdoc_{uid}', password='pass123',
+		email=f'testdoc_{uid}@test.com',
 		is_superuser=True, is_staff=True,
 	)
 
 
 def _make_cliente_pf(**kwargs):
+	# 11 dígitos decimais → PF (modelo strip não-dígitos)
+	digits = str(_uuid_mod.uuid4().int)[:11]
+	uid_hex = _uuid_mod.uuid4().hex[:8]
 	defaults = {
 		'name': 'FULANO PF',
-		'documento': CPF_VALIDO,
-		'email': 'fulano_pf@teste.com',
+		'documento': digits,
+		'email': f'pf_{uid_hex}@teste.com',
 	}
 	defaults.update(kwargs)
 	return Cliente.objects.create(**defaults)
 
 
 def _make_cliente_pj(**kwargs):
+	# 14 dígitos decimais → PJ (modelo strip não-dígitos)
+	digits = str(_uuid_mod.uuid4().int)[:14]
+	uid_hex = _uuid_mod.uuid4().hex[:8]
 	defaults = {
 		'name': 'EMPRESA PJ',
-		'documento': CNPJ_VALIDO,
-		'email': 'empresa_pj@teste.com',
+		'documento': digits,
+		'email': f'pj_{uid_hex}@teste.com',
 	}
 	defaults.update(kwargs)
 	return Cliente.objects.create(**defaults)

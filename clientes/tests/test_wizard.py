@@ -186,3 +186,35 @@ class TestWizardCadastroCliente:
 		label_nome_usual = logged_browser.inner_text('#label-nome-usual')
 		assert 'Razão' in label_name
 		assert 'Fantasia' in label_nome_usual
+
+	def test_upload_documento_step_documentos(self, logged_browser, live_server, tmp_path):
+		"""Upload no step Documentos: arquivo aparece na lista e persiste no banco após finalizar."""
+		import os
+
+		pdf = tmp_path / 'rg_teste.pdf'
+		pdf.write_bytes(b'%PDF-1.4 test')
+
+		logged_browser.goto(f'{live_server.url}/clientes/insert_cliente/')
+		self._preenche_etapa1(logged_browser, nome='UPLOAD SILVA', email='upload@teste.com')
+		self._next(logged_browser, 'step-4')
+		self._preenche_endereco(logged_browser)
+		self._next(logged_browser, 'step-5')
+		self._preenche_contatos(logged_browser, tel='(83) 99999-9997')
+		self._next(logged_browser, 'step-3')
+
+		assert logged_browser.is_visible('#step-3')
+
+		logged_browser.select_option('#wz-doc-tipo', 'RG')
+		logged_browser.set_input_files('#wz-doc-arquivo', str(pdf))
+		logged_browser.click('button[onclick="wizardAddArquivo()"]')
+
+		logged_browser.wait_for_selector('#wz-arquivos-lista table', timeout=8000)
+		assert 'RG' in logged_browser.inner_text('#wz-arquivos-lista')
+
+		self._next(logged_browser, 'step-6')
+		logged_browser.click('#wizard-btn-submit')
+		logged_browser.wait_for_load_state('networkidle')
+
+		from clientes.models import Cliente, ClienteDocumento
+		cliente = Cliente.objects.get(email='upload@teste.com')
+		assert ClienteDocumento.objects.filter(cliente=cliente).exists()

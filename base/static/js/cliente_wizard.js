@@ -79,6 +79,19 @@
 		if (labelNomeUsual) {
 			labelNomeUsual.textContent = isPJ ? 'Nome Fantasia' : 'Nome social';
 		}
+		var camposPF = ['id_data_ns', 'id_estado_civil', 'id_naturalidade', 'id_nacionalidade', 'id_profissao', 'id_renda', 'id_numero_rg', 'id_orgao_emissor_rg'];
+		camposPF.forEach(function(id) {
+			var el = document.getElementById(id);
+			if (!el) return;
+			var col = el.closest('.col-md-6');
+			if (!col) return;
+			col.style.display = isPJ ? 'none' : '';
+			if (isPJ) {
+				if (el.tagName === 'SELECT') el.selectedIndex = 0;
+				else el.value = '';
+			}
+		});
+		rebuildSteps();
 	}
 
 	function showErrors(msgs) {

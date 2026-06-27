@@ -1,9 +1,13 @@
 // static/js/telefone.js
 document.addEventListener("DOMContentLoaded", function () {
 
-    // ✅ Se vier do backend usa, senão inicia vazio
+     // Normaliza para objetos {numero, tipo, observacao} — compat com strings legadas
     window.telefonesTemp = Array.isArray(window.telefonesTemp)
-        ? window.telefonesTemp
+        ? window.telefonesTemp.map(function (t) {
+            return typeof t === 'string'
+                ? { numero: t, tipo: 'celular', observacao: '' }
+                : t;
+        })
         : [];
 
     // ===============================
@@ -35,6 +39,10 @@ document.addEventListener("DOMContentLoaded", function () {
         return regex.test(numero);
     }
 
+    function _telNumero(t) {
+        return typeof t === 'string' ? t : (t.numero || '');
+    }
+
     // ===============================
     // ADICIONAR
     // ===============================
@@ -58,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const normalizado = numero.replace(/\D/g, "");
 
         const existe = window.telefonesTemp.some(t =>
-            t.replace(/\D/g, "") === normalizado
+            _telNumero(t).replace(/\D/g, "") === normalizado
         );
 
         if (existe) {
@@ -66,9 +74,19 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        window.telefonesTemp.push(numero);
+        const tipoEl = document.getElementById("id_tipo");
+        const obsEl = document.getElementById("id_observacao");
+
+        window.telefonesTemp.push({
+            numero: numero,
+            tipo: tipoEl ? (tipoEl.value || 'celular') : 'celular',
+            observacao: obsEl ? obsEl.value.trim() : '',
+        });
+
         atualizarLista();
         input.value = "";
+        if (tipoEl && tipoEl.options.length) tipoEl.selectedIndex = 0;
+        if (obsEl) obsEl.value = "";
     };
 
     // ===============================
@@ -81,11 +99,15 @@ document.addEventListener("DOMContentLoaded", function () {
         ul.innerHTML = "";
 
         window.telefonesTemp.forEach((tel, index) => {
+            const numero = _telNumero(tel);
+            const tipo = typeof tel === 'object' && tel.tipo ? tel.tipo : '';
+            const display = tipo ? `${numero} (${tipo})` : numero;
+
             const li = document.createElement("li");
             li.className =
                 "list-group-item d-flex justify-content-between align-items-center";
             li.innerHTML = `
-                <span>${tel}</span>
+                <span>${display}</span>
                 <button type="button"
                         class="btn btn-sm btn-outline-danger"
                         onclick="removerTelefone(${index})">

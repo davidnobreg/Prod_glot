@@ -80,14 +80,14 @@
 				<button class="upd-tab-btn" data-tab="conjuge" type="button">
 					<i class="fas fa-heart me-1"></i>Cônjuge
 				</button>
-				<button class="upd-tab-btn" data-tab="documentos" type="button">
-					<i class="fas fa-id-card me-1"></i>Documentos
-				</button>
 				<button class="upd-tab-btn" data-tab="endereco" type="button">
 					<i class="fas fa-map-marker-alt me-1"></i>Endereço
 				</button>
 				<button class="upd-tab-btn" data-tab="contatos" type="button">
 					<i class="fas fa-phone me-1"></i>Contatos
+				</button>
+				<button class="upd-tab-btn" data-tab="arquivos" type="button">
+					<i class="fas fa-folder-open me-1"></i>Arquivos
 				</button>
 			</div>
 
@@ -109,14 +109,14 @@
 				<div id="tab-dados" class="upd-tab-pane">
 					<div class="row g-3">
 						<div class="col-md-6">
-							<label class="form-label">Nome <span class="text-danger">*</span></label>
+							<label class="form-label">{{ form.name.label }} <span class="text-danger">*</span></label>
 							{{ form.name }}
 							{% if form.name.errors %}
 								<div class="text-danger" style="font-size:.8rem;">{{ form.name.errors|striptags }}</div>
 							{% endif %}
 						</div>
 						<div class="col-md-6">
-							<label class="form-label">Nome usual</label>
+							<label class="form-label">{{ form.nome_usual.label }}</label>
 							{{ form.nome_usual }}
 						</div>
 						<div class="col-md-6">
@@ -202,110 +202,10 @@
 							{{ formConjuge.conj_orgao_emissor_rg }}
 						</div>
 					</div>
-					<hr class="section-sep">
-					<p class="step-sublabel"><i class="fas fa-id-badge me-1"></i>Documentos do cônjuge</p>
-					<div class="row g-3">
-						<div class="col-md-6">
-							<label class="form-label">RG cônjuge — frente</label>
-							{{ form.conj_rg_frente }}
-							{% if cliente.conj_rg_frente %}
-								<div class="mt-1" style="font-size:.8rem;">
-									<a href="{{ cliente.conj_rg_frente.url }}" target="_blank" class="text-primary">
-										<i class="fas fa-file me-1"></i>Ver arquivo atual
-									</a>
-									<span class="text-muted ms-2">· deixe vazio para manter</span>
-								</div>
-							{% endif %}
-						</div>
-						<div class="col-md-6">
-							<label class="form-label">RG cônjuge — verso</label>
-							{{ form.conj_rg_verso }}
-							{% if cliente.conj_rg_verso %}
-								<div class="mt-1" style="font-size:.8rem;">
-									<a href="{{ cliente.conj_rg_verso.url }}" target="_blank" class="text-primary">
-										<i class="fas fa-file me-1"></i>Ver arquivo atual
-									</a>
-									<span class="text-muted ms-2">· deixe vazio para manter</span>
-								</div>
-							{% endif %}
-						</div>
-						<div class="col-md-6">
-							<label class="form-label">Certidão de estado civil</label>
-							{{ form.certidao_estado_civil }}
-							{% if cliente.certidao_estado_civil %}
-								<div class="mt-1" style="font-size:.8rem;">
-									<a href="{{ cliente.certidao_estado_civil.url }}" target="_blank" class="text-primary">
-										<i class="fas fa-file me-1"></i>Ver arquivo atual
-									</a>
-									<span class="text-muted ms-2">· deixe vazio para manter</span>
-								</div>
-							{% endif %}
-						</div>
-					</div>
 				</div>
 
 				<!-- ================================================
-				     ABA 3 — Documentos pessoais
-				     ================================================ -->
-				<div id="tab-documentos" class="upd-tab-pane" style="display:none;">
-					<p style="font-size:.8rem;color:#aaa;margin-bottom:1rem;">
-						JPG, PNG ou PDF · máx. 10 MB · deixe vazio para manter o arquivo atual
-					</p>
-					<p class="step-sublabel"><i class="fas fa-id-badge me-1"></i>RG do cliente</p>
-					<div class="row g-3">
-						<div class="col-md-6">
-							<label class="form-label">Frente</label>
-							{{ form.foto_rg_frente }}
-							{% if cliente.foto_rg_frente %}
-								<div class="mt-1" style="font-size:.8rem;">
-									<a href="{{ cliente.foto_rg_frente.url }}" target="_blank" class="text-primary">
-										<i class="fas fa-file me-1"></i>Ver arquivo atual
-									</a>
-									<span class="text-muted ms-2">· deixe vazio para manter</span>
-								</div>
-							{% endif %}
-						</div>
-						<div class="col-md-6">
-							<label class="form-label">Verso</label>
-							{{ form.foto_rg_verso }}
-							{% if cliente.foto_rg_verso %}
-								<div class="mt-1" style="font-size:.8rem;">
-									<a href="{{ cliente.foto_rg_verso.url }}" target="_blank" class="text-primary">
-										<i class="fas fa-file me-1"></i>Ver arquivo atual
-									</a>
-									<span class="text-muted ms-2">· deixe vazio para manter</span>
-								</div>
-							{% endif %}
-						</div>
-						<div class="col-md-6">
-							<label class="form-label">CPF (foto)</label>
-							{{ form.foto_cpf }}
-							{% if cliente.foto_cpf %}
-								<div class="mt-1" style="font-size:.8rem;">
-									<a href="{{ cliente.foto_cpf.url }}" target="_blank" class="text-primary">
-										<i class="fas fa-file me-1"></i>Ver arquivo atual
-									</a>
-									<span class="text-muted ms-2">· deixe vazio para manter</span>
-								</div>
-							{% endif %}
-						</div>
-						<div class="col-md-6">
-							<label class="form-label">Comprovante de residência</label>
-							{{ form.comprovante_residencia }}
-							{% if cliente.comprovante_residencia %}
-								<div class="mt-1" style="font-size:.8rem;">
-									<a href="{{ cliente.comprovante_residencia.url }}" target="_blank" class="text-primary">
-										<i class="fas fa-file me-1"></i>Ver arquivo atual
-									</a>
-									<span class="text-muted ms-2">· deixe vazio para manter</span>
-								</div>
-							{% endif %}
-						</div>
-					</div>
-				</div>
-
-				<!-- ================================================
-				     ABA 4 — Endereço
+				     ABA 3 — Endereço
 				     ================================================ -->
 				<div id="tab-endereco" class="upd-tab-pane" style="display:none;">
 					<div class="row g-3">
@@ -380,6 +280,106 @@
 				</div>
 
 				<!-- ================================================
+				     ABA 6 — Arquivos (ClienteDocumento)
+				     ================================================ -->
+				</form>
+
+				<div id="tab-arquivos" class="upd-tab-pane" style="display:none;">
+
+					{% if documentos %}
+					<div class="table-responsive mb-3">
+						<table class="table table-sm table-hover" style="font-size:.85rem;">
+							<thead>
+								<tr>
+									<th>Tipo</th>
+									<th>Descrição</th>
+									<th>Data</th>
+									<th>Status</th>
+									<th>Arquivo</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for doc in documentos %}
+								<tr>
+									<td>{{ doc.get_tipo_display }}</td>
+									<td>{{ doc.descricao|default:"—" }}</td>
+									<td>{{ doc.criado_em|date:"d/m/Y" }}</td>
+									<td>
+										{% if doc.status == 'processando' %}
+											<span class="text-warning" style="font-size:.8rem;">
+												<i class="fas fa-spinner fa-spin me-1"></i>Processando...
+											</span>
+										{% elif doc.status == 'erro' %}
+											<span class="text-danger" style="font-size:.8rem;">
+												<i class="fas fa-exclamation-circle me-1"></i>Erro
+											</span>
+										{% else %}
+											<span class="text-success" style="font-size:.8rem;">
+												<i class="fas fa-check-circle me-1"></i>Disponível
+											</span>
+										{% endif %}
+									</td>
+									<td>
+										{% if doc.status != 'processando' and doc.arquivo %}
+											<a href="{{ doc.arquivo.url }}" target="_blank" class="text-primary">
+												<i class="fas fa-file me-1"></i>Ver
+											</a>
+										{% else %}
+											<span class="text-muted" style="font-size:.8rem;">—</span>
+										{% endif %}
+									</td>
+									<td>
+										<form method="POST"
+										      action="{% url 'excluir-documento-cliente' doc.id %}"
+										      onsubmit="return confirm('Excluir este documento?');">
+											{% csrf_token %}
+											<button type="submit" class="btn btn-link text-danger p-0" style="font-size:.8rem;">
+												<i class="fas fa-trash"></i>
+											</button>
+										</form>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+					{% else %}
+					<p class="text-muted" style="font-size:.85rem;">Nenhum documento cadastrado.</p>
+					{% endif %}
+
+					<hr class="section-sep">
+					<p class="step-sublabel"><i class="fas fa-plus me-1"></i>Adicionar documento</p>
+					<form method="POST"
+					      action="{% url 'adicionar-documento-cliente' cliente.uuid %}"
+					      enctype="multipart/form-data">
+						{% csrf_token %}
+						<div class="row g-3 align-items-end">
+							<div class="col-md-4">
+								<label class="form-label">Tipo <span class="text-danger">*</span></label>
+								{{ form_doc.tipo }}
+								{% if form_doc.tipo.errors %}
+									<div class="text-danger" style="font-size:.8rem;">{{ form_doc.tipo.errors|striptags }}</div>
+								{% endif %}
+							</div>
+							<div class="col-md-4">
+								<label class="form-label">Descrição</label>
+								{{ form_doc.descricao }}
+							</div>
+							<div class="col-md-3">
+								<label class="form-label">Arquivo <span class="text-danger">*</span></label>
+								{{ form_doc.arquivo }}
+							</div>
+							<div class="col-md-1">
+								<button type="submit" class="btn btn-success w-100" style="border-radius:8px;">
+									<i class="fas fa-plus"></i>
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+
+				<!-- ================================================
 				     BARRA DE AÇÕES (sempre visível, rodapé do card)
 				     ================================================ -->
 				<div class="action-bar">
@@ -394,13 +394,12 @@
 							<i class="fas fa-times me-1"></i>Cancelar
 						</a>
 					{% endif %}
-					<button type="submit" class="btn text-white"
+					<button type="submit" form="cliente-form" class="btn text-white"
 					        style="background:#0097a7;border-color:#0097a7;border-radius:8px;">
 						<i class="fas fa-save me-1"></i>Salvar alterações
 					</button>
 				</div>
 
-			</form>
 		</div><!-- #upd-card -->
 
 	</div><!-- container-fluid -->
@@ -446,6 +445,24 @@
 
 		update();
 		if (sel) sel.addEventListener('change', update);
+	})();
+
+	// Auto-ativar aba via ?tab=<nome> na URL
+	(function () {
+		var params = new URLSearchParams(window.location.search);
+		var tab = params.get('tab');
+		if (tab) {
+			var btn = document.querySelector('[data-tab="' + tab + '"]');
+			if (btn) btn.click();
+		}
+	})();
+
+	// Auto-refresh se existir documento processando
+	(function () {
+		var temProcessando = {{ tem_processando|yesno:"true,false" }};
+		if (temProcessando) {
+			setTimeout(function () { window.location.reload(); }, 5000);
+		}
 	})();
 </script>
 

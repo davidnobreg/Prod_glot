@@ -1,9 +1,13 @@
 // static/js/telefone.js
 document.addEventListener("DOMContentLoaded", function () {
 
-    // se vier do backend, usa; senão inicia vazio
+     // Normaliza para objetos {numero, tipo, observacao} — compat com strings legadas
     window.telefonesTemp = Array.isArray(window.telefonesTemp)
-        ? window.telefonesTemp
+        ? window.telefonesTemp.map(function (t) {
+            return typeof t === 'string'
+                ? { numero: t, tipo: 'celular', observacao: '' }
+                : t;
+        })
         : [];
 
     // ===============================
@@ -14,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!box) {
             box = document.createElement("div");
             box.id = "telefoneErro";
-            box.className = "tw:mt-2 tw:rounded-xl tw:bg-red-50 tw:text-red-700 tw:px-4 tw:py-2 tw:text-sm";
+            box.className = "alert alert-danger mt-2";
             const formRow = document.querySelector("#telefoneNumero")?.parentNode;
             if (formRow) formRow.appendChild(box);
         }
@@ -33,6 +37,10 @@ document.addEventListener("DOMContentLoaded", function () {
     function telefoneValido(numero) {
         const regex = /^(\(?\d{2}\)?\s?)?(\d{4,5})[- ]?(\d{4})$/;
         return regex.test(numero);
+    }
+
+    function _telNumero(t) {
+        return typeof t === 'string' ? t : (t.numero || '');
     }
 
     // ===============================
@@ -58,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const normalizado = numero.replace(/\D/g, "");
 
         const existe = window.telefonesTemp.some(t =>
-            t.replace(/\D/g, "") === normalizado
+            _telNumero(t).replace(/\D/g, "") === normalizado
         );
 
         if (existe) {
@@ -66,43 +74,48 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        window.telefonesTemp.push(numero);
+        const tipoEl = document.getElementById("id_tipo");
+        const obsEl = document.getElementById("id_observacao");
+
+        window.telefonesTemp.push({
+            numero: numero,
+            tipo: tipoEl ? (tipoEl.value || 'celular') : 'celular',
+            observacao: obsEl ? obsEl.value.trim() : '',
+        });
+
         atualizarLista();
         input.value = "";
+        if (tipoEl && tipoEl.options.length) tipoEl.selectedIndex = 0;
+        if (obsEl) obsEl.value = "";
     };
 
     // ===============================
     // LISTAR
     // ===============================
     window.atualizarLista = function () {
-        const container = document.getElementById("listaTelefones");
-        if (!container) return;
+        const ul = document.getElementById("listaTelefones");
+        if (!ul) return;
 
-        container.innerHTML = "";
+        ul.innerHTML = "";
 
-        if (!window.telefonesTemp.length) {
-            const empty = document.createElement("div");
-            empty.className = "tw:rounded-xl tw:border tw:border-dashed tw:border-slate-700 tw:bg-slate-950/40 tw:p-4 tw:text-sm tw:text-slate-400";
-            empty.textContent = "Nenhum telefone adicionado.";
-            container.appendChild(empty);
-        } else {
-            window.telefonesTemp.forEach((tel, index) => {
-                const row = document.createElement("div");
-                row.className = "tw:flex tw:items-center tw:justify-between tw:gap-5 tw:rounded-xl tw:border tw:border-slate-200 tw:bg-white tw:px-4 tw:py-2";
-                row.innerHTML = `
-                    <div class="tw:flex tw:flex-col tw:min-w-0">
-                        <span class="tw:font-semibold tw:text-slate-900">${tel}</span>
-                    </div>
-                    <button type="button"
-                            class="tw:inline-flex tw:items-center tw:justify-center tw:rounded-xl tw:px-4 tw:py-2 tw:font-semibold tw:text-white tw:bg-red-600 tw:transition"
-                            onclick="removerTelefone(${index})"
-                            aria-label="Remover telefone">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                `;
-                container.appendChild(row);
-            });
-        }
+        window.telefonesTemp.forEach((tel, index) => {
+            const numero = _telNumero(tel);
+            const tipo = typeof tel === 'object' && tel.tipo ? tel.tipo : '';
+            const display = tipo ? `${numero} (${tipo})` : numero;
+
+            const li = document.createElement("li");
+            li.className =
+                "list-group-item d-flex justify-content-between align-items-center";
+            li.innerHTML = `
+                <span>${display}</span>
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        onclick="removerTelefone(${index})">
+                    ✕
+                </button>
+            `;
+            ul.appendChild(li);
+        });
 
         const hidden = document.getElementById("telefones_json");
         if (hidden) hidden.value = JSON.stringify(window.telefonesTemp);
@@ -117,11 +130,11 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     // ===============================
-    // FECHAR MODAL (se usado)
+    // FECHAR MODAL
     // ===============================
     window.fecharModal = function () {
-        const modalEl = document.getElementById("modalTelefones");
-        if (!modalEl || !window.bootstrap) return;
+        const modalEl = document.getElementById("modalTelefone");
+        if (!modalEl) return;
 
         const instance =
             bootstrap.Modal.getInstance(modalEl) ||
@@ -130,6 +143,6 @@ document.addEventListener("DOMContentLoaded", function () {
         instance.hide();
     };
 
+    // ✅ CARREGA AUTOMATICAMENTE AO ABRIR
     atualizarLista();
 });
-

@@ -54,6 +54,7 @@ def _render_cliente_form(request, template, form, cliente=None,
                          form_endereco=None, form_conjuge=None,
                          telefones_json='[]', origem='lista', lote_uuid=None):
     tipo_pessoa = _get_tipo_pessoa(cliente)
+    documentos = cliente.arquivos_cliente.all().order_by('-criado_em') if cliente else []
     context = {
         'form': form,
         'formConjuge': form_conjuge or ClienteConjugeForm(instance=cliente),
@@ -62,7 +63,8 @@ def _render_cliente_form(request, template, form, cliente=None,
         'telefones_json': telefones_json,
         'origem': origem,
         'lote_uuid': lote_uuid,
-        'documentos': cliente.arquivos_cliente.all() if cliente else [],
+        'documentos': documentos,
+        'tem_processando': documentos.filter(status='processando').exists() if cliente else False,
         'form_doc': ClienteDocumentoForm(tipo_pessoa=tipo_pessoa),
         'tipo_pessoa': tipo_pessoa,
     }
@@ -199,6 +201,7 @@ def atualizarCliente(request, cliente_uuid):
             .values_list('numero', flat=True)
         )
         tipo_pessoa = _get_tipo_pessoa(cliente)
+        documentos = cliente.arquivos_cliente.all().order_by('-criado_em')
         return render(request, 'cliente_update.html', {
             'form': ClienteUpdateForm(instance=cliente),
             'cliente': cliente,
@@ -207,7 +210,8 @@ def atualizarCliente(request, cliente_uuid):
             'telefones_json': json.dumps(telefones),
             'origem': origem,
             'lote_uuid': lote_uuid,
-            'documentos': cliente.arquivos_cliente.all(),
+            'documentos': documentos,
+            'tem_processando': documentos.filter(status='processando').exists(),
             'form_doc': ClienteDocumentoForm(tipo_pessoa=tipo_pessoa),
             'tipo_pessoa': tipo_pessoa,
         })

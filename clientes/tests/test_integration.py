@@ -104,6 +104,18 @@ class ClienteDeleteIntegracaoTest(TestCase):
 		self.cliente.refresh_from_db()
 		self.assertFalse(self.cliente.is_ativo)
 
+	def test_delete_cliente_com_venda_ativa_bloqueado(self):
+		from vendas.models import RegisterVenda
+		RegisterVenda.objects.create(cliente=self.cliente, tipo_venda='VENDIDO')
+		url = reverse('delete-cliente', args=[self.cliente.uuid])
+		response = self.client.post(url)
+		self.assertRedirects(response, reverse('lista-cliente'))
+		self.cliente.refresh_from_db()
+		# cliente permanece ativo — proteção funcionou
+		self.assertTrue(self.cliente.is_ativo)
+		msgs = [str(m) for m in response.wsgi_request._messages]
+		self.assertTrue(any('venda' in m.lower() for m in msgs))
+
 
 # ===========================================================
 # Fluxo completo
@@ -151,17 +163,24 @@ class FluxoClienteCasadoTest(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertIsNone(response.context['cliente'].conj_nome)
 
-	def test_upload_documento_persiste_apos_reload(self):
-		cliente = _make_cliente()
-		ClienteTelefone.objects.create(cliente=cliente, numero='(83) 99999-9999')
-		url = reverse('upload-documentos-cliente', args=[cliente.uuid])
-
-		from django.core.files.uploadedfile import SimpleUploadedFile
-		arquivo = SimpleUploadedFile('rg_frente.jpg', b'x' * 512, 'image/jpeg')
-
-		with self.settings(MEDIA_ROOT=self._tmpdir):
-			response = self.client.post(url, {'foto_rg_frente': arquivo})
-
-		self.assertRedirects(response, reverse('atualizar-cliente', args=[cliente.uuid]))
-		cliente.refresh_from_db()
-		self.assertTrue(bool(cliente.foto_rg_frente))
+	def test_redirect_apos_criacao_aponta_para_aba_arquivos(self):
+		from django.urls import reverse as _reverse
+		url_criar = _reverse('criar-cliente')
+		data = {
+			'name': 'NOVO CLIENTE INTEGRAÇÃO',
+			'documento': '52998224725',
+			'email': 'novo_integracao@teste.com',
+			'estado_civil': 'solteiro',
+			'end_cep': '58000000',
+			'end_rua': 'Rua das Flores',
+			'end_numero': '10',
+			'end_bairro': 'Centro',
+			'end_cidade': 'João Pessoa',
+			'end_estado': 'PB',
+			'telefones_json': json.dumps(['(83) 98765-4321']),
+		}
+		response = self.client.post(url_criar, data)
+		self.assertEqual(response.status_code, 302)
+		cliente = Cliente.objects.get(email='novo_integracao@teste.com')
+		expected = _reverse('atualizar-cliente', args=[cliente.uuid]) + '?tab=arquivos'
+		self.assertEqual(response['Location'], expected)

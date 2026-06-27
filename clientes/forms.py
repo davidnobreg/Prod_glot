@@ -4,18 +4,13 @@ from decimal import Decimal, InvalidOperation
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import Cliente, ClienteTelefone, choices_estado, _validate_doc_arquivo
+from .models import Cliente, ClienteDocumento, ClienteTelefone, choices_estado
 
 
 # ===================================================================
 # Tailwind component class helpers
 # ===================================================================
 _DROP_WIDGET_CLASSES = {"form-control", "form-select", "mb-3"}
-
-_FILE_FIELDS = (
-	'foto_rg_frente', 'foto_rg_verso', 'foto_cpf', 'comprovante_residencia',
-	'conj_rg_frente', 'conj_rg_verso', 'certidao_estado_civil',
-)
 
 
 def _merge_classes(existing, *adds):
@@ -124,14 +119,6 @@ class ClienteBaseForm(forms.ModelForm):
 			}),
 			'email': forms.EmailInput(attrs={'class': 'form-control mb-3'}),
 			'observacao': forms.Textarea(attrs={'class': 'form-control mb-3', 'style': 'height: 90px;'}),
-			# FileInput simples — sem "Currently/Clear" do ClearableFileInput
-			'foto_rg_frente': forms.FileInput(),
-			'foto_rg_verso': forms.FileInput(),
-			'foto_cpf': forms.FileInput(),
-			'comprovante_residencia': forms.FileInput(),
-			'conj_rg_frente': forms.FileInput(),
-			'conj_rg_verso': forms.FileInput(),
-			'certidao_estado_civil': forms.FileInput(),
 		}
 
 	def __init__(self, *args, **kwargs):
@@ -139,14 +126,29 @@ class ClienteBaseForm(forms.ModelForm):
 		self._configure_fields()
 		self._set_column_layout()
 		self._set_initial_values()
+		self._apply_tipo_pessoa_labels()
+
+	def _apply_tipo_pessoa_labels(self):
+		doc = ''
+		if self.instance and self.instance.pk:
+			doc = self.instance.documento or ''
+		tipo_pessoa = 'PJ' if len(doc) == 14 else 'PF'
+		if tipo_pessoa == 'PJ':
+			if 'name' in self.fields:
+				self.fields['name'].label = 'Razão social'
+			if 'nome_usual' in self.fields:
+				self.fields['nome_usual'].label = 'Nome fantasia'
+		else:
+			if 'name' in self.fields:
+				self.fields['name'].label = 'Nome completo'
+			if 'nome_usual' in self.fields:
+				self.fields['nome_usual'].label = 'Nome social'
 
 	def _configure_fields(self):
 		for name, field in self.fields.items():
 			field.required = False
 			field.widget.attrs.pop('required', None)
 			_apply_widget_style(field)
-			if name in _FILE_FIELDS:
-				field.widget.attrs['accept'] = '.jpg,.jpeg,.png,.pdf'
 
 		if 'nacionalidade' in self.fields:
 			self.fields['nacionalidade'].initial = 'Brasileiro'
@@ -364,36 +366,6 @@ class ClienteConjugeForm(forms.ModelForm):
 
 
 # ===================================================================
-# FORM DOCUMENTOS — usado pelo endpoint separado uploadDocumentosCliente
-# ===================================================================
-class ClienteDocumentosForm(forms.ModelForm):
-
-	class Meta:
-		model = Cliente
-		fields = [
-			'foto_rg_frente', 'foto_rg_verso', 'foto_cpf',
-			'comprovante_residencia', 'conj_rg_frente', 'conj_rg_verso',
-			'certidao_estado_civil',
-		]
-		widgets = {
-			'foto_rg_frente': forms.FileInput(),
-			'foto_rg_verso': forms.FileInput(),
-			'foto_cpf': forms.FileInput(),
-			'comprovante_residencia': forms.FileInput(),
-			'conj_rg_frente': forms.FileInput(),
-			'conj_rg_verso': forms.FileInput(),
-			'certidao_estado_civil': forms.FileInput(),
-		}
-
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		for field in self.fields.values():
-			field.required = False
-			field.widget.attrs['class'] = 'glot-input'
-			field.widget.attrs['accept'] = '.jpg,.jpeg,.png,.pdf'
-
-
-# ===================================================================
 # FORM TELEFONE
 # ===================================================================
 class ClienteTelefoneForm(forms.ModelForm):
@@ -423,3 +395,32 @@ class ClienteTelefoneForm(forms.ModelForm):
 		for field, col in colunas.items():
 			if field in self.fields:
 				self.fields[field].widget.attrs['col'] = col
+
+
+# ===================================================================
+# FORM DOCUMENTO DO CLIENTE (tabela ClienteDocumento)
+# ===================================================================
+class ClienteDocumentoForm(forms.ModelForm):
+
+	class Meta:
+		model = ClienteDocumento
+		fields = ['tipo', 'arquivo', 'descricao']
+		widgets = {
+			'arquivo': forms.FileInput(),
+			'descricao': forms.TextInput(attrs={'placeholder': 'Descrição (opcional)'}),
+		}
+
+	def __init__(self, *args, tipo_pessoa='PF', **kwargs):
+		super().__init__(*args, **kwargs)
+		choices = (
+			ClienteDocumento.TIPO_CHOICES_PJ
+			if tipo_pessoa == 'PJ'
+			else ClienteDocumento.TIPO_CHOICES_PF
+		)
+		self.fields['tipo'].choices = [('', '---------')] + choices
+		for field in self.fields.values():
+			field.required = False
+			_apply_widget_style(field)
+		self.fields['tipo'].required = True
+		self.fields['arquivo'].required = True
+		self.fields['arquivo'].widget.attrs['accept'] = '.jpg,.jpeg,.png,.pdf'

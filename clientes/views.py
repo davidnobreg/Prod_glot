@@ -1,4 +1,5 @@
 import json
+import re as _re
 
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -10,13 +11,13 @@ from rolepermissions.decorators import has_permission_decorator
 
 from .forms import (
     ClienteConjugeForm,
-    ClienteDocumentosForm,
+    ClienteDocumentoForm,
     ClienteEnderecoForm,
     ClienteForm,
     ClienteTelefoneForm,
     ClienteUpdateForm,
 )
-from .models import Cliente, ClienteTelefone
+from .models import Cliente, ClienteDocumento, ClienteTelefone
 
 
 # ===================================================================
@@ -43,9 +44,16 @@ def _endereco_preenchido(cleaned_data):
     return all((cleaned_data.get(f) or '').strip() for f in required)
 
 
+def _get_tipo_pessoa(cliente):
+    if cliente and cliente.documento:
+        return 'PJ' if len(cliente.documento) == 14 else 'PF'
+    return 'PF'
+
+
 def _render_cliente_form(request, template, form, cliente=None,
                          form_endereco=None, form_conjuge=None,
                          telefones_json='[]', origem='lista', lote_uuid=None):
+    tipo_pessoa = _get_tipo_pessoa(cliente)
     context = {
         'form': form,
         'formConjuge': form_conjuge or ClienteConjugeForm(instance=cliente),
@@ -54,6 +62,9 @@ def _render_cliente_form(request, template, form, cliente=None,
         'telefones_json': telefones_json,
         'origem': origem,
         'lote_uuid': lote_uuid,
+        'documentos': cliente.arquivos_cliente.all() if cliente else [],
+        'form_doc': ClienteDocumentoForm(tipo_pessoa=tipo_pessoa),
+        'tipo_pessoa': tipo_pessoa,
     }
     if cliente is not None:
         context['cliente'] = cliente
@@ -97,6 +108,7 @@ def criarCliente(request):
     if request.method == 'POST':
         origem = request.POST.get('origem', origem)
         telefones_json = request.POST.get('telefones_json', '[]')
+
         form = ClienteForm(request.POST, request.FILES)
         form_endereco = ClienteEnderecoForm(request.POST)
         form_conjuge = ClienteConjugeForm(request.POST)
@@ -156,7 +168,8 @@ def criarCliente(request):
 
         if origem == 'reserva' and lote_uuid:
             return redirect('reserva-create', reserva_uuid=lote_uuid)
-        return redirect('lista-cliente')
+        from django.urls import reverse as _reverse
+        return redirect(_reverse('atualizar-cliente', args=[str(cliente.uuid)]) + '?tab=arquivos')
 
     context = {
         'form': ClienteForm(),
@@ -185,6 +198,7 @@ def atualizarCliente(request, cliente_uuid):
             .filter(cliente=cliente)
             .values_list('numero', flat=True)
         )
+        tipo_pessoa = _get_tipo_pessoa(cliente)
         return render(request, 'cliente_update.html', {
             'form': ClienteUpdateForm(instance=cliente),
             'cliente': cliente,
@@ -193,6 +207,9 @@ def atualizarCliente(request, cliente_uuid):
             'telefones_json': json.dumps(telefones),
             'origem': origem,
             'lote_uuid': lote_uuid,
+            'documentos': cliente.arquivos_cliente.all(),
+            'form_doc': ClienteDocumentoForm(tipo_pessoa=tipo_pessoa),
+            'tipo_pessoa': tipo_pessoa,
         })
 
     origem = request.POST.get('origem', 'lista')
@@ -338,25 +355,242 @@ def listaClienteRelatorio(request):
     })
 
 
+
+
 # ===================================================================
-# uploadDocumentosCliente
+# wizard_arquivo_add
+# ===================================================================
+
+@has_permission_decorator('criarCliente')
+def wizard_arquivo_add(request, cliente_uuid):
+    """Adiciona ClienteDocumento a um cliente rascunho. Retorna JSON."""
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
+
+    draft = get_object_or_404(Cliente, uuid=cliente_uuid, is_ativo=False)
+    tipo_pessoa = _get_tipo_pessoa(draft)
+    form = ClienteDocumentoForm(request.POST, request.FILES, tipo_pessoa=tipo_pessoa)
+
+    if form.is_valid():
+        doc = form.save(commit=False)
+        doc.cliente = draft
+        doc.status = 'processando'
+        doc.save()
+        return JsonResponse({
+            'ok': True,
+            'doc': {
+                'id': doc.id,
+                'tipo_display': doc.get_tipo_display(),
+                'descricao': doc.descricao or '',
+                'arquivo_url': doc.arquivo.url,
+            }
+        })
+
+    first_error = next(
+        (v[0] for v in form.errors.values() if v),
+        'Erro ao salvar documento.'
+    )
+    return JsonResponse({'ok': False, 'error': first_error})
+
+
+# ===================================================================
+# wizard_arquivo_del
+# ===================================================================
+
+@has_permission_decorator('criarCliente')
+def wizard_arquivo_del(request, documento_id):
+    """Remove ClienteDocumento de um cliente rascunho. Retorna JSON."""
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
+
+    doc = get_object_or_404(ClienteDocumento, id=documento_id)
+    if doc.cliente.is_ativo:
+        return JsonResponse({'ok': False, 'error': 'Forbidden'}, status=403)
+
+    doc.delete()
+    return JsonResponse({'ok': True})
+
+
+# ===================================================================
+# wizard_salvar_passo — AJAX: cria/atualiza cliente por etapa
+# ===================================================================
+
+@has_permission_decorator('criarCliente')
+def wizard_salvar_passo(request):
+	"""Salva uma etapa do wizard via AJAX. Retorna JSON."""
+	if request.method != 'POST':
+		return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
+
+	step_id = request.POST.get('step_id', '')
+	cliente_uuid = request.POST.get('cliente_uuid', '').strip()
+
+	if step_id == 'step-1':
+		return _wizard_save_step1(request, cliente_uuid)
+	elif step_id == 'step-2':
+		return _wizard_save_conjuge(request, cliente_uuid)
+	elif step_id == 'step-4':
+		return _wizard_save_endereco(request, cliente_uuid)
+	elif step_id == 'step-5':
+		return _wizard_save_contatos(request, cliente_uuid)
+
+	return JsonResponse({'ok': False, 'error': f'Step desconhecido: {step_id}'})
+
+
+def _wizard_get_draft(uuid_str):
+	"""Retorna cliente rascunho (is_ativo=False) ou None."""
+	if not uuid_str:
+		return None
+	try:
+		import uuid as _uuid_module
+		return Cliente.objects.filter(uuid=_uuid_module.UUID(uuid_str), is_ativo=False).first()
+	except (ValueError, AttributeError):
+		return None
+
+
+def _wizard_save_step1(request, cliente_uuid):
+	instance = _wizard_get_draft(cliente_uuid)
+
+	if instance is None:
+		email = request.POST.get('email', '').strip().lower()
+		documento = _re.sub(r'[^0-9]', '', request.POST.get('documento', ''))
+		if email:
+			instance = Cliente.objects.filter(email__iexact=email, is_ativo=False).first()
+		if instance is None and documento:
+			instance = Cliente.objects.filter(documento=documento, is_ativo=False).first()
+
+	form = ClienteForm(request.POST, instance=instance)
+	if form.is_valid():
+		with transaction.atomic():
+			c = form.save(commit=False)
+			c.is_ativo = False
+			c.save()
+		return JsonResponse({'ok': True, 'uuid': str(c.uuid)})
+
+	errors = {field: list(errs) for field, errs in form.errors.items()}
+	return JsonResponse({'ok': False, 'errors': errors})
+
+
+def _wizard_save_conjuge(request, cliente_uuid):
+	cliente = _wizard_get_draft(cliente_uuid)
+	if cliente is None:
+		return JsonResponse({'ok': False, 'error': 'Rascunho não encontrado. Recarregue a página.'})
+
+	form = ClienteConjugeForm(request.POST, instance=cliente)
+	if form.is_valid():
+		form.save()
+		return JsonResponse({'ok': True})
+
+	errors = {field: list(errs) for field, errs in form.errors.items()}
+	return JsonResponse({'ok': False, 'errors': errors})
+
+
+def _wizard_save_endereco(request, cliente_uuid):
+	cliente = _wizard_get_draft(cliente_uuid)
+	if cliente is None:
+		return JsonResponse({'ok': False, 'error': 'Rascunho não encontrado. Recarregue a página.'})
+
+	form = ClienteEnderecoForm(request.POST, instance=cliente)
+	if form.is_valid():
+		form.save()
+		return JsonResponse({'ok': True})
+
+	errors = {field: list(errs) for field, errs in form.errors.items()}
+	return JsonResponse({'ok': False, 'errors': errors})
+
+
+def _wizard_save_contatos(request, cliente_uuid):
+	cliente = _wizard_get_draft(cliente_uuid)
+	if cliente is None:
+		return JsonResponse({'ok': False, 'error': 'Rascunho não encontrado. Recarregue a página.'})
+
+	telefones_json = request.POST.get('telefones_json', '[]')
+	telefones = _normalize_telefones(_load_json_payload(telefones_json, []))
+
+	with transaction.atomic():
+		ClienteTelefone.objects.filter(cliente=cliente).delete()
+		for numero in telefones:
+			if numero:
+				ClienteTelefone.objects.create(cliente=cliente, numero=numero)
+
+	return JsonResponse({'ok': True})
+
+
+# ===================================================================
+# wizard_finalizar — AJAX: ativa cliente + dispara Celery
+# ===================================================================
+
+@has_permission_decorator('criarCliente')
+def wizard_finalizar(request, cliente_uuid):
+	"""Finaliza wizard: ativa cliente, dispara task Celery, retorna redirect_url."""
+	if request.method != 'POST':
+		return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
+
+	draft = _wizard_get_draft(str(cliente_uuid))
+	if draft is None:
+		return JsonResponse({'ok': False, 'error': 'Rascunho não encontrado.'}, status=404)
+
+	with transaction.atomic():
+		draft.is_ativo = True
+		draft.save(update_fields=['is_ativo'])
+
+	from clientes.tasks import processar_documentos_pendentes
+	processar_documentos_pendentes.delay(str(draft.uuid))
+
+	origem = request.POST.get('origem', 'lista')
+	lote_uuid = request.POST.get('lote_uuid', '')
+
+	from django.urls import reverse as _reverse
+	if origem == 'reserva' and lote_uuid:
+		redirect_url = _reverse('reserva-create', kwargs={'reserva_uuid': lote_uuid})
+	else:
+		redirect_url = _reverse('atualizar-cliente', args=[str(draft.uuid)]) + '?tab=arquivos'
+
+	return JsonResponse({'ok': True, 'redirect_url': redirect_url})
+
+
+# ===================================================================
+# adicionar_documento_cliente
 # ===================================================================
 
 @has_permission_decorator('alterarCliente')
-def uploadDocumentosCliente(request, cliente_uuid):
+def adicionar_documento_cliente(request, cliente_uuid):
     cliente = get_object_or_404(Cliente, uuid=cliente_uuid)
     if request.method != 'POST':
         return redirect('atualizar-cliente', cliente_uuid=cliente_uuid)
 
-    form = ClienteDocumentosForm(request.POST, request.FILES, instance=cliente)
+    tipo_pessoa = _get_tipo_pessoa(cliente)
+    form = ClienteDocumentoForm(request.POST, request.FILES, tipo_pessoa=tipo_pessoa)
     if form.is_valid():
-        form.save()
-        messages.success(request, "Documentos salvos com sucesso!")
+        doc = form.save(commit=False)
+        doc.cliente = cliente
+        doc.save()
+        messages.success(request, 'Documento adicionado com sucesso!')
     else:
         for erros in form.errors.values():
             for erro in erros:
                 messages.error(request, erro)
 
+    next_url = request.POST.get('next') or request.GET.get('next')
+    if next_url:
+        return redirect(next_url)
+    return redirect('atualizar-cliente', cliente_uuid=cliente_uuid)
+
+
+# ===================================================================
+# excluir_documento_cliente
+# ===================================================================
+
+@has_permission_decorator('alterarCliente')
+def excluir_documento_cliente(request, documento_id):
+    if request.method != 'POST':
+        raise Http404
+    doc = get_object_or_404(ClienteDocumento, id=documento_id)
+    cliente_uuid = doc.cliente.uuid
+    doc.delete()
+    messages.success(request, 'Documento excluído com sucesso!')
+    next_url = request.POST.get('next') or request.GET.get('next')
+    if next_url:
+        return redirect(next_url)
     return redirect('atualizar-cliente', cliente_uuid=cliente_uuid)
 
 
@@ -367,7 +601,11 @@ def uploadDocumentosCliente(request, cliente_uuid):
 @has_permission_decorator('deletarCliente')
 def deleteCliente(request, cliente_uuid):
     try:
+        from vendas.models import RegisterVenda
         cliente = get_object_or_404(Cliente, uuid=cliente_uuid)
+        if RegisterVenda.objects.filter(cliente=cliente).exclude(tipo_venda='CANCELADA').exists():
+            messages.error(request, 'Cliente possui vendas ativas e não pode ser excluído.')
+            return redirect('lista-cliente')
         cliente.is_ativo = False
         if cliente.email:
             cliente.email = f"deleted_{cliente.uuid}@example.com"

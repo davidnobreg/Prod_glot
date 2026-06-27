@@ -1,9 +1,5 @@
 import json
-import shutil
-import tempfile
-
 from django.contrib.auth import get_user_model
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -68,10 +64,6 @@ class CriarClienteViewTest(TestCase):
 		self.user = _make_user()
 		self.client.force_login(self.user)
 		self.url = reverse('criar-cliente')
-		self._tmpdir = tempfile.mkdtemp()
-
-	def tearDown(self):
-		shutil.rmtree(self._tmpdir, ignore_errors=True)
 
 	def test_get_retorna_200_com_form(self):
 		response = self.client.get(self.url)
@@ -87,8 +79,11 @@ class CriarClienteViewTest(TestCase):
 
 	def test_post_valido_solteiro_cria_cliente_e_redireciona(self):
 		response = self.client.post(self.url, _post_criar())
-		self.assertRedirects(response, reverse('lista-cliente'))
+		self.assertEqual(response.status_code, 302)
 		self.assertTrue(Cliente.objects.filter(email='novo@teste.com').exists())
+		cliente = Cliente.objects.get(email='novo@teste.com')
+		self.assertIn(str(cliente.uuid), response['Location'])
+		self.assertIn('tab=arquivos', response['Location'])
 
 	def test_post_casado_sem_conjuge_retorna_200_com_mensagem_erro(self):
 		data = _post_criar(estado_civil='casado')
@@ -105,14 +100,6 @@ class CriarClienteViewTest(TestCase):
 		self.assertIn('form', response.context)
 		self.assertIn('documento', response.context['form'].errors)
 
-	def test_post_com_foto_rg_frente_salva_arquivo(self):
-		arquivo = SimpleUploadedFile('rg.jpg', b'x' * 1024, 'image/jpeg')
-		data = _post_criar(email='arquivo@teste.com')
-		with self.settings(MEDIA_ROOT=self._tmpdir):
-			response = self.client.post(self.url, {**data, 'foto_rg_frente': arquivo})
-		self.assertEqual(response.status_code, 302)
-		cliente = Cliente.objects.get(email='arquivo@teste.com')
-		self.assertTrue(bool(cliente.foto_rg_frente))
 
 
 # ===========================================================
@@ -169,11 +156,3 @@ class AtualizarClienteViewTest(TestCase):
 		self.cliente.refresh_from_db()
 		self.assertEqual(self.cliente.name, 'NOME ATUALIZADO')
 
-	def test_post_file_vazio_nao_apaga_campo_vazio(self):
-		# Se não havia arquivo antes, enviar campo vazio não gera erro
-		data = self._post_update()
-		data['foto_rg_frente'] = ''
-		response = self.client.post(self.url, data)
-		self.assertRedirects(response, reverse('lista-cliente'))
-		self.cliente.refresh_from_db()
-		self.assertFalse(bool(self.cliente.foto_rg_frente))

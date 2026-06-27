@@ -69,7 +69,7 @@ def listarUsuario(request):
         elif get_is_active.lower() in ['false', '0', 'inativo']:
             usuarios = usuarios.filter(is_active=False)
 
-    paginator = Paginator(usuarios, 10)
+    paginator = Paginator(usuarios, 6)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 

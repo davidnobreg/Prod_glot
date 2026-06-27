@@ -1,7 +1,11 @@
 ﻿import json
 import os
 import re
+from datetime import date
 from io import BytesIO
+
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
@@ -36,7 +40,7 @@ from tornado.http1connection import parse_int
 
 from .forms import (EmpreendimentoForm, ArquivoForm, LoteForm, EmpreendimentoUpdateForm,
                     AtualizarLoteForm)
-from .models import Empreendimento, Quadra, Lote
+from .models import Empreendimento, Quadra, Lote, TypeLote
 from accounts.models import User, UsuarioEmpreendimento
 from vendas.models import RegisterVenda
 from documentos.models import ModeloDocumento, EmpreendimentoDocumento
@@ -1274,3 +1278,251 @@ def modelo_set_padrao(request, empr_id, vinculo_id):
     vinculo.save(update_fields=['padrao'])
     messages.success(request, f'"{vinculo.modelo.titulo}" definido como padrão.')
     return redirect('detalhe-empreendimento', id=empr_id)
+
+
+# ===================================================================
+# Exportar / Importar Lotes em massa (xlsx)
+# ===================================================================
+
+_VENDA_ATIVA_TIPOS = {'ANALISE', 'PRE-VENDA'}
+_STATUS_LOTE_VALIDOS = set(TypeLote.values)
+
+
+def _lote_tem_venda_ativa(lote):
+    return RegisterVenda.objects.filter(
+        lote=lote,
+        tipo_venda__in=_VENDA_ATIVA_TIPOS,
+    ).exists()
+
+
+@has_permission_decorator('atualizarLotes')
+def exportar_lotes(request, empreendimento_id):
+    empr = get_object_or_404(Empreendimento, id=empreendimento_id)
+    lotes = (
+        Lote.objects
+        .filter(quadra__empr=empr)
+        .select_related('quadra')
+        .order_by('quadra__namequadra', 'lote')
+    )
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Lotes'
+
+    header_fill = PatternFill(fill_type='solid', fgColor='0F3460')
+    header_font = Font(color='FFFFFF', bold=True)
+    locked_fill = PatternFill(fill_type='solid', fgColor='D3D3D3')
+
+    headers = ['id', 'numero', 'quadra', 'area', 'preco', 'status', 'descricao', 'cliente_reserva']
+    for col_idx, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col_idx, value=header)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal='center')
+
+    for row_idx, lote in enumerate(lotes, 2):
+        bloqueado = _lote_tem_venda_ativa(lote)
+        ws.cell(row=row_idx, column=1, value=lote.id)
+        ws.cell(row=row_idx, column=2, value=lote.lote)
+        ws.cell(row=row_idx, column=3, value=lote.quadra.namequadra)
+        ws.cell(row=row_idx, column=4, value=lote.area)
+        ws.cell(row=row_idx, column=5, value=lote.valor_metro_quadrado)
+        status_cell = ws.cell(
+            row=row_idx, column=6,
+            value='[BLOQUEADO]' if bloqueado else lote.situacao,
+        )
+        if bloqueado:
+            status_cell.fill = locked_fill
+        ws.cell(row=row_idx, column=7, value=lote.medidasConfrontacoes or '')
+        ws.cell(row=row_idx, column=8, value=lote.cliente_reserva or '')
+
+    for col in ws.columns:
+        max_len = max((len(str(c.value or '')) for c in col), default=10)
+        ws.column_dimensions[col[0].column_letter].width = max(max_len + 4, 12)
+
+    buffer = BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+
+    date_str = date.today().strftime('%Y-%m-%d')
+    nome_safe = re.sub(r'[^\w\s-]', '', empr.nome).strip().replace(' ', '_')
+    filename = f'lotes_{nome_safe}_{date_str}.xlsx'
+
+    response = HttpResponse(
+        buffer.read(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+
+@has_permission_decorator('atualizarLotes')
+@require_http_methods(['POST'])
+def importar_lotes(request, empreendimento_id):
+    empr = get_object_or_404(Empreendimento, id=empreendimento_id)
+    arquivo = request.FILES.get('arquivo')
+    if not arquivo:
+        messages.error(request, 'Selecione um arquivo xlsx.')
+        return redirect(reverse('detalhe-empreendimento', args=[empreendimento_id]))
+
+    try:
+        wb = openpyxl.load_workbook(arquivo, data_only=True)
+        ws = wb.active
+    except Exception:
+        messages.error(request, 'Arquivo inválido. Envie um xlsx gerado pela exportação.')
+        return redirect(reverse('detalhe-empreendimento', args=[empreendimento_id]))
+
+    ids_empr = set(
+        Lote.objects.filter(quadra__empr=empr).values_list('id', flat=True)
+    )
+
+    alteracoes = []
+    ignorados = []
+    erros = []
+
+    for row_idx, row in enumerate(ws.iter_rows(min_row=2, values_only=True), 2):
+        if not any(cell is not None for cell in row):
+            continue
+
+        row_padded = (list(row) + [None] * 8)[:8]
+        lote_id_raw, numero, quadra_nome, area, preco, status, descricao, cliente_reserva_val = row_padded
+
+        if lote_id_raw is None:
+            erros.append({'linha': row_idx, 'motivo': 'ID ausente'})
+            continue
+
+        try:
+            lote_id = int(lote_id_raw)
+        except (TypeError, ValueError):
+            erros.append({'linha': row_idx, 'motivo': f'ID inválido: {lote_id_raw}'})
+            continue
+
+        if lote_id not in ids_empr:
+            erros.append({
+                'linha': row_idx,
+                'motivo': f'Lote id={lote_id} não pertence a este empreendimento',
+            })
+            continue
+
+        try:
+            lote = Lote.objects.select_related('quadra').get(id=lote_id)
+        except Lote.DoesNotExist:
+            erros.append({'linha': row_idx, 'motivo': f'Lote id={lote_id} não encontrado'})
+            continue
+
+        if _lote_tem_venda_ativa(lote):
+            ignorados.append({'id': lote_id, 'numero': lote.lote, 'motivo': 'venda ativa'})
+            continue
+
+        campos = {}
+
+        if area is not None:
+            area_str = str(area).strip()
+            if area_str != str(lote.area or '').strip():
+                campos['area'] = {'atual': lote.area or '', 'novo': area_str}
+
+        if preco is not None:
+            preco_str = str(preco).strip()
+            try:
+                preco_val = Decimal(preco_str.replace(',', '.'))
+            except InvalidOperation:
+                erros.append({'linha': row_idx, 'motivo': f'Preço inválido: {preco_str}'})
+                continue
+            if preco_val < 0:
+                erros.append({'linha': row_idx, 'motivo': f'Preço negativo: {preco_str}'})
+                continue
+            if preco_str != str(lote.valor_metro_quadrado or '').strip():
+                campos['valor_metro_quadrado'] = {
+                    'atual': str(lote.valor_metro_quadrado or ''),
+                    'novo': preco_str,
+                }
+
+        if status is not None:
+            status_str = str(status).strip()
+            if status_str not in ('[BLOQUEADO]', ''):
+                if status_str not in _STATUS_LOTE_VALIDOS:
+                    erros.append({
+                        'linha': row_idx,
+                        'motivo': (
+                            f'Status inválido: "{status_str}". '
+                            f'Válidos: {", ".join(sorted(_STATUS_LOTE_VALIDOS))}'
+                        ),
+                    })
+                    continue
+                if status_str != lote.situacao:
+                    campos['situacao'] = {'atual': lote.situacao, 'novo': status_str}
+
+        if descricao is not None:
+            descricao_str = str(descricao).strip()
+            atual = (lote.medidasConfrontacoes or '').strip()
+            if descricao_str != atual:
+                campos['medidasConfrontacoes'] = {'atual': atual, 'novo': descricao_str}
+
+        if cliente_reserva_val is not None:
+            cr_str = str(cliente_reserva_val).strip()
+            atual_cr = (lote.cliente_reserva or '').strip()
+            if cr_str != atual_cr:
+                campos['cliente_reserva'] = {'atual': atual_cr, 'novo': cr_str}
+
+        if campos:
+            alteracoes.append({'id': lote_id, 'numero': lote.lote, 'campos': campos})
+
+    context = {
+        'empreendimento': empr,
+        'alteracoes': alteracoes,
+        'ignorados': ignorados,
+        'erros': erros,
+        'alteracoes_json': json.dumps(alteracoes),
+    }
+    return render(request, 'importar-lotes-preview.html', context)
+
+
+@has_permission_decorator('atualizarLotes')
+@require_POST
+def importar_lotes_confirmar(request, empreendimento_id):
+    empr = get_object_or_404(Empreendimento, id=empreendimento_id)
+    try:
+        alteracoes = json.loads(request.POST.get('alteracoes_json', '[]'))
+    except json.JSONDecodeError:
+        messages.error(request, 'Dados inválidos. Refaça a importação.')
+        return redirect(reverse('detalhe-empreendimento', args=[empreendimento_id]))
+
+    ids_empr = set(
+        Lote.objects.filter(quadra__empr=empr).values_list('id', flat=True)
+    )
+    campos_permitidos = {'area', 'valor_metro_quadrado', 'situacao', 'medidasConfrontacoes', 'cliente_reserva'}
+
+    atualizados = 0
+    ignorados = 0
+    with transaction.atomic():
+        for alt in alteracoes:
+            try:
+                lote_id = int(alt['id'])
+            except (KeyError, TypeError, ValueError):
+                continue
+            if lote_id not in ids_empr:
+                continue
+            try:
+                lote = Lote.objects.get(id=lote_id)
+            except Lote.DoesNotExist:
+                continue
+            if _lote_tem_venda_ativa(lote):
+                ignorados += 1
+                continue
+
+            campos = alt.get('campos', {})
+            update_fields = []
+            for field, valores in campos.items():
+                if field in campos_permitidos:
+                    setattr(lote, field, valores.get('novo', ''))
+                    update_fields.append(field)
+
+            if update_fields:
+                lote.save(update_fields=update_fields)
+                atualizados += 1
+
+    partes = [f'✅ {atualizados} lotes atualizados']
+    if ignorados:
+        partes.append(f'⚠️ {ignorados} ignorados (venda ativa)')
+    messages.success(request, ' — '.join(partes))
+    return redirect(reverse('detalhe-empreendimento', args=[empreendimento_id]))

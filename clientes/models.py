@@ -3,19 +3,7 @@ import uuid
 from decimal import Decimal
 from django.db import models
 from django.core.validators import RegexValidator
-from django.core.exceptions import ValidationError
 
-
-def _validate_doc_arquivo(value):
-    ext = value.name.rsplit('.', 1)[-1].lower() if '.' in value.name else ''
-    if ext not in ('jpg', 'jpeg', 'png', 'pdf'):
-        raise ValidationError('Envie JPG, PNG ou PDF.')
-    if value.size > 10 * 1024 * 1024:
-        raise ValidationError('Arquivo não pode exceder 10 MB.')
-
-
-def _upload_doc_cliente(instance, filename):
-    return f'clientes/{instance.uuid}/documentos/{filename}'
 
 # ==========================================================
 # LISTA DE ESTADOS
@@ -88,52 +76,6 @@ class Cliente(models.Model):
     conj_documento = models.CharField(max_length=14, blank=True, null=True)
 
     # ======================================================
-    # DOCUMENTOS (fotos — armazenadas no B2/S3)
-    # ======================================================
-    foto_rg_frente = models.FileField(
-        upload_to=_upload_doc_cliente,
-        blank=True, null=True,
-        validators=[_validate_doc_arquivo],
-        verbose_name='RG (frente)',
-    )
-    foto_rg_verso = models.FileField(
-        upload_to=_upload_doc_cliente,
-        blank=True, null=True,
-        validators=[_validate_doc_arquivo],
-        verbose_name='RG (verso)',
-    )
-    foto_cpf = models.FileField(
-        upload_to=_upload_doc_cliente,
-        blank=True, null=True,
-        validators=[_validate_doc_arquivo],
-        verbose_name='CPF',
-    )
-    comprovante_residencia = models.FileField(
-        upload_to=_upload_doc_cliente,
-        blank=True, null=True,
-        validators=[_validate_doc_arquivo],
-        verbose_name='Comprovante de residência',
-    )
-    conj_rg_frente = models.FileField(
-        upload_to=_upload_doc_cliente,
-        blank=True, null=True,
-        validators=[_validate_doc_arquivo],
-        verbose_name='RG cônjuge (frente)',
-    )
-    conj_rg_verso = models.FileField(
-        upload_to=_upload_doc_cliente,
-        blank=True, null=True,
-        validators=[_validate_doc_arquivo],
-        verbose_name='RG cônjuge (verso)',
-    )
-    certidao_estado_civil = models.FileField(
-        upload_to=_upload_doc_cliente,
-        blank=True, null=True,
-        validators=[_validate_doc_arquivo],
-        verbose_name='Certidão de estado civil',
-    )
-
-    # ======================================================
     # MÉTODO PARA VALIDAR CPF
     # ======================================================
     @staticmethod
@@ -172,6 +114,73 @@ class Cliente(models.Model):
 
     def __str__(self):
         return self.name
+
+# ==========================================================
+# TELEFONES (FK → Cliente)
+# ==========================================================
+# ==========================================================
+# DOCUMENTOS DO CLIENTE (tabela auxiliar)
+# ==========================================================
+class ClienteDocumento(models.Model):
+
+    TIPO_CHOICES_PF = [
+        ('RG', 'RG'),
+        ('CPF', 'CPF'),
+        ('CNH', 'CNH'),
+        ('COMPROVANTE_ESTADO_CIVIL', 'Comprovante de Estado Civil'),
+        ('COMPROVANTE_RESIDENCIA', 'Comprovante de Residência'),
+        ('OUTROS', 'Outros'),
+    ]
+
+    TIPO_CHOICES_PJ = [
+        ('CNPJ', 'CNPJ'),
+        ('CONTRATO_SOCIAL', 'Contrato Social'),
+        ('RG_CPF_ADMINISTRADOR', 'RG / CPF do Administrador'),
+        ('COMPROVANTE_RESIDENCIA', 'Comprovante de Residência'),
+        ('OUTROS', 'Outros'),
+    ]
+
+    TIPO_CHOICES = [
+        ('RG', 'RG'),
+        ('CPF', 'CPF'),
+        ('CNH', 'CNH'),
+        ('COMPROVANTE_ESTADO_CIVIL', 'Comprovante de Estado Civil'),
+        ('COMPROVANTE_RESIDENCIA', 'Comprovante de Residência'),
+        ('OUTROS', 'Outros'),
+        ('CNPJ', 'CNPJ'),
+        ('CONTRATO_SOCIAL', 'Contrato Social'),
+        ('RG_CPF_ADMINISTRADOR', 'RG / CPF do Administrador'),
+    ]
+
+    STATUS_CHOICES = [
+        ('processando', 'Processando'),
+        ('disponivel', 'Disponível'),
+        ('erro', 'Erro'),
+    ]
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='disponivel',
+    )
+
+    cliente = models.ForeignKey(
+        'Cliente',
+        on_delete=models.CASCADE,
+        related_name='arquivos_cliente'
+    )
+    tipo = models.CharField(max_length=50, choices=TIPO_CHOICES)
+    arquivo = models.FileField(upload_to='clientes/documentos/')
+    descricao = models.CharField(max_length=200, blank=True, null=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-criado_em']
+        verbose_name = 'Documento do Cliente'
+        verbose_name_plural = 'Documentos do Cliente'
+
+    def __str__(self):
+        return f'{self.get_tipo_display()} — {self.cliente}'
+
 
 # ==========================================================
 # TELEFONES (FK → Cliente)

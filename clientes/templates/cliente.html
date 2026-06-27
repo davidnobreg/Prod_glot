@@ -90,13 +90,16 @@
 			<!-- ====================================================
 			     FORMULÁRIO
 			     ==================================================== -->
-			<form id="cliente-form" action="{% url 'criar-cliente' %}" method="POST"
-			      enctype="multipart/form-data" novalidate>
+			<form id="cliente-form" action="#" method="POST"
+			      enctype="multipart/form-data" novalidate onsubmit="return false;">
 				{% csrf_token %}
 				<input type="hidden" name="telefones_json" id="telefones_json">
 				<input type="hidden" name="origem" value="{{ origem }}">
 				{% if lote_uuid %}<input type="hidden" name="lote_uuid" value="{{ lote_uuid }}">{% endif %}
 				{% if form.lote_id %}{{ form.lote_id }}{% endif %}
+				<input type="hidden" id="wizard-cliente-uuid" value="">
+				<input type="hidden" id="wizard-origem" value="{{ origem }}">
+				<input type="hidden" id="wizard-lote-uuid" value="{{ lote_uuid|default:'' }}">
 
 				<!-- Caixa de erros de validação JS -->
 				<div id="wizard-errors" style="display:none;"></div>
@@ -206,52 +209,42 @@
 							{{ formConjuge.conj_orgao_emissor_rg }}
 						</div>
 					</div>
-					<hr class="section-sep">
-					<p class="step-sublabel"><i class="fas fa-id-badge me-1"></i>Documentos do cônjuge</p>
-					<div class="row g-3">
-						<div class="col-md-6">
-							<label class="form-label">RG cônjuge — frente</label>
-							{{ form.conj_rg_frente }}
-						</div>
-						<div class="col-md-6">
-							<label class="form-label">RG cônjuge — verso</label>
-							{{ form.conj_rg_verso }}
-						</div>
-						<div class="col-md-6">
-							<label class="form-label">Certidão de estado civil</label>
-							{{ form.certidao_estado_civil }}
-						</div>
-					</div>
 				</div>
 
 				<!-- ================================================
-				     ETAPA 3 — Documentos pessoais
+				     ETAPA 3 (pos. 2) — Documentos
 				     ================================================ -->
 				<div id="step-3" class="wizard-step" style="display:none;">
-					<p class="wz-step-head" style="color:#6a1b9a;">
-						<i class="fas fa-id-card me-2"></i>Documentos pessoais
+					<p class="wz-step-head" style="color:#7b1fa2;">
+						<i class="fas fa-folder-open me-2"></i>Documentos
 						<small style="font-weight:normal;font-size:.75rem;color:#aaa;text-transform:none;letter-spacing:0;">
-							· JPG, PNG ou PDF · máx. 10 MB · todos opcionais
+							· todos opcionais · você pode adicionar agora ou após o cadastro
 						</small>
 					</p>
-					<p class="step-sublabel"><i class="fas fa-id-badge me-1"></i>RG do cliente</p>
-					<div class="row g-3">
-						<div class="col-md-6">
-							<label class="form-label">Frente</label>
-							{{ form.foto_rg_frente }}
+					<div id="wz-arquivos-lista" class="mb-3"></div>
+					<div id="wz-arquivos-form">
+						<div class="row g-2 align-items-end">
+							<div class="col-md-4">
+								<label class="form-label">Tipo <span class="text-danger">*</span></label>
+								<select id="wz-doc-tipo" class="glot-select"></select>
+							</div>
+							<div class="col-md-4">
+								<label class="form-label">Descrição</label>
+								<input type="text" id="wz-doc-descricao" class="glot-input" placeholder="Opcional">
+							</div>
+							<div class="col-md-3">
+								<label class="form-label">Arquivo <span class="text-danger">*</span></label>
+								<input type="file" id="wz-doc-arquivo" class="glot-input" accept=".jpg,.jpeg,.png,.pdf">
+							</div>
+							<div class="col-md-1">
+								<button type="button" class="btn btn-success w-100"
+								        style="border-radius:8px;" onclick="wizardAddArquivo()">
+									<i class="fas fa-plus"></i>
+								</button>
+							</div>
 						</div>
-						<div class="col-md-6">
-							<label class="form-label">Verso</label>
-							{{ form.foto_rg_verso }}
-						</div>
-						<div class="col-md-6">
-							<label class="form-label">CPF (foto)</label>
-							{{ form.foto_cpf }}
-						</div>
-						<div class="col-md-6">
-							<label class="form-label">Comprovante de residência</label>
-							{{ form.comprovante_residencia }}
-						</div>
+						<div id="wz-arquivos-erro" class="alert alert-danger mt-2"
+						     style="display:none;font-size:.85rem;"></div>
 					</div>
 				</div>
 
@@ -366,9 +359,10 @@
 						        style="background:#0097a7;border-color:#0097a7;border-radius:8px;">
 							Próximo <i class="fas fa-arrow-right ms-1"></i>
 						</button>
-						<button type="submit" id="wizard-btn-submit"
+						<button type="button" id="wizard-btn-submit"
 						        class="btn text-white"
-						        style="display:none;background:#0097a7;border-color:#0097a7;border-radius:8px;">
+						        style="display:none;background:#0097a7;border-color:#0097a7;border-radius:8px;"
+						        onclick="wizardFinalizar()">
 							<i class="fas fa-save me-1"></i>Cadastrar cliente
 						</button>
 					</div>
@@ -382,6 +376,7 @@
 
 <script>
 	window.telefonesTemp = {{ telefones_json|default:"[]"|safe }};
+	var WIZARD_SALVAR_PASSO_URL = '{% url "wizard-salvar-passo" %}';
 </script>
 <script src="{% static 'js/cliente_wizard.js' %}"></script>
 

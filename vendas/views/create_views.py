@@ -22,7 +22,7 @@ from decimal import Decimal
 
 
 @method_decorator(has_permission_decorator('criarVenda'), name='dispatch')
-class CriarVendaView(View):
+class EfetivarVendaView(View):
 
 	@transaction.atomic
 	def post(self, request, *args, **kwargs):
@@ -30,16 +30,35 @@ class CriarVendaView(View):
 		lote = venda.lote
 		empreendimento = lote.quadra.empr
 
-		venda.dt_venda = timezone.now()
+		venda.dt_venda = timezone.localdate()
 		venda.tipo_venda = 'VENDIDO'
 		venda.save(update_fields=['dt_venda', 'tipo_venda'])
 
 		lote.situacao = 'VENDIDO'
 		lote.save(update_fields=['situacao'])
 
-		messages.success(request, "Venda realizada com sucesso!")
+		messages.success(request, "Venda efetivada com sucesso!")
 
 		return redirect('listar-quadras', empreendimento_uuid=empreendimento.uuid)
+
+
+@method_decorator(has_permission_decorator('criarVenda'), name='dispatch')
+class CriarVendaView(View):
+
+	@transaction.atomic
+	def post(self, request, *args, **kwargs):
+		venda = get_object_or_404(RegisterVenda, uuid=kwargs.get('venda_uuid'))
+		lote = venda.lote
+
+		venda.tipo_venda = 'PRE-VENDA'
+		venda.save(update_fields=['tipo_venda'])
+
+		lote.situacao = 'PRE-VENDA'
+		lote.save(update_fields=['situacao'])
+
+		messages.success(request, "Venda avançada para Pré-Venda com sucesso!")
+
+		return redirect('pre-venda-detalhe', venda_uuid=venda.uuid)
 
 @method_decorator(
 	[has_permission_decorator('criarReservado'), transaction.atomic],

@@ -102,7 +102,7 @@
 		.quadras-stats {
 			display: grid;
 			gap: 12px;
-			grid-template-columns: repeat(7, minmax(0, 1fr));
+			grid-template-columns: repeat(8, minmax(0, 1fr));
 		}
 
 		.quadra-stat {
@@ -161,6 +161,10 @@
 
 		.quadra-stat-vendido {
 			background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
+		}
+
+		.quadra-stat-pre-venda {
+			background: linear-gradient(180deg, #fdba74 0%, #f97316 100%);
 		}
 
 		.quadra-stat-analise {
@@ -306,6 +310,10 @@
 
 		.lote-reservado {
 			background: #0891b2;
+		}
+
+		.lote-pre-venda {
+			background: #f97316;
 		}
 
 		.lote-vendido {
@@ -464,7 +472,7 @@
 			padding: 10px 18px;
 		}
 
-		@media (max-width: 1399.98px) {
+		@media (max-width: 1599.98px) {
 			.quadras-stats {
 				grid-template-columns: repeat(4, minmax(0, 1fr));
 			}
@@ -570,19 +578,24 @@
 							<span class="quadra-stat-value">{{ prereserva }}</span>
 						</a>
 
+                        <a href="?situacao=ANALISE#quadras" class="quadra-stat quadra-stat-analise" aria-label="Exibir lotes em análise">
+							<span class="quadra-stat-label">Análises</span>
+							<span class="quadra-stat-value">{{ analise }}</span>
+						</a>
+
 						<a href="?situacao=RESERVADO#quadras" class="quadra-stat quadra-stat-reservado" aria-label="Exibir lotes reservados">
 							<span class="quadra-stat-label">Reservados</span>
 							<span class="quadra-stat-value">{{ reservado }}</span>
 						</a>
 
+						<a href="?situacao=PRE-VENDA#quadras" class="quadra-stat quadra-stat-pre-venda" aria-label="Exibir lotes em pré-venda">
+							<span class="quadra-stat-label">Pré-Venda</span>
+							<span class="quadra-stat-value">{{ pre_venda }}</span>
+						</a>
+
 						<a href="?situacao=VENDIDO#quadras" class="quadra-stat quadra-stat-vendido" aria-label="Exibir lotes vendidos">
 							<span class="quadra-stat-label">Vendidos</span>
 							<span class="quadra-stat-value">{{ vendido }}</span>
-						</a>
-
-						<a href="?situacao=ANALISE#quadras" class="quadra-stat quadra-stat-analise" aria-label="Exibir lotes em análise">
-							<span class="quadra-stat-label">Análises</span>
-							<span class="quadra-stat-value">{{ analise }}</span>
 						</a>
 
 						<a href="?situacao=OUTROS#quadras" class="quadra-stat quadra-stat-outros" aria-label="Exibir outros lotes">
@@ -658,6 +671,16 @@
 									<a href="{% url 'reservadoDetalhes' lote_info.lote.uuid %}" class="lote-button lote-reservado" aria-label="Ver detalhes do lote reservado {{ lote_info.lote.lote }}">
 										{{ lote_info.lote.lote }} {{ lote_info.user }}
 									</a>
+								{% elif lote_info.situacao == 'PRE-VENDA' %}
+									{% if lote_info.lote.reg_venda %}
+										<a href="{% url 'pre-venda-detalhe' lote_info.lote.reg_venda.uuid %}" class="lote-button lote-pre-venda" aria-label="Ver pré-venda do lote {{ lote_info.lote.lote }}">
+											{{ lote_info.lote.lote }}
+										</a>
+									{% else %}
+										<button type="button" class="lote-button lote-pre-venda" aria-label="Lote em pré-venda {{ lote_info.lote.lote }}">
+											{{ lote_info.lote.lote }}
+										</button>
+                                    {% endif %}
 								{% elif lote_info.situacao == 'VENDIDO' %}
 									<a href="{% url 'reservado' lote_info.lote.uuid %}" class="lote-button lote-vendido" aria-label="Ver detalhes do lote vendido {{ lote_info.lote.lote }}">
 										{{ lote_info.lote.lote }}

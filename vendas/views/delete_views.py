@@ -7,7 +7,7 @@ from rolepermissions.decorators import has_permission_decorator
 
 
 from empreendimentos.models import Lote
-from vendas.models import RegisterVenda
+from vendas.models import RegisterVenda, VendaDocumento
 
 @method_decorator(has_permission_decorator('cancelarVenda'), name='dispatch')
 class CancelarVendaView(View):
@@ -62,22 +62,28 @@ class CancelarReservadoCadastroView(View):
 @method_decorator(has_permission_decorator('cancelarReservado'), name='dispatch')
 class CancelarReservaView(View):
 
+    @transaction.atomic
     def post(self, request, reserva_uuid, *args, **kwargs):
         venda = get_object_or_404(RegisterVenda, uuid=reserva_uuid)
 
         lote = venda.lote
 
+        # Arquiva documentos ativos antes de cancelar
+        VendaDocumento.objects.filter(
+            venda=venda,
+            status__in=['pendente', 'enviado', 'aprovado']
+        ).update(status='arquivado')
+
         # Atualiza lote
-        lote.situacao = 'PRE-RESERVA'
+        lote.situacao = 'DISPONIVEL'
         lote.save(update_fields=['situacao'])
 
         # Atualiza venda
         venda.is_ativo = False
-        venda.tipo_venda = 'NAO_ACEITE'
-        venda.aceite_proposta = None
-        venda.save(update_fields=['is_ativo', 'tipo_venda', 'aceite_proposta'])
+        venda.tipo_venda = 'CANCELADA'
+        venda.save(update_fields=['is_ativo', 'tipo_venda'])
 
-        messages.error(request, "Reserva não aceita!")
+        messages.success(request, "Reserva cancelada com sucesso!")
 
         return redirect('lista-empreendimento')
 

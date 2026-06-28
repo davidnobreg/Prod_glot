@@ -3,6 +3,7 @@ from .views.create_views import (
     AceitaReservaView,
     CriarReservadoView,
     CriarVendaView,
+    EfetivarVendaView,
     ReservaTemporariaView,
     RenovaReservaView
 )
@@ -16,8 +17,11 @@ from .views.delete_views import (
 from .views.detail_views import (
     AnaliseView,
     ReservadoView,
-    ReservadoDetalheView
-
+    ReservadoDetalheView,
+    PreVendaDetalheView,
+    VendaDocumentoUploadView,
+    VendaDocumentoAprovarView,
+    VendaDocumentoRejeitarView,
 )
 from .views.list_views import (
     ListasAnalisesView,
@@ -50,4 +54,10 @@ urlpatterns = [
     # 12
     path('reservado_delete/<uuid:reserva_uuid>/', CancelarReservaView.as_view(), name='delete-reservado'),
     path('reservado_delete_aceite/<uuid:reserva_uuid>/', CancelarAceiteReservaView.as_view(), name='delete-aceite'),# 13
+
+    path('pre-venda/<uuid:venda_uuid>/', PreVendaDetalheView.as_view(), name='pre-venda-detalhe'),
+    path('efetivar-venda/<uuid:venda_uuid>/', EfetivarVendaView.as_view(), name='efetivar-venda'),
+    path('venda/<uuid:venda_uuid>/documento/upload/', VendaDocumentoUploadView.as_view(), name='venda-documento-upload'),
+    path('venda/documento/<int:pk>/aprovar/', VendaDocumentoAprovarView.as_view(), name='venda-documento-aprovar'),
+    path('venda/documento/<int:pk>/rejeitar/', VendaDocumentoRejeitarView.as_view(), name='venda-documento-rejeitar'),
 ]

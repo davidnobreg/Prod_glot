@@ -278,7 +278,7 @@
             align-items: stretch;
             display: grid;
             gap: 12px;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             margin-top: 24px;
         }
 
@@ -649,95 +649,28 @@
                     <strong>R$ {{ reservas.valor_financiado|floatformat:2|intcomma }}</strong>
                 </div>
 
-                {% with cliente=reservas.cliente %}
-                {% if cliente.foto_rg_frente or cliente.foto_rg_verso or cliente.foto_cpf or cliente.comprovante_residencia or cliente.certidao_estado_civil or cliente.conj_rg_frente or cliente.conj_rg_verso %}
+                {% if documentos_cliente %}
                 <div class="analise-documentos">
                     <h2 class="analise-documentos-title">
                         <i class="bi bi-folder2-open me-2"></i>Documentos do cliente
                     </h2>
                     <div class="analise-documentos-grid">
-
-                        {% if cliente.foto_rg_frente %}
-                        <div class="analise-doc-item" onclick="abrirDocumento('{{ cliente.foto_rg_frente.url }}', 'RG — Frente')">
-                            {% if cliente.foto_rg_frente.name|lower|slice:"-3:" == "pdf" %}
+                        {% for doc in documentos_cliente %}
+                        <div class="analise-doc-item"
+                             onclick="abrirDocumento('{{ doc.arquivo.url }}', '{{ doc.get_tipo_display }}')">
+                            {% if doc.arquivo.name|lower|slice:"-3:" == "pdf" %}
                                 <div class="analise-doc-thumb analise-doc-pdf"><i class="bi bi-file-earmark-pdf"></i></div>
                             {% else %}
-                                <img src="{{ cliente.foto_rg_frente.url }}" alt="RG Frente" class="analise-doc-thumb analise-doc-img">
+                                <img src="{{ doc.arquivo.url }}"
+                                     alt="{{ doc.get_tipo_display }}"
+                                     class="analise-doc-thumb analise-doc-img">
                             {% endif %}
-                            <span class="analise-doc-label">RG — Frente</span>
+                            <span class="analise-doc-label">{{ doc.get_tipo_display }}</span>
                         </div>
-                        {% endif %}
-
-                        {% if cliente.foto_rg_verso %}
-                        <div class="analise-doc-item" onclick="abrirDocumento('{{ cliente.foto_rg_verso.url }}', 'RG — Verso')">
-                            {% if cliente.foto_rg_verso.name|lower|slice:"-3:" == "pdf" %}
-                                <div class="analise-doc-thumb analise-doc-pdf"><i class="bi bi-file-earmark-pdf"></i></div>
-                            {% else %}
-                                <img src="{{ cliente.foto_rg_verso.url }}" alt="RG Verso" class="analise-doc-thumb analise-doc-img">
-                            {% endif %}
-                            <span class="analise-doc-label">RG — Verso</span>
-                        </div>
-                        {% endif %}
-
-                        {% if cliente.foto_cpf %}
-                        <div class="analise-doc-item" onclick="abrirDocumento('{{ cliente.foto_cpf.url }}', 'CPF')">
-                            {% if cliente.foto_cpf.name|lower|slice:"-3:" == "pdf" %}
-                                <div class="analise-doc-thumb analise-doc-pdf"><i class="bi bi-file-earmark-pdf"></i></div>
-                            {% else %}
-                                <img src="{{ cliente.foto_cpf.url }}" alt="CPF" class="analise-doc-thumb analise-doc-img">
-                            {% endif %}
-                            <span class="analise-doc-label">CPF</span>
-                        </div>
-                        {% endif %}
-
-                        {% if cliente.comprovante_residencia %}
-                        <div class="analise-doc-item" onclick="abrirDocumento('{{ cliente.comprovante_residencia.url }}', 'Comprovante de Residência')">
-                            {% if cliente.comprovante_residencia.name|lower|slice:"-3:" == "pdf" %}
-                                <div class="analise-doc-thumb analise-doc-pdf"><i class="bi bi-file-earmark-pdf"></i></div>
-                            {% else %}
-                                <img src="{{ cliente.comprovante_residencia.url }}" alt="Comprovante" class="analise-doc-thumb analise-doc-img">
-                            {% endif %}
-                            <span class="analise-doc-label">Comprovante de Residência</span>
-                        </div>
-                        {% endif %}
-
-                        {% if cliente.certidao_estado_civil %}
-                        <div class="analise-doc-item" onclick="abrirDocumento('{{ cliente.certidao_estado_civil.url }}', 'Certidão Estado Civil')">
-                            {% if cliente.certidao_estado_civil.name|lower|slice:"-3:" == "pdf" %}
-                                <div class="analise-doc-thumb analise-doc-pdf"><i class="bi bi-file-earmark-pdf"></i></div>
-                            {% else %}
-                                <img src="{{ cliente.certidao_estado_civil.url }}" alt="Certidão" class="analise-doc-thumb analise-doc-img">
-                            {% endif %}
-                            <span class="analise-doc-label">Certidão Estado Civil</span>
-                        </div>
-                        {% endif %}
-
-                        {% if cliente.conj_rg_frente %}
-                        <div class="analise-doc-item" onclick="abrirDocumento('{{ cliente.conj_rg_frente.url }}', 'RG Cônjuge — Frente')">
-                            {% if cliente.conj_rg_frente.name|lower|slice:"-3:" == "pdf" %}
-                                <div class="analise-doc-thumb analise-doc-pdf"><i class="bi bi-file-earmark-pdf"></i></div>
-                            {% else %}
-                                <img src="{{ cliente.conj_rg_frente.url }}" alt="RG Cônjuge Frente" class="analise-doc-thumb analise-doc-img">
-                            {% endif %}
-                            <span class="analise-doc-label">RG Cônjuge — Frente</span>
-                        </div>
-                        {% endif %}
-
-                        {% if cliente.conj_rg_verso %}
-                        <div class="analise-doc-item" onclick="abrirDocumento('{{ cliente.conj_rg_verso.url }}', 'RG Cônjuge — Verso')">
-                            {% if cliente.conj_rg_verso.name|lower|slice:"-3:" == "pdf" %}
-                                <div class="analise-doc-thumb analise-doc-pdf"><i class="bi bi-file-earmark-pdf"></i></div>
-                            {% else %}
-                                <img src="{{ cliente.conj_rg_verso.url }}" alt="RG Cônjuge Verso" class="analise-doc-thumb analise-doc-img">
-                            {% endif %}
-                            <span class="analise-doc-label">RG Cônjuge — Verso</span>
-                        </div>
-                        {% endif %}
-
+                        {% endfor %}
                     </div>
                 </div>
                 {% endif %}
-                {% endwith %}
             </div>
 
             <div class="analise-actions">
@@ -767,15 +700,6 @@
                     >
                         <i class="bi bi-x-circle"></i>
                         <span>Não aceita</span>
-                    </a>
-
-                    <a
-                            href="{% url 'documentos:proposta' reservas.uuid %}"
-                            class="analise-button analise-button-secondary"
-                            target="_blank"
-                    >
-                        <i class="bi bi-file-earmark-text"></i>
-                        <span>Ver proposta</span>
                     </a>
 
                     <button type="button" class="analise-button analise-button-secondary" data-bs-toggle="modal" data-bs-target="#modalGerarDocumento">

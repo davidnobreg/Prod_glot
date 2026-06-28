@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q, Sum
 from django.db.models.functions import Coalesce
 from django.views.generic import TemplateView
@@ -8,7 +9,7 @@ from empreendimentos.models import Empreendimento, Lote
 from vendas.models import RegisterVenda
 
 
-class DashboardView(TemplateView):
+class DashboardView(LoginRequiredMixin, TemplateView):
 	template_name = "dash.html"
 
 	def get_context_data(self, **kwargs):
@@ -24,7 +25,7 @@ class DashboardView(TemplateView):
 			"user",
 		)
 
-		vendas_ativas = vendas.filter(is_ativo=False).exclude(
+		vendas_ativas = vendas.filter(is_ativo=True).exclude(
 			tipo_venda="CANCELADA"
 		)
 		vendas_vendidas = vendas_ativas.filter(tipo_venda="VENDIDO")

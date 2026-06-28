@@ -11,11 +11,13 @@ class RegisterVendaAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'lote', 'cliente', 'tipo_venda',
         'user', 'dt_reserva', 'dt_venda',
-        'create_at', 'is_ativo'
+        'create_at', 'is_ativo', 'uuid'
     )
 
     search_fields = (
         'id',
+        'uuid',
+        'lote__id',
         'cliente__name',
         'user__username',
     )

@@ -158,18 +158,35 @@
             margin-top: 24px;
         }
 
+        .reserva-action-form {
+            display: flex;
+            margin: 0;
+            width: 100%;
+        }
+
+        .reserva-action-form .reserva-button {
+            width: 100%;
+        }
+
+        .reserva-dark-zone {
+            background: linear-gradient(10deg, #ffffff 0%, #08789a 100%);
+            padding: 24px;
+        }
+
         .reserva-button {
             align-items: center;
             border: 1px solid transparent;
             border-radius: 999px;
             display: inline-flex;
+            font-size: 0.95rem;
             font-weight: 900;
             gap: 10px;
             justify-content: center;
-            min-height: 48px;
+            min-height: 52px;
             padding: 12px 20px;
             text-decoration: none;
             transition: filter 0.18s ease, transform 0.18s ease;
+            width: 100%;
         }
 
         .reserva-button-primary {
@@ -237,6 +254,89 @@
             .reserva-actions {
                 grid-template-columns: 1fr;
             }
+
+            .reserva-dark-zone {
+                padding: 16px;
+            }
+        }
+
+        /* Upload documentos */
+        .reserva-docs-separator {
+            border: 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.18);
+            margin: 28px 0 0;
+        }
+
+        .reserva-docs-section {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            margin-top: 16px;
+            padding: 20px;
+        }
+
+        .reserva-docs-title {
+            color: #063E4B;
+            font-size: 0.88rem;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+            margin: 0 0 16px;
+            text-transform: uppercase;
+        }
+
+        .reserva-docs-table {
+            color: #063E4B;
+            font-size: 0.85rem;
+            margin: 0;
+            width: 100%;
+        }
+
+        .reserva-docs-table thead th {
+            color: rgba(6, 62, 75, 0.65);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            padding: 0 8px 10px;
+            text-transform: uppercase;
+        }
+
+        .reserva-docs-table tbody td {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 8px;
+            vertical-align: middle;
+        }
+
+        .reserva-docs-badge {
+            border-radius: 999px;
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 900;
+            padding: 3px 10px;
+            text-transform: uppercase;
+        }
+
+        .reserva-docs-badge-enviado {
+            background: rgba(234, 179, 8, 0.2);
+            border: 1px solid rgba(234, 179, 8, 0.4);
+            color: #fde68a;
+        }
+
+        .reserva-docs-badge-aprovado {
+            background: rgba(5, 150, 105, 0.2);
+            border: 1px solid rgba(5, 150, 105, 0.4);
+            color: #6ee7b7;
+        }
+
+        .reserva-docs-badge-rejeitado {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+
+        .reserva-docs-badge-arquivado {
+            background: rgba(100, 116, 139, 0.2);
+            border: 1px solid rgba(100, 116, 139, 0.4);
+            color: #94a3b8;
         }
     </style>
 
@@ -287,67 +387,273 @@
                             </div>
                         </div>
                     </div>
+                    <div class="reserva-lote-info">
+                        {# Bloco 1 — Cliente + Corretor #}
+                        <div class="reserva-facts">
+                            <div class="reserva-fact">
+                                <span>Cliente</span>
+                                <strong>{{ reservas.cliente.name }}</strong>
+                                <small style="display:block;color:#08789a;font-size:.8rem;margin-top:4px;">
+                                    {{ contatoCliente.numero|default:"Sem contato" }}
+                                </small>
+                            </div>
+                            <div class="reserva-fact">
+                                <span>Corretor</span>
+                                <strong>{{ contatoCorretor.first_name }}</strong>
+                                <small style="display:block;color:#08789a;font-size:.8rem;margin-top:4px;">
+                                    {{ contatoCorretor.contato|default:"Sem contato" }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
                 </article>
 
-                <article class="reserva-detail-card reserva-section">
-                    <h2 class="reserva-section-title">
-                        Responsável pela reserva
-                    </h2>
+                <article class="reserva-detail-card" style="overflow:hidden;">
 
-                    <p class="reserva-section-text">
-                        Dados do corretor vinculado à reserva.
-                    </p>
-
-                    <div class="reserva-facts">
-                        <div class="reserva-fact">
-                            <span>Corretor</span>
-                            <strong>{{ contatoCorretor.first_name }}</strong>
-                        </div>
-
-                        <div class="reserva-fact">
-                            <span>Contato</span>
-                            <strong>{{ contatoCorretor.contato }}</strong>
-                        </div>
-                    </div>
-
-                    <div class="reserva-actions">
-                        <button
-                                type="button"
-                                class="reserva-button reserva-button-primary"
-                                onclick="history.back()"
-                        >
-                            <i class="bi bi-arrow-left"></i>
-                            Voltar
-                        </button>
-
-                        {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
-                            <a href="#" class="reserva-button reserva-button-danger" data-bs-toggle="modal"
-                               data-bs-target="#ReservaModalDelete">
-                                <i class="bi bi-trash"></i>
-                                Deletar
-                            </a>
+                    {# Zona escura: upload + ações + tabela #}
+                    {# /reserva-dark-zone #}
+                    <div class="reserva-dark-zone">
+                        {# Bloco 4 — Tabela documentos enviados #}
+                        {% if venda_documentos %}
+                            <div class="reserva-docs-section">
+                                <h3 class="reserva-docs-title">
+                                    <i class="bi bi-clipboard-check me-2"></i>Documentos enviados
+                                </h3>
+                                <table class="reserva-docs-table">
+                                    <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Enviado por</th>
+                                        <th>Data</th>
+                                        <th>Status</th>
+                                        <th>Arquivo</th>
+                                        {% if user.tipo_usuario == 'ADMINISTRADOR' %}
+                                            <th>Ações</th>{% endif %}
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for doc in venda_documentos %}
+                                        <tr>
+                                            <td>{{ doc.get_tipo_display }}</td>
+                                            <td>{{ doc.enviado_por.first_name }}</td>
+                                            <td>{{ doc.enviado_em|date:"d/m/Y H:i" }}</td>
+                                            <td>
+                                                {% if doc.status == 'aprovado' %}
+                                                    <span class="reserva-docs-badge reserva-docs-badge-aprovado">Aprovado</span>
+                                                {% elif doc.status == 'rejeitado' %}
+                                                    <span class="reserva-docs-badge reserva-docs-badge-rejeitado">Rejeitado</span>
+                                                {% else %}
+                                                    <span class="reserva-docs-badge reserva-docs-badge-enviado">Enviado</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{{ doc.arquivo_assinado.url }}" target="_blank"
+                                                   style="color:#063E4B;text-decoration:none;">
+                                                    <i class="bi bi-file-earmark me-1"></i>Ver
+                                                </a>
+                                            </td>
+                                            {% if user.tipo_usuario == 'ADMINISTRADOR' and doc.status == 'enviado' %}
+                                                <td style="white-space:nowrap;">
+                                                    <form method="POST"
+                                                          action="{% url 'venda-documento-aprovar' doc.pk %}"
+                                                          style="display:inline;">
+                                                        {% csrf_token %}
+                                                        <button type="submit"
+                                                                class="btn btn-success btn-sm rounded-pill px-3">Aprovar
+                                                        </button>
+                                                    </form>
+                                                    <form method="POST"
+                                                          action="{% url 'venda-documento-rejeitar' doc.pk %}"
+                                                          style="display:inline;">
+                                                        {% csrf_token %}
+                                                        <button type="submit"
+                                                                class="btn btn-danger btn-sm rounded-pill px-3">Rejeitar
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            {% elif user.tipo_usuario == 'ADMINISTRADOR' %}
+                                                <td style="color:rgba(6,62,75,0.3);">—</td>
+                                            {% endif %}
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         {% endif %}
 
-                        {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
-                            <form method="POST" action="{% url 'criar-venda' reservas.uuid %}" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="reserva-button reserva-button-success">
-                                    <i class="bi bi-cash-coin"></i>
-                                    Pre-Vender
-                                </button>
-                            </form>
+                        {# Histórico por ciclo #}
+                        {% if historico_por_ciclo %}
+                            <hr class="reserva-docs-separator">
+                            {% for grupo in historico_por_ciclo %}
+                                <div class="reserva-docs-section" style="opacity:0.75;margin-top:12px;">
+                                    <h3 class="reserva-docs-title"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#historico-ciclo-{{ grupo.ciclo }}"
+                                        style="cursor:pointer;display:flex;align-items:center;">
+                                        <i class="bi bi-clock-history me-2"></i>
+                                        Histórico — Ciclo {{ grupo.ciclo }}
+                                        <i class="bi bi-chevron-down ms-auto"></i>
+                                    </h3>
+                                    <div class="collapse" id="historico-ciclo-{{ grupo.ciclo }}">
+                                        <table class="reserva-docs-table">
+                                            <thead>
+                                            <tr>
+                                                <th>Tipo</th>
+                                                <th>Enviado por</th>
+                                                <th>Data</th>
+                                                <th>Status</th>
+                                                <th>Arquivo</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for doc in grupo.docs %}
+                                                <tr>
+                                                    <td>{{ doc.get_tipo_display }}</td>
+                                                    <td>{{ doc.enviado_por.first_name }}</td>
+                                                    <td>{{ doc.enviado_em|date:"d/m/Y H:i" }}</td>
+                                                    <td>
+                                                        <span class="reserva-docs-badge reserva-docs-badge-arquivado">
+                                                            Arquivado
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{ doc.arquivo_assinado.url }}" target="_blank"
+                                                           style="color:#063E4B;text-decoration:none;">
+                                                            <i class="bi bi-file-earmark me-1"></i>Ver
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            {% endfor %}
                         {% endif %}
 
-                        {% if user.is_authenticated %}
-                            {% if user.tipo_usuario == "ADMINISTRADOR" or reservas.corretor == user %}
-                                <button type="button" class="reserva-button reserva-button-secondary"
-                                        data-bs-toggle="modal" data-bs-target="#modalGerarDocumento">
-                                    <i class="bi bi-file-earmark-plus"></i>
-                                    Gerar Documento
-                                </button>
+                        <br>
+                        {# Bloco 2 — Upload documento #}
+                        {% if user.tipo_usuario == 'CORRETOR' or user.tipo_usuario == 'ADMINISTRADOR' %}
+                            <div class="reserva-docs-section" style="margin-top:0;">
+                                <h3 class="reserva-docs-title">
+                                    <i class="bi bi-paperclip me-2"></i>Enviar Documento Assinado
+                                </h3>
+                                <form method="POST"
+                                      action="{% url 'venda-documento-upload' reservas.uuid %}"
+                                      enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="row g-3">
+                                        <div class="col-sm-3">
+                                            <label class="form-label fw-semibold" style="font-size:.82rem;color:#063E4B;">Tipo</label>
+                                            <select name="tipo" class="form-select form-select-sm"
+                                                    style="border-radius:8px;">
+                                                <option value="proposta_assinada">Proposta Assinada</option>
+                                                <option value="contrato_assinado">Contrato Assinado</option>
+                                                <option value="outros">Outros</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <label class="form-label fw-semibold" style="font-size:.82rem;color:#063E4B;">
+                                                Arquivo <span style="color:#dc2626;">*</span>
+                                            </label>
+
+                                            <input type="file"
+                                                   name="arquivo_assinado"
+                                                   class="form-control form-control-sm"
+                                                   accept=".pdf,.jpg,.jpeg,.png"
+                                                   required
+                                                   style="border-radius:8px; height:31px; padding-top:3px; padding-bottom:3px;">
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <label class="form-label fw-semibold" style="font-size:.82rem;color:#063E4B;">Observação</label>
+                                            <input type="text" name="observacao" class="form-control form-control-sm"
+                                                   placeholder="Opcional" style="border-radius:8px;">
+                                        </div>
+                                        <div class="col-sm-3 d-flex align-items-end">
+                                            <button type="submit"
+                                                    class="btn btn-success w-100"
+                                                    style="border-radius:8px; min-height:45px; font-size:.82rem; font-weight:700;">
+                                                <i class="bi bi-upload me-1"></i>
+                                                Enviar
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                </form>
+                            </div>
+                        {% endif %}
+
+                        {# Bloco 3 — Botões de ação 2x2 #}
+                        <div class="reserva-actions">
+                            {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
+                                <a href="#"
+                                   class="reserva-button reserva-button-danger"
+                                   data-bs-toggle="modal"
+                                   data-bs-target="#ReservaModalDelete">
+                                    <i class="bi bi-x-circle"></i>
+                                    Cancelar Reserva
+                                </a>
                             {% endif %}
-                        {% endif %}
+                            <button type="button"
+                                    class="reserva-button reserva-button-primary"
+                                    onclick="history.back()">
+                                <i class="bi bi-arrow-left"></i>
+                                Voltar
+                            </button>
+
+                            {% if user.is_authenticated %}
+                                {% if user.tipo_usuario == "ADMINISTRADOR" or reservas.corretor == user %}
+                                    <button type="button"
+                                            class="reserva-button reserva-button-secondary"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalGerarDocumento">
+                                        <i class="bi bi-file-earmark-plus"></i>
+                                        Gerar Documento
+                                    </button>
+                                {% endif %}
+                            {% endif %}
+
+
+                            {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
+                                {% if proposta_aprovada %}
+                                    <form method="POST"
+                                          action="{% url 'criar-venda' reservas.uuid %}"
+                                          class="reserva-action-form">
+                                        {% csrf_token %}
+                                        <button type="submit" class="reserva-button reserva-button-success">
+                                            <i class="bi bi-cash-coin"></i>
+                                            Pre-Vender
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <button
+                                        type="button"
+                                        class="reserva-button reserva-button-success"
+                                        style="opacity:0.45; cursor:not-allowed;"
+                                        disabled
+                                        title="É necessário ter uma proposta assinada aprovada para avançar para Pré-Venda">
+                                        <i class="bi bi-cash-coin"></i>
+                                        Pre-Vender
+                                    </button>
+                                {% endif %}
+                            {% endif %}
+
+
+
+                            {% if proposta_disponivel %}
+                                <a href="{% url 'documentos:documento-pdf' proposta_disponivel.pk %}"
+                                   target="_blank"
+                                   class="reserva-button reserva-button-primary"
+                                   style="grid-column: 1 / -1;">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                    Ver Proposta
+                                </a>
+                            {% endif %}
+
+                        </div>
                     </div>
+
+
                 </article>
             </div>
         </section>
@@ -358,7 +664,7 @@
             <div class="modal-content reserva-modal-content">
                 <div class="modal-header reserva-modal-header">
                     <h5 class="modal-title reserva-modal-title">
-                        Excluir reserva
+                        Cancelar Reserva
                     </h5>
 
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -377,7 +683,7 @@
 
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-danger rounded-pill px-4">
-                            Deletar
+                            Confirmar Cancelamento
                         </button>
 
                         <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">

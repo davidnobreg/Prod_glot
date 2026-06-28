@@ -360,6 +360,7 @@ def listaQuadra(request, empreendimento_uuid):
         'livre': all_lotes.filter(situacao='DISPONIVEL').count(),
         'prereserva': all_lotes.filter(situacao='PRE-RESERVA').count(),
         'reservado': all_lotes.filter(situacao='RESERVADO').count(),
+        'pre_venda': all_lotes.filter(situacao='PRE-VENDA').count(),
         'vendido': all_lotes.filter(situacao='VENDIDO').count(),
         'analise': all_lotes.filter(situacao='ANALISE').count(),
         'outros': all_lotes.filter(

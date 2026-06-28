@@ -56,8 +56,16 @@ class RegisterVenda(models.Model):
 
 
 	def __str__(self):
-	    return "{} - lote {} quadra- {} - {} - status {} - valor-sinal {}".format(self.cliente, self.lote, self.lote.quadra.namequadra,
-	                                                 self.lote.quadra.empr, self.tipo_venda, self.valor_sinal)
+	    if self.lote:
+	        return "{} - lote {} quadra {} - {} - status {} - valor-sinal {}".format(
+	            self.cliente,
+	            self.lote,
+	            self.lote.quadra.namequadra,
+	            self.lote.quadra.empr,
+	            self.tipo_venda,
+	            self.valor_sinal,
+	        )
+	    return "{} - sem lote - status {}".format(self.cliente, self.tipo_venda)
 
 	class Meta:
 	    verbose_name = 'Registrar Venda'
@@ -70,3 +78,44 @@ class RegisterVendaIntercalada(models.Model):
 	venda = models.ForeignKey(RegisterVenda, on_delete=models.CASCADE, blank=True, null=True, related_name='intercaladas')
 	quantidade_parcelas_intercalada = models.IntegerField('quantidade de intercaladas', blank=True, null=True)
 	valor_intercalada = models.CharField('Valor da intercalada', blank=True, null=True, max_length=50, default=00.00)
+
+
+class VendaDocumento(models.Model):
+
+	TIPO_CHOICES = [
+		('proposta_assinada', 'Proposta Assinada'),
+		('contrato_assinado', 'Contrato Assinado'),
+		('outros', 'Outros'),
+	]
+	STATUS_CHOICES = [
+		('pendente', 'Pendente'),
+		('enviado', 'Enviado'),
+		('aprovado', 'Aprovado'),
+		('rejeitado', 'Rejeitado'),
+		('arquivado', 'Arquivado'),
+	]
+
+	venda = models.ForeignKey(RegisterVenda, on_delete=models.CASCADE, related_name='documentos_assinados')
+	tipo = models.CharField(max_length=30, choices=TIPO_CHOICES, default='outros')
+	arquivo_assinado = models.FileField(upload_to='vendas/documentos_assinados/')
+	status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='enviado')
+	ciclo = models.PositiveIntegerField(default=1)
+	observacao = models.TextField(blank=True)
+	enviado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='documentos_enviados')
+	enviado_em = models.DateTimeField(auto_now_add=True)
+	aprovado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='documentos_aprovados')
+	aprovado_em = models.DateTimeField(null=True, blank=True)
+	documento_gerado = models.ForeignKey(
+		'documentos.DocumentoGerado',
+		on_delete=models.SET_NULL,
+		null=True,
+		blank=True,
+	)
+
+	class Meta:
+		ordering = ['-enviado_em']
+		verbose_name = 'Documento de Venda'
+		verbose_name_plural = 'Documentos de Venda'
+
+	def __str__(self):
+		return f"{self.get_tipo_display()} — {self.venda}"

@@ -242,40 +242,30 @@ def voltar_lote_para_disponivel(self, lote_id):
 )
 def liberar_lotes_sem_venda(self):
     """
-    Libera lotes EM_RESERVA que não possuem venda ativa
-    ou cuja venda está em CANCELADA/NAO_ACEITE.
+    Libera lotes EM_RESERVA que não possuem venda ativa.
     Roda a cada minuto via Celery Beat.
     """
-    from vendas.models import RegisterVenda
-
     logger.info("🔍 [CELERY] Verificando lotes EM_RESERVA sem venda ativa")
 
     with transaction.atomic():
         lotes = (
             Lote.objects
-            .select_for_update(skip_locked=True)
+            .select_for_update(skip_locked=True, of=('self',))
             .filter(situacao="EM_RESERVA")
+            .exclude(reg_venda__is_ativo=True)
         )
 
         total = lotes.count()
-        logger.info("📦 [CELERY] %s lotes em EM_RESERVA encontrados", total)
+        logger.info("📦 [CELERY] %s lotes em EM_RESERVA sem venda ativa encontrados", total)
 
         liberados = 0
 
         for lote in lotes:
-            tem_venda_ativa = (
-                RegisterVenda.objects
-                .filter(lote=lote, is_ativo=True)
-                .exclude(tipo_venda='CANCELADA')
-                .exists()
-            )
-
-            if not tem_venda_ativa:
-                logger.info("🔓 [CELERY] Liberando lote %s — sem venda ativa", lote.uuid)
-                lote.situacao = "DISPONIVEL"
-                lote.tempo_reservado = None
-                lote.save(update_fields=["situacao", "tempo_reservado"])
-                liberados += 1
+            logger.info("🔓 [CELERY] Liberando lote %s — sem venda ativa", lote.uuid)
+            lote.situacao = "DISPONIVEL"
+            lote.tempo_reservado = None
+            lote.save(update_fields=["situacao", "tempo_reservado"])
+            liberados += 1
 
     logger.info("✅ [CELERY] %s lotes liberados", liberados)
     return liberados

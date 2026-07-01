@@ -8,7 +8,7 @@ from datetime import timedelta
 
 from decouple import Config, Csv, RepositoryEnv
 
-from kombu import Queue
+from kombu import Exchange, Queue
 
 
 
@@ -535,7 +535,12 @@ CELERY_TASK_QUEUES = (
 	Queue("empreendimentos"),
 	Queue("mensagens"),
 	Queue("clientes"),
-	Queue("pdf"),
+	# exchange/routing_key proprios -- as outras 3 filas compartilham o
+	# default (exchange=task_default_queue), o que faz RabbitMQ entregar a
+	# mesma mensagem pras 4 filas (confirmado em teste real). Isolando so
+	# "pdf" aqui; a duplicacao entre empreendimentos/mensagens/clientes e
+	# pre-existente e fica fora do escopo desta migracao.
+	Queue("pdf", exchange=Exchange("pdf", type="direct"), routing_key="pdf"),
 )
 
 # Motor de geracao de PDF: "weasyprint" (atual, default) ou "playwright"

@@ -19,7 +19,7 @@ from documentos.models import (
 	StatusDocumento,
 	TipoDocumento,
 )
-from documentos.views_gerar import _tipos_permitidos
+from documentos.views_gerar import _tipos_disponiveis
 
 @method_decorator(has_permission_decorator('reservado'), name='dispatch')
 class ReservadoView(TemplateView):
@@ -103,9 +103,10 @@ class AnaliseView(TemplateView):
             'empr', None
         )
 
+        _tipos_ok = _tipos_disponiveis(self.request.user, lote.situacao)
+
         modelos_por_tipo = {}
         if empreendimento:
-            _tipos_ok = _tipos_permitidos(self.request.user)
             for tipo in TipoDocumento:
                 if tipo.value not in _tipos_ok:
                     continue
@@ -123,7 +124,7 @@ class AnaliseView(TemplateView):
                     }
 
         docs_existentes = (
-            DocumentoGerado.objects.filter(venda=venda)
+            DocumentoGerado.objects.filter(venda=venda, modelo__tipo__in=_tipos_ok)
             .exclude(status=StatusDocumento.CANCELADO)
             .order_by('-criado_em')
             if venda else DocumentoGerado.objects.none()
@@ -250,9 +251,13 @@ class ReservadoDetalheView(TemplateView):
             'empr', None
         )
 
+        _tipos_ok = _tipos_disponiveis(
+            self.request.user,
+            getattr(getattr(venda, 'lote', None), 'situacao', None),
+        )
+
         modelos_por_tipo = {}
         if empreendimento:
-            _tipos_ok = _tipos_permitidos(self.request.user)
             for tipo in TipoDocumento:
                 if tipo.value not in _tipos_ok:
                     continue
@@ -270,7 +275,7 @@ class ReservadoDetalheView(TemplateView):
                     }
 
         docs_existentes = DocumentoGerado.objects.filter(
-            venda=venda,
+            venda=venda, modelo__tipo__in=_tipos_ok,
         ).exclude(status=StatusDocumento.CANCELADO).order_by('-criado_em') if venda else DocumentoGerado.objects.none()
 
         proposta_disponivel = (

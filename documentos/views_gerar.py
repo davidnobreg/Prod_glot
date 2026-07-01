@@ -17,6 +17,7 @@ from rolepermissions.decorators import has_permission_decorator
 from rolepermissions.checkers import has_role
 from core.roles import Administrador, Corretor
 
+from empreendimentos.models import TypeLote
 from vendas.models import RegisterVenda
 from .models import (
     DocumentoGerado,
@@ -30,6 +31,9 @@ from .services import gerar_documento_venda, finalizar_documento
 # Tipos permitidos por role
 _TIPOS_CORRETOR = {'proposta'}
 
+# Tipos liberados enquanto o lote está em ANALISE — contrato só a partir de RESERVADO
+_TIPOS_GATE_ANALISE = {'proposta'}
+
 
 def _tipos_permitidos(user):
     """Retorna set de tipos que o usuário pode gerar/ver."""
@@ -38,6 +42,18 @@ def _tipos_permitidos(user):
     if has_role(user, Corretor):
         return _TIPOS_CORRETOR
     return set()
+
+
+def _tipos_disponiveis(user, situacao):
+    """Tipos permitidos pro usuário, restritos pela etapa do lote.
+
+    Em ANALISE só proposta pode ser gerada; contrato (e demais tipos)
+    liberam a partir de RESERVADO em diante.
+    """
+    tipos_ok = _tipos_permitidos(user)
+    if situacao == TypeLote.ANALISE:
+        return tipos_ok & _TIPOS_GATE_ANALISE
+    return tipos_ok
 
 
 # ----------------------------------------------------------
@@ -50,7 +66,7 @@ def gerar_documento(request, venda_pk):
         pk=venda_pk,
     )
     empreendimento = venda.lote.quadra.empr
-    tipos_ok = _tipos_permitidos(request.user)
+    tipos_ok = _tipos_disponiveis(request.user, venda.lote.situacao if venda.lote else None)
 
     if request.method == 'POST':
         tipo = request.POST.get('tipo')

@@ -691,9 +691,15 @@
 											{{ lote_info.lote.lote }}
 										</a>
 									{% elif user.is_authenticated and user.tipo_usuario == "CORRETOR" %}
-										<a href="{% url 'documentos:proposta-rascunho' lote_info.lote.uuid %}" class="lote-button lote-analise" aria-label="Ver proposta do lote {{ lote_info.lote.lote }}">
-											{{ lote_info.lote.lote }}
-										</a>
+										{% if lote_info.lote.reg_venda %}
+											<a href="{% url 'documentos:proposta-rascunho' lote_info.lote.reg_venda.uuid %}" class="lote-button lote-analise" aria-label="Ver proposta do lote {{ lote_info.lote.lote }}">
+												{{ lote_info.lote.lote }}
+											</a>
+										{% else %}
+											<button type="button" class="lote-button lote-analise" aria-label="Lote em análise {{ lote_info.lote.lote }}">
+												{{ lote_info.lote.lote }}
+											</button>
+										{% endif %}
 									{% endif %}
 								{% elif lote_info.situacao == 'CONSTRUTORA' %}
 									<button type="button" class="lote-button lote-outros" aria-label="Lote da construtora {{ lote_info.lote.lote }}">

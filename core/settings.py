@@ -396,6 +396,8 @@ if USE_REMOTE_STORAGE:
 	AWS_S3_FILE_OVERWRITE = False
 	AWS_QUERYSTRING_AUTH = True
 	AWS_QUERYSTRING_EXPIRE = 3600
+	AWS_S3_CONNECT_TIMEOUT = 5
+	AWS_S3_READ_TIMEOUT = 30
 
 	_staticfiles_backend = (
 		'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -532,7 +534,14 @@ CELERY_TASK_DEFAULT_QUEUE = "empreendimentos"
 CELERY_TASK_QUEUES = (
 	Queue("empreendimentos"),
 	Queue("mensagens"),
+	Queue("clientes"),
+	Queue("pdf"),
 )
+
+# Motor de geracao de PDF: "weasyprint" (atual, default) ou "playwright"
+# (migracao em andamento -- ver skill playwright-pdf-migration). Default
+# nao muda ate rollout explicito (Fase 5).
+PDF_ENGINE = config("PDF_ENGINE", default="weasyprint")
 
 FLOWER_BASIC_AUTH = ["admin:admin"]
 
@@ -546,17 +555,19 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 # django setting.
 
-CACHES = {
-
-    'default': {
-
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-
-        'LOCATION': 'my_cache_table',
-
+if USE_REMOTE_STORAGE:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': CACHE_REDIS_URI,
+        }
     }
-
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        }
+    }
 
 
 

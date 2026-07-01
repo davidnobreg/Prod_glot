@@ -44,6 +44,7 @@ jobs:
           PORTAINER_TOKEN: ${{ secrets.PORTAINER_TOKEN }}
           PORTAINER_URL: ${{ secrets.PORTAINER_URL }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          PDF_ENGINE: ${{ vars.PDF_ENGINE }}
         run: |
           set -e
 
@@ -64,7 +65,8 @@ jobs:
               \"stackFileContent\": $STACK_FILE_JSON,
               \"env\": [
                 {\"name\": \"GIT_COMMIT\", \"value\": \"$GIT_COMMIT\"},
-                {\"name\": \"SENTRY_DSN\",  \"value\": \"$SENTRY_DSN\"}
+                {\"name\": \"SENTRY_DSN\",  \"value\": \"$SENTRY_DSN\"},
+                {\"name\": \"PDF_ENGINE\",  \"value\": \"$PDF_ENGINE\"}
               ],
               \"pullImage\": true,
               \"prune\": true

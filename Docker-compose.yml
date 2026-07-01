@@ -42,7 +42,7 @@ services:
   worker_empreendimentos:
     image: davidnobrega/glot:latest
 
-    command: celery -A core worker -Q empreendimentos -l info
+    command: celery -A core worker -Q empreendimentos,clientes -l info --pool=prefork
 
     volumes:
       - configuration:/app/configuration
@@ -63,10 +63,41 @@ services:
       restart_policy:
         condition: on-failure
 
+  worker_pdf:
+    image: davidnobrega/glot:latest
+
+    command: celery -A core worker -Q pdf -l info --pool=prefork --concurrency=2
+
+    environment:
+      - PDF_ENGINE=${PDF_ENGINE:-weasyprint}
+
+    volumes:
+      - configuration:/app/configuration
+      - logs:/app/logs
+      - media_compartilhada:/app/media
+
+    networks:
+      - app_network
+
+    depends_on:
+      - rabbitmq
+
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1024M
+
   worker_mensagens:
     image: davidnobrega/glot:latest
 
-    command: celery -A core worker -Q mensagens -l info
+    command: celery -A core worker -Q mensagens -l info --pool=prefork
 
     volumes:
       - configuration:/app/configuration

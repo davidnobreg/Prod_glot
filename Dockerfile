@@ -39,6 +39,11 @@ RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
 # ===================================
+# Chromium (Playwright) + deps de sistema
+# ===================================
+RUN playwright install --with-deps chromium
+
+# ===================================
 # Código da aplicação
 # ===================================
 COPY . .

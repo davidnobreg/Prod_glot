@@ -81,11 +81,26 @@ p,
 	background-color: #dbeafe;
 }
 
-/* Última linha da tabela (recibo/assinatura em modelos de proposta) não
-   pode quebrar ao meio entre páginas. */
-.documento-conteudo table tr:last-child {
+/* Nenhuma linha de tabela pode quebrar ao meio entre páginas — protege
+   quadro resumo, cláusulas em tabela e o bloco final de recibo/assinatura. */
+.documento-conteudo table tr {
 	break-inside: avoid;
 	page-break-inside: avoid;
+}
+
+/* Tabela aninhada (tabela dentro de célula) é tratada como bloco atômico —
+   sem isso, o motor pode partir a tabela interna no meio da página. */
+.documento-conteudo table table {
+	break-inside: avoid;
+	page-break-inside: avoid;
+}
+
+/* Parágrafo-título imediatamente antes de uma tabela (ex: "TESTEMUNHAS:"
+   seguido da tabela de CPFs) não pode ficar sozinho no fim da página, com
+   a tabela isolada na página seguinte. */
+.documento-conteudo p:has(+ table) {
+	break-after: avoid;
+	page-break-after: avoid;
 }
 
 /* ----- Bloco de assinaturas ----- */

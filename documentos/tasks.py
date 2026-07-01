@@ -4,7 +4,8 @@ from django.contrib.staticfiles import finders
 from django.core.files.base import ContentFile
 from django.template.loader import render_to_string
 from django.utils import timezone
-from weasyprint import HTML, CSS
+
+from .pdf_engine import render_pdf
 
 
 @shared_task
@@ -13,7 +14,7 @@ def debug_task():
 	return 'ok'
 
 
-@shared_task(bind=True, max_retries=3, default_retry_delay=10, queue='empreendimentos')
+@shared_task(bind=True, max_retries=3, default_retry_delay=10, queue='pdf')
 def gerar_pdf_documento(self, documento_id):
 	from .models import DocumentoGerado, StatusDocumento
 
@@ -31,11 +32,13 @@ def gerar_pdf_documento(self, documento_id):
 		})
 
 		css_path = finders.find('documentos/css/documento_a4.css')
-		stylesheets = [CSS(filename=css_path)] if css_path else []
 
-		pdf_bytes = HTML(
-			string=html_str, base_url=settings.MEDIA_ROOT
-		).write_pdf(stylesheets=stylesheets)
+		base_url = (
+			settings.MEDIA_URL
+			if getattr(settings, 'USE_REMOTE_STORAGE', False)
+			else str(settings.MEDIA_ROOT)
+		)
+		pdf_bytes = render_pdf(html_str, css_path, base_url, cfg=cfg)
 
 		doc.arquivo_pdf.save(f'{doc.numero}.pdf', ContentFile(pdf_bytes), save=False)
 		doc.status = StatusDocumento.FINALIZADO

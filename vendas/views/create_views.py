@@ -30,6 +30,19 @@ class EfetivarVendaView(View):
 		lote = venda.lote
 		empreendimento = lote.quadra.empr
 
+		if request.user.tipo_usuario != 'ADMINISTRADOR':
+			messages.error(request, "Apenas administradores podem efetivar vendas.")
+			return redirect('pre-venda-detalhe', venda_uuid=venda.uuid)
+
+		proposta_aprovada = venda.documentos_assinados.filter(
+			tipo='proposta_assinada',
+			status='aprovado',
+		).exists()
+
+		if not proposta_aprovada:
+			messages.error(request, "Venda não pode ser efetivada sem proposta aprovada.")
+			return redirect('pre-venda-detalhe', venda_uuid=venda.uuid)
+
 		venda.dt_venda = timezone.localdate()
 		venda.tipo_venda = 'VENDIDO'
 		venda.save(update_fields=['dt_venda', 'tipo_venda'])

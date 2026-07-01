@@ -210,12 +210,10 @@ class ReservadoDetalheView(TemplateView):
             ).first()
 
 
+            _user = reserva_publica.user if reserva_publica else None
             context = {
-                'contatoNome': reserva_publica.user.first_name,
-                'contatoCorretor': (
-                    reserva_publica.user.contato
-                    if reserva_publica else None
-                )
+                'contatoNome': _user.first_name if _user else '',
+                'contatoCorretor': _user.contato if _user else None,
             }
 
             return render(

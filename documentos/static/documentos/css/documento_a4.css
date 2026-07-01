@@ -34,7 +34,7 @@ h1, h2,
 
 p,
 .documento-conteudo p {
-	margin: 0 0 2pt 0;
+	margin: 0 0 6pt 0;
 	text-align: justify;
 	text-indent: 1.5cm;
 }
@@ -59,7 +59,7 @@ p,
 
 .documento-conteudo td, .documento-conteudo th,
 .editor-a4-page td, .editor-a4-page th {
-	padding: 0 5pt;
+	padding: 3pt 5pt;
 	vertical-align: top;
 }
 

@@ -142,7 +142,7 @@ class ListaVendaView(ListView):
     ordering = ['-id']
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = super().get_queryset().filter(is_ativo=True)
 
         venda = self.request.GET.get('venda')
         tipo_venda = self.request.GET.get('tipo_venda')
@@ -167,7 +167,7 @@ class ListaVendaView(ListView):
 
         # 🔎 Tipo de venda
         if tipo_venda:
-            queryset = queryset.filter(tipo_venda=tipo_venda, is_ativo=False)
+            queryset = queryset.filter(tipo_venda=tipo_venda)
 
         # 🔎 Filtro por data
         try:

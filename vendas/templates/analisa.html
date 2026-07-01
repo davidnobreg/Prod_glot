@@ -487,6 +487,7 @@
             </p>
         </header>
 
+        {% if reservas %}
         <section class="analise-panel">
             <div class="analise-grid">
                 <article class="analise-card">
@@ -806,6 +807,12 @@
     {% with venda=reservas %}
 		{% include 'documentos/gerar_documento_modal.html' %}
 	{% endwith %}
+    {% else %}
+    <div class="analise-panel" style="padding:40px;text-align:center;">
+        <p class="text-muted mb-0">Nenhuma venda vinculada a este lote em análise.</p>
+    </div>
+    </div>
+    {% endif %}
 
     <!-- Modal documentos -->
     <div class="modal fade" id="modalDocumento" tabindex="-1">

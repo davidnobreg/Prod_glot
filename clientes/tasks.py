@@ -4,7 +4,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@shared_task(bind=True, max_retries=3, default_retry_delay=10)
+@shared_task(bind=True, max_retries=3, default_retry_delay=10, queue='clientes')
 def processar_documentos_pendentes(self, cliente_uuid):
 	"""
 	Verifica documentos com status='processando' para o cliente

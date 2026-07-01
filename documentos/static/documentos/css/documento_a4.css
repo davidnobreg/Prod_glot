@@ -34,7 +34,7 @@ h1, h2,
 
 p,
 .documento-conteudo p {
-	margin: 0 0 6pt 0;
+	margin: 0 0 2pt 0;
 	text-align: justify;
 	text-indent: 1.5cm;
 }
@@ -59,7 +59,7 @@ p,
 
 .documento-conteudo td, .documento-conteudo th,
 .editor-a4-page td, .editor-a4-page th {
-	padding: 3pt 5pt;
+	padding: 0 5pt;
 	vertical-align: top;
 }
 
@@ -79,6 +79,13 @@ p,
 
 .editor-a4-page .selectedCell {
 	background-color: #dbeafe;
+}
+
+/* Última linha da tabela (recibo/assinatura em modelos de proposta) não
+   pode quebrar ao meio entre páginas. */
+.documento-conteudo table tr:last-child {
+	break-inside: avoid;
+	page-break-inside: avoid;
 }
 
 /* ----- Bloco de assinaturas ----- */

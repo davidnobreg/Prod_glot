@@ -79,6 +79,18 @@ def _modelo_ou_404(empreendimento, tipo):
     return modelo
 
 
+def _aguardando_analise(request, empreendimento=None):
+    """
+    Fallback pra proposta_rascunho: venda inexistente, ou existente mas sem
+    modelo de proposta configurado ainda (situação comum com lote em ANALISE).
+    Renderiza 200 em vez de 404 puro — usuário corretor não pode tomar erro
+    de servidor por um estado de negócio normal (venda ainda em análise).
+    """
+    return render(request, 'documentos/aguardando_analise.html', {
+        'empreendimento': empreendimento,
+    })
+
+
 def _html_renderizado(modelo, venda, usuario):
     contexto = montar_contexto_venda(venda, usuario)
     return renderizar_variaveis(modelo.conteudo_html, contexto)
@@ -157,12 +169,17 @@ def proposta_rascunho(request, venda_uuid):
     Substitui propostaRascunho que buscava lote__uuid e usava CadastroDocumento.
     Agora usa venda__uuid (consistente) + ModeloDocumento.
     """
-    venda = get_object_or_404(
-        RegisterVenda.objects.select_related('cliente', 'lote__quadra__empr'),
-        uuid=venda_uuid,
-    )
+    venda = RegisterVenda.objects.select_related(
+        'cliente', 'lote__quadra__empr',
+    ).filter(uuid=venda_uuid).first()
+    if not venda:
+        return _aguardando_analise(request)
+
     empreendimento = venda.lote.quadra.empr
-    modelo = _modelo_ou_404(empreendimento, 'proposta')
+    modelo = ModeloDocumento.objects.padrao_para(empreendimento, 'proposta')
+    if not modelo:
+        return _aguardando_analise(request, empreendimento)
+
     html_final = _html_renderizado(modelo, venda, request.user)
     return render(request, 'documentos/preview_rascunho.html', {
         'html_final': html_final,

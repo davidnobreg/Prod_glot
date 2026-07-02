@@ -1,6 +1,7 @@
 ﻿import uuid
 from decimal import Decimal
 from django.db import models
+from django.db.models import Q
 from datetime import datetime
 from clientes.models import Cliente
 from empreendimentos.models import Lote, Empreendimento
@@ -123,6 +124,13 @@ class VendaDocumento(models.Model):
 		ordering = ['-enviado_em']
 		verbose_name = 'Documento de Venda'
 		verbose_name_plural = 'Documentos de Venda'
+		constraints = [
+			models.UniqueConstraint(
+				fields=['venda', 'tipo'],
+				condition=Q(status='aprovado'),
+				name='unico_aprovado_por_venda_tipo',
+			),
+		]
 
 	def __str__(self):
 		return f"{self.get_tipo_display()} — {self.venda}"

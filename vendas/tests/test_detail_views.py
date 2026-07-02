@@ -681,6 +681,42 @@ class TestVendaDocumentoAprovarView:
 		)
 		assert response.url == expected
 
+	def test_aprovar_arquiva_aprovado_anterior_do_mesmo_tipo(
+		self, client, admin_user, venda, doc_enviado,
+	):
+		"""Sem isso, aprovar um segundo documento do mesmo tipo violaria a
+		UniqueConstraint(status='aprovado') no banco — o corretor tomaria erro 500 em vez
+		do sistema resolver a invariante sozinho."""
+		aprovado_anterior = VendaDocumento.objects.create(
+			venda=venda, tipo='proposta_assinada', status='aprovado', ciclo=1,
+			arquivo_assinado='fake/anterior.pdf', enviado_por=admin_user,
+		)
+		client.force_login(admin_user)
+		url = reverse('venda-documento-aprovar', kwargs={'pk': doc_enviado.pk})
+		response = client.post(url)
+
+		assert response.status_code == 302
+		aprovado_anterior.refresh_from_db()
+		doc_enviado.refresh_from_db()
+		assert aprovado_anterior.status == 'arquivado'
+		assert doc_enviado.status == 'aprovado'
+
+	def test_aprovar_nao_afeta_aprovado_de_outro_tipo(
+		self, client, admin_user, venda, doc_enviado,
+	):
+		"""Arquivamento automático é escopado por (venda, tipo) — um contrato aprovado
+		não deve ser tocado ao aprovar uma proposta."""
+		contrato_aprovado = VendaDocumento.objects.create(
+			venda=venda, tipo='contrato_assinado', status='aprovado', ciclo=1,
+			arquivo_assinado='fake/contrato.pdf', enviado_por=admin_user,
+		)
+		client.force_login(admin_user)
+		url = reverse('venda-documento-aprovar', kwargs={'pk': doc_enviado.pk})
+		client.post(url)
+
+		contrato_aprovado.refresh_from_db()
+		assert contrato_aprovado.status == 'aprovado'
+
 
 # ─── VendaDocumentoRejeitarView ───────────────────────────────────────────────
 

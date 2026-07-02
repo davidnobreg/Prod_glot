@@ -171,3 +171,79 @@ def test_dry_run_nao_salva(venda_pre_venda, admin_user):
 	call_command('vincular_documentos_pendentes', '--auto-vincular', '--dry-run', stdout=StringIO())
 	doc.refresh_from_db()
 	assert doc.documento_gerado_id is None
+
+
+def _criar_par_duplicado(venda, admin_user, tipo='proposta_assinada'):
+	"""cria dois VendaDocumento aprovados pro mesmo (venda, tipo), simulando o estado
+	pré-migration que arquivar_documentos_duplicados existe pra resolver. Só é possível
+	derrubando o índice único condicional dentro da transação do teste — Django implementa
+	UniqueConstraint(condition=...) como índice único parcial no Postgres, não como
+	constraint nomeada em pg_constraint (por isso DROP INDEX, não DROP CONSTRAINT). DDL é
+	transacional no Postgres, então o rollback do pytest-django desfaz o DROP junto com os
+	dados; depois que o índice existe de verdade, o próprio banco impede essa duplicata
+	(ver test_constraint_impede_dois_aprovados_mesmo_venda_tipo em test_models.py)."""
+	from datetime import timedelta
+	from django.db import connection
+	from django.utils import timezone
+
+	with connection.cursor() as cursor:
+		cursor.execute('DROP INDEX unico_aprovado_por_venda_tipo')
+
+	mais_antigo = VendaDocumento.objects.create(
+		venda=venda, tipo=tipo, status='aprovado', enviado_por=admin_user,
+		arquivo_assinado='fake/antigo.pdf', aprovado_em=timezone.now() - timedelta(hours=1),
+	)
+	mais_recente = VendaDocumento.objects.create(
+		venda=venda, tipo=tipo, status='aprovado', enviado_por=admin_user,
+		arquivo_assinado='fake/recente.pdf', aprovado_em=timezone.now(),
+	)
+	return mais_antigo, mais_recente
+
+
+@pytest.mark.django_db
+def test_arquivar_duplicados_relatorio_lista_grupo(venda_pre_venda, admin_user):
+	_criar_par_duplicado(venda_pre_venda, admin_user)
+	out = StringIO()
+	call_command('arquivar_documentos_duplicados', stdout=out)
+	assert '1 grupo' in out.getvalue()
+
+
+@pytest.mark.django_db
+def test_arquivar_duplicados_relatorio_nao_escreve(venda_pre_venda, admin_user):
+	mais_antigo, mais_recente = _criar_par_duplicado(venda_pre_venda, admin_user)
+	call_command('arquivar_documentos_duplicados', stdout=StringIO())
+	mais_antigo.refresh_from_db()
+	mais_recente.refresh_from_db()
+	assert mais_antigo.status == 'aprovado'
+	assert mais_recente.status == 'aprovado'
+
+
+@pytest.mark.django_db
+def test_arquivar_duplicados_auto_arquiva_mantendo_mais_recente(venda_pre_venda, admin_user):
+	mais_antigo, mais_recente = _criar_par_duplicado(venda_pre_venda, admin_user)
+	call_command('arquivar_documentos_duplicados', '--auto-arquivar', stdout=StringIO())
+	mais_antigo.refresh_from_db()
+	mais_recente.refresh_from_db()
+	assert mais_antigo.status == 'arquivado'
+	assert mais_recente.status == 'aprovado'
+
+
+@pytest.mark.django_db
+def test_arquivar_duplicados_dry_run_nao_salva(venda_pre_venda, admin_user):
+	mais_antigo, mais_recente = _criar_par_duplicado(venda_pre_venda, admin_user)
+	call_command('arquivar_documentos_duplicados', '--auto-arquivar', '--dry-run', stdout=StringIO())
+	mais_antigo.refresh_from_db()
+	mais_recente.refresh_from_db()
+	assert mais_antigo.status == 'aprovado'
+	assert mais_recente.status == 'aprovado'
+
+
+@pytest.mark.django_db
+def test_arquivar_duplicados_ignora_grupo_sem_duplicata(venda_pre_venda, admin_user):
+	VendaDocumento.objects.create(
+		venda=venda_pre_venda, tipo='proposta_assinada', status='aprovado',
+		enviado_por=admin_user, arquivo_assinado='fake/unico.pdf',
+	)
+	out = StringIO()
+	call_command('arquivar_documentos_duplicados', stdout=out)
+	assert '0 grupo' in out.getvalue()

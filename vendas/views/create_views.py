@@ -82,6 +82,28 @@ class CriarVendaView(View):
 		venda = get_object_or_404(RegisterVenda, uuid=kwargs.get('venda_uuid'))
 		lote = venda.lote
 
+		proposta_ok = _documento_assinado_com_lastro(venda, 'proposta_assinada')
+		contrato_ok = _documento_assinado_com_lastro(venda, 'contrato_assinado')
+
+		if not proposta_ok or not contrato_ok:
+			if not proposta_ok and not contrato_ok:
+				mensagem = (
+					"Não é possível avançar para Pré-Venda: faltam proposta assinada e "
+					"contrato assinado aprovados e vinculados a um documento gerado."
+				)
+			elif not proposta_ok:
+				mensagem = (
+					"Não é possível avançar para Pré-Venda: falta proposta assinada "
+					"aprovada e vinculada a um documento gerado."
+				)
+			else:
+				mensagem = (
+					"Não é possível avançar para Pré-Venda: falta contrato assinado "
+					"aprovado e vinculado a um documento gerado."
+				)
+			messages.error(request, mensagem)
+			return redirect('reservadoDetalhes', reserva_uuid=lote.uuid)
+
 		venda.tipo_venda = 'PRE-VENDA'
 		venda.save(update_fields=['tipo_venda'])
 

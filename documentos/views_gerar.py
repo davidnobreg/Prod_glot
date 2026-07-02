@@ -30,7 +30,7 @@ from .services import gerar_documento_venda, finalizar_documento
 # Tipos permitidos por role
 _TIPOS_CORRETOR = {'proposta'}
 
-# Tipos liberados enquanto o lote está em ANALISE — contrato só a partir de RESERVADO
+# Tipos liberados quando não há proposta aprovada com lastro (ver _tipos_disponiveis)
 _TIPOS_GATE_ANALISE = {'proposta'}
 
 

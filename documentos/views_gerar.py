@@ -17,7 +17,6 @@ from rolepermissions.decorators import has_permission_decorator
 from rolepermissions.checkers import has_role
 from core.roles import Administrador, Corretor
 
-from empreendimentos.models import TypeLote
 from vendas.models import RegisterVenda
 from .models import (
     DocumentoGerado,
@@ -44,14 +43,22 @@ def _tipos_permitidos(user):
     return set()
 
 
-def _tipos_disponiveis(user, situacao):
-    """Tipos permitidos pro usuário, restritos pela etapa do lote.
+def _tipos_disponiveis(user, venda):
+    """Tipos permitidos pro usuário, restritos por proposta aprovada com lastro.
 
-    Em ANALISE só proposta pode ser gerada; contrato (e demais tipos)
-    liberam a partir de RESERVADO em diante.
+    Contrato (e demais tipos além de proposta) só libera quando existe
+    VendaDocumento vigente tipo=proposta_assinada, status=aprovado, com
+    documento_gerado vinculado — prova que a aprovação corresponde a um
+    DocumentoGerado real, não a um upload avulso. Critério NÃO depende mais
+    de lote.situacao.
     """
     tipos_ok = _tipos_permitidos(user)
-    if situacao == TypeLote.ANALISE:
+    proposta_com_lastro = bool(venda) and venda.documentos_assinados.vigentes().filter(
+        tipo='proposta_assinada',
+        status='aprovado',
+        documento_gerado__isnull=False,
+    ).exists()
+    if not proposta_com_lastro:
         return tipos_ok & _TIPOS_GATE_ANALISE
     return tipos_ok
 
@@ -66,7 +73,7 @@ def gerar_documento(request, venda_pk):
         pk=venda_pk,
     )
     empreendimento = venda.lote.quadra.empr
-    tipos_ok = _tipos_disponiveis(request.user, venda.lote.situacao if venda.lote else None)
+    tipos_ok = _tipos_disponiveis(request.user, venda)
 
     if request.method == 'POST':
         tipo = request.POST.get('tipo')

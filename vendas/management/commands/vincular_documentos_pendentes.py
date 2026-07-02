@@ -41,24 +41,32 @@ class Command(BaseCommand):
 		total = docs_risco.count()
 		self.stdout.write(f'{total} VendaDocumento em risco encontrados ({", ".join(tipos)}).')
 
-		resolvidos, pendentes = 0, 0
+		com_candidato, vinculados, pendentes = 0, 0, 0
 		for doc in docs_risco:
 			venda = doc.venda
-			candidato = None
-			if options['auto_vincular']:
-				candidato = documento_gerado_mais_recente(venda, doc.tipo)
+			# leitura, sempre calculada — independe de --auto-vincular. Só a escrita
+			# abaixo (doc.save()) fica atrás do gate.
+			candidato = documento_gerado_mais_recente(venda, doc.tipo)
 
 			if candidato:
-				resolvidos += 1
-				self.stdout.write(
-					f'  venda={venda.uuid} cliente={venda.cliente} tipo={doc.tipo} -> '
-					f'DocumentoGerado {candidato.numero} '
-					f'{"(dry-run, não salvo)" if options["dry_run"] else "(vinculado)"}'
-				)
-				if not options['dry_run']:
-					with transaction.atomic():
-						doc.documento_gerado = candidato
-						doc.save(update_fields=['documento_gerado'])
+				com_candidato += 1
+				if options['auto_vincular']:
+					self.stdout.write(
+						f'  venda={venda.uuid} cliente={venda.cliente} tipo={doc.tipo} -> '
+						f'DocumentoGerado {candidato.numero} '
+						f'{"(dry-run, não salvo)" if options["dry_run"] else "(vinculado)"}'
+					)
+					if not options['dry_run']:
+						vinculados += 1
+						with transaction.atomic():
+							doc.documento_gerado = candidato
+							doc.save(update_fields=['documento_gerado'])
+				else:
+					self.stdout.write(
+						f'  venda={venda.uuid} cliente={venda.cliente} tipo={doc.tipo} -> '
+						f'candidato encontrado: DocumentoGerado {candidato.numero} '
+						f'(rode com --auto-vincular pra aplicar)'
+					)
 			else:
 				pendentes += 1
 				self.stdout.write(
@@ -66,7 +74,13 @@ class Command(BaseCommand):
 					f'tipo={doc.tipo} VendaDocumento#{doc.pk} -> SEM CANDIDATO, decisão manual necessária'
 				)
 
-		self.stdout.write(
-			f'Total: {total} | resolvidos automaticamente: {resolvidos} | '
-			f'pendentes de decisão manual: {pendentes}'
-		)
+		if options['auto_vincular']:
+			self.stdout.write(
+				f'Total: {total} | com candidato: {com_candidato} | '
+				f'vinculados agora: {vinculados} | pendentes de decisão manual: {pendentes}'
+			)
+		else:
+			self.stdout.write(
+				f'Total: {total} | com candidato disponível: {com_candidato} | '
+				f'sem candidato (decisão manual): {pendentes}'
+			)

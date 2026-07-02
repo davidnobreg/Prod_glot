@@ -614,7 +614,7 @@
 
 
                             {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
-                                {% if proposta_aprovada %}
+                                {% if pre_venda_liberada %}
                                     <form method="POST"
                                           action="{% url 'criar-venda' reservas.uuid %}"
                                           class="reserva-action-form">
@@ -630,7 +630,7 @@
                                         class="reserva-button reserva-button-success"
                                         style="opacity:0.45; cursor:not-allowed;"
                                         disabled
-                                        title="É necessário ter uma proposta assinada aprovada para avançar para Pré-Venda">
+                                        title="{% if not proposta_com_lastro and not contrato_com_lastro %}É necessário ter proposta assinada e contrato assinado aprovados para avançar para Pré-Venda{% elif not proposta_com_lastro %}Aguardando proposta assinada aprovada{% else %}Aguardando contrato assinado aprovado{% endif %}">
                                         <i class="bi bi-cash-coin"></i>
                                         Pre-Vender
                                     </button>

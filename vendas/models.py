@@ -80,6 +80,11 @@ class RegisterVendaIntercalada(models.Model):
 	valor_intercalada = models.CharField('Valor da intercalada', blank=True, null=True, max_length=50, default=00.00)
 
 
+class VendaDocumentoQuerySet(models.QuerySet):
+	def vigentes(self):
+		return self.exclude(status='arquivado')
+
+
 class VendaDocumento(models.Model):
 
 	TIPO_CHOICES = [
@@ -94,6 +99,8 @@ class VendaDocumento(models.Model):
 		('rejeitado', 'Rejeitado'),
 		('arquivado', 'Arquivado'),
 	]
+
+	objects = VendaDocumentoQuerySet.as_manager()
 
 	venda = models.ForeignKey(RegisterVenda, on_delete=models.CASCADE, related_name='documentos_assinados')
 	tipo = models.CharField(max_length=30, choices=TIPO_CHOICES, default='outros')
@@ -119,3 +126,10 @@ class VendaDocumento(models.Model):
 
 	def __str__(self):
 		return f"{self.get_tipo_display()} — {self.venda}"
+
+
+# Mapeamento de tipos de VendaDocumento (upload assinado) para TipoDocumento (DocumentoGerado)
+TIPO_ASSINADO_PARA_GERADO = {
+	'proposta_assinada': 'proposta',
+	'contrato_assinado': 'contrato',
+}

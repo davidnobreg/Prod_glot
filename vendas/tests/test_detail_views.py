@@ -439,6 +439,99 @@ class TestVendaDocumentoUploadView:
 		assert response.status_code == 302
 		assert VendaDocumento.objects.filter(venda=venda).exists()
 
+	def test_upload_vincula_documento_gerado_finalizado_mais_recente(
+		self, client, admin_user, venda, settings, tmp_path
+	):
+		"""Upload de 'proposta_assinada' encontra e vincula o DocumentoGerado FINALIZADO mais recente."""
+		settings.DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+		settings.MEDIA_ROOT = str(tmp_path)
+		from documentos.models import ModeloDocumento, DocumentoGerado, StatusDocumento
+		modelo = ModeloDocumento.objects.create(
+			titulo='Proposta', tipo='proposta', conteudo_html='<p>x</p>',
+			eh_global=True, criado_por=admin_user,
+		)
+		doc_gerado = DocumentoGerado.objects.create(
+			modelo=modelo, modelo_versao_snapshot=1, venda=venda, titulo='Proposta',
+			conteudo_final_html='<p>x</p>', status=StatusDocumento.FINALIZADO, criado_por=admin_user,
+		)
+		client.force_login(admin_user)
+		url = reverse('venda-documento-upload', kwargs={'venda_uuid': venda.uuid})
+		client.post(url, {'tipo': 'proposta_assinada', 'arquivo_assinado': _fake_file()})
+		novo = VendaDocumento.objects.get(venda=venda, tipo='proposta_assinada')
+		assert novo.documento_gerado_id == doc_gerado.id
+
+	def test_upload_sem_documento_gerado_finalizado_deixa_campo_nulo(
+		self, client, admin_user, venda, settings, tmp_path
+	):
+		"""Upload sem DocumentoGerado FINALIZADO deixa documento_gerado como NULL."""
+		settings.DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+		settings.MEDIA_ROOT = str(tmp_path)
+		client.force_login(admin_user)
+		url = reverse('venda-documento-upload', kwargs={'venda_uuid': venda.uuid})
+		client.post(url, {'tipo': 'proposta_assinada', 'arquivo_assinado': _fake_file()})
+		novo = VendaDocumento.objects.get(venda=venda, tipo='proposta_assinada')
+		assert novo.documento_gerado_id is None
+
+	def test_upload_vincula_o_mais_recente_entre_multiplos_finalizados(
+		self, client, admin_user, venda, settings, tmp_path
+	):
+		"""Com 2+ FINALIZADOS do mesmo tipo, o upload liga ao de criado_em mais recente,
+		não ao primeiro criado nem por acidente de ordem de query."""
+		from django.utils import timezone
+		from documentos.models import ModeloDocumento, DocumentoGerado, StatusDocumento
+		settings.DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+		settings.MEDIA_ROOT = str(tmp_path)
+		modelo = ModeloDocumento.objects.create(
+			titulo='Proposta', tipo='proposta', conteudo_html='<p>x</p>',
+			eh_global=True, criado_por=admin_user,
+		)
+		doc_antigo = DocumentoGerado.objects.create(
+			modelo=modelo, modelo_versao_snapshot=1, venda=venda, titulo='Proposta v1',
+			conteudo_final_html='<p>x</p>', status=StatusDocumento.FINALIZADO, criado_por=admin_user,
+		)
+		DocumentoGerado.objects.filter(pk=doc_antigo.pk).update(
+			criado_em=timezone.now() - timezone.timedelta(days=1)
+		)
+		doc_recente = DocumentoGerado.objects.create(
+			modelo=modelo, modelo_versao_snapshot=1, venda=venda, titulo='Proposta v2',
+			conteudo_final_html='<p>x</p>', status=StatusDocumento.FINALIZADO, criado_por=admin_user,
+		)
+		client.force_login(admin_user)
+		url = reverse('venda-documento-upload', kwargs={'venda_uuid': venda.uuid})
+		client.post(url, {'tipo': 'proposta_assinada', 'arquivo_assinado': _fake_file()})
+		novo = VendaDocumento.objects.get(venda=venda, tipo='proposta_assinada')
+		assert novo.documento_gerado_id == doc_recente.id
+
+	def test_upload_com_empate_de_criado_em_resolve_por_id_maior(
+		self, client, admin_user, venda, settings, tmp_path
+	):
+		"""Dois FINALIZADOS com o MESMO criado_em (empate real) — sem desempate por id
+		a ordem seria indefinida no banco. Trava o critério: o de id maior (criado por
+		último) vence, de forma determinística."""
+		from documentos.models import ModeloDocumento, DocumentoGerado, StatusDocumento
+		settings.DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+		settings.MEDIA_ROOT = str(tmp_path)
+		modelo = ModeloDocumento.objects.create(
+			titulo='Proposta', tipo='proposta', conteudo_html='<p>x</p>',
+			eh_global=True, criado_por=admin_user,
+		)
+		doc_a = DocumentoGerado.objects.create(
+			modelo=modelo, modelo_versao_snapshot=1, venda=venda, titulo='Proposta A',
+			conteudo_final_html='<p>x</p>', status=StatusDocumento.FINALIZADO, criado_por=admin_user,
+		)
+		doc_b = DocumentoGerado.objects.create(
+			modelo=modelo, modelo_versao_snapshot=1, venda=venda, titulo='Proposta B',
+			conteudo_final_html='<p>x</p>', status=StatusDocumento.FINALIZADO, criado_por=admin_user,
+		)
+		empate = doc_b.criado_em
+		DocumentoGerado.objects.filter(pk__in=[doc_a.pk, doc_b.pk]).update(criado_em=empate)
+		assert doc_b.pk > doc_a.pk  # premissa do teste: b tem id maior
+		client.force_login(admin_user)
+		url = reverse('venda-documento-upload', kwargs={'venda_uuid': venda.uuid})
+		client.post(url, {'tipo': 'proposta_assinada', 'arquivo_assinado': _fake_file()})
+		novo = VendaDocumento.objects.get(venda=venda, tipo='proposta_assinada')
+		assert novo.documento_gerado_id == doc_b.id
+
 
 # ─── VendaDocumentoAprovarView ────────────────────────────────────────────────
 

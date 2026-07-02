@@ -80,7 +80,14 @@ class RegisterVendaIntercalada(models.Model):
 	valor_intercalada = models.CharField('Valor da intercalada', blank=True, null=True, max_length=50, default=00.00)
 
 
+class VendaDocumentoQuerySet(models.QuerySet):
+	def vigentes(self):
+		return self.exclude(status='arquivado')
+
+
 class VendaDocumento(models.Model):
+
+	objects = VendaDocumentoQuerySet.as_manager()
 
 	TIPO_CHOICES = [
 		('proposta_assinada', 'Proposta Assinada'),

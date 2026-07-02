@@ -298,7 +298,7 @@ class ReservadoDetalheView(TemplateView):
         context['proposta_disponivel'] = proposta_disponivel
         context['venda_documentos'] = (
             VendaDocumento.objects.filter(venda=venda)
-            .exclude(status='arquivado')
+            .vigentes()
             .select_related('enviado_por', 'aprovado_por', 'documento_gerado')
             if venda else VendaDocumento.objects.none()
         )
@@ -377,7 +377,7 @@ class PreVendaDetalheView(LoginRequiredMixin, View):
                 'disponivel': doc is not None,
             })
 
-        docs_venda = VendaDocumento.objects.filter(venda=venda).exclude(status='arquivado')
+        docs_venda = VendaDocumento.objects.filter(venda=venda).vigentes()
 
         proposta_aprovada = docs_venda.filter(tipo='proposta_assinada', status='aprovado').first()
         contrato_aprovado = docs_venda.filter(tipo='contrato_assinado', status='aprovado').first()
@@ -409,7 +409,7 @@ class VendaDocumentoUploadView(LoginRequiredMixin, View):
 
         ciclo_atual = (
             VendaDocumento.objects.filter(venda=venda)
-            .exclude(status='arquivado')
+            .vigentes()
             .aggregate(Max('ciclo'))['ciclo__max'] or 1
         )
         VendaDocumento.objects.create(

@@ -59,6 +59,9 @@ class GerarDocumentoEtapaGateTest(TestCase):
 		)
 
 	def test_analise_oferece_apenas_proposta(self):
+		"""Sem proposta_assinada aprovada com documento_gerado vinculado, cai no
+		fallback _TIPOS_GATE_ANALISE — a situação ANALISE do lote é só coincidência
+		do cenário de teste, não é mais o mecanismo do gate."""
 		lote = _make_lote(self.quadra, situacao='ANALISE')
 		venda = RegisterVenda.objects.create(lote=lote, tipo_venda='ANALISE')
 		url = reverse('documentos:gerar-documento', args=[venda.pk])
@@ -67,16 +70,50 @@ class GerarDocumentoEtapaGateTest(TestCase):
 		self.assertIn('proposta', response.context['modelos_por_tipo'])
 		self.assertNotIn('contrato', response.context['modelos_por_tipo'])
 
-	def test_reservado_oferece_proposta_e_contrato(self):
-		lote = _make_lote(self.quadra, situacao='RESERVADO')
-		venda = RegisterVenda.objects.create(lote=lote, tipo_venda='RESERVADO')
+	def test_proposta_aprovada_com_lastro_libera_contrato_independente_da_situacao(self):
+		"""Contrato libera quando existe proposta_assinada aprovada com documento_gerado
+		vinculado — a situação do lote deixou de ser o critério (por isso ANALISE aqui,
+		de propósito, não RESERVADO)."""
+		from documentos.models import DocumentoGerado, StatusDocumento
+		from vendas.models import VendaDocumento
+
+		lote = _make_lote(self.quadra, situacao='ANALISE')
+		venda = RegisterVenda.objects.create(lote=lote, tipo_venda='ANALISE')
+		modelo_proposta = ModeloDocumento.objects.get(tipo='proposta')
+		doc_gerado = DocumentoGerado.objects.create(
+			modelo=modelo_proposta, modelo_versao_snapshot=1, venda=venda, titulo='Proposta',
+			conteudo_final_html='<p>x</p>', status=StatusDocumento.FINALIZADO, criado_por=self.user,
+		)
+		VendaDocumento.objects.create(
+			venda=venda, tipo='proposta_assinada', status='aprovado',
+			documento_gerado=doc_gerado, enviado_por=self.user, arquivo_assinado='fake/p.pdf',
+		)
 		url = reverse('documentos:gerar-documento', args=[venda.pk])
 		response = self.client.get(url)
-		self.assertEqual(response.status_code, 200)
-		self.assertIn('proposta', response.context['modelos_por_tipo'])
 		self.assertIn('contrato', response.context['modelos_por_tipo'])
 
+	def test_reservado_sem_proposta_aprovada_vinculada_nao_libera_contrato(self):
+		"""Caso negativo — é exatamente o buraco que a regra antiga tinha: lote em
+		RESERVADO não bastava mais que estar em ANALISE, se ninguém aprovou proposta com
+		lastro. Reproduz o cenário real da venda 301 (proposta aprovada só por upload
+		avulso, sem documento_gerado) e confirma que fica bloqueado."""
+		from vendas.models import VendaDocumento
+
+		lote = _make_lote(self.quadra, situacao='RESERVADO')
+		venda = RegisterVenda.objects.create(lote=lote, tipo_venda='RESERVADO')
+		VendaDocumento.objects.create(
+			venda=venda, tipo='proposta_assinada', status='aprovado',
+			enviado_por=self.user, arquivo_assinado='fake/p.pdf',
+			# documento_gerado=None — upload avulso, sem lastro, igual à venda 301
+		)
+		url = reverse('documentos:gerar-documento', args=[venda.pk])
+		response = self.client.get(url)
+		self.assertNotIn('contrato', response.context['modelos_por_tipo'])
+
 	def test_post_gerar_contrato_em_analise_bloqueado(self):
+		"""Sem proposta_assinada aprovada com documento_gerado vinculado, contrato
+		fica bloqueado no POST — a situação ANALISE do lote é só coincidência do
+		cenário de teste, não é mais o mecanismo do gate."""
 		lote = _make_lote(self.quadra, situacao='ANALISE')
 		venda = RegisterVenda.objects.create(lote=lote, tipo_venda='ANALISE')
 		url = reverse('documentos:gerar-documento', args=[venda.pk])

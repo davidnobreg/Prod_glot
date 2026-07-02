@@ -104,7 +104,7 @@ class AnaliseView(TemplateView):
             'empr', None
         )
 
-        _tipos_ok = _tipos_disponiveis(self.request.user, lote.situacao)
+        _tipos_ok = _tipos_disponiveis(self.request.user, venda)
 
         modelos_por_tipo = {}
         if empreendimento:
@@ -252,7 +252,7 @@ class ReservadoDetalheView(TemplateView):
 
         _tipos_ok = _tipos_disponiveis(
             self.request.user,
-            getattr(getattr(venda, 'lote', None), 'situacao', None),
+            venda,
         )
 
         modelos_por_tipo = {}

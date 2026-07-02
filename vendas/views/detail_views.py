@@ -21,6 +21,7 @@ from documentos.models import (
 	TipoDocumento,
 )
 from documentos.views_gerar import _tipos_disponiveis
+from vendas.views.create_views import _documento_assinado_com_lastro
 
 @method_decorator(has_permission_decorator('reservado'), name='dispatch')
 class ReservadoView(TemplateView):
@@ -294,6 +295,15 @@ class ReservadoDetalheView(TemplateView):
             ).exists()
             if venda else False
         )
+        proposta_com_lastro = (
+            _documento_assinado_com_lastro(venda, 'proposta_assinada') if venda else False
+        )
+        contrato_com_lastro = (
+            _documento_assinado_com_lastro(venda, 'contrato_assinado') if venda else False
+        )
+        context['proposta_com_lastro'] = proposta_com_lastro
+        context['contrato_com_lastro'] = contrato_com_lastro
+        context['pre_venda_liberada'] = proposta_com_lastro and contrato_com_lastro
         context['modelos_por_tipo'] = modelos_por_tipo
         context['docs_existentes'] = docs_existentes
         context['proposta_disponivel'] = proposta_disponivel

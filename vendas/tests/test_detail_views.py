@@ -11,6 +11,18 @@ def _fake_file(name='test.pdf'):
 	return SimpleUploadedFile(name, b'%PDF-1.4 fake', content_type='application/pdf')
 
 
+def _documento_gerado_finalizado(venda, admin_user, tipo):
+	from documentos.models import ModeloDocumento, DocumentoGerado, StatusDocumento
+	modelo = ModeloDocumento.objects.create(
+		titulo=f'{tipo.title()} Padrão', tipo=tipo, conteudo_html='<p>x</p>',
+		eh_global=True, criado_por=admin_user,
+	)
+	return DocumentoGerado.objects.create(
+		modelo=modelo, modelo_versao_snapshot=1, venda=venda, titulo=tipo.title(),
+		conteudo_final_html='<p>x</p>', status=StatusDocumento.FINALIZADO, criado_por=admin_user,
+	)
+
+
 # ─── ReservadoView ────────────────────────────────────────────────────────────
 
 class TestReservadoView:
@@ -156,6 +168,80 @@ class TestReservadoDetalheView:
 		url = reverse('reservadoDetalhes', kwargs={'reserva_uuid': venda.lote.uuid})
 		response = client.get(url)
 		assert response.context['proposta_aprovada'] is True
+
+	def test_pre_venda_liberada_false_sem_documentos(self, client, admin_user, venda):
+		client.force_login(admin_user)
+		url = reverse('reservadoDetalhes', kwargs={'reserva_uuid': venda.lote.uuid})
+		response = client.get(url)
+		assert response.context['pre_venda_liberada'] is False
+
+	def test_pre_venda_liberada_false_so_com_proposta(
+		self, client, admin_user, venda, settings, tmp_path
+	):
+		"""Reproduz o bug relatado em teste manual: botão não pode ficar habilitado só com proposta."""
+		settings.DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+		settings.MEDIA_ROOT = str(tmp_path)
+		doc_gerado = _documento_gerado_finalizado(venda, admin_user, 'proposta')
+		VendaDocumento.objects.create(
+			venda=venda, tipo='proposta_assinada', status='aprovado', ciclo=1,
+			arquivo_assinado=_fake_file(), enviado_por=admin_user, documento_gerado=doc_gerado,
+		)
+		client.force_login(admin_user)
+		url = reverse('reservadoDetalhes', kwargs={'reserva_uuid': venda.lote.uuid})
+		response = client.get(url)
+		assert response.context['pre_venda_liberada'] is False
+
+	def test_pre_venda_liberada_false_so_com_contrato(
+		self, client, admin_user, venda, settings, tmp_path
+	):
+		settings.DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+		settings.MEDIA_ROOT = str(tmp_path)
+		doc_gerado = _documento_gerado_finalizado(venda, admin_user, 'contrato')
+		VendaDocumento.objects.create(
+			venda=venda, tipo='contrato_assinado', status='aprovado', ciclo=1,
+			arquivo_assinado=_fake_file(), enviado_por=admin_user, documento_gerado=doc_gerado,
+		)
+		client.force_login(admin_user)
+		url = reverse('reservadoDetalhes', kwargs={'reserva_uuid': venda.lote.uuid})
+		response = client.get(url)
+		assert response.context['pre_venda_liberada'] is False
+
+	def test_pre_venda_liberada_false_proposta_aprovada_sem_documento_gerado(
+		self, client, admin_user, venda, settings, tmp_path
+	):
+		"""proposta_aprovada (contexto legado) fica True, mas pre_venda_liberada exige lastro — continua False."""
+		settings.DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+		settings.MEDIA_ROOT = str(tmp_path)
+		VendaDocumento.objects.create(
+			venda=venda, tipo='proposta_assinada', status='aprovado', ciclo=1,
+			arquivo_assinado=_fake_file(), enviado_por=admin_user,
+			# documento_gerado=None — de propósito
+		)
+		client.force_login(admin_user)
+		url = reverse('reservadoDetalhes', kwargs={'reserva_uuid': venda.lote.uuid})
+		response = client.get(url)
+		assert response.context['proposta_aprovada'] is True
+		assert response.context['pre_venda_liberada'] is False
+
+	def test_pre_venda_liberada_true_com_proposta_e_contrato_vinculados(
+		self, client, admin_user, venda, settings, tmp_path
+	):
+		settings.DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+		settings.MEDIA_ROOT = str(tmp_path)
+		doc_proposta = _documento_gerado_finalizado(venda, admin_user, 'proposta')
+		doc_contrato = _documento_gerado_finalizado(venda, admin_user, 'contrato')
+		VendaDocumento.objects.create(
+			venda=venda, tipo='proposta_assinada', status='aprovado', ciclo=1,
+			arquivo_assinado=_fake_file(), enviado_por=admin_user, documento_gerado=doc_proposta,
+		)
+		VendaDocumento.objects.create(
+			venda=venda, tipo='contrato_assinado', status='aprovado', ciclo=1,
+			arquivo_assinado=_fake_file(), enviado_por=admin_user, documento_gerado=doc_contrato,
+		)
+		client.force_login(admin_user)
+		url = reverse('reservadoDetalhes', kwargs={'reserva_uuid': venda.lote.uuid})
+		response = client.get(url)
+		assert response.context['pre_venda_liberada'] is True
 
 	def test_acesso_bloqueado_sem_permissao(self, client, corretor_user, venda):
 		"""Usuário sem ownership vê permissaoVenda.html (acesso restrito), não os detalhes."""

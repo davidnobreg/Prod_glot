@@ -68,11 +68,9 @@ class CancelarReservaView(View):
 
         lote = venda.lote
 
-        # Arquiva documentos ativos antes de cancelar
-        VendaDocumento.objects.filter(
-            venda=venda,
-            status__in=['pendente', 'enviado', 'aprovado']
-        ).update(status='arquivado')
+        # Arquiva documentos vigentes antes de cancelar (inclui rejeitado: venda
+        # cancelada não tem mais uso pra um documento rejeitado ficar "vigente")
+        VendaDocumento.objects.filter(venda=venda).vigentes().update(status='arquivado')
 
         # Atualiza lote
         lote.situacao = 'DISPONIVEL'

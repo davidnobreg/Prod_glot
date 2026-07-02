@@ -12,6 +12,7 @@ from rolepermissions.decorators import has_permission_decorator
 
 from empreendimentos.models import Lote
 from vendas.models import RegisterVenda, VendaDocumento
+from vendas.services import documento_gerado_mais_recente
 from clientes.models import ClienteTelefone, ClienteDocumento
 from documentos.models import (
 	DocumentoGerado,
@@ -298,7 +299,7 @@ class ReservadoDetalheView(TemplateView):
         context['proposta_disponivel'] = proposta_disponivel
         context['venda_documentos'] = (
             VendaDocumento.objects.filter(venda=venda)
-            .exclude(status='arquivado')
+            .vigentes()
             .select_related('enviado_por', 'aprovado_por', 'documento_gerado')
             if venda else VendaDocumento.objects.none()
         )
@@ -377,7 +378,7 @@ class PreVendaDetalheView(LoginRequiredMixin, View):
                 'disponivel': doc is not None,
             })
 
-        docs_venda = VendaDocumento.objects.filter(venda=venda).exclude(status='arquivado')
+        docs_venda = VendaDocumento.objects.filter(venda=venda).vigentes()
 
         proposta_aprovada = docs_venda.filter(tipo='proposta_assinada', status='aprovado').first()
         contrato_aprovado = docs_venda.filter(tipo='contrato_assinado', status='aprovado').first()
@@ -409,16 +410,21 @@ class VendaDocumentoUploadView(LoginRequiredMixin, View):
 
         ciclo_atual = (
             VendaDocumento.objects.filter(venda=venda)
-            .exclude(status='arquivado')
+            .vigentes()
             .aggregate(Max('ciclo'))['ciclo__max'] or 1
         )
+
+        tipo = request.POST.get('tipo', 'outros')
+        documento_gerado = documento_gerado_mais_recente(venda, tipo)
+
         VendaDocumento.objects.create(
             venda=venda,
             ciclo=ciclo_atual,
-            tipo=request.POST.get('tipo', 'outros'),
+            tipo=tipo,
             arquivo_assinado=arquivo,
             observacao=request.POST.get('observacao', ''),
             enviado_por=request.user,
+            documento_gerado=documento_gerado,
         )
         messages.success(request, 'Documento enviado com sucesso.')
         return redirect('reservadoDetalhes', reserva_uuid=venda.lote.uuid)

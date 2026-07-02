@@ -1,5 +1,6 @@
 ﻿from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
 from django.db.models import Max
 from django.utils.timezone import now
 from django.views import View
@@ -410,10 +411,16 @@ class VendaDocumentoAprovarView(LoginRequiredMixin, View):
             raise Http404
 
         doc = get_object_or_404(VendaDocumento, pk=pk)
-        doc.status = 'aprovado'
-        doc.aprovado_por = request.user
-        doc.aprovado_em = now()
-        doc.save(update_fields=['status', 'aprovado_por', 'aprovado_em'])
+
+        with transaction.atomic():
+            VendaDocumento.objects.filter(
+                venda=doc.venda, tipo=doc.tipo, status='aprovado',
+            ).exclude(pk=doc.pk).update(status='arquivado')
+
+            doc.status = 'aprovado'
+            doc.aprovado_por = request.user
+            doc.aprovado_em = now()
+            doc.save(update_fields=['status', 'aprovado_por', 'aprovado_em'])
 
         messages.success(request, 'Documento aprovado.')
         return redirect('reservadoDetalhes', reserva_uuid=doc.venda.lote.uuid)

@@ -12,7 +12,7 @@ from rolepermissions.decorators import has_permission_decorator
 
 from empreendimentos.models import Lote
 from vendas.models import RegisterVenda, VendaDocumento
-from vendas.services import documento_gerado_mais_recente
+from vendas.services import checklist_documentos_cliente, documento_gerado_mais_recente
 from clientes.models import ClienteTelefone, ClienteDocumento
 from documentos.models import (
 	DocumentoGerado,
@@ -339,44 +339,7 @@ class PreVendaDetalheView(LoginRequiredMixin, View):
         )
         cliente = venda.cliente
 
-        docs_cliente = ClienteDocumento.objects.filter(
-            cliente=cliente,
-            status='disponivel',
-        )
-        tipos_disponiveis = set(docs_cliente.values_list('tipo', flat=True))
-
-        tipo_pessoa = 'PJ' if cliente and cliente.documento and len(cliente.documento) == 14 else 'PF'
-
-        docs_obrigatorios = []
-        if tipo_pessoa == 'PF':
-            tem_cnh = 'CNH' in tipos_disponiveis
-            if tem_cnh:
-                docs_obrigatorios.append('CNH')
-            else:
-                docs_obrigatorios.append('RG')
-                docs_obrigatorios.append('CPF')
-            docs_obrigatorios.append('COMPROVANTE_RESIDENCIA')
-            estado_civil = (cliente.estado_civil or '').lower()
-            if estado_civil not in ('solteiro', 'solteira'):
-                docs_obrigatorios.append('COMPROVANTE_ESTADO_CIVIL')
-        else:
-            docs_obrigatorios = [
-                'CNPJ',
-                'CONTRATO_SOCIAL',
-                'RG_CPF_ADMINISTRADOR',
-                'COMPROVANTE_RESIDENCIA',
-            ]
-
-        tipo_labels = dict(ClienteDocumento.TIPO_CHOICES)
-        checklist_cliente = []
-        for tipo in docs_obrigatorios:
-            doc = docs_cliente.filter(tipo=tipo).first()
-            checklist_cliente.append({
-                'tipo': tipo,
-                'label': tipo_labels.get(tipo, tipo),
-                'doc': doc,
-                'disponivel': doc is not None,
-            })
+        checklist_cliente = checklist_documentos_cliente(cliente)
 
         docs_venda = VendaDocumento.objects.filter(venda=venda).vigentes()
 

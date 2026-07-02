@@ -13,12 +13,18 @@ from rolepermissions.decorators import has_permission_decorator
 from ..forms import RegisterVendaForm
 from empreendimentos.forms import LoteForm
 from ..models import RegisterVenda
+from ..services import checklist_documentos_cliente
 from empreendimentos.models import Lote
 
 from core.utils import formatar_moeda
 
 from decimal import Decimal
 
+
+def _documento_assinado_com_lastro(venda, tipo):
+	return venda.documentos_assinados.vigentes().filter(
+		tipo=tipo, status='aprovado', documento_gerado__isnull=False,
+	).exists()
 
 
 @method_decorator(has_permission_decorator('criarVenda'), name='dispatch')
@@ -34,13 +40,26 @@ class EfetivarVendaView(View):
 			messages.error(request, "Apenas administradores podem efetivar vendas.")
 			return redirect('pre-venda-detalhe', venda_uuid=venda.uuid)
 
-		proposta_aprovada = venda.documentos_assinados.filter(
-			tipo='proposta_assinada',
-			status='aprovado',
-		).exists()
+		if not _documento_assinado_com_lastro(venda, 'proposta_assinada'):
+			messages.error(
+				request,
+				"Venda não pode ser efetivada sem proposta aprovada vinculada a um documento gerado.",
+			)
+			return redirect('pre-venda-detalhe', venda_uuid=venda.uuid)
 
-		if not proposta_aprovada:
-			messages.error(request, "Venda não pode ser efetivada sem proposta aprovada.")
+		if not _documento_assinado_com_lastro(venda, 'contrato_assinado'):
+			messages.error(
+				request,
+				"Venda não pode ser efetivada sem contrato assinado aprovado vinculado a um documento gerado.",
+			)
+			return redirect('pre-venda-detalhe', venda_uuid=venda.uuid)
+
+		checklist = checklist_documentos_cliente(venda.cliente)
+		if not all(item['disponivel'] for item in checklist):
+			messages.error(
+				request,
+				"Venda não pode ser efetivada: checklist de documentos do cliente incompleto.",
+			)
 			return redirect('pre-venda-detalhe', venda_uuid=venda.uuid)
 
 		venda.dt_venda = timezone.localdate()

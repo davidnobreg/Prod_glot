@@ -52,31 +52,90 @@ class TestCriarVendaView:
 		assert response.status_code == 403
 
 
+@pytest.fixture
+def documento_gerado_finalizado(db, venda_pre_venda, admin_user):
+	from documentos.models import ModeloDocumento, DocumentoGerado, StatusDocumento
+	modelo = ModeloDocumento.objects.create(
+		titulo='Proposta Padrão', tipo='proposta', conteudo_html='<p>x</p>',
+		eh_global=True, criado_por=admin_user,
+	)
+	return DocumentoGerado.objects.create(
+		modelo=modelo, modelo_versao_snapshot=1, venda=venda_pre_venda, titulo='Proposta',
+		conteudo_final_html='<p>x</p>', status=StatusDocumento.FINALIZADO, criado_por=admin_user,
+	)
+
+
+@pytest.fixture
+def contrato_gerado_finalizado(db, venda_pre_venda, admin_user):
+	from documentos.models import ModeloDocumento, DocumentoGerado, StatusDocumento
+	modelo = ModeloDocumento.objects.create(
+		titulo='Contrato Padrão', tipo='contrato', conteudo_html='<p>x</p>',
+		eh_global=True, criado_por=admin_user,
+	)
+	return DocumentoGerado.objects.create(
+		modelo=modelo, modelo_versao_snapshot=1, venda=venda_pre_venda, titulo='Contrato',
+		conteudo_final_html='<p>x</p>', status=StatusDocumento.FINALIZADO, criado_por=admin_user,
+	)
+
+
 class TestEfetivarVendaView:
 
 	@pytest.fixture
-	def proposta_aprovada(self, venda_pre_venda, admin_user):
+	def proposta_aprovada(self, venda_pre_venda, admin_user, documento_gerado_finalizado):
 		return VendaDocumento.objects.create(
 			venda=venda_pre_venda,
 			tipo='proposta_assinada',
 			status='aprovado',
 			enviado_por=admin_user,
 			arquivo_assinado='fake/proposta.pdf',
+			documento_gerado=documento_gerado_finalizado,
 		)
 
-	def test_post_seta_venda_vendido(self, client, admin_user, venda_pre_venda, proposta_aprovada):
+	@pytest.fixture
+	def contrato_aprovado(self, venda_pre_venda, admin_user, contrato_gerado_finalizado):
+		return VendaDocumento.objects.create(
+			venda=venda_pre_venda,
+			tipo='contrato_assinado',
+			status='aprovado',
+			enviado_por=admin_user,
+			arquivo_assinado='fake/contrato.pdf',
+			documento_gerado=contrato_gerado_finalizado,
+		)
+
+	@pytest.fixture
+	def checklist_cliente_completo(self, venda_pre_venda):
+		from clientes.models import ClienteDocumento
+		ClienteDocumento.objects.create(
+			cliente=venda_pre_venda.cliente, tipo='CNH', arquivo='fake/cnh.pdf', status='disponivel',
+		)
+		ClienteDocumento.objects.create(
+			cliente=venda_pre_venda.cliente, tipo='COMPROVANTE_RESIDENCIA',
+			arquivo='fake/comp.pdf', status='disponivel',
+		)
+		# cliente_pf (conftest) tem estado_civil='solteiro' — COMPROVANTE_ESTADO_CIVIL não obrigatório
+
+	def test_post_seta_venda_vendido(
+		self, client, admin_user, venda_pre_venda, proposta_aprovada, contrato_aprovado,
+		checklist_cliente_completo,
+	):
 		client.force_login(admin_user)
 		client.post(reverse('efetivar-venda', kwargs={'venda_uuid': venda_pre_venda.uuid}))
 		venda_pre_venda.refresh_from_db()
 		assert venda_pre_venda.tipo_venda == 'VENDIDO'
 
-	def test_post_seta_lote_vendido(self, client, admin_user, venda_pre_venda, proposta_aprovada):
+	def test_post_seta_lote_vendido(
+		self, client, admin_user, venda_pre_venda, proposta_aprovada, contrato_aprovado,
+		checklist_cliente_completo,
+	):
 		client.force_login(admin_user)
 		client.post(reverse('efetivar-venda', kwargs={'venda_uuid': venda_pre_venda.uuid}))
 		venda_pre_venda.lote.refresh_from_db()
 		assert venda_pre_venda.lote.situacao == 'VENDIDO'
 
-	def test_dt_venda_preenchida_apos_efetivar(self, client, admin_user, venda_pre_venda, proposta_aprovada):
+	def test_dt_venda_preenchida_apos_efetivar(
+		self, client, admin_user, venda_pre_venda, proposta_aprovada, contrato_aprovado,
+		checklist_cliente_completo,
+	):
 		client.force_login(admin_user)
 		client.post(reverse('efetivar-venda', kwargs={'venda_uuid': venda_pre_venda.uuid}))
 		venda_pre_venda.refresh_from_db()
@@ -90,6 +149,38 @@ class TestEfetivarVendaView:
 		assert venda_pre_venda.tipo_venda != 'VENDIDO'
 
 	def test_sem_proposta_aprovada_nao_efetiva(self, client, admin_user, venda_pre_venda):
+		client.force_login(admin_user)
+		client.post(reverse('efetivar-venda', kwargs={'venda_uuid': venda_pre_venda.uuid}))
+		venda_pre_venda.refresh_from_db()
+		assert venda_pre_venda.tipo_venda != 'VENDIDO'
+
+	def test_sem_contrato_aprovado_nao_efetiva(
+		self, client, admin_user, venda_pre_venda, proposta_aprovada, checklist_cliente_completo,
+	):
+		"""Só proposta aprovada, sem contrato — não efetiva."""
+		client.force_login(admin_user)
+		client.post(reverse('efetivar-venda', kwargs={'venda_uuid': venda_pre_venda.uuid}))
+		venda_pre_venda.refresh_from_db()
+		assert venda_pre_venda.tipo_venda != 'VENDIDO'
+
+	def test_checklist_incompleto_nao_efetiva(
+		self, client, admin_user, venda_pre_venda, proposta_aprovada, contrato_aprovado,
+	):
+		"""Proposta e contrato aprovados, mas checklist do cliente incompleto — não efetiva."""
+		client.force_login(admin_user)
+		client.post(reverse('efetivar-venda', kwargs={'venda_uuid': venda_pre_venda.uuid}))
+		venda_pre_venda.refresh_from_db()
+		assert venda_pre_venda.tipo_venda != 'VENDIDO'
+
+	def test_proposta_aprovada_sem_documento_gerado_nao_efetiva(
+		self, client, admin_user, venda_pre_venda,
+	):
+		"""proposta_assinada aprovado SEM documento_gerado vinculado (caso venda 301) — bloqueia."""
+		VendaDocumento.objects.create(
+			venda=venda_pre_venda, tipo='proposta_assinada', status='aprovado',
+			enviado_por=admin_user, arquivo_assinado='fake/proposta.pdf',
+			# documento_gerado=None — de propósito
+		)
 		client.force_login(admin_user)
 		client.post(reverse('efetivar-venda', kwargs={'venda_uuid': venda_pre_venda.uuid}))
 		venda_pre_venda.refresh_from_db()

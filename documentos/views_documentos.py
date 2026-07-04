@@ -85,6 +85,23 @@ def modelo_editor(request, pk=None):
 	modelo = get_object_or_404(ModeloDocumento, pk=pk) if pk else None
 	salvar_url = reverse('documentos:modelo-salvar', args=[pk]) if pk else reverse('documentos:modelo-salvar-novo')
 	conteudo = modelo.conteudo_html if modelo else ''
+
+	empreendimentos_vinculo = []
+	if modelo:
+		vinculos = EmpreendimentoDocumento.objects.filter(
+			modelo=modelo, ativo=True,
+		).select_related('empreendimento', 'empreendimento__config_documento')
+		for v in vinculos:
+			cfg = getattr(v.empreendimento, 'config_documento', None)
+			empreendimentos_vinculo.append({
+				'id': v.empreendimento_id,
+				'nome': v.empreendimento.nome,
+				'margem_sup': cfg.margem_sup if cfg else 25,
+				'margem_dir': cfg.margem_dir if cfg else 20,
+				'margem_inf': cfg.margem_inf if cfg else 20,
+				'margem_esq': cfg.margem_esq if cfg else 30,
+			})
+
 	return render(request, 'documentos/modelo_editor.html', {
 		'modelo': modelo,
 		'tipos': TipoDocumento.choices,
@@ -95,6 +112,8 @@ def modelo_editor(request, pk=None):
 		'salvar_url': salvar_url,
 		'conteudo_inicial_json': json.dumps(conteudo),
 		'asset_ver': str(_asset_ver()),
+		'empreendimentos_vinculo': empreendimentos_vinculo,
+		'empreendimentos_json': json.dumps(empreendimentos_vinculo),
 		'cores_texto': [
 			'#000000', '#dc3545', '#fd7e14', '#ffc107',
 			'#198754', '#0d6efd', '#6f42c1', '#6c757d',

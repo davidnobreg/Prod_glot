@@ -128,6 +128,15 @@ def modelo_editor(request, pk=None):
 			'#fff3cd', '#d1e7dd', '#cfe2ff', '#f8d7da',
 			'#e2e3e5', '#ffe5b4', '#d3f9d8', '#e5dbff',
 		],
+		'fontes_familia': [
+			('DejaVu Serif', 'DejaVu Serif'),
+			('DejaVu Sans', 'DejaVu Sans'),
+			('DejaVu Mono', 'DejaVu Mono'),
+			('Liberation Serif', 'Liberation Serif'),
+			('Liberation Sans', 'Liberation Sans'),
+			('Liberation Mono', 'Liberation Mono'),
+		],
+		'fontes_tamanho': [9, 10, 11, 12, 14, 16, 18, 20, 24],
 	})
 
 

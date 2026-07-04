@@ -11,6 +11,7 @@ import { Color } from '@tiptap/extension-color'
 import { Highlight } from '@tiptap/extension-highlight'
 import { Subscript } from '@tiptap/extension-subscript'
 import { Superscript } from '@tiptap/extension-superscript'
+import { PaginationPlus } from 'tiptap-pagination-plus'
 
 // Underline NÃO é importado aqui: StarterKit v3 já o inclui (evita
 // "Duplicate extension names found: ['underline']").
@@ -18,4 +19,5 @@ window.TipTapBundle = {
   Editor, Node, mergeAttributes, StarterKit,
   TextAlign, Table, TableRow, TableCell, TableHeader,
   TextStyle, Color, Highlight, Subscript, Superscript,
+  PaginationPlus,
 }

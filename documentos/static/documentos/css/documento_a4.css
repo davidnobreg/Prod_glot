@@ -3,7 +3,7 @@
    visual A4) e o WeasyPrint (geração do PDF). Tipografia jurídica.
    ========================================================== */
 
-/* ----- Página A4 simulada no editor ----- */
+/* ----- Página A4 simulada no editor (preview estático, sem paginação) ----- */
 .editor-a4-page {
 	width: 210mm;
 	min-height: 297mm;
@@ -18,9 +18,38 @@
 	box-sizing: border-box;
 }
 
+/* ----- Página A4 com paginação visual (editor TipTap) -----
+   Usada só no editor de modelos. O tamanho/margem real da página é aplicado
+   pela extensão PaginationPlus diretamente no elemento .ProseMirror (classe
+   .rm-with-pagination) — este wrapper fica neutro em largura/padding pra não
+   dobrar a caixa com a que a extensão já desenha. */
+.editor-a4-shell {
+	margin: 0 auto;
+	font-family: "Times New Roman", Times, serif;
+	font-size: 12pt;
+	line-height: 1.5;
+	color: #000;
+	box-sizing: border-box;
+}
+
+.editor-a4-shell .rm-with-pagination {
+	margin: 0 auto;
+	background: #fff;
+	box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
+}
+
+.editor-a4-shell .rm-page-footer-right,
+.editor-a4-shell .rm-page-footer-left,
+.editor-a4-shell .rm-page-header-right,
+.editor-a4-shell .rm-page-header-left {
+	font-size: 9pt;
+	color: #555;
+}
+
 /* ----- Tipografia jurídica (vale editor + PDF) ----- */
 .documento-conteudo,
-.editor-a4-page {
+.editor-a4-page,
+.editor-a4-shell {
 	text-align: justify;
 }
 
@@ -51,33 +80,55 @@ p,
 
 /* ----- Tabelas ----- */
 .documento-conteudo table,
-.editor-a4-page table {
+.editor-a4-page table,
+.editor-a4-shell table {
 	width: 100%;
 	border-collapse: collapse;
 	margin: 6pt 0;
 }
 
 .documento-conteudo td, .documento-conteudo th,
-.editor-a4-page td, .editor-a4-page th {
+.editor-a4-page td, .editor-a4-page th,
+.editor-a4-shell td, .editor-a4-shell th {
 	padding: 3pt 5pt;
 	vertical-align: top;
+}
+
+/* Sobrescreve regras que a extensão de paginação (PaginationPlus) injeta
+   globalmente pra suportar tabelas com quebra de página própria (TablePlus) —
+   não usamos esses nós, então neutralizamos aqui pra não afetar as tabelas
+   normais do editor (word-break: break-all deixava número/medida feios,
+   max-height: 300px no tbody é inofensivo na prática mas reforça a garantia). */
+.editor-a4-shell table tr td,
+.editor-a4-shell table tr th {
+	word-break: normal;
+	overflow-wrap: break-word;
+}
+
+.editor-a4-shell table tbody {
+	max-height: none;
+	overflow: visible;
 }
 
 /* Bordas visíveis das tabelas no editor (não afeta o PDF, que usa
    .documento-conteudo e controla bordas via template). */
 .editor-a4-page table td,
-.editor-a4-page table th {
+.editor-a4-page table th,
+.editor-a4-shell table td,
+.editor-a4-shell table th {
 	border: 1px solid #000;
 	padding: 6px 10px;
 	min-width: 40px;
 }
 
-.editor-a4-page table th {
+.editor-a4-page table th,
+.editor-a4-shell table th {
 	background-color: #f0f0f0;
 	font-weight: bold;
 }
 
-.editor-a4-page .selectedCell {
+.editor-a4-page .selectedCell,
+.editor-a4-shell .selectedCell {
 	background-color: #dbeafe;
 }
 
@@ -141,6 +192,9 @@ p,
 		box-shadow: none;
 		margin: 0;
 		padding: 0;
+	}
+	.editor-a4-shell .rm-with-pagination {
+		box-shadow: none;
 	}
 	.doc-var {
 		background: none;

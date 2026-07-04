@@ -24,6 +24,15 @@
 					{% endfor %}
 				</select>
 			</div>
+			<div>
+				<label class="form-label small text-muted">Empreendimento (margem)</label>
+				<select id="modeloEmpreendimento" class="form-select form-select-sm">
+					<option value="">Padrão ABNT (somente leitura)</option>
+					{% for e in empreendimentos_vinculo %}
+						<option value="{{ e.id }}">{{ e.nome }}</option>
+					{% endfor %}
+				</select>
+			</div>
 			<div class="d-flex gap-2">
 				<a href="{% url 'documentos:modelos-lista' %}" class="btn btn-outline-secondary btn-sm rounded-pill">Voltar</a>
 				<button id="btnSalvar" class="btn btn-success btn-sm rounded-pill">
@@ -169,6 +178,7 @@
 		csrf: '{{ csrf_token }}',
 		salvarUrl: '{{ salvar_url }}',
 		conteudoInicial: {{ conteudo_inicial_json|safe }},
+		empreendimentos: {{ empreendimentos_json|safe }},
 	}
 </script>
 <script src="{% static 'documentos/js/vendor/tiptap.bundle.min.js' %}?v={{ asset_ver }}"></script>

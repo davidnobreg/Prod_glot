@@ -40,3 +40,12 @@ fonte de verdade. Duas causas de divergência já identificadas:
 Por isso o botão "Páginas" na toolbar permite ligar/desligar a régua
 (`togglePagination`), e o PDF gerado via Playwright continua sendo a fonte de
 verdade pra paginação final — não o editor.
+
+## Recuo de parágrafo (IndentAttrs)
+
+Desde a Fase A da régua, `entry.js` exporta `Extension` (de `@tiptap/core`)
+além dos nós/marcas de sempre. `documentos/static/documentos/js/editor/indent-attrs.js`
+usa esse `Extension` pra declarar `indentLeft`, `indentRight` e `indentFirstLine`
+no nó `paragraph`, sem precisar redeclarar o nó inteiro (evita "Duplicate
+extension names"). Serializa como `margin-left`/`margin-right`/`text-indent`
+inline no HTML salvo — mesmo mecanismo de round-trip de negrito/cor/etc.

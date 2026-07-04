@@ -64,6 +64,7 @@
 			T.Superscript,
 			T.CharacterCount,
 			window.VariavelNode,
+			window.IndentAttrsExtension,
 			T.PaginationPlus.configure({
 				pageWidth: 794,
 				pageHeight: 1123,

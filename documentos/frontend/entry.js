@@ -2,7 +2,7 @@
 // NÃO é servido diretamente — gere o bundle e copie para
 // static/documentos/js/vendor/tiptap.bundle.min.js (ver README.md).
 // Build: npx esbuild entry.js --bundle --minify --format=iife --outfile=tiptap.bundle.min.js
-import { Editor, Node, mergeAttributes } from '@tiptap/core'
+import { Editor, Node, Extension, mergeAttributes } from '@tiptap/core'
 import { StarterKit } from '@tiptap/starter-kit'
 import { TextAlign } from '@tiptap/extension-text-align'
 import { Table, TableRow, TableCell, TableHeader } from '@tiptap/extension-table'
@@ -18,7 +18,7 @@ import { CharacterCount } from '@tiptap/extension-character-count'
 // (evita "Duplicate extension names found"). Opções de Link são passadas
 // via StarterKit.configure({ link: {...} }) em editor-init.js.
 window.TipTapBundle = {
-  Editor, Node, mergeAttributes, StarterKit,
+  Editor, Node, Extension, mergeAttributes, StarterKit,
   TextAlign, Table, TableRow, TableCell, TableHeader,
   TextStyle, Color, Highlight, Subscript, Superscript,
   PaginationPlus, CharacterCount,

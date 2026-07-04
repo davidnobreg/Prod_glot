@@ -185,6 +185,7 @@
 		salvarUrl: '{{ salvar_url }}',
 		conteudoInicial: {{ conteudo_inicial_json|safe }},
 		empreendimentos: {{ empreendimentos_json|safe }},
+		podeEditarMargem: {{ pode_editar_margem|yesno:"true,false" }},
 	}
 </script>
 <script src="{% static 'documentos/js/vendor/tiptap.bundle.min.js' %}?v={{ asset_ver }}"></script>
@@ -235,15 +236,22 @@
 	   ficam na metade superior) para que os dois tipos de marcador nunca
 	   se sobreponham na mesma posição X quando o recuo é 0 — senão o
 	   marcador de recuo, por vir depois no DOM, rouba o mousedown do de
-	   margem. */
+	   margem.
+	   Dentro dessa faixa de recuo (12px), o marcador de primeira linha ainda
+	   dividia a MESMA sub-faixa com o marcador esquerdo — quando
+	   indentFirstLine == 0 (padrão), os dois ficam na mesma posição X, e o
+	   esquerdo (por vir depois no DOM) rouba o mousedown, deixando o de
+	   primeira linha impossível de arrastar. Por isso a faixa de recuo é
+	   dividida em duas sub-faixas de 6px: primeira linha em cima, esquerdo/
+	   direito embaixo — nunca mais competem pelo mesmo clique. */
 	.doc-ruler-horizontal .doc-ruler-marcador-margem-esquerda,
 	.doc-ruler-horizontal .doc-ruler-marcador-margem-direita { top: 0; height: 12px; }
 	.doc-ruler-marcador-recuo-primeira-linha,
 	.doc-ruler-marcador-recuo-esquerdo,
 	.doc-ruler-marcador-recuo-direito { background: #0d6efd; }
 	.doc-ruler-marcador-recuo-direito { background: #dc3545; }
-	.doc-ruler-horizontal .doc-ruler-marcador-recuo-primeira-linha,
+	.doc-ruler-horizontal .doc-ruler-marcador-recuo-primeira-linha { top: 12px; bottom: auto; height: 6px; }
 	.doc-ruler-horizontal .doc-ruler-marcador-recuo-esquerdo,
-	.doc-ruler-horizontal .doc-ruler-marcador-recuo-direito { top: auto; bottom: 0; height: 12px; }
+	.doc-ruler-horizontal .doc-ruler-marcador-recuo-direito { top: auto; bottom: 0; height: 6px; }
 </style>
 {% endblock %}

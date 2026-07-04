@@ -52,6 +52,35 @@ def test_arrastar_marcador_de_recuo_atualiza_paragrafo(logged_browser, live_serv
 
 
 @pytest.mark.django_db
+def test_arrastar_marcador_de_recuo_primeira_linha_atualiza_paragrafo(logged_browser, live_server, modelo_com_paragrafo):
+	# Finding I4: com indentFirstLine == 0 (padrão), o marcador de primeira
+	# linha e o marcador esquerdo ficavam na mesma faixa vertical do trilho
+	# (bottom:0; height:12px) e na mesma posição X -- o esquerdo, por vir
+	# depois no DOM, roubava todo mousedown, tornando o de primeira linha
+	# impossível de arrastar. Este teste mira especificamente o marcador de
+	# primeira linha e confere que ele aplica text-indent (indentFirstLine),
+	# não margin-left (indentLeft).
+	page = logged_browser
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.pk])}'
+	page.goto(url)
+	page.wait_for_selector('#tiptapEditor .ProseMirror')
+
+	page.click('#tiptapEditor .ProseMirror p')
+
+	marcador = page.locator('.doc-ruler-marcador-recuo-primeira-linha')
+	box = marcador.bounding_box()
+	page.mouse.move(box['x'] + box['width'] / 2, box['y'] + box['height'] / 2)
+	page.mouse.down()
+	page.mouse.move(box['x'] + box['width'] / 2 + 40, box['y'] + box['height'] / 2)
+	page.mouse.up()
+
+	html_depois = page.evaluate('window._editor.getHTML()')
+	assert 'text-indent:' in html_depois
+	assert 'margin-left:' not in html_depois
+	assert 'Parágrafo alvo do recuo' in html_depois
+
+
+@pytest.mark.django_db
 def test_marcadores_de_recuo_seguem_o_paragrafo_do_cursor(logged_browser, live_server, modelo_com_paragrafo):
 	# Regressão: mover o cursor para um parágrafo com atributos de recuo
 	# diferentes deve reposicionar os marcadores (via selectionUpdate/transaction),

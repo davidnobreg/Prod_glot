@@ -97,6 +97,8 @@
 		editorAtual.on('update', atualizarContador)
 		editorAtual.on('selectionUpdate', atualizarGrupoTabela)
 		editorAtual.on('transaction', atualizarGrupoTabela)
+		editorAtual.on('selectionUpdate', atualizarMarcadoresDeRecuo)
+		editorAtual.on('transaction', atualizarMarcadoresDeRecuo)
 	}
 
 	iniciarAutosave(editor)
@@ -216,6 +218,20 @@
 		})
 	})
 
+	// ---- Recuo de parágrafo: sincroniza marcadores com o cursor e aplica no drop ----
+	function atualizarMarcadoresDeRecuo() {
+		const attrs = editorAtivo().getAttributes('paragraph')
+		ruler.setIndent({
+			indentLeft: attrs.indentLeft || 0,
+			indentRight: attrs.indentRight || 0,
+			indentFirstLine: attrs.indentFirstLine || 0,
+		})
+	}
+
+	ruler.onIndentDrop(novoIndent => {
+		editorAtivo().chain().focus().updateAttributes('paragraph', novoIndent).run()
+	})
+
 	// ---- Toggle de paginação visual ----
 	const btnPaginacao = document.getElementById('btnTogglePaginacao')
 	if (btnPaginacao) {
@@ -313,6 +329,7 @@
 		}
 	}
 	atualizarGrupoTabela()
+	atualizarMarcadoresDeRecuo()
 
 	// ---- Cor do texto (paleta fixa) ----
 	document.querySelectorAll('[data-color]').forEach(sw => {

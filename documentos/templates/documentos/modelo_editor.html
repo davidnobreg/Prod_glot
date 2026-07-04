@@ -229,5 +229,21 @@
 	.doc-ruler-marcador { position: absolute; width: 8px; height: 8px; background: #495057; transform: translateX(-50%); }
 	.doc-ruler-horizontal .doc-ruler-marcador { top: 0; height: 100%; }
 	.doc-ruler-vertical .doc-ruler-marcador { left: 0; width: 100%; transform: translateY(-50%); }
+
+	/* Marcadores de recuo de parágrafo: azul (esquerdo/primeira linha), vermelho (direito).
+	   Ocupam só a metade inferior do trilho horizontal (marcadores de margem
+	   ficam na metade superior) para que os dois tipos de marcador nunca
+	   se sobreponham na mesma posição X quando o recuo é 0 — senão o
+	   marcador de recuo, por vir depois no DOM, rouba o mousedown do de
+	   margem. */
+	.doc-ruler-horizontal .doc-ruler-marcador-margem-esquerda,
+	.doc-ruler-horizontal .doc-ruler-marcador-margem-direita { top: 0; height: 12px; }
+	.doc-ruler-marcador-recuo-primeira-linha,
+	.doc-ruler-marcador-recuo-esquerdo,
+	.doc-ruler-marcador-recuo-direito { background: #0d6efd; }
+	.doc-ruler-marcador-recuo-direito { background: #dc3545; }
+	.doc-ruler-horizontal .doc-ruler-marcador-recuo-primeira-linha,
+	.doc-ruler-horizontal .doc-ruler-marcador-recuo-esquerdo,
+	.doc-ruler-horizontal .doc-ruler-marcador-recuo-direito { top: auto; bottom: 0; height: 12px; }
 </style>
 {% endblock %}

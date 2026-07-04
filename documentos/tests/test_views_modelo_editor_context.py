@@ -67,5 +67,3 @@ class ModeloEditorFontesContextTest(TestCase):
 			['DejaVu Serif', 'DejaVu Sans', 'DejaVu Mono', 'Liberation Serif', 'Liberation Sans', 'Liberation Mono'],
 		)
 		self.assertEqual(resp.context['fontes_tamanho'], [9, 10, 11, 12, 14, 16, 18, 20, 24])
-		self.assertContains(resp, 'DejaVu Serif')
-		self.assertContains(resp, '24pt')

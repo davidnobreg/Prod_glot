@@ -131,6 +131,53 @@
 		arrastarVertical(marcadorSup, y => { margens.top = Math.round(y) })
 		arrastarVertical(marcadorInf, y => { margens.bottom = Math.round(pageHeightPx - y) })
 
+		// ---- Marcadores de recuo de parágrafo (primeira linha, esquerdo, direito) ----
+		const marcadorRecuoPrimeiraLinha = criarMarcador('recuo-primeira-linha', 'ew-resize')
+		const marcadorRecuoEsquerdo = criarMarcador('recuo-esquerdo', 'ew-resize')
+		const marcadorRecuoDireito = criarMarcador('recuo-direito', 'ew-resize')
+		horiz.appendChild(marcadorRecuoPrimeiraLinha)
+		horiz.appendChild(marcadorRecuoEsquerdo)
+		horiz.appendChild(marcadorRecuoDireito)
+
+		let indentAtual = { indentLeft: 0, indentRight: 0, indentFirstLine: 0 }
+		let onIndentDropCb = null
+
+		function repintarIndent() {
+			const baseEsq = margens.left + indentAtual.indentLeft
+			marcadorRecuoEsquerdo.style.left = `${baseEsq}px`
+			marcadorRecuoPrimeiraLinha.style.left = `${baseEsq + indentAtual.indentFirstLine}px`
+			marcadorRecuoDireito.style.left = `${pageWidthPx - margens.right - indentAtual.indentRight}px`
+		}
+		repintarIndent()
+
+		function arrastarIndent(marcador, aplicar) {
+			marcador.addEventListener('mousedown', e => {
+				e.preventDefault()
+				e.stopPropagation()
+				function onMove(ev) {
+					const rect = horiz.getBoundingClientRect()
+					const x = Math.max(0, Math.min(pageWidthPx, ev.clientX - rect.left))
+					aplicar(x)
+					repintarIndent()
+				}
+				function onUp() {
+					document.removeEventListener('mousemove', onMove)
+					document.removeEventListener('mouseup', onUp)
+					if (onIndentDropCb) { onIndentDropCb({ ...indentAtual }) }
+				}
+				document.addEventListener('mousemove', onMove)
+				document.addEventListener('mouseup', onUp)
+			})
+		}
+
+		arrastarIndent(marcadorRecuoEsquerdo, x => { indentAtual.indentLeft = Math.round(x - margens.left) })
+		arrastarIndent(marcadorRecuoPrimeiraLinha, x => {
+			indentAtual.indentFirstLine = Math.round(x - margens.left - indentAtual.indentLeft)
+		})
+		arrastarIndent(marcadorRecuoDireito, x => {
+			indentAtual.indentRight = Math.round(pageWidthPx - margens.right - x)
+		})
+
 		horizContainer.appendChild(horiz)
 		vertContainer.appendChild(vert)
 
@@ -141,9 +188,15 @@
 			setMargens(novasMargensPx) {
 				margens = { ...margens, ...novasMargensPx }
 				repintar()
+				repintarIndent()
 			},
 			setReadOnly(valor) { readOnly = valor },
 			onDrop(callback) { onDropCb = callback },
+			setIndent(novoIndent) {
+				indentAtual = { ...indentAtual, ...novoIndent }
+				repintarIndent()
+			},
+			onIndentDrop(callback) { onIndentDropCb = callback },
 		}
 	}
 

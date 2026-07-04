@@ -85,7 +85,22 @@
 		content: cfg.conteudoInicial || '',
 	})
 	window._editor = editor
+
+	// Resolve sempre a instância viva: após um drag de margem, o editor
+	// original é destruído e substituído — este helper evita que handlers
+	// registrados antes do drag continuem presos à instância morta.
+	function editorAtivo() { return window._editor }
+
+	// Listeners de instância do TipTap/ProseMirror (não são eventos DOM):
+	// precisam ser re-registrados a cada novo Editor criado.
+	function registrarListenersDoEditor(editorAtual) {
+		editorAtual.on('update', atualizarContador)
+		editorAtual.on('selectionUpdate', atualizarGrupoTabela)
+		editorAtual.on('transaction', atualizarGrupoTabela)
+	}
+
 	iniciarAutosave(editor)
+	registrarListenersDoEditor(editor)
 
 	// ---- Régua (margem de página) ----
 	const empreendimentos = cfg.empreendimentos || []
@@ -180,6 +195,7 @@
 			content: htmlAtual,
 		})
 		window._editor = novoEditor
+		registrarListenersDoEditor(novoEditor)
 		try { novoEditor.commands.setTextSelection({ from, to }) } catch (e) { /* seleção fora do range após edição concorrente — ignora */ }
 		iniciarAutosave(novoEditor)
 	}
@@ -204,7 +220,7 @@
 	const btnPaginacao = document.getElementById('btnTogglePaginacao')
 	if (btnPaginacao) {
 		btnPaginacao.addEventListener('click', () => {
-			editor.chain().focus().togglePagination().run()
+			editorAtivo().chain().focus().togglePagination().run()
 			btnPaginacao.classList.toggle('active')
 		})
 	}
@@ -213,10 +229,9 @@
 	const contadorCaracteres = document.getElementById('contadorCaracteres')
 	function atualizarContador() {
 		if (contadorCaracteres) {
-			contadorCaracteres.textContent = `${editor.storage.characterCount.characters()} caracteres`
+			contadorCaracteres.textContent = `${editorAtivo().storage.characterCount.characters()} caracteres`
 		}
 	}
-	editor.on('update', atualizarContador)
 	atualizarContador()
 
 	// ---- Colar sem formatação (força texto puro no próximo paste) ----
@@ -225,11 +240,11 @@
 	if (btnColarPuro) {
 		btnColarPuro.addEventListener('click', () => {
 			colarTextoPuro = true
-			editor.chain().focus().run()
+			editorAtivo().chain().focus().run()
 			btnColarPuro.classList.add('active')
 		})
 	}
-	editor.view.dom.addEventListener('paste', e => {
+	elEditor.addEventListener('paste', e => {
 		if (!colarTextoPuro) { return }
 		e.preventDefault()
 		e.stopImmediatePropagation()
@@ -239,7 +254,7 @@
 			.split(/\r\n|\r|\n/)
 			.map(linha => `<p>${linha || '<br>'}</p>`)
 			.join('')
-		editor.chain().focus().insertContent(escapado).run()
+		editorAtivo().chain().focus().insertContent(escapado).run()
 		colarTextoPuro = false
 		btnColarPuro.classList.remove('active')
 	}, true)
@@ -249,7 +264,7 @@
 		btn.addEventListener('click', e => {
 			e.preventDefault()
 			const acao = btn.dataset.action
-			const chain = editor.chain().focus()
+			const chain = editorAtivo().chain().focus()
 			switch (acao) {
 				case 'bold': chain.toggleBold().run(); break
 				case 'italic': chain.toggleItalic().run(); break
@@ -266,7 +281,7 @@
 				case 'superscript': chain.toggleSuperscript().run(); break
 				case 'hr': chain.setHorizontalRule().run(); break
 				case 'link':
-					if (editor.isActive('link')) {
+					if (editorAtivo().isActive('link')) {
 						chain.unsetLink().run()
 					} else {
 						const url = window.prompt('URL do link:')
@@ -294,18 +309,16 @@
 	const grupoTabela = document.getElementById('grupoTabela')
 	function atualizarGrupoTabela() {
 		if (grupoTabela) {
-			grupoTabela.style.display = editor.isActive('table') ? '' : 'none'
+			grupoTabela.style.display = editorAtivo().isActive('table') ? '' : 'none'
 		}
 	}
-	editor.on('selectionUpdate', atualizarGrupoTabela)
-	editor.on('transaction', atualizarGrupoTabela)
 	atualizarGrupoTabela()
 
 	// ---- Cor do texto (paleta fixa) ----
 	document.querySelectorAll('[data-color]').forEach(sw => {
 		sw.addEventListener('click', e => {
 			e.preventDefault()
-			editor.chain().focus().setColor(sw.dataset.color).run()
+			editorAtivo().chain().focus().setColor(sw.dataset.color).run()
 		})
 	})
 
@@ -313,7 +326,7 @@
 	document.querySelectorAll('[data-highlight]').forEach(sw => {
 		sw.addEventListener('click', e => {
 			e.preventDefault()
-			editor.chain().focus().toggleHighlight({ color: sw.dataset.highlight }).run()
+			editorAtivo().chain().focus().toggleHighlight({ color: sw.dataset.highlight }).run()
 		})
 	})
 
@@ -321,7 +334,7 @@
 	document.querySelectorAll('[data-var-slug]').forEach(item => {
 		item.addEventListener('click', () => {
 			const slug = item.dataset.varSlug
-			editor.chain().focus().insertContent({ type: 'variavel', attrs: { slug } }).run()
+			editorAtivo().chain().focus().insertContent({ type: 'variavel', attrs: { slug } }).run()
 		})
 	})
 
@@ -342,7 +355,7 @@
 		return {
 			titulo: document.getElementById('modeloTitulo').value,
 			tipo: document.getElementById('modeloTipo').value,
-			conteudo_html: editor.getHTML(),
+			conteudo_html: editorAtivo().getHTML(),
 		}
 	}
 

@@ -48,12 +48,26 @@
 		return doc.body.innerHTML
 	}
 
-	const editor = new T.Editor({
-		element: elEditor,
-		editorProps: {
-			transformPastedHTML: sanitizarHtmlColado,
-		},
-		extensions: [
+	// ---- Margens de página: empreendimento vinculado ou fallback ABNT ----
+	// Calculada antes da criação do editor para que a paginação REAL (não só
+	// a régua visual) já nasça correta, sem depender de um drag manual.
+	const MARGENS_ABNT_PX = { top: 94, right: 76, bottom: 76, left: 113 } // ABNT 25/20/20/30mm
+	const empreendimentos = cfg.empreendimentos || []
+	const margensIniciais = empreendimentos.length
+		? {
+			top: Math.round(empreendimentos[0].margem_sup * MM_TO_PX),
+			right: Math.round(empreendimentos[0].margem_dir * MM_TO_PX),
+			bottom: Math.round(empreendimentos[0].margem_inf * MM_TO_PX),
+			left: Math.round(empreendimentos[0].margem_esq * MM_TO_PX),
+		}
+		: { ...MARGENS_ABNT_PX }
+
+	// Fábrica única da lista de extensions: usada na criação inicial do editor
+	// E em reiniciarEditorComNovaMargem(). Evita duplicar a lista (Finding I2) --
+	// uma extension adicionada só num dos dois lugares sumiria silenciosamente
+	// na primeira vez que o usuário arrastasse uma margem.
+	function criarExtensoes(margensPx) {
+		return [
 			T.StarterKit.configure({ link: { openOnClick: false, autolink: true } }),
 			T.TextAlign.configure({ types: ['heading', 'paragraph'] }),
 			T.Table.configure({ resizable: true }),
@@ -69,10 +83,10 @@
 			T.PaginationPlus.configure({
 				pageWidth: 794,
 				pageHeight: 1123,
-				marginTop: Math.round(25 * MM_TO_PX),
-				marginBottom: Math.round(20 * MM_TO_PX),
-				marginLeft: Math.round(30 * MM_TO_PX),
-				marginRight: Math.round(20 * MM_TO_PX),
+				marginTop: margensPx.top,
+				marginBottom: margensPx.bottom,
+				marginLeft: margensPx.left,
+				marginRight: margensPx.right,
 				contentMarginTop: 0,
 				contentMarginBottom: 0,
 				pageGap: 30,
@@ -81,7 +95,15 @@
 				headerLeft: '',
 				headerRight: '',
 			}),
-		],
+		]
+	}
+
+	const editor = new T.Editor({
+		element: elEditor,
+		editorProps: {
+			transformPastedHTML: sanitizarHtmlColado,
+		},
+		extensions: criarExtensoes(margensIniciais),
 		content: cfg.conteudoInicial || '',
 	})
 	window._editor = editor
@@ -105,16 +127,6 @@
 	registrarListenersDoEditor(editor)
 
 	// ---- Régua (margem de página) ----
-	const empreendimentos = cfg.empreendimentos || []
-	const margensIniciais = empreendimentos.length
-		? {
-			top: Math.round(empreendimentos[0].margem_sup * MM_TO_PX),
-			right: Math.round(empreendimentos[0].margem_dir * MM_TO_PX),
-			bottom: Math.round(empreendimentos[0].margem_inf * MM_TO_PX),
-			left: Math.round(empreendimentos[0].margem_esq * MM_TO_PX),
-		}
-		: { top: 94, right: 76, bottom: 76, left: 113 } // ABNT 25/20/20/30mm
-
 	const ruler = window.DocRuler.init({
 		horizContainer: document.getElementById('rulerHorizontalSlot'),
 		vertContainer: document.getElementById('rulerVerticalSlot'),
@@ -129,19 +141,26 @@
 		if (!selectEmpreendimento || !selectEmpreendimento.value) { return null }
 		return empreendimentos.find(e => String(e.id) === selectEmpreendimento.value) || null
 	}
-	ruler.setReadOnly(!empreendimentoSelecionado())
+	// Só permite arrastar a régua se HÁ empreendimento selecionado E o usuário
+	// tem a permissão exigida pelo endpoint de persistência (documentoConfig) --
+	// ver cfg.podeEditarMargem, calculado em modelo_editor() (views_documentos.py).
+	ruler.setReadOnly(!empreendimentoSelecionado() || !cfg.podeEditarMargem)
 	if (selectEmpreendimento) {
 		selectEmpreendimento.addEventListener('change', () => {
 			const emp = empreendimentoSelecionado()
-			ruler.setReadOnly(!emp)
-			if (emp) {
-				ruler.setMargens({
+			ruler.setReadOnly(!emp || !cfg.podeEditarMargem)
+			const novasMargensPx = emp
+				? {
 					top: Math.round(emp.margem_sup * MM_TO_PX),
 					right: Math.round(emp.margem_dir * MM_TO_PX),
 					bottom: Math.round(emp.margem_inf * MM_TO_PX),
 					left: Math.round(emp.margem_esq * MM_TO_PX),
-				})
-			}
+				}
+				: { ...MARGENS_ABNT_PX }
+			ruler.setMargens(novasMargensPx)
+			// Sem isto, só a régua visual mudava — a paginação real do editor
+			// (PaginationPlus) continuava com a margem anterior (Finding I1).
+			reiniciarEditorComNovaMargem(novasMargensPx)
 		})
 	}
 
@@ -165,35 +184,7 @@
 		const novoEditor = new T.Editor({
 			element: elEditor,
 			editorProps: { transformPastedHTML: sanitizarHtmlColado },
-			extensions: [
-				T.StarterKit.configure({ link: { openOnClick: false, autolink: true } }),
-				T.TextAlign.configure({ types: ['heading', 'paragraph'] }),
-				T.Table.configure({ resizable: true }),
-				T.TableRow, T.TableHeader, T.TableCell,
-				T.TextStyle,
-				T.Color,
-				T.Highlight.configure({ multicolor: true }),
-				T.Subscript,
-				T.Superscript,
-				T.CharacterCount,
-				window.VariavelNode,
-				window.IndentAttrsExtension,
-				T.PaginationPlus.configure({
-					pageWidth: 794,
-					pageHeight: 1123,
-					marginTop: margensPx.top,
-					marginBottom: margensPx.bottom,
-					marginLeft: margensPx.left,
-					marginRight: margensPx.right,
-					contentMarginTop: 0,
-					contentMarginBottom: 0,
-					pageGap: 30,
-					footerLeft: '',
-					footerRight: 'Página {page}',
-					headerLeft: '',
-					headerRight: '',
-				}),
-			],
+			extensions: criarExtensoes(margensPx),
 			content: htmlAtual,
 		})
 		window._editor = novoEditor
@@ -216,6 +207,15 @@
 				margem_esq: Math.round(margensPx.left / MM_TO_PX),
 			}),
 		})
+			.then(r => r.json().then(d => ({ status: r.status, body: d })))
+			.then(({ status, body }) => {
+				if (status !== 200 || !body.ok) {
+					alert('Não foi possível salvar a margem da página: ' + (body.erros || ['erro desconhecido']).join('\n'))
+				}
+			})
+			.catch(() => {
+				alert('Falha de rede ao salvar a margem da página.')
+			})
 	})
 
 	// ---- Recuo de parágrafo: sincroniza marcadores com o cursor e aplica no drop ----

@@ -12,6 +12,7 @@
 	const cfg = window.EDITOR_CONFIG || {}
 	const csrf = cfg.csrf
 	let salvarUrl = cfg.salvarUrl
+	let autosaveIntervalId = null
 
 	// Margens ABNT (25/20/20/30mm sup/dir/inf/esq), mesmas de documento_a4.css,
 	// convertidas pra px (96 CSS px/polegada) — aproxima a régua visual do PDF
@@ -84,6 +85,7 @@
 		content: cfg.conteudoInicial || '',
 	})
 	window._editor = editor
+	iniciarAutosave(editor)
 
 	// ---- Régua (margem de página) ----
 	const empreendimentos = cfg.empreendimentos || []
@@ -102,6 +104,100 @@
 		pageWidthPx: 794,
 		pageHeightPx: 1123,
 		margensPx: margensIniciais,
+	})
+
+	// ---- Dropdown de empreendimento: liga/desliga edição de margem ----
+	const selectEmpreendimento = document.getElementById('modeloEmpreendimento')
+	function empreendimentoSelecionado() {
+		if (!selectEmpreendimento || !selectEmpreendimento.value) { return null }
+		return empreendimentos.find(e => String(e.id) === selectEmpreendimento.value) || null
+	}
+	ruler.setReadOnly(!empreendimentoSelecionado())
+	if (selectEmpreendimento) {
+		selectEmpreendimento.addEventListener('change', () => {
+			const emp = empreendimentoSelecionado()
+			ruler.setReadOnly(!emp)
+			if (emp) {
+				ruler.setMargens({
+					top: Math.round(emp.margem_sup * MM_TO_PX),
+					right: Math.round(emp.margem_dir * MM_TO_PX),
+					bottom: Math.round(emp.margem_inf * MM_TO_PX),
+					left: Math.round(emp.margem_esq * MM_TO_PX),
+				})
+			}
+		})
+	}
+
+	// ---- Drop do marcador de margem: reinicia o editor com nova paginação
+	// e persiste no ConfiguracaoDocumento do empreendimento selecionado ----
+	function iniciarAutosave(editorAtual) {
+		window.__autosaveInitCount = (window.__autosaveInitCount || 0) + 1 // instrumentação de teste
+		let sujoLocal = false
+		editorAtual.on('update', () => { sujoLocal = true })
+		autosaveIntervalId = setInterval(() => {
+			if (sujoLocal) { sujoLocal = false; salvar() }
+		}, 30000)
+	}
+
+	function reiniciarEditorComNovaMargem(margensPx) {
+		const { from, to } = window._editor.state.selection
+		const htmlAtual = window._editor.getHTML()
+		if (autosaveIntervalId) { clearInterval(autosaveIntervalId) }
+		window._editor.destroy()
+
+		const novoEditor = new T.Editor({
+			element: elEditor,
+			editorProps: { transformPastedHTML: sanitizarHtmlColado },
+			extensions: [
+				T.StarterKit.configure({ link: { openOnClick: false, autolink: true } }),
+				T.TextAlign.configure({ types: ['heading', 'paragraph'] }),
+				T.Table.configure({ resizable: true }),
+				T.TableRow, T.TableHeader, T.TableCell,
+				T.TextStyle,
+				T.Color,
+				T.Highlight.configure({ multicolor: true }),
+				T.Subscript,
+				T.Superscript,
+				T.CharacterCount,
+				window.VariavelNode,
+				window.IndentAttrsExtension,
+				T.PaginationPlus.configure({
+					pageWidth: 794,
+					pageHeight: 1123,
+					marginTop: margensPx.top,
+					marginBottom: margensPx.bottom,
+					marginLeft: margensPx.left,
+					marginRight: margensPx.right,
+					contentMarginTop: 0,
+					contentMarginBottom: 0,
+					pageGap: 30,
+					footerLeft: '',
+					footerRight: 'Página {page}',
+					headerLeft: '',
+					headerRight: '',
+				}),
+			],
+			content: htmlAtual,
+		})
+		window._editor = novoEditor
+		try { novoEditor.commands.setTextSelection({ from, to }) } catch (e) { /* seleção fora do range após edição concorrente — ignora */ }
+		iniciarAutosave(novoEditor)
+	}
+
+	ruler.onDrop(margensPx => {
+		reiniciarEditorComNovaMargem(margensPx)
+		const emp = empreendimentoSelecionado()
+		if (!emp) { return }
+		fetch(`/documentos/empreendimentos/${emp.id}/margens/`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+			body: JSON.stringify({
+				margem_sup: Math.round(margensPx.top / MM_TO_PX),
+				margem_dir: Math.round(margensPx.right / MM_TO_PX),
+				margem_inf: Math.round(margensPx.bottom / MM_TO_PX),
+				margem_esq: Math.round(margensPx.left / MM_TO_PX),
+			}),
+		})
 	})
 
 	// ---- Toggle de paginação visual ----
@@ -276,11 +372,4 @@
 
 	const btnSalvar = document.getElementById('btnSalvar')
 	if (btnSalvar) { btnSalvar.addEventListener('click', () => salvar(true)) }
-
-	// ---- Autosave 30s quando houver mudança ----
-	let sujo = false
-	editor.on('update', () => { sujo = true })
-	setInterval(() => {
-		if (sujo) { sujo = false; salvar() }
-	}, 30000)
 })()

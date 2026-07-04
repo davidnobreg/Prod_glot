@@ -226,5 +226,8 @@
 	.doc-ruler-margem { position: absolute; background: #ced4da; }
 	.doc-ruler-margem-esquerda, .doc-ruler-margem-direita { top: 0; height: 100%; }
 	.doc-ruler-margem-superior, .doc-ruler-margem-inferior { left: 0; width: 100%; }
+	.doc-ruler-marcador { position: absolute; width: 8px; height: 8px; background: #495057; transform: translateX(-50%); }
+	.doc-ruler-horizontal .doc-ruler-marcador { top: 0; height: 100%; }
+	.doc-ruler-vertical .doc-ruler-marcador { left: 0; width: 100%; transform: translateY(-50%); }
 </style>
 {% endblock %}

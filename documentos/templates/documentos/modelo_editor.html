@@ -139,8 +139,14 @@
 			</div>
 			<div class="card shadow-sm">
 				<div class="card-body" style="background:#e9ecef;overflow:auto;max-height:78vh;">
-					<div class="editor-a4-shell">
-						<div id="tiptapEditor"></div>
+					<div style="display:flex;">
+						<div id="rulerVerticalSlot"></div>
+						<div style="flex:1;">
+							<div id="rulerHorizontalSlot"></div>
+							<div class="editor-a4-shell">
+								<div id="tiptapEditor"></div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -184,6 +190,7 @@
 <script src="{% static 'documentos/js/vendor/tiptap.bundle.min.js' %}?v={{ asset_ver }}"></script>
 <script src="{% static 'documentos/js/editor/variavel-node.js' %}?v={{ asset_ver }}"></script>
 <script src="{% static 'documentos/js/editor/indent-attrs.js' %}?v={{ asset_ver }}"></script>
+<script src="{% static 'documentos/js/editor/ruler.js' %}?v={{ asset_ver }}"></script>
 <script src="{% static 'documentos/js/editor/editor-init.js' %}?v={{ asset_ver }}"></script>
 
 <style>
@@ -210,5 +217,14 @@
 		color: #0d6efd;
 		border-color: #b6d4fe;
 	}
+
+	/* Régua estilo Word: zonas de margem de página + ticks em polegada. */
+	.doc-ruler { position: sticky; background: #f8f9fa; border: 1px solid #adb5bd; flex-shrink: 0; z-index: 5; }
+	.doc-ruler-horizontal { height: 24px; margin-left: 24px; top: 0; }
+	.doc-ruler-vertical { width: 24px; left: 0; }
+	.doc-ruler-tick { position: absolute; top: 0; height: 100%; border-left: 1px solid #adb5bd; font-size: 9px; color: #6c757d; padding-left: 2px; }
+	.doc-ruler-margem { position: absolute; background: #ced4da; }
+	.doc-ruler-margem-esquerda, .doc-ruler-margem-direita { top: 0; height: 100%; }
+	.doc-ruler-margem-superior, .doc-ruler-margem-inferior { left: 0; width: 100%; }
 </style>
 {% endblock %}

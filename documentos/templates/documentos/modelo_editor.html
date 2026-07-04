@@ -117,6 +117,9 @@
 
 					<div class="toolbar-group">
 						<button type="button" class="btn btn-light btn-sm" data-action="clear" title="Limpar formatação"><i class="bi bi-eraser"></i></button>
+						<button type="button" id="btnColarTextoPuro" class="btn btn-light btn-sm" title="Colar sem formatação (próximo Ctrl+V vira texto puro)">
+							<i class="bi bi-clipboard-x"></i>
+						</button>
 						<button type="button" id="btnTogglePaginacao" class="btn btn-light btn-sm active" title="Mostrar/ocultar quebras de página (aproximação visual do PDF)">
 							<i class="bi bi-file-earmark-break"></i> Páginas
 						</button>
@@ -189,7 +192,8 @@
 	/* Botão "Páginas" é o único com estado real de toggle (liga/desliga
 	   a régua de paginação) -- destaque só quando .active, sem o cinza
 	   pesado do .btn-light.active padrão do Bootstrap. */
-	#btnTogglePaginacao.active {
+	#btnTogglePaginacao.active,
+	#btnColarTextoPuro.active {
 		background: #e7f1ff;
 		color: #0d6efd;
 		border-color: #b6d4fe;

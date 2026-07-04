@@ -11,6 +11,7 @@ from django.core.exceptions import ValidationError
 from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from rolepermissions.checkers import has_permission
 from rolepermissions.decorators import has_permission_decorator
 
 from empreendimentos.models import Empreendimento
@@ -114,6 +115,11 @@ def modelo_editor(request, pk=None):
 		'asset_ver': str(_asset_ver()),
 		'empreendimentos_vinculo': empreendimentos_vinculo,
 		'empreendimentos_json': json.dumps(empreendimentos_vinculo),
+		# O endpoint que persiste o arrasto da régua (empreendimento_margens_salvar)
+		# exige 'documentoConfig'; sem isto, um usuário só com 'documentoModelos'
+		# via ruler.setReadOnly() achava que podia arrastar e a persistência
+		# falhava (403) silenciosamente no backend (ver Finding I3).
+		'pode_editar_margem': has_permission(request.user, 'documentoConfig'),
 		'cores_texto': [
 			'#000000', '#dc3545', '#fd7e14', '#ffc107',
 			'#198754', '#0d6efd', '#6f42c1', '#6c757d',

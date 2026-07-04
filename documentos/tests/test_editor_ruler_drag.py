@@ -46,10 +46,13 @@ def test_arrastar_marcador_de_margem_persiste_e_preserva_texto(logged_browser, l
 	assert cfg.margem_esq != 30
 
 	# Reinício do editor não pode deixar um autosave "fantasma": deve ter
-	# rodado iniciarAutosave() exatamente duas vezes (carga inicial + 1 drop),
-	# não mais que isso (senão o setInterval antigo não foi limpo no destroy).
+	# rodado iniciarAutosave() exatamente três vezes (carga inicial + o
+	# select_option acima, que agora também reinicia o editor para repaginar
+	# com a margem do empreendimento escolhido — Finding I1 + 1 drop de
+	# margem), não mais que isso (senão o setInterval antigo não foi limpo
+	# no destroy).
 	contagem_autosave = page.evaluate('window.__autosaveInitCount')
-	assert contagem_autosave == 2
+	assert contagem_autosave == 3
 
 
 @pytest.mark.django_db

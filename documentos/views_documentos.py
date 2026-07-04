@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from rolepermissions.decorators import has_permission_decorator
 
+from empreendimentos.models import Empreendimento
 from vendas.models import RegisterVenda
 
 from . import services
@@ -320,3 +321,32 @@ def variaveis_lista(request):
 	return render(request, 'documentos/variaveis_lista.html', {
 		'variaveis': VariavelDocumento.objects.all(),
 	})
+
+
+# ----------------------------------------------------------
+# Margens de página por empreendimento (régua)
+# ----------------------------------------------------------
+@has_permission_decorator('documentoConfig')
+def empreendimento_margens_salvar(request, empreendimento_id):
+	if request.method != 'POST':
+		return JsonResponse({'ok': False, 'erros': ['Método inválido']}, status=405)
+	empreendimento = get_object_or_404(Empreendimento, pk=empreendimento_id)
+	try:
+		dados = json.loads(request.body)
+	except json.JSONDecodeError:
+		return JsonResponse({'ok': False, 'erros': ['JSON inválido']}, status=400)
+
+	campos = ('margem_sup', 'margem_dir', 'margem_inf', 'margem_esq')
+	if any(campo not in dados for campo in campos):
+		return JsonResponse({'ok': False, 'erros': ['Campos de margem ausentes']}, status=400)
+
+	erros = services.atualizar_margens_documento(
+		empreendimento,
+		margem_sup=dados['margem_sup'],
+		margem_dir=dados['margem_dir'],
+		margem_inf=dados['margem_inf'],
+		margem_esq=dados['margem_esq'],
+	)
+	if erros:
+		return JsonResponse({'ok': False, 'erros': erros}, status=400)
+	return JsonResponse({'ok': True})

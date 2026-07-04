@@ -9,6 +9,7 @@ from .views_documentos import (
     modelo_toggle_ativo,
     modelo_historico,
     variaveis_lista,
+    empreendimento_margens_salvar,
 )
 from .views import (
     proposta,
@@ -42,6 +43,7 @@ urlpatterns = [
     path('modelos/<int:pk>/historico/', modelo_historico, name='modelo-historico'),
     path('modelos/<int:pk>/duplicar/', modelo_duplicar, name='modelo-duplicar'),
     path('modelos/<int:pk>/toggle-ativo/', modelo_toggle_ativo, name='modelo-toggle-ativo'),
+    path('empreendimentos/<int:empreendimento_id>/margens/', empreendimento_margens_salvar, name='empreendimento-margens-salvar'),
     path('variaveis/', variaveis_lista, name='variaveis-lista'),
     path('proposta/<uuid:venda_uuid>/', proposta, name='proposta'),
     path('proposta/legado/<uuid:venda_uuid>/', proposta_legado, name='proposta-legado'),

@@ -14,8 +14,9 @@ import { Superscript } from '@tiptap/extension-superscript'
 import { PaginationPlus } from 'tiptap-pagination-plus'
 import { CharacterCount } from '@tiptap/extension-character-count'
 
-// Underline NÃO é importado aqui: StarterKit v3 já o inclui (evita
-// "Duplicate extension names found: ['underline']").
+// Underline e Link NÃO são importados aqui: StarterKit v3 já os inclui
+// (evita "Duplicate extension names found"). Opções de Link são passadas
+// via StarterKit.configure({ link: {...} }) em editor-init.js.
 window.TipTapBundle = {
   Editor, Node, mergeAttributes, StarterKit,
   TextAlign, Table, TableRow, TableCell, TableHeader,

@@ -53,7 +53,7 @@
 			transformPastedHTML: sanitizarHtmlColado,
 		},
 		extensions: [
-			T.StarterKit,
+			T.StarterKit.configure({ link: { openOnClick: false, autolink: true } }),
 			T.TextAlign.configure({ types: ['heading', 'paragraph'] }),
 			T.Table.configure({ resizable: true }),
 			T.TableRow, T.TableHeader, T.TableCell,
@@ -149,6 +149,14 @@
 				case 'subscript': chain.toggleSubscript().run(); break
 				case 'superscript': chain.toggleSuperscript().run(); break
 				case 'hr': chain.setHorizontalRule().run(); break
+				case 'link':
+					if (editor.isActive('link')) {
+						chain.unsetLink().run()
+					} else {
+						const url = window.prompt('URL do link:')
+						if (url) { chain.setLink({ href: url }).run() }
+					}
+					break
 				case 'undo': chain.undo().run(); break
 				case 'redo': chain.redo().run(); break
 				case 'clear': chain.unsetAllMarks().clearNodes().run(); break

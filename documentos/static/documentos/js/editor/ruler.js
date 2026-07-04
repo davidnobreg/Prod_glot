@@ -90,6 +90,7 @@
 			marcador.addEventListener('mousedown', e => {
 				if (readOnly) { return }
 				e.preventDefault()
+				const valorInicial = JSON.stringify(margens)
 				function onMove(ev) {
 					const rect = horiz.getBoundingClientRect()
 					const x = Math.max(0, Math.min(pageWidthPx, ev.clientX - rect.left))
@@ -99,7 +100,9 @@
 				function onUp() {
 					document.removeEventListener('mousemove', onMove)
 					document.removeEventListener('mouseup', onUp)
-					if (onDropCb) { onDropCb({ ...margens }) }
+					// Clique parado (mousedown+mouseup sem mousemove) não deve
+					// disparar reinício do editor nem um POST redundante.
+					if (onDropCb && JSON.stringify(margens) !== valorInicial) { onDropCb({ ...margens }) }
 				}
 				document.addEventListener('mousemove', onMove)
 				document.addEventListener('mouseup', onUp)
@@ -110,6 +113,7 @@
 			marcador.addEventListener('mousedown', e => {
 				if (readOnly) { return }
 				e.preventDefault()
+				const valorInicial = JSON.stringify(margens)
 				function onMove(ev) {
 					const rect = vert.getBoundingClientRect()
 					const y = Math.max(0, Math.min(pageHeightPx, ev.clientY - rect.top))
@@ -119,7 +123,7 @@
 				function onUp() {
 					document.removeEventListener('mousemove', onMove)
 					document.removeEventListener('mouseup', onUp)
-					if (onDropCb) { onDropCb({ ...margens }) }
+					if (onDropCb && JSON.stringify(margens) !== valorInicial) { onDropCb({ ...margens }) }
 				}
 				document.addEventListener('mousemove', onMove)
 				document.addEventListener('mouseup', onUp)
@@ -154,6 +158,7 @@
 			marcador.addEventListener('mousedown', e => {
 				e.preventDefault()
 				e.stopPropagation()
+				const valorInicial = JSON.stringify(indentAtual)
 				function onMove(ev) {
 					const rect = horiz.getBoundingClientRect()
 					const x = Math.max(0, Math.min(pageWidthPx, ev.clientX - rect.left))
@@ -163,7 +168,7 @@
 				function onUp() {
 					document.removeEventListener('mousemove', onMove)
 					document.removeEventListener('mouseup', onUp)
-					if (onIndentDropCb) { onIndentDropCb({ ...indentAtual }) }
+					if (onIndentDropCb && JSON.stringify(indentAtual) !== valorInicial) { onIndentDropCb({ ...indentAtual }) }
 				}
 				document.addEventListener('mousemove', onMove)
 				document.addEventListener('mouseup', onUp)

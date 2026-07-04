@@ -63,18 +63,6 @@
 						<button type="button" class="btn btn-light btn-sm" data-action="subscript" title="Subscrito"><i class="bi bi-subscript"></i></button>
 						<button type="button" class="btn btn-light btn-sm" data-action="superscript" title="Sobrescrito"><i class="bi bi-superscript"></i></button>
 						<button type="button" class="btn btn-light btn-sm" data-action="link" title="Inserir/remover link"><i class="bi bi-link-45deg"></i></button>
-						<select id="fontesFamilia" class="form-select form-select-sm" style="width:auto;max-width:140px;" title="Família da fonte">
-							<option value="">Fonte padrão</option>
-							{% for valor, rotulo in fontes_familia %}
-							<option value="{{ valor }}">{{ rotulo }}</option>
-							{% endfor %}
-						</select>
-						<select id="fontesTamanho" class="form-select form-select-sm" style="width:auto;" title="Tamanho da fonte">
-							<option value="">Tamanho</option>
-							{% for tamanho in fontes_tamanho %}
-							<option value="{{ tamanho }}">{{ tamanho }}pt</option>
-							{% endfor %}
-						</select>
 						<div class="dropdown d-inline">
 							<button type="button" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" title="Cor do texto"><i class="bi bi-fonts" style="color:#dc3545"></i></button>
 							<div class="dropdown-menu p-2" style="min-width:auto">
@@ -198,6 +186,14 @@
 		conteudoInicial: {{ conteudo_inicial_json|safe }},
 		empreendimentos: {{ empreendimentos_json|safe }},
 		podeEditarMargem: {{ pode_editar_margem|yesno:"true,false" }},
+		fontes: {
+			familia: [
+				{% for valor, rotulo in fontes_familia %}"{{ valor }}", {% endfor %}
+			],
+			tamanho: [
+				{% for tamanho in fontes_tamanho %}"{{ tamanho }}pt", {% endfor %}
+			],
+		},
 	}
 </script>
 <script src="{% static 'documentos/js/vendor/tiptap.bundle.min.js' %}?v={{ asset_ver }}"></script>

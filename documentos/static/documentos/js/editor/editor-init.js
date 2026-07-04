@@ -80,6 +80,7 @@
 			T.CharacterCount,
 			window.VariavelNode,
 			window.IndentAttrsExtension,
+			window.FontAttrsExtension,
 			T.PaginationPlus.configure({
 				pageWidth: 794,
 				pageHeight: 1123,
@@ -309,6 +310,8 @@
 				case 'clear': chain.unsetAllMarks().clearNodes().run(); break
 				case 'color-clear': chain.unsetColor().run(); break
 				case 'highlight-clear': chain.unsetHighlight().run(); break
+				case 'font-family-clear': chain.setMark('textStyle', { fontFamily: null }).run(); break
+				case 'font-size-clear': chain.setMark('textStyle', { fontSize: null }).run(); break
 				case 'col-before': chain.addColumnBefore().run(); break
 				case 'col-after': chain.addColumnAfter().run(); break
 				case 'col-del': chain.deleteColumn().run(); break
@@ -344,6 +347,22 @@
 		sw.addEventListener('click', e => {
 			e.preventDefault()
 			editorAtivo().chain().focus().toggleHighlight({ color: sw.dataset.highlight }).run()
+		})
+	})
+
+	// ---- Família da fonte (lista fixa) ----
+	document.querySelectorAll('[data-font-family]').forEach(btn => {
+		btn.addEventListener('click', e => {
+			e.preventDefault()
+			editorAtivo().chain().focus().setMark('textStyle', { fontFamily: btn.dataset.fontFamily }).run()
+		})
+	})
+
+	// ---- Tamanho da fonte (lista fixa, em pt) ----
+	document.querySelectorAll('[data-font-size]').forEach(btn => {
+		btn.addEventListener('click', e => {
+			e.preventDefault()
+			editorAtivo().chain().focus().setMark('textStyle', { fontSize: `${btn.dataset.fontSize}pt` }).run()
 		})
 	})
 

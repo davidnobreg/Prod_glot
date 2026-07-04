@@ -64,6 +64,24 @@
 						<button type="button" class="btn btn-light btn-sm" data-action="superscript" title="Sobrescrito"><i class="bi bi-superscript"></i></button>
 						<button type="button" class="btn btn-light btn-sm" data-action="link" title="Inserir/remover link"><i class="bi bi-link-45deg"></i></button>
 						<div class="dropdown d-inline">
+							<button type="button" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" title="Família da fonte">Fonte</button>
+							<div class="dropdown-menu p-2">
+								{% for valor, rotulo in fontes_familia %}
+								<button type="button" class="dropdown-item" data-font-family="{{ valor }}" style="font-family: {{ valor }}">{{ rotulo }}</button>
+								{% endfor %}
+								<button type="button" class="btn btn-link btn-sm p-0 mt-2 text-decoration-none" data-action="font-family-clear">Remover fonte</button>
+							</div>
+						</div>
+						<div class="dropdown d-inline">
+							<button type="button" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" title="Tamanho da fonte">Tam.</button>
+							<div class="dropdown-menu p-2">
+								{% for tamanho in fontes_tamanho %}
+								<button type="button" class="dropdown-item" data-font-size="{{ tamanho }}">{{ tamanho }}pt</button>
+								{% endfor %}
+								<button type="button" class="btn btn-link btn-sm p-0 mt-2 text-decoration-none" data-action="font-size-clear">Remover tamanho</button>
+							</div>
+						</div>
+						<div class="dropdown d-inline">
 							<button type="button" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" title="Cor do texto"><i class="bi bi-fonts" style="color:#dc3545"></i></button>
 							<div class="dropdown-menu p-2" style="min-width:auto">
 								<div class="d-flex flex-wrap gap-1" style="width:128px">
@@ -191,6 +209,7 @@
 <script src="{% static 'documentos/js/vendor/tiptap.bundle.min.js' %}?v={{ asset_ver }}"></script>
 <script src="{% static 'documentos/js/editor/variavel-node.js' %}?v={{ asset_ver }}"></script>
 <script src="{% static 'documentos/js/editor/indent-attrs.js' %}?v={{ asset_ver }}"></script>
+<script src="{% static 'documentos/js/editor/font-attrs.js' %}?v={{ asset_ver }}"></script>
 <script src="{% static 'documentos/js/editor/ruler.js' %}?v={{ asset_ver }}"></script>
 <script src="{% static 'documentos/js/editor/editor-init.js' %}?v={{ asset_ver }}"></script>
 

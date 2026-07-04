@@ -3,6 +3,7 @@
   "private": true,
   "devDependencies": {
     "@tiptap/core": "^3.0.0",
+    "@tiptap/extension-character-count": "^3.27.1",
     "@tiptap/extension-color": "^3.0.0",
     "@tiptap/extension-highlight": "^3.0.0",
     "@tiptap/extension-subscript": "^3.0.0",

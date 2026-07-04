@@ -32,6 +32,7 @@
 			T.Highlight.configure({ multicolor: true }),
 			T.Subscript,
 			T.Superscript,
+			T.CharacterCount,
 			window.VariavelNode,
 			T.PaginationPlus.configure({
 				pageWidth: 794,
@@ -61,6 +62,16 @@
 			btnPaginacao.classList.toggle('active')
 		})
 	}
+
+	// ---- Contador de caracteres (informativo, sem limite) ----
+	const contadorCaracteres = document.getElementById('contadorCaracteres')
+	function atualizarContador() {
+		if (contadorCaracteres) {
+			contadorCaracteres.textContent = `${editor.storage.characterCount.characters()} caracteres`
+		}
+	}
+	editor.on('update', atualizarContador)
+	atualizarContador()
 
 	// ---- Toolbar: botões com data-action ----
 	document.querySelectorAll('[data-action]').forEach(btn => {

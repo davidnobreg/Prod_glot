@@ -39,16 +39,20 @@
 		<div class="col-12 col-xl-9">
 			<!-- TOOLBAR -->
 			<div class="card shadow-sm mb-2">
-				<div class="card-body py-2 d-flex flex-wrap gap-1 align-items-center">
-					<button type="button" class="btn btn-light btn-sm" data-action="undo" title="Desfazer"><i class="bi bi-arrow-counterclockwise"></i></button>
+				<div class="card-body py-2 d-flex flex-wrap align-items-center toolbar-doc-editor">
+
+					<div class="toolbar-group">
+						<button type="button" class="btn btn-light btn-sm" data-action="undo" title="Desfazer"><i class="bi bi-arrow-counterclockwise"></i></button>
 						<button type="button" class="btn btn-light btn-sm" data-action="redo" title="Refazer"><i class="bi bi-arrow-clockwise"></i></button>
-						<span class="vr mx-1"></span>
-						<button class="btn btn-light btn-sm" data-action="bold"><b>B</b></button>
-					<button class="btn btn-light btn-sm" data-action="italic"><i>I</i></button>
-					<button class="btn btn-light btn-sm" data-action="underline"><u>U</u></button>
+					</div>
+					<span class="toolbar-sep"></span>
+
+					<div class="toolbar-group">
+						<button type="button" class="btn btn-light btn-sm" data-action="bold" title="Negrito"><b>B</b></button>
+						<button type="button" class="btn btn-light btn-sm" data-action="italic" title="Itálico"><i>I</i></button>
+						<button type="button" class="btn btn-light btn-sm" data-action="underline" title="Sublinhado"><u>U</u></button>
 						<button type="button" class="btn btn-light btn-sm" data-action="subscript" title="Subscrito"><i class="bi bi-subscript"></i></button>
 						<button type="button" class="btn btn-light btn-sm" data-action="superscript" title="Sobrescrito"><i class="bi bi-superscript"></i></button>
-						<span class="vr mx-1"></span>
 						<div class="dropdown d-inline">
 							<button type="button" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" title="Cor do texto"><i class="bi bi-fonts" style="color:#dc3545"></i></button>
 							<div class="dropdown-menu p-2" style="min-width:auto">
@@ -71,40 +75,57 @@
 								<button type="button" class="btn btn-link btn-sm p-0 mt-2 text-decoration-none" data-action="highlight-clear">Remover realce</button>
 							</div>
 						</div>
-					<span class="vr mx-1"></span>
-					<button class="btn btn-light btn-sm" data-action="h1">H1</button>
-					<button class="btn btn-light btn-sm" data-action="h2">H2</button>
-					<button class="btn btn-light btn-sm" data-action="p">¶</button>
-					<span class="vr mx-1"></span>
-					<button class="btn btn-light btn-sm" data-action="left"><i class="bi bi-text-left"></i></button>
-					<button class="btn btn-light btn-sm" data-action="center"><i class="bi bi-text-center"></i></button>
-					<button class="btn btn-light btn-sm" data-action="justify"><i class="bi bi-justify"></i></button>
-					<span class="vr mx-1"></span>
-					<button class="btn btn-light btn-sm" data-action="bullet"><i class="bi bi-list-ul"></i></button>
-					<button class="btn btn-light btn-sm" data-action="table"><i class="bi bi-table"></i></button>
+					</div>
+					<span class="toolbar-sep"></span>
+
+					<div class="toolbar-group">
+						<button type="button" class="btn btn-light btn-sm" data-action="h1" title="Título 1">H1</button>
+						<button type="button" class="btn btn-light btn-sm" data-action="h2" title="Título 2">H2</button>
+						<button type="button" class="btn btn-light btn-sm" data-action="p" title="Parágrafo">¶</button>
+					</div>
+					<span class="toolbar-sep"></span>
+
+					<div class="toolbar-group">
+						<button type="button" class="btn btn-light btn-sm" data-action="left" title="Alinhar à esquerda"><i class="bi bi-text-left"></i></button>
+						<button type="button" class="btn btn-light btn-sm" data-action="center" title="Centralizar"><i class="bi bi-text-center"></i></button>
+						<button type="button" class="btn btn-light btn-sm" data-action="justify" title="Justificar"><i class="bi bi-justify"></i></button>
+					</div>
+					<span class="toolbar-sep"></span>
+
+					<div class="toolbar-group">
+						<button type="button" class="btn btn-light btn-sm" data-action="bullet" title="Lista com marcadores"><i class="bi bi-list-ul"></i></button>
+					</div>
+					<span class="toolbar-sep"></span>
+
+					<div class="toolbar-group">
+						<button type="button" class="btn btn-light btn-sm" data-action="table" title="Inserir tabela"><i class="bi bi-table"></i></button>
 						<button type="button" class="btn btn-light btn-sm" data-action="hr" title="Linha horizontal"><i class="bi bi-dash-lg"></i></button>
-						<span class="vr mx-1"></span>
-						<button type="button" class="btn btn-light btn-sm" data-action="clear" title="Limpar formatação"><i class="bi bi-eraser"></i></button>
 
 						<!-- Grupo Tabela: visível só com cursor dentro de tabela -->
-						<span id="grupoTabela" class="d-inline-flex align-items-center gap-1" style="display:none">
-							<span class="vr mx-1"></span>
-							<span class="text-muted small fw-semibold me-1"><i class="bi bi-table"></i></span>
+						<span id="grupoTabela" class="toolbar-group" style="display:none">
+							<span class="toolbar-sep"></span>
 							<button type="button" class="btn btn-light btn-sm" data-action="col-before" title="Inserir coluna à esquerda"><i class="bi bi-arrow-bar-left"></i>+</button>
 							<button type="button" class="btn btn-light btn-sm" data-action="col-after" title="Inserir coluna à direita">+<i class="bi bi-arrow-bar-right"></i></button>
-							<button type="button" class="btn btn-outline-danger btn-sm" data-action="col-del" title="Deletar coluna"><i class="bi bi-layout-sidebar-reverse"></i>−</button>
-							<span class="vr mx-1"></span>
+							<button type="button" class="btn btn-light btn-sm" data-action="col-del" title="Deletar coluna"><i class="bi bi-layout-sidebar-reverse"></i>−</button>
 							<button type="button" class="btn btn-light btn-sm" data-action="row-before" title="Inserir linha acima"><i class="bi bi-arrow-bar-up"></i>+</button>
 							<button type="button" class="btn btn-light btn-sm" data-action="row-after" title="Inserir linha abaixo">+<i class="bi bi-arrow-bar-down"></i></button>
-							<button type="button" class="btn btn-outline-danger btn-sm" data-action="row-del" title="Deletar linha"><i class="bi bi-dash-square"></i>−</button>
-							<span class="vr mx-1"></span>
+							<button type="button" class="btn btn-light btn-sm" data-action="row-del" title="Deletar linha"><i class="bi bi-dash-square"></i>−</button>
 							<button type="button" class="btn btn-outline-danger btn-sm" data-action="table-del" title="Deletar tabela"><i class="bi bi-trash"></i></button>
 						</span>
+					</div>
+					<span class="toolbar-sep"></span>
+
+					<div class="toolbar-group">
+						<button type="button" class="btn btn-light btn-sm" data-action="clear" title="Limpar formatação"><i class="bi bi-eraser"></i></button>
+						<button type="button" id="btnTogglePaginacao" class="btn btn-light btn-sm active" title="Mostrar/ocultar quebras de página (aproximação visual do PDF)">
+							<i class="bi bi-file-earmark-break"></i> Páginas
+						</button>
+					</div>
 				</div>
 			</div>
 			<div class="card shadow-sm">
 				<div class="card-body" style="background:#e9ecef;overflow:auto;max-height:78vh;">
-					<div class="editor-a4-page">
+					<div class="editor-a4-shell">
 						<div id="tiptapEditor"></div>
 					</div>
 				</div>
@@ -152,5 +173,25 @@
 <style>
 	.variavel-item:hover { background:#eef4ff; }
 	#tiptapEditor .ProseMirror { outline:none; min-height:60vh; }
+
+	/* Toolbar do editor: grupos com gap maior entre si, botões
+	   dentro do grupo mais próximos, separados por régua visível. */
+	.toolbar-doc-editor { gap: 10px; }
+	.toolbar-group { display: flex; align-items: center; gap: 2px; }
+	.toolbar-sep {
+		align-self: stretch;
+		width: 1px;
+		background: #adb5bd;
+		margin: 2px 0;
+	}
+
+	/* Botão "Páginas" é o único com estado real de toggle (liga/desliga
+	   a régua de paginação) -- destaque só quando .active, sem o cinza
+	   pesado do .btn-light.active padrão do Bootstrap. */
+	#btnTogglePaginacao.active {
+		background: #e7f1ff;
+		color: #0d6efd;
+		border-color: #b6d4fe;
+	}
 </style>
 {% endblock %}

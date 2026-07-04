@@ -13,6 +13,13 @@
 	const csrf = cfg.csrf
 	let salvarUrl = cfg.salvarUrl
 
+	// Margens ABNT (25/20/20/30mm sup/dir/inf/esq), mesmas de documento_a4.css,
+	// convertidas pra px (96 CSS px/polegada) — aproxima a régua visual do PDF
+	// real gerado via Playwright. Ver documentos/frontend/README.md sobre a
+	// limitação conhecida: fonte local (Times New Roman) x produção (Liberation
+	// Serif) pode fazer a quebra de página no editor divergir 1 linha do PDF.
+	const MM_TO_PX = 96 / 25.4
+
 	const editor = new T.Editor({
 		element: elEditor,
 		extensions: [
@@ -26,10 +33,34 @@
 			T.Subscript,
 			T.Superscript,
 			window.VariavelNode,
+			T.PaginationPlus.configure({
+				pageWidth: 794,
+				pageHeight: 1123,
+				marginTop: Math.round(25 * MM_TO_PX),
+				marginBottom: Math.round(20 * MM_TO_PX),
+				marginLeft: Math.round(30 * MM_TO_PX),
+				marginRight: Math.round(20 * MM_TO_PX),
+				contentMarginTop: 0,
+				contentMarginBottom: 0,
+				pageGap: 30,
+				footerLeft: '',
+				footerRight: 'Página {page}',
+				headerLeft: '',
+				headerRight: '',
+			}),
 		],
 		content: cfg.conteudoInicial || '',
 	})
 	window._editor = editor
+
+	// ---- Toggle de paginação visual ----
+	const btnPaginacao = document.getElementById('btnTogglePaginacao')
+	if (btnPaginacao) {
+		btnPaginacao.addEventListener('click', () => {
+			editor.chain().focus().togglePagination().run()
+			btnPaginacao.classList.toggle('active')
+		})
+	}
 
 	// ---- Toolbar: botões com data-action ----
 	document.querySelectorAll('[data-action]').forEach(btn => {

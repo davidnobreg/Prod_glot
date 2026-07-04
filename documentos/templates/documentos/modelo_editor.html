@@ -186,14 +186,6 @@
 		conteudoInicial: {{ conteudo_inicial_json|safe }},
 		empreendimentos: {{ empreendimentos_json|safe }},
 		podeEditarMargem: {{ pode_editar_margem|yesno:"true,false" }},
-		fontes: {
-			familia: [
-				{% for valor, rotulo in fontes_familia %}"{{ valor }}", {% endfor %}
-			],
-			tamanho: [
-				{% for tamanho in fontes_tamanho %}"{{ tamanho }}pt", {% endfor %}
-			],
-		},
 	}
 </script>
 <script src="{% static 'documentos/js/vendor/tiptap.bundle.min.js' %}?v={{ asset_ver }}"></script>

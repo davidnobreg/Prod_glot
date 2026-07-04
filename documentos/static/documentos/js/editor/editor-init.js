@@ -18,7 +18,7 @@
 	// real gerado via Playwright. Ver documentos/frontend/README.md sobre a
 	// limitação conhecida: fonte local (Times New Roman) x produção (Liberation
 	// Serif) pode fazer a quebra de página no editor divergir 1 linha do PDF.
-	const MM_TO_PX = 96 / 25.4
+	const MM_TO_PX = window.DocRuler.MM_TO_PX
 
 	// Sanitiza HTML colado do Word: remove tags/atributos mso-*, quebras de
 	// página forçadas (causa raiz de páginas indevidas no editor) e margin/
@@ -84,6 +84,25 @@
 		content: cfg.conteudoInicial || '',
 	})
 	window._editor = editor
+
+	// ---- Régua (margem de página) ----
+	const empreendimentos = cfg.empreendimentos || []
+	const margensIniciais = empreendimentos.length
+		? {
+			top: Math.round(empreendimentos[0].margem_sup * MM_TO_PX),
+			right: Math.round(empreendimentos[0].margem_dir * MM_TO_PX),
+			bottom: Math.round(empreendimentos[0].margem_inf * MM_TO_PX),
+			left: Math.round(empreendimentos[0].margem_esq * MM_TO_PX),
+		}
+		: { top: 94, right: 76, bottom: 76, left: 113 } // ABNT 25/20/20/30mm
+
+	const ruler = window.DocRuler.init({
+		horizContainer: document.getElementById('rulerHorizontalSlot'),
+		vertContainer: document.getElementById('rulerVerticalSlot'),
+		pageWidthPx: 794,
+		pageHeightPx: 1123,
+		margensPx: margensIniciais,
+	})
 
 	// ---- Toggle de paginação visual ----
 	const btnPaginacao = document.getElementById('btnTogglePaginacao')

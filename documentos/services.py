@@ -452,3 +452,31 @@ def duplicar_modelo(modelo, usuario):
 				ordem=v.ordem,
 			)
 	return copia
+
+
+# ----------------------------------------------------------
+# Margem de página por empreendimento (régua do editor)
+# ----------------------------------------------------------
+def atualizar_margens_documento(empreendimento, margem_sup, margem_dir, margem_inf, margem_esq):
+	"""Atualiza (ou cria) a ConfiguracaoDocumento do empreendimento com novas
+	margens de página, em mm. Retorna lista de erros; vazia = salvou OK."""
+	from .models import ConfiguracaoDocumento
+
+	valores = {
+		'margem_sup': margem_sup, 'margem_dir': margem_dir,
+		'margem_inf': margem_inf, 'margem_esq': margem_esq,
+	}
+	erros = []
+	for nome, valor in valores.items():
+		if not isinstance(valor, int) or isinstance(valor, bool) or valor < 5 or valor > 100:
+			erros.append(f'{nome} deve ser um inteiro entre 5 e 100 (mm).')
+	if erros:
+		return erros
+
+	cfg, _ = ConfiguracaoDocumento.objects.get_or_create(empreendimento=empreendimento)
+	cfg.margem_sup = margem_sup
+	cfg.margem_dir = margem_dir
+	cfg.margem_inf = margem_inf
+	cfg.margem_esq = margem_esq
+	cfg.save(update_fields=['margem_sup', 'margem_dir', 'margem_inf', 'margem_esq'])
+	return []

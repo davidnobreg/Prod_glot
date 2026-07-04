@@ -20,8 +20,38 @@
 	// Serif) pode fazer a quebra de página no editor divergir 1 linha do PDF.
 	const MM_TO_PX = 96 / 25.4
 
+	// Sanitiza HTML colado do Word: remove tags/atributos mso-*, quebras de
+	// página forçadas (causa raiz de páginas indevidas no editor) e margin/
+	// padding inline por parágrafo que o Word injeta em todo <p>/<span>.
+	function sanitizarHtmlColado(html) {
+		const doWord = /mso-|urn:schemas-microsoft-com:office|w:WordDocument/i.test(html)
+		const doc = new DOMParser().parseFromString(html, 'text/html')
+		doc.querySelectorAll('style, script, meta, link').forEach(el => el.remove())
+		doc.querySelectorAll('*').forEach(el => {
+			if (el.tagName.includes(':')) {
+				el.replaceWith(...el.childNodes)
+				return
+			}
+			if (doWord) { el.removeAttribute('class') }
+			const style = el.getAttribute('style')
+			if (!style) { return }
+			const mantido = style.split(';').map(s => s.trim()).filter(Boolean).filter(decl => {
+				const prop = decl.split(':')[0].trim().toLowerCase()
+				if (prop.startsWith('mso-')) { return false }
+				if (prop.startsWith('page-break')) { return false }
+				if (doWord && (prop.startsWith('margin') || prop.startsWith('padding'))) { return false }
+				return true
+			})
+			if (mantido.length) { el.setAttribute('style', mantido.join('; ')) } else { el.removeAttribute('style') }
+		})
+		return doc.body.innerHTML
+	}
+
 	const editor = new T.Editor({
 		element: elEditor,
+		editorProps: {
+			transformPastedHTML: sanitizarHtmlColado,
+		},
 		extensions: [
 			T.StarterKit,
 			T.TextAlign.configure({ types: ['heading', 'paragraph'] }),
@@ -72,6 +102,31 @@
 	}
 	editor.on('update', atualizarContador)
 	atualizarContador()
+
+	// ---- Colar sem formatação (força texto puro no próximo paste) ----
+	const btnColarPuro = document.getElementById('btnColarTextoPuro')
+	let colarTextoPuro = false
+	if (btnColarPuro) {
+		btnColarPuro.addEventListener('click', () => {
+			colarTextoPuro = true
+			editor.chain().focus().run()
+			btnColarPuro.classList.add('active')
+		})
+	}
+	editor.view.dom.addEventListener('paste', e => {
+		if (!colarTextoPuro) { return }
+		e.preventDefault()
+		e.stopImmediatePropagation()
+		const texto = (e.clipboardData || window.clipboardData).getData('text/plain')
+		const escapado = texto
+			.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+			.split(/\r\n|\r|\n/)
+			.map(linha => `<p>${linha || '<br>'}</p>`)
+			.join('')
+		editor.chain().focus().insertContent(escapado).run()
+		colarTextoPuro = false
+		btnColarPuro.classList.remove('active')
+	}, true)
 
 	// ---- Toolbar: botões com data-action ----
 	document.querySelectorAll('[data-action]').forEach(btn => {

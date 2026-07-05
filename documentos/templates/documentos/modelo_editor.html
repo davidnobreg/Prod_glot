@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load l10n %}
 
 {% block title %}{% if modelo %}Editar modelo{% else %}Novo modelo{% endif %}{% endblock %}
 
@@ -121,7 +122,7 @@
 							<button type="button" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" title="Espaçamento entre linhas"><i class="bi bi-text-paragraph"></i></button>
 							<div class="dropdown-menu p-2">
 								{% for espacamento in espacamentos_linha %}
-								<button type="button" class="dropdown-item" data-line-height="{{ espacamento }}">{{ espacamento }}</button>
+								<button type="button" class="dropdown-item" data-line-height="{{ espacamento|unlocalize }}">{{ espacamento }}</button>
 								{% endfor %}
 								<button type="button" class="btn btn-link btn-sm p-0 mt-2 text-decoration-none" data-action="line-height-clear">Espaçamento padrão</button>
 							</div>

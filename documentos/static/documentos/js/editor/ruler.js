@@ -51,6 +51,7 @@
 
 	function init(options) {
 		const { horizContainer, vertContainer, pageWidthPx, pageHeightPx } = options
+		const pageGapPx = options.pageGapPx || 0
 		let margens = { ...options.margensPx }
 		let readOnly = !!options.readOnly
 		let onDropCb = null
@@ -61,12 +62,9 @@
 
 		const vert = document.createElement('div')
 		vert.className = 'doc-ruler doc-ruler-vertical'
-		vert.style.height = `${pageHeightPx}px`
 
 		const zonaEsq = criarZonaMargem('esquerda')
 		const zonaDir = criarZonaMargem('direita')
-		const zonaSup = criarZonaMargem('superior')
-		const zonaInf = criarZonaMargem('inferior')
 
 		const marcadorEsq = criarMarcador('margem-esquerda', 'ew-resize')
 		const marcadorDir = criarMarcador('margem-direita', 'ew-resize')
@@ -78,11 +76,43 @@
 		horiz.appendChild(zonaDir)
 		horiz.appendChild(marcadorEsq)
 		horiz.appendChild(marcadorDir)
-		vert.appendChild(criarTicksVerticais(pageHeightPx))
-		vert.appendChild(zonaSup)
-		vert.appendChild(zonaInf)
-		vert.appendChild(marcadorSup)
-		vert.appendChild(marcadorInf)
+
+		// Régua vertical estendida a todas as páginas: cada página do documento
+		// (PaginationPlus) ganha seu próprio bloco com zona de margem +
+		// numeração reiniciada. O marcador arrastável (margem é do documento
+		// inteiro, não por página) existe só no bloco 0 — os marcadores em si
+		// são criados uma única vez acima e só reaproveitados aqui.
+		let blocosPagina = []
+
+		function criarBlocoPagina(indice, offsetTopPx, comMarcadores) {
+			const bloco = document.createElement('div')
+			bloco.className = 'doc-ruler-pagina'
+			bloco.style.top = `${offsetTopPx}px`
+			bloco.style.height = `${pageHeightPx}px`
+			bloco.appendChild(criarTicksVerticais(pageHeightPx))
+			const zonaSup = criarZonaMargem('superior')
+			const zonaInf = criarZonaMargem('inferior')
+			bloco.appendChild(zonaSup)
+			bloco.appendChild(zonaInf)
+			if (comMarcadores) {
+				bloco.appendChild(marcadorSup)
+				bloco.appendChild(marcadorInf)
+			}
+			return { bloco, zonaSup, zonaInf }
+		}
+
+		function setNumPaginas(n) {
+			vert.style.height = `${n * pageHeightPx + Math.max(0, n - 1) * pageGapPx}px`
+			vert.innerHTML = ''
+			blocosPagina = []
+			for (let i = 0; i < n; i++) {
+				const offsetTop = i * (pageHeightPx + pageGapPx)
+				const { bloco, zonaSup, zonaInf } = criarBlocoPagina(i, offsetTop, i === 0)
+				vert.appendChild(bloco)
+				blocosPagina.push({ zonaSup, zonaInf })
+			}
+			repintar()
+		}
 
 		function repintar() {
 			zonaEsq.style.left = '0px'
@@ -93,15 +123,16 @@
 			zonaDir.style.width = `${margens.right}px`
 			marcadorDir.style.left = `${pageWidthPx - margens.right}px`
 
-			zonaSup.style.top = '0px'
-			zonaSup.style.height = `${margens.top}px`
+			blocosPagina.forEach(({ zonaSup, zonaInf }) => {
+				zonaSup.style.top = '0px'
+				zonaSup.style.height = `${margens.top}px`
+				zonaInf.style.bottom = '0px'
+				zonaInf.style.height = `${margens.bottom}px`
+			})
 			marcadorSup.style.top = `${margens.top}px`
-
-			zonaInf.style.bottom = '0px'
-			zonaInf.style.height = `${margens.bottom}px`
 			marcadorInf.style.top = `${pageHeightPx - margens.bottom}px`
 		}
-		repintar()
+		setNumPaginas(1)
 
 		function arrastarHorizontal(marcador, aplicar) {
 			marcador.addEventListener('mousedown', e => {
@@ -214,6 +245,7 @@
 			},
 			setReadOnly(valor) { readOnly = valor },
 			onDrop(callback) { onDropCb = callback },
+			setNumPaginas,
 			setIndent(novoIndent) {
 				indentAtual = { ...indentAtual, ...novoIndent }
 				repintarIndent()

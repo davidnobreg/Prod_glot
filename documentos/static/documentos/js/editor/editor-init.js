@@ -81,6 +81,7 @@
 			window.VariavelNode,
 			window.IndentAttrsExtension,
 			window.FontAttrsExtension,
+			window.LineHeightAttrsExtension,
 			T.PaginationPlus.configure({
 				pageWidth: 794,
 				pageHeight: 1123,
@@ -312,6 +313,7 @@
 				case 'highlight-clear': chain.unsetHighlight().run(); break
 				case 'font-family-clear': chain.setMark('textStyle', { fontFamily: null }).run(); break
 				case 'font-size-clear': chain.setMark('textStyle', { fontSize: null }).run(); break
+				case 'line-height-clear': chain.updateAttributes('paragraph', { lineHeight: null }).run(); break
 				case 'col-before': chain.addColumnBefore().run(); break
 				case 'col-after': chain.addColumnAfter().run(); break
 				case 'col-del': chain.deleteColumn().run(); break
@@ -363,6 +365,14 @@
 		btn.addEventListener('click', e => {
 			e.preventDefault()
 			editorAtivo().chain().focus().setMark('textStyle', { fontSize: `${btn.dataset.fontSize}pt` }).run()
+		})
+	})
+
+	// ---- Espaçamento entre linhas (presets fixos) ----
+	document.querySelectorAll('[data-line-height]').forEach(btn => {
+		btn.addEventListener('click', e => {
+			e.preventDefault()
+			editorAtivo().chain().focus().updateAttributes('paragraph', { lineHeight: btn.dataset.lineHeight }).run()
 		})
 	})
 

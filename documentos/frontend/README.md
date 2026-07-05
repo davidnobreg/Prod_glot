@@ -49,3 +49,14 @@ usa esse `Extension` pra declarar `indentLeft`, `indentRight` e `indentFirstLine
 no nó `paragraph`, sem precisar redeclarar o nó inteiro (evita "Duplicate
 extension names"). Serializa como `margin-left`/`margin-right`/`text-indent`
 inline no HTML salvo — mesmo mecanismo de round-trip de negrito/cor/etc.
+
+## Espaçamento entre linhas (LineHeightAttrs)
+
+`documentos/static/documentos/js/editor/line-height-attrs.js` usa o mesmo
+`Extension` de `@tiptap/core` pra declarar `lineHeight` no nó `paragraph`
+(mesmo mecanismo do `IndentAttrsExtension`, arquivo separado por convenção de
+"uma extensão por arquivo"). Presets fixos (0.5, 1.0, 1.15, 1.5, 2.0 — padrão
+Word) vêm do backend via `espacamentos_linha` (`views_documentos.py`),
+aplicados por parágrafo/bloco selecionado, não ao documento inteiro. `null`
+(botão "Espaçamento padrão") omite o style e cai no `line-height: 1.5` fixo
+de `.editor-a4-shell` (`documento_a4.css`).

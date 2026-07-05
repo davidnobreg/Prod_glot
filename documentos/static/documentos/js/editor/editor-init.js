@@ -13,6 +13,7 @@
 	const csrf = cfg.csrf
 	let salvarUrl = cfg.salvarUrl
 	let autosaveIntervalId = null
+	let debouncePaginasId = null
 
 	// Margens ABNT (25/20/20/30mm sup/dir/inf/esq), mesmas de documento_a4.css,
 	// convertidas pra px (96 CSS px/polegada) — aproxima a régua visual do PDF
@@ -52,6 +53,7 @@
 	// Calculada antes da criação do editor para que a paginação REAL (não só
 	// a régua visual) já nasça correta, sem depender de um drag manual.
 	const MARGENS_ABNT_PX = { top: 94, right: 76, bottom: 76, left: 113 } // ABNT 25/20/20/30mm
+	const PAGE_GAP_PX = 30
 	const empreendimentos = cfg.empreendimentos || []
 	const margensIniciais = empreendimentos.length
 		? {
@@ -91,7 +93,7 @@
 				marginRight: margensPx.right,
 				contentMarginTop: 0,
 				contentMarginBottom: 0,
-				pageGap: 30,
+				pageGap: PAGE_GAP_PX,
 				footerLeft: '',
 				footerRight: 'Página {page}',
 				headerLeft: '',
@@ -115,6 +117,12 @@
 	// registrados antes do drag continuem presos à instância morta.
 	function editorAtivo() { return window._editor }
 
+	// PaginationPlus computa .rm-page-header de forma assíncrona — chamar logo
+	// após criar/recriar o editor pode ler a contagem antiga por 1 tick.
+	function contarPaginas() {
+		return document.querySelectorAll('#tiptapEditor .rm-page-header').length || 1
+	}
+
 	// Listeners de instância do TipTap/ProseMirror (não são eventos DOM):
 	// precisam ser re-registrados a cada novo Editor criado.
 	function registrarListenersDoEditor(editorAtual) {
@@ -123,6 +131,10 @@
 		editorAtual.on('transaction', atualizarGrupoTabela)
 		editorAtual.on('selectionUpdate', atualizarMarcadoresDeRecuo)
 		editorAtual.on('transaction', atualizarMarcadoresDeRecuo)
+		editorAtual.on('update', () => {
+			clearTimeout(debouncePaginasId)
+			debouncePaginasId = setTimeout(() => ruler.setNumPaginas(contarPaginas()), 400)
+		})
 	}
 
 	iniciarAutosave(editor)
@@ -134,8 +146,10 @@
 		vertContainer: document.getElementById('rulerVerticalSlot'),
 		pageWidthPx: 794,
 		pageHeightPx: 1123,
+		pageGapPx: PAGE_GAP_PX,
 		margensPx: margensIniciais,
 	})
+	requestAnimationFrame(() => ruler.setNumPaginas(contarPaginas()))
 
 	// ---- Dropdown de empreendimento: liga/desliga edição de margem ----
 	const selectEmpreendimento = document.getElementById('modeloEmpreendimento')
@@ -193,6 +207,7 @@
 		registrarListenersDoEditor(novoEditor)
 		try { novoEditor.commands.setTextSelection({ from, to }) } catch (e) { /* seleção fora do range após edição concorrente — ignora */ }
 		iniciarAutosave(novoEditor)
+		requestAnimationFrame(() => ruler.setNumPaginas(contarPaginas()))
 	}
 
 	ruler.onDrop(margensPx => {

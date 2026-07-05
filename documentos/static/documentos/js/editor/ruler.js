@@ -20,6 +20,22 @@
 		return frag
 	}
 
+	function criarTicksVerticais(comprimentoPx) {
+		const frag = document.createDocumentFragment()
+		let posPx = 0
+		let polegada = 0
+		while (posPx < comprimentoPx) {
+			const tick = document.createElement('div')
+			tick.className = 'doc-ruler-tick doc-ruler-tick-vertical'
+			tick.style.top = `${posPx}px`
+			tick.textContent = polegada > 0 ? `${polegada}"` : ''
+			frag.appendChild(tick)
+			posPx += PX_PER_INCH
+			polegada += 1
+		}
+		return frag
+	}
+
 	function criarZonaMargem(ladoClasse) {
 		const zona = document.createElement('div')
 		zona.className = `doc-ruler-margem doc-ruler-margem-${ladoClasse}`
@@ -62,6 +78,7 @@
 		horiz.appendChild(zonaDir)
 		horiz.appendChild(marcadorEsq)
 		horiz.appendChild(marcadorDir)
+		vert.appendChild(criarTicksVerticais(pageHeightPx))
 		vert.appendChild(zonaSup)
 		vert.appendChild(zonaInf)
 		vert.appendChild(marcadorSup)

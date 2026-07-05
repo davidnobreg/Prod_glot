@@ -37,6 +37,22 @@ def test_regua_renderiza_com_zonas_de_margem(logged_browser, live_server, modelo
 
 
 @pytest.mark.django_db
+def test_regua_vertical_tem_numeracao_em_polegadas(logged_browser, live_server, modelo_com_empreendimento):
+	# Achado: criarTicks() só era chamado pro horiz — a régua vertical
+	# renderizava sem nenhum tick/numeração, diferente da horizontal.
+	page = logged_browser
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_empreendimento.pk])}'
+	page.goto(url)
+	page.wait_for_selector('.doc-ruler-vertical')
+
+	ticks = page.locator('.doc-ruler-vertical .doc-ruler-tick')
+	assert ticks.count() > 0
+
+	textos = ticks.all_text_contents()
+	assert '1"' in textos
+
+
+@pytest.mark.django_db
 def test_paginacao_real_usa_margem_do_empreendimento_desde_a_carga_inicial(
 	logged_browser, live_server, modelo_com_empreendimento,
 ):

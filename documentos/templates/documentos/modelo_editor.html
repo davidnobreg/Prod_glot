@@ -117,6 +117,15 @@
 						<button type="button" class="btn btn-light btn-sm" data-action="left" title="Alinhar à esquerda"><i class="bi bi-text-left"></i></button>
 						<button type="button" class="btn btn-light btn-sm" data-action="center" title="Centralizar"><i class="bi bi-text-center"></i></button>
 						<button type="button" class="btn btn-light btn-sm" data-action="justify" title="Justificar"><i class="bi bi-justify"></i></button>
+						<div class="dropdown d-inline">
+							<button type="button" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" title="Espaçamento entre linhas"><i class="bi bi-text-paragraph"></i></button>
+							<div class="dropdown-menu p-2">
+								{% for espacamento in espacamentos_linha %}
+								<button type="button" class="dropdown-item" data-line-height="{{ espacamento }}">{{ espacamento }}</button>
+								{% endfor %}
+								<button type="button" class="btn btn-link btn-sm p-0 mt-2 text-decoration-none" data-action="line-height-clear">Espaçamento padrão</button>
+							</div>
+						</div>
 					</div>
 					<span class="toolbar-sep"></span>
 
@@ -210,6 +219,7 @@
 <script src="{% static 'documentos/js/editor/variavel-node.js' %}?v={{ asset_ver }}"></script>
 <script src="{% static 'documentos/js/editor/indent-attrs.js' %}?v={{ asset_ver }}"></script>
 <script src="{% static 'documentos/js/editor/font-attrs.js' %}?v={{ asset_ver }}"></script>
+<script src="{% static 'documentos/js/editor/line-height-attrs.js' %}?v={{ asset_ver }}"></script>
 <script src="{% static 'documentos/js/editor/ruler.js' %}?v={{ asset_ver }}"></script>
 <script src="{% static 'documentos/js/editor/editor-init.js' %}?v={{ asset_ver }}"></script>
 

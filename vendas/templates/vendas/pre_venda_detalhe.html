@@ -370,12 +370,11 @@
                         <div class="prevenda-checklist">
                             {% for item in checklist_cliente %}
                                 <div class="prevenda-check-item {% if not item.disponivel %}indisponivel{% endif %}">
-                                    <input
-                                        type="checkbox"
-                                        class="form-check-input doc-check"
-                                        data-tipo="{{ item.tipo }}"
-                                        {% if not item.disponivel %}disabled{% endif %}
-                                        style="width:20px;height:20px;flex-shrink:0;">
+                                    {% if item.disponivel %}
+                                        <i class="bi bi-check-circle-fill doc-check" data-tipo="{{ item.tipo }}" data-ok="true" style="color:#13ad3d;font-size:1.2rem;flex-shrink:0;"></i>
+                                    {% else %}
+                                        <i class="bi bi-x-circle-fill doc-check" data-tipo="{{ item.tipo }}" data-ok="false" style="color:#ed2f2f;font-size:1.2rem;flex-shrink:0;"></i>
+                                    {% endif %}
                                     <span class="prevenda-check-label">{{ item.label }}</span>
                                     {% if item.disponivel %}
                                         <a href="{{ item.doc.arquivo.url }}"
@@ -401,9 +400,9 @@
 
                         <div class="prevenda-venda-item {% if proposta_aprovada %}aprovado{% else %}pendente{% endif %}">
                             {% if proposta_aprovada %}
-                                <i class="bi bi-check-circle-fill" style="color:#6ee7b7;font-size:1.2rem;flex-shrink:0;"></i>
+                                <i class="bi bi-check-circle-fill" style="color:#13ad3d;font-size:1.2rem;flex-shrink:0;"></i>
                             {% else %}
-                                <i class="bi bi-x-circle-fill" style="color:#fca5a5;font-size:1.2rem;flex-shrink:0;"></i>
+                                <i class="bi bi-x-circle-fill" style="color:#ed2f2f;font-size:1.2rem;flex-shrink:0;"></i>
                             {% endif %}
                             <span class="prevenda-check-label">Proposta Assinada</span>
                             {% if proposta_aprovada %}
@@ -419,9 +418,9 @@
 
                         <div class="prevenda-venda-item {% if contrato_aprovado %}aprovado{% else %}pendente{% endif %}">
                             {% if contrato_aprovado %}
-                                <i class="bi bi-check-circle-fill" style="color:#6ee7b7;font-size:1.2rem;flex-shrink:0;"></i>
+                                <i class="bi bi-check-circle-fill" style="color:#13ad3d;font-size:1.2rem;flex-shrink:0;"></i>
                             {% else %}
-                                <i class="bi bi-x-circle-fill" style="color:#fca5a5;font-size:1.2rem;flex-shrink:0;"></i>
+                                <i class="bi bi-x-circle-fill" style="color:#ed2f2f;font-size:1.2rem;flex-shrink:0;"></i>
                             {% endif %}
                             <span class="prevenda-check-label">Contrato Assinado</span>
                             {% if contrato_aprovado %}
@@ -472,13 +471,12 @@
 
     <script>
         (function () {
-            const vendaUuid = "{{ venda.uuid }}";
             const propostaOk = {{ proposta_aprovada|yesno:"true,false" }};
             const contratoOk = {{ contrato_aprovado|yesno:"true,false" }};
 
             function avaliarBotao() {
                 const checksCliente = document.querySelectorAll('.doc-check');
-                const todosCliente = Array.from(checksCliente).every(cb => cb.checked || cb.disabled);
+                const todosCliente = Array.from(checksCliente).every(icon => icon.dataset.ok === 'true');
 
                 const btn = document.getElementById('btn-efetivar');
                 if (!btn) return;
@@ -491,17 +489,6 @@
                     ? 'Efetivar a venda'
                     : 'Marque todos os documentos e aguarde proposta e contrato aprovados';
             }
-
-            document.querySelectorAll('.doc-check').forEach(cb => {
-                const key = `prevenda_check_${vendaUuid}_${cb.dataset.tipo}`;
-                if (sessionStorage.getItem(key) === 'true') {
-                    cb.checked = true;
-                }
-                cb.addEventListener('change', () => {
-                    sessionStorage.setItem(key, cb.checked);
-                    avaliarBotao();
-                });
-            });
 
             avaliarBotao();
         })();

@@ -104,6 +104,14 @@ class CriarVendaView(View):
 			messages.error(request, mensagem)
 			return redirect('reservadoDetalhes', reserva_uuid=lote.uuid)
 
+		checklist = checklist_documentos_cliente(venda.cliente)
+		if not all(item['disponivel'] for item in checklist):
+			messages.error(
+				request,
+				"Não é possível avançar para Pré-Venda: checklist de documentos do cliente incompleto.",
+			)
+			return redirect('reservadoDetalhes', reserva_uuid=lote.uuid)
+
 		venda.tipo_venda = 'PRE-VENDA'
 		venda.save(update_fields=['tipo_venda'])
 

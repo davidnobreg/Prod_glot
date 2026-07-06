@@ -77,10 +77,12 @@
     <!-- ===================================================== -->
     <nav class="nav flex-column gap-1 flex-grow-1">
 
-        <a href="{% url 'dashbord:dashboard' %}" class="nav-link">
-            <i class="bi bi-speedometer2"></i>
-            <span class="sidebar-text">Dashboard</span>
-        </a>
+        {% if user.tipo_usuario != "CORRETOR" %}
+            <a href="{% url 'dashbord:dashboard' %}" class="nav-link">
+                <i class="bi bi-speedometer2"></i>
+                <span class="sidebar-text">Dashboard</span>
+            </a>
+        {% endif %}
 
         <a href="{% url 'lista-empreendimento' %}" class="nav-link">
             <i class="bi bi-building"></i>

@@ -32,6 +32,24 @@ RUN apt-get update && \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # ===================================
+# Fonte Times New Roman (msttcorefonts) — documento_a4.css usa Times New
+# Roman como padrão; sem isso o container substitui por outra fonte,
+# fazendo o PDF renderizar diferente do editor (Windows tem a fonte real).
+# "contrib" precisa ser habilitado — imagens Debian trixie só trazem "main".
+# ===================================
+RUN if [ -f /etc/apt/sources.list.d/debian.sources ]; then \
+        sed -i 's/^Components: main$/Components: main contrib/' /etc/apt/sources.list.d/debian.sources; \
+    fi && \
+    if [ -f /etc/apt/sources.list ]; then \
+        sed -i 's/ main$/ main contrib/' /etc/apt/sources.list; \
+    fi && \
+    echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends cabextract wget ttf-mscorefonts-installer && \
+    fc-cache -f && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# ===================================
 # Dependências Python (cache-friendly)
 # ===================================
 COPY requirements.txt .

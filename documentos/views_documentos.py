@@ -135,6 +135,7 @@ def modelo_editor(request, pk=None):
 			('Liberation Serif', 'Liberation Serif'),
 			('Liberation Sans', 'Liberation Sans'),
 			('Liberation Mono', 'Liberation Mono'),
+			('Times New Roman', 'Times New Roman'),
 		],
 		'fontes_tamanho': [9, 10, 11, 12, 14, 16, 18, 20, 24],
 		'espacamentos_linha': [0.5, 1.0, 1.15, 1.5, 2.0],

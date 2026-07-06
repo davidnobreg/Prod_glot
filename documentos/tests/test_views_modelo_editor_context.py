@@ -64,7 +64,7 @@ class ModeloEditorFontesContextTest(TestCase):
 		self.assertEqual(resp.status_code, 200)
 		self.assertEqual(
 			[valor for valor, _rotulo in resp.context['fontes_familia']],
-			['DejaVu Serif', 'DejaVu Sans', 'DejaVu Mono', 'Liberation Serif', 'Liberation Sans', 'Liberation Mono'],
+			['DejaVu Serif', 'DejaVu Sans', 'DejaVu Mono', 'Liberation Serif', 'Liberation Sans', 'Liberation Mono', 'Times New Roman'],
 		)
 		self.assertEqual(resp.context['fontes_tamanho'], [9, 10, 11, 12, 14, 16, 18, 20, 24])
 		self.assertEqual(resp.context['espacamentos_linha'], [0.5, 1.0, 1.15, 1.5, 2.0])

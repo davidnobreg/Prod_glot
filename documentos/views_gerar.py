@@ -10,6 +10,7 @@
 from django.contrib import messages
 from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.templatetags.static import static
 from django.views.decorators.http import require_POST
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
@@ -122,7 +123,7 @@ def gerar_documento(request, venda_pk):
         modelo__tipo__in=tipos_ok,
     ).exclude(status=StatusDocumento.CANCELADO).order_by('-criado_em')
 
-    return render(request, 'documentos/gerar_documento_modal.html', {
+    return render(request, 'documentos/gerar_documento_standalone.html', {
         'venda': venda,
         'modelos_por_tipo': modelos_por_tipo,
         'docs_existentes': docs_existentes,
@@ -212,85 +213,51 @@ def documento_preview(request, pk):
     if doc.modelo.tipo not in tipos_ok:
         return HttpResponseForbidden('Sem permissão.')
 
-    # CSS A4 injetado junto com o conteúdo
-    css = '''
+    empreendimento = (
+        doc.venda.lote.quadra.empr
+        if doc.venda and doc.venda.lote else None
+    )
+    cfg = getattr(empreendimento, 'config_documento', None) if empreendimento else None
+
+    margem_sup = cfg.margem_sup if cfg else 25
+    margem_dir = cfg.margem_dir if cfg else 20
+    margem_inf = cfg.margem_inf if cfg else 20
+    margem_esq = cfg.margem_esq if cfg else 30
+    fonte_familia = cfg.fonte_familia if cfg and cfg.fonte_familia else 'Times New Roman'
+    fonte_tamanho = cfg.fonte_tamanho if cfg and cfg.fonte_tamanho else 12
+
+    # Mesmas margens/fonte de documento_base.html (PDF real), pra que o
+    # preview/impressão bata com o PDF gerado — só o letterbox cinza de tela
+    # é exclusivo daqui, zerado no @media print.
+    css = f'''
+    <link rel="stylesheet" href="{static('documentos/css/documento_a4.css')}">
     <style>
-      :root {
-        --doc-font-family: 'Times New Roman', Times, serif;
-        --doc-font-size: 12pt;
-        --doc-line-height: 1.5;
-        --doc-margin-top:    3cm;
-        --doc-margin-right:  2cm;
-        --doc-margin-bottom: 2cm;
-        --doc-margin-left:   3cm;
-        --doc-text-indent: 1.25cm;
-      }
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-      body {
+      body {{
         background: #6c757d;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
         padding: 32px 16px;
         min-height: 100vh;
-        font-family: var(--doc-font-family);
-        font-size: var(--doc-font-size);
-        line-height: var(--doc-line-height);
-        color: #000;
-      }
-      .a4-page {
+      }}
+      .a4-page {{
         width: 210mm;
         min-height: 297mm;
+        margin: 0 auto 24px;
         background: #fff;
         box-shadow: 0 4px 24px rgba(0,0,0,0.35);
-        padding: var(--doc-margin-top) var(--doc-margin-right) var(--doc-margin-bottom) var(--doc-margin-left);
-        margin-bottom: 24px;
-      }
-      p {
-        text-align: justify;
-        text-indent: var(--doc-text-indent);
-        margin-bottom: 0;
-        line-height: var(--doc-line-height);
-        font-size: var(--doc-font-size);
-      }
-      table p, td p, th p { text-indent: 0; margin: 0; }
-      h1, h2, h3, h4, h5, h6 {
-        font-family: var(--doc-font-family);
-        font-size: var(--doc-font-size);
-        font-weight: bold;
-        text-align: center;
-        margin: 6pt 0 4pt 0;
-        text-indent: 0;
-      }
-      hr { border: none; border-top: 1px solid #000; margin: 8pt 0; }
-      table {
-        width: 100% !important;
-        border-collapse: collapse;
-        table-layout: fixed;
-        word-wrap: break-word;
-        font-size: var(--doc-font-size);
-        line-height: var(--doc-line-height);
-        margin-bottom: 4pt;
-      }
-      td, th {
-        padding: 2pt 4pt;
-        vertical-align: top;
-        border: 1px solid #999;
-        text-align: left;
-        font-size: var(--doc-font-size);
-      }
-      col { min-width: 0 !important; width: auto !important; }
-      @media print {
-        @page { size: A4 portrait; margin: 0; }
-        body { background: #fff !important; padding: 0 !important; display: block !important; }
-        .a4-page {
+        box-sizing: border-box;
+        padding: {margem_sup}mm {margem_dir}mm {margem_inf}mm {margem_esq}mm;
+        font-family: "{fonte_familia}", serif;
+        font-size: {fonte_tamanho}pt;
+      }}
+      @media print {{
+        @page {{ size: A4 portrait; margin: 0; }}
+        body {{ background: #fff !important; padding: 0 !important; min-height: 0 !important; }}
+        .a4-page {{
           box-shadow: none !important;
           margin: 0 !important;
           width: 100% !important;
           min-height: auto !important;
-          padding: var(--doc-margin-top) var(--doc-margin-right) var(--doc-margin-bottom) var(--doc-margin-left) !important;
-        }
-      }
+        }}
+      }}
     </style>
     '''
 
@@ -302,7 +269,9 @@ def documento_preview(request, pk):
 </head>
 <body>
   <div class="a4-page">
-    {doc.conteudo_final_html}
+    <main class="documento-conteudo">
+      {doc.conteudo_final_html}
+    </main>
   </div>
 </body>
 </html>'''

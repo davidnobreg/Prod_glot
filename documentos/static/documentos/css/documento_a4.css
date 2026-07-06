@@ -125,6 +125,8 @@ p,
    normal de td/th, herdado recursivamente, inflava a tabela interna e
    esticava a linha externa inteira, deixando as células vizinhas vazias
    com uma altura absurda. Aqui a interna fica compacta. */
+.documento-conteudo table table td,
+.documento-conteudo table table th,
 .editor-a4-page table table td,
 .editor-a4-page table table th,
 .editor-a4-shell table table td,
@@ -133,6 +135,7 @@ p,
 	padding: 2px 4px;
 }
 
+.documento-conteudo table table,
 .editor-a4-page table table,
 .editor-a4-shell table table {
 	margin: 2pt 0;
@@ -186,6 +189,15 @@ p,
 	padding-top: 4pt;
 	text-align: center;
 	text-indent: 0;
+}
+
+/* Parágrafo/heading vazio no final do conteúdo não conta como linha real —
+   sobrando alguns px, ele sozinho empurra uma página inteira em branco no
+   preview/impressão (o motor real de PDF não tem esse problema, mas o
+   print nativo do navegador sim). Só o ÚLTIMO elemento, pra não remover
+   espaçamento em branco proposital no meio do texto. */
+.documento-conteudo > :last-child:empty {
+	display: none;
 }
 
 /* ----- Variável destacada no editor (não aparece no PDF) ----- */

@@ -1,0 +1,21 @@
+{# Wrapper com layout completo para acesso direto via GET fora das telas de venda #}
+{% extends 'base.html' %}
+{% block title %}Gerar Documento{% endblock %}
+{% block content %}
+{% if messages %}
+<div class="container-fluid px-3 pt-3">
+	{% for message in messages %}
+	<div class="alert {{ message.tags }}">{{ message }}</div>
+	{% endfor %}
+</div>
+{% endif %}
+{% include 'documentos/gerar_documento_modal.html' %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+	var modalEl = document.getElementById('modalGerarDocumento');
+	if (modalEl && window.bootstrap) {
+		new bootstrap.Modal(modalEl).show();
+	}
+});
+</script>
+{% endblock %}

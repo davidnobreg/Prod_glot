@@ -100,8 +100,6 @@ DEFAULT_APPS = [
 
     'django.contrib.humanize',
 
-
-
 ]
 
 
@@ -282,12 +280,9 @@ DATABASES = {
 
 # Banco unico: PostgreSQL (credenciais via .env). DEBUG nao altera o banco.
 
-
-
 # Password validation
 
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -318,53 +313,31 @@ AUTH_PASSWORD_VALIDATORS = [
 
 ]
 
-
-
 # Internationalization
 
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-
-
 LANGUAGE_CODE = 'pt-br'
-
-
 
 TIME_ZONE = 'America/Sao_Paulo'  # Ajuste conforme necessÃƒÂ¡rio
 
-
-
 USE_TZ = True  # Habilita o uso de fuso horÃƒÂ¡rio
-
-
 
 USE_I18N = True
 
-
-
 USE_L10N = True
-
-
 
 USE_THOUSAND_SEPARATOR = True
 
-
-
 LOCALE_PATHS = (os.path.join(BASE_DIR, "locale"),)
-
-
 
 # English default
 
 # LANGUAGES = DJANGO_LANGUAGES
 
-
-
 # Static files (CSS, JavaScript, Images)
 
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-
 
 # URLs para navegador
 
@@ -372,15 +345,11 @@ STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
 
-
-
 # Caminhos fÃƒÂ­sicos
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')  # usado pelo collectstatic
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # usado para uploads
-
-
 
 # --- Backblaze B2 / S3-compatible storage ---
 
@@ -414,30 +383,19 @@ if USE_REMOTE_STORAGE:
 	}
 	MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/"
 
-
-
 # Opcional: desenvolvimento
 
 # STATICFILES_DIRS = [os.path.join(BASE_DIR, 'base/static')] # onde seus apps guardam static]
-
-
-
-
 
 # Default primary key field type
 
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
-
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
 
 # --- Messages --- #
 
 from django.contrib.messages import constants
-
 
 
 MESSAGE_TAGS = {
@@ -454,19 +412,13 @@ MESSAGE_TAGS = {
 
 }
 
-
-
 LOGIN_URL = 'login'
 
 LOGIN_REDIRECT_URL = '/empreendimentos/'
 
 LOGOUT_URL = 'logout'
 
-
-
 AUTH_USER_MODEL = "accounts.User"
-
-
 
 # Role permissions
 
@@ -477,11 +429,7 @@ ROLEPERMISSIONS_MODULE = 'core.roles'
 # CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
 
-
 # CRISPY_TEMPLATE_PACK = "bootstrap5"
-
-
-
 
 
 # ==========================================================
@@ -549,8 +497,6 @@ CELERY_TASK_QUEUES = (
 PDF_ENGINE = config("PDF_ENGINE", default="weasyprint")
 
 FLOWER_BASIC_AUTH = ["admin:admin"]
-
-
 
 LOG_DIR = BASE_DIR / "logs"
 

@@ -338,6 +338,79 @@
             border: 1px solid rgba(100, 116, 139, 0.4);
             color: #94a3b8;
         }
+
+        /* Checklist Documentos do Cliente */
+        .prevenda-checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .prevenda-check-item {
+            align-items: center;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            display: flex;
+            gap: 12px;
+            padding: 12px 16px;
+        }
+
+        .prevenda-check-item.indisponivel {
+            border-color: rgba(239, 68, 68, 0.3);
+            opacity: 0.75;
+        }
+
+        .prevenda-check-label {
+            color: #063E4B;
+            flex: 1;
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+
+        .prevenda-check-badge-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 999px;
+            color: #fca5a5;
+            font-size: 0.7rem;
+            font-weight: 900;
+            padding: 2px 10px;
+            white-space: nowrap;
+        }
+
+        .prevenda-check-badge-ok {
+            background: rgba(5, 150, 105, 0.2);
+            border: 1px solid rgba(5, 150, 105, 0.4);
+            border-radius: 999px;
+            color: #6ee7b7;
+            font-size: 0.7rem;
+            font-weight: 900;
+            padding: 2px 10px;
+            white-space: nowrap;
+        }
+
+        .prevenda-section-title {
+            color: #063E4B;
+            font-size: 0.88rem;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+            margin: 0 0 12px;
+            text-transform: uppercase;
+        }
+
+        .prevenda-doc-link {
+            color: #063E4B;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .prevenda-doc-link:hover {
+            color: #031523;
+        }
     </style>
 
     <div class="reserva-detail-page">
@@ -413,6 +486,32 @@
                     {# Zona escura: upload + ações + tabela #}
                     {# /reserva-dark-zone #}
                     <div class="reserva-dark-zone">
+                        {# Documentos do Cliente #}
+                        <p class="prevenda-section-title">
+                            <i class="bi bi-person-vcard me-2"></i>Documentos do Cliente
+                        </p>
+                        <div class="prevenda-checklist">
+                            {% for item in checklist_cliente %}
+                                <div class="prevenda-check-item {% if not item.disponivel %}indisponivel{% endif %}">
+                                    {% if item.disponivel %}
+                                        <i class="bi bi-check-circle-fill doc-check" data-tipo="{{ item.tipo }}" data-ok="true" style="color:#13ad3d;font-size:1.2rem;flex-shrink:0;"></i>
+                                    {% else %}
+                                        <i class="bi bi-x-circle-fill doc-check" data-tipo="{{ item.tipo }}" data-ok="false" style="color:#ed2f2f;font-size:1.2rem;flex-shrink:0;"></i>
+                                    {% endif %}
+                                    <span class="prevenda-check-label">{{ item.label }}</span>
+                                    {% if item.disponivel %}
+                                        <a href="{{ item.doc.arquivo.url }}" target="_blank" class="prevenda-doc-link">
+                                            <i class="bi bi-file-earmark me-1"></i>Ver
+                                        </a>
+                                    {% else %}
+                                        <span class="prevenda-check-badge-error">Não encontrado</span>
+                                    {% endif %}
+                                </div>
+                            {% empty %}
+                                <p style="color:#063E4B;font-size:.88rem;">Nenhum documento obrigatório mapeado.</p>
+                            {% endfor %}
+                        </div>
+
                         {# Bloco 4 — Tabela documentos enviados #}
                         {% if venda_documentos %}
                             <div class="reserva-docs-section">
@@ -630,7 +729,7 @@
                                         class="reserva-button reserva-button-success"
                                         style="opacity:0.45; cursor:not-allowed;"
                                         disabled
-                                        title="{% if not proposta_com_lastro and not contrato_com_lastro %}É necessário ter proposta assinada e contrato assinado aprovados para avançar para Pré-Venda{% elif not proposta_com_lastro %}Aguardando proposta assinada aprovada{% else %}Aguardando contrato assinado aprovado{% endif %}">
+                                        title="{% if not proposta_com_lastro and not contrato_com_lastro %}É necessário ter proposta assinada e contrato assinado aprovados para avançar para Pré-Venda{% elif not proposta_com_lastro %}Aguardando proposta assinada aprovada{% elif not contrato_com_lastro %}Aguardando contrato assinado aprovado{% else %}Complete o checklist de documentos do cliente{% endif %}">
                                         <i class="bi bi-cash-coin"></i>
                                         Pre-Vender
                                     </button>

@@ -288,6 +288,10 @@ class ReservadoDetalheView(TemplateView):
             ClienteTelefone.objects.filter(cliente=venda.cliente).first()
             if venda and venda.cliente else None
         )
+        context['checklist_cliente'] = (
+            checklist_documentos_cliente(venda.cliente)
+            if venda and venda.cliente else []
+        )
         context['proposta_aprovada'] = (
             VendaDocumento.objects.filter(
                 venda=venda,
@@ -302,9 +306,14 @@ class ReservadoDetalheView(TemplateView):
         contrato_com_lastro = (
             _documento_assinado_com_lastro(venda, 'contrato_assinado') if venda else False
         )
+        checklist_completo = all(
+            item['disponivel'] for item in context['checklist_cliente']
+        )
         context['proposta_com_lastro'] = proposta_com_lastro
         context['contrato_com_lastro'] = contrato_com_lastro
-        context['pre_venda_liberada'] = proposta_com_lastro and contrato_com_lastro
+        context['pre_venda_liberada'] = (
+            proposta_com_lastro and contrato_com_lastro and checklist_completo
+        )
         context['modelos_por_tipo'] = modelos_por_tipo
         context['docs_existentes'] = docs_existentes
         context['proposta_disponivel'] = proposta_disponivel

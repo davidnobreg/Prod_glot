@@ -332,6 +332,68 @@
         padding: 10px 12px;
     }
 
+    .venda-docs-card {
+        margin-top: 24px;
+    }
+
+    .venda-checklist {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+
+    .venda-check-item {
+        align-items: center;
+        background: var(--venda-soft);
+        border: 1px solid var(--venda-border);
+        border-radius: 12px;
+        display: flex;
+        gap: 12px;
+        margin-bottom: 10px;
+        padding: 12px 16px;
+    }
+
+    .venda-check-item.indisponivel {
+        background: #fef2f2;
+        border-color: #fecaca;
+    }
+
+    .venda-check-item.aprovado {
+        background: #f0fdf4;
+        border-color: #bbf7d0;
+    }
+
+    .venda-check-label {
+        color: var(--venda-dark);
+        flex: 1;
+        font-size: 0.88rem;
+        font-weight: 700;
+    }
+
+    .venda-check-badge-error {
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+        border-radius: 999px;
+        color: #b91c1c;
+        font-size: 0.7rem;
+        font-weight: 900;
+        padding: 2px 10px;
+        white-space: nowrap;
+    }
+
+    .venda-doc-link {
+        color: var(--venda-primary);
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .venda-doc-link:hover {
+        color: var(--venda-primary-dark);
+    }
+
     @media (max-width: 991.98px) {
         .venda-main {
             grid-template-columns: 1fr;
@@ -465,7 +527,90 @@
                     </article>
                 </div>
 
+                <article class="venda-card venda-content venda-docs-card">
+                    <h2 class="venda-section-title">
+                        <i class="bi bi-person-vcard me-2"></i>Documentos do Cliente
+                    </h2>
+                    <div class="venda-checklist">
+                        {% for item in checklist_cliente %}
+                            <div class="venda-check-item {% if not item.disponivel %}indisponivel{% endif %}">
+                                {% if item.disponivel %}
+                                    <i class="bi bi-check-circle-fill" style="color:#13ad3d;font-size:1.2rem;flex-shrink:0;"></i>
+                                {% else %}
+                                    <i class="bi bi-x-circle-fill" style="color:#ed2f2f;font-size:1.2rem;flex-shrink:0;"></i>
+                                {% endif %}
+                                <span class="venda-check-label">{{ item.label }}</span>
+                                {% if item.disponivel %}
+                                    <a href="{{ item.doc.arquivo.url }}" target="_blank" class="venda-doc-link">
+                                        <i class="bi bi-file-earmark me-1"></i>Ver
+                                    </a>
+                                {% else %}
+                                    <span class="venda-check-badge-error">Não encontrado</span>
+                                {% endif %}
+                            </div>
+                        {% empty %}
+                            <p class="text-muted" style="font-size:.88rem;">Nenhum documento obrigatório mapeado.</p>
+                        {% endfor %}
+                    </div>
+
+                    <h2 class="venda-section-title" style="margin-top:8px;">
+                        <i class="bi bi-clipboard-check me-2"></i>Documentos da Venda
+                    </h2>
+                    <div class="venda-check-item {% if proposta_aprovada %}aprovado{% else %}indisponivel{% endif %}">
+                        {% if proposta_aprovada %}
+                            <i class="bi bi-check-circle-fill" style="color:#13ad3d;font-size:1.2rem;flex-shrink:0;"></i>
+                        {% else %}
+                            <i class="bi bi-x-circle-fill" style="color:#ed2f2f;font-size:1.2rem;flex-shrink:0;"></i>
+                        {% endif %}
+                        <span class="venda-check-label">Proposta Assinada</span>
+                        {% if proposta_aprovada %}
+                            <a href="{{ proposta_aprovada.arquivo_assinado.url }}" target="_blank" class="venda-doc-link">
+                                <i class="bi bi-file-earmark me-1"></i>Ver
+                            </a>
+                        {% else %}
+                            <span class="venda-check-badge-error">Pendente</span>
+                        {% endif %}
+                    </div>
+                    <div class="venda-check-item {% if contrato_aprovado %}aprovado{% else %}indisponivel{% endif %}">
+                        {% if contrato_aprovado %}
+                            <i class="bi bi-check-circle-fill" style="color:#13ad3d;font-size:1.2rem;flex-shrink:0;"></i>
+                        {% else %}
+                            <i class="bi bi-x-circle-fill" style="color:#ed2f2f;font-size:1.2rem;flex-shrink:0;"></i>
+                        {% endif %}
+                        <span class="venda-check-label">Contrato Assinado</span>
+                        {% if contrato_aprovado %}
+                            <a href="{{ contrato_aprovado.arquivo_assinado.url }}" target="_blank" class="venda-doc-link">
+                                <i class="bi bi-file-earmark me-1"></i>Ver
+                            </a>
+                        {% else %}
+                            <span class="venda-check-badge-error">Pendente</span>
+                        {% endif %}
+                    </div>
+                </article>
+
                 <div class="venda-actions">
+
+
+                    <a
+                        href="{% url 'listar-quadras' empreendimento_venda.uuid %}"
+                        class="venda-btn venda-btn--primary"
+                    >
+                        <i class="bi bi-grid-3x3-gap"></i>
+                        Voltar
+                    </a>
+
+                    {% if user.tipo_usuario != "CORRETOR" %}
+                        <a href="{% url 'lista-venda' %}" class="venda-btn venda-btn--warning">
+                            <i class="bi bi-list-ul"></i>
+                            Listagem
+                        </a>
+
+                       <!-- <a href="{% url 'documentos:proposta' reservas.uuid %}" class="venda-btn venda-btn--secondary">
+                            <i class="bi bi-file-earmark-text"></i>
+                            Proposta
+                        </a>-->
+                    {% endif %}
+
                     {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
                         <a
                             href="#"
@@ -478,26 +623,8 @@
                         </a>
                     {% endif %}
 
-                    <a
-                        href="{% url 'listar-quadras' empreendimento_venda.uuid %}"
-                        class="venda-btn venda-btn--primary"
-                    >
-                        <i class="bi bi-grid-3x3-gap"></i>
-                        Voltar
-                    </a>
-
-                    <a href="{% url 'lista-venda' %}" class="venda-btn venda-btn--warning">
-                        <i class="bi bi-list-ul"></i>
-                        Listagem
-                    </a>
-
-                    <a href="{% url 'documentos:proposta' reservas.uuid %}" class="venda-btn venda-btn--secondary">
-                        <i class="bi bi-file-earmark-text"></i>
-                        Proposta
-                    </a>
-
                     {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
-                        <a
+                       <!-- <a
                             href="#"
                             class="venda-btn venda-btn--success"
                             data-venda-id="{{ reservas.uuid }}"
@@ -506,7 +633,7 @@
                         >
                             <i class="bi bi-file-earmark-text"></i>
                             Contrato
-                        </a>
+                        </a>-->
                     {% endif %}
                 </div>
             {% endwith %}
@@ -546,10 +673,12 @@
                             Voltar
                         </a>
 
-                        <a href="{% url 'lista-venda' %}" class="venda-btn venda-btn--warning">
-                            <i class="bi bi-list-ul"></i>
-                            Listagem
-                        </a>
+                        {% if user.tipo_usuario != "CORRETOR" %}
+                            <a href="{% url 'lista-venda' %}" class="venda-btn venda-btn--warning">
+                                <i class="bi bi-list-ul"></i>
+                                Listagem
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
             {% endwith %}

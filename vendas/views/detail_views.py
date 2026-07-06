@@ -56,10 +56,18 @@ class ReservadoView(TemplateView):
             })
             return context
 
+        docs_venda = VendaDocumento.objects.filter(venda=venda).vigentes() if venda else VendaDocumento.objects.none()
+
         context.update({
             'lote': lote,
             'reservas': venda,
-            'contatoCliente': cliente_contato
+            'contatoCliente': cliente_contato,
+            'checklist_cliente': (
+                checklist_documentos_cliente(venda.cliente)
+                if venda and venda.cliente else []
+            ),
+            'proposta_aprovada': docs_venda.filter(tipo='proposta_assinada', status='aprovado').first(),
+            'contrato_aprovado': docs_venda.filter(tipo='contrato_assinado', status='aprovado').first(),
         })
 
         return context

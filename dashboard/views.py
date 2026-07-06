@@ -1,8 +1,10 @@
 from decimal import Decimal
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q, Sum
 from django.db.models.functions import Coalesce
+from django.shortcuts import redirect
 from django.views.generic import TemplateView
 
 from empreendimentos.models import Empreendimento, Lote
@@ -11,6 +13,12 @@ from vendas.models import RegisterVenda
 
 class DashboardView(LoginRequiredMixin, TemplateView):
 	template_name = "dash.html"
+
+	def dispatch(self, request, *args, **kwargs):
+		if request.user.is_authenticated and request.user.tipo_usuario == "CORRETOR":
+			messages.error(request, "Você não tem permissão para acessar esta página.")
+			return redirect("lista-empreendimento")
+		return super().dispatch(request, *args, **kwargs)
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)

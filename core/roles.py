@@ -83,6 +83,8 @@ class Corretor(AbstractUserRole):
 
         'selectCliente': True,
         'criarCliente': True,
+        'alterarCliente': True,
+        'relatorioCliente': True,
         'relatorioClienteRelatorio': True,
 
         # MODULO DOCUMENTO
@@ -117,7 +119,6 @@ class Corretor(AbstractUserRole):
         'cancelarReservadoCadastro': True,
         'criarReservado': True,
         'criarVenda': True,
-        'listaVendaRelatorio': True,
         'renovarReserva': True,
         'reservado': True,
         'reservadoDetalhe': True,

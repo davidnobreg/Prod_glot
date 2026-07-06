@@ -70,7 +70,11 @@
 	// na primeira vez que o usuário arrastasse uma margem.
 	function criarExtensoes(margensPx) {
 		return [
-			T.StarterKit.configure({ link: { openOnClick: false, autolink: true } }),
+			// autolink: false — variáveis como {{cliente.email}} e {{venda.data_x}}
+			// contêm texto no formato palavra.palavra; o autolink do TipTap
+			// convertia esse trecho em <a href="http://cliente.email">, quebrando
+			// a sintaxe {{ }} e derrubando a geração do documento (TemplateSyntaxError).
+			T.StarterKit.configure({ link: { openOnClick: false, autolink: false } }),
 			T.TextAlign.configure({ types: ['heading', 'paragraph'] }),
 			T.Table.configure({ resizable: true }),
 			T.TableRow, T.TableHeader, T.TableCell,

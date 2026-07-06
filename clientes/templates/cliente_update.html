@@ -292,6 +292,7 @@
 							<thead>
 								<tr>
 									<th>Tipo</th>
+									<th>Pertence a</th>
 									<th>Descrição</th>
 									<th>Data</th>
 									<th>Status</th>
@@ -303,6 +304,7 @@
 								{% for doc in documentos %}
 								<tr>
 									<td>{{ doc.get_tipo_display }}</td>
+									<td>{{ doc.get_pertence_a_display }}</td>
 									<td>{{ doc.descricao|default:"—" }}</td>
 									<td>{{ doc.criado_em|date:"d/m/Y" }}</td>
 									<td>
@@ -355,14 +357,18 @@
 					      enctype="multipart/form-data">
 						{% csrf_token %}
 						<div class="row g-3 align-items-end">
-							<div class="col-md-4">
+							<div class="col-md-3">
 								<label class="form-label">Tipo <span class="text-danger">*</span></label>
 								{{ form_doc.tipo }}
 								{% if form_doc.tipo.errors %}
 									<div class="text-danger" style="font-size:.8rem;">{{ form_doc.tipo.errors|striptags }}</div>
 								{% endif %}
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-2" id="doc-pertence-a-group" style="display:none;">
+								<label class="form-label">Pertence a</label>
+								{{ form_doc.pertence_a }}
+							</div>
+							<div class="col-md-3">
 								<label class="form-label">Descrição</label>
 								{{ form_doc.descricao }}
 							</div>
@@ -424,14 +430,20 @@
 		});
 	})();
 
-	// Aba Cônjuge: visível apenas quando estado_civil === 'casado'
+	// Aba Cônjuge + campo "Pertence a" do doc: visíveis apenas quando estado_civil === 'casado'
 	(function () {
 		var sel = document.getElementById('id_estado_civil');
 		var tabBtn = document.querySelector('[data-tab="conjuge"]');
+		var pertenceGroup = document.getElementById('doc-pertence-a-group');
+		var pertenceSelect = document.getElementById('id_pertence_a');
 
 		function update() {
-			if (!tabBtn) return;
 			var casado = sel && sel.value === 'casado';
+
+			if (pertenceGroup) pertenceGroup.style.display = casado ? '' : 'none';
+			if (!casado && pertenceSelect) pertenceSelect.value = 'TITULAR';
+
+			if (!tabBtn) return;
 			tabBtn.style.display = casado ? '' : 'none';
 			if (!casado && tabBtn.classList.contains('active')) {
 				tabBtn.classList.remove('active');

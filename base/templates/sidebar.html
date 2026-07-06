@@ -89,6 +89,7 @@
             <span class="sidebar-text">Empreendimentos</span>
         </a>
 
+        {% if user.tipo_usuario != "CORRETOR" %}
         <!-- ================================================= -->
         <!-- LISTAGEM -->
         <!-- ================================================= -->
@@ -154,6 +155,7 @@
                 <span class="sidebar-text">Venda</span>
             </a>
         </div>
+        {% endif %}
 
         <!-- ================================================= -->
         <!-- CADASTROS -->
@@ -176,10 +178,12 @@
                 <span class="sidebar-text">Clientes</span>
             </a>
 
-            <a href="{% url 'lista-empreendimento-tabela' %}" class="nav-link">
-                <i class="bi bi-buildings"></i>
-                <span class="sidebar-text">Empreendimentos</span>
-            </a>
+            {% if user.tipo_usuario != "CORRETOR" %}
+                <a href="{% url 'lista-empreendimento-tabela' %}" class="nav-link">
+                    <i class="bi bi-buildings"></i>
+                    <span class="sidebar-text">Empreendimentos</span>
+                </a>
+            {% endif %}
 
             {% if user.tipo_usuario == "ADMINISTRADOR" %}
                 <a href="{% url 'lista-usuario' %}" class="nav-link">

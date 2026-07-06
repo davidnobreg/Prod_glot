@@ -404,7 +404,7 @@ class ClienteDocumentoForm(forms.ModelForm):
 
 	class Meta:
 		model = ClienteDocumento
-		fields = ['tipo', 'arquivo', 'descricao']
+		fields = ['tipo', 'pertence_a', 'arquivo', 'descricao']
 		widgets = {
 			'arquivo': forms.FileInput(),
 			'descricao': forms.TextInput(attrs={'placeholder': 'Descrição (opcional)'}),
@@ -424,3 +424,4 @@ class ClienteDocumentoForm(forms.ModelForm):
 		self.fields['tipo'].required = True
 		self.fields['arquivo'].required = True
 		self.fields['arquivo'].widget.attrs['accept'] = '.jpg,.jpeg,.png,.pdf'
+		self.fields['pertence_a'].initial = 'TITULAR'

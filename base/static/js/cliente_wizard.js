@@ -14,6 +14,7 @@
 
 	var TIPO_CHOICES_PF = [
 		['RG', 'RG'],
+		['RG_NOVO', 'RG Novo (com CPF)'],
 		['CPF', 'CPF'],
 		['CNH', 'CNH'],
 		['COMPROVANTE_ESTADO_CIVIL', 'Comprovante de Estado Civil'],
@@ -269,6 +270,9 @@
 				return '<option value="' + c[0] + '">' + c[1] + '</option>';
 			}).join('');
 
+		var pertenceGroup = document.getElementById('wz-doc-pertence-a-group');
+		if (pertenceGroup) pertenceGroup.style.display = isCasado() ? '' : 'none';
+
 		renderArquivosList();
 	}
 
@@ -330,6 +334,8 @@
 		var tipo = document.getElementById('wz-doc-tipo') ? document.getElementById('wz-doc-tipo').value : '';
 		var descricao = document.getElementById('wz-doc-descricao') ? document.getElementById('wz-doc-descricao').value : '';
 		var arquivoInput = document.getElementById('wz-doc-arquivo');
+		var pertenceEl = document.getElementById('wz-doc-pertence-a');
+		var pertenceA = (isCasado() && pertenceEl) ? pertenceEl.value : 'TITULAR';
 
 		if (!tipo) {
 			if (errEl) { errEl.textContent = 'Selecione o tipo do documento.'; errEl.style.display = ''; }
@@ -344,6 +350,7 @@
 		var data = new FormData();
 		data.append('csrfmiddlewaretoken', getCsrf());
 		data.append('tipo', tipo);
+		data.append('pertence_a', pertenceA);
 		data.append('descricao', descricao);
 		data.append('arquivo', arquivoInput.files[0]);
 

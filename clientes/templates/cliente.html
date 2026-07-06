@@ -224,11 +224,18 @@
 					<div id="wz-arquivos-lista" class="mb-3"></div>
 					<div id="wz-arquivos-form">
 						<div class="row g-2 align-items-end">
-							<div class="col-md-4">
+							<div class="col-md-3">
 								<label class="form-label">Tipo <span class="text-danger">*</span></label>
 								<select id="wz-doc-tipo" class="glot-select"></select>
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-2" id="wz-doc-pertence-a-group" style="display:none;">
+								<label class="form-label">Pertence a</label>
+								<select id="wz-doc-pertence-a" class="glot-select">
+									<option value="TITULAR">Titular</option>
+									<option value="CONJUGE">Cônjuge</option>
+								</select>
+							</div>
+							<div class="col-md-3">
 								<label class="form-label">Descrição</label>
 								<input type="text" id="wz-doc-descricao" class="glot-input" placeholder="Opcional">
 							</div>

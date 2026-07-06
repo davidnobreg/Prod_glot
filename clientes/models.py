@@ -122,6 +122,7 @@ class ClienteDocumento(models.Model):
 
     TIPO_CHOICES_PF = [
         ('RG', 'RG'),
+        ('RG_NOVO', 'RG Novo (com CPF)'),
         ('CPF', 'CPF'),
         ('CNH', 'CNH'),
         ('COMPROVANTE_ESTADO_CIVIL', 'Comprovante de Estado Civil'),
@@ -139,6 +140,7 @@ class ClienteDocumento(models.Model):
 
     TIPO_CHOICES = [
         ('RG', 'RG'),
+        ('RG_NOVO', 'RG Novo (com CPF)'),
         ('CPF', 'CPF'),
         ('CNH', 'CNH'),
         ('COMPROVANTE_ESTADO_CIVIL', 'Comprovante de Estado Civil'),
@@ -147,6 +149,11 @@ class ClienteDocumento(models.Model):
         ('CNPJ', 'CNPJ'),
         ('CONTRATO_SOCIAL', 'Contrato Social'),
         ('RG_CPF_ADMINISTRADOR', 'RG / CPF do Administrador'),
+    ]
+
+    PERTENCE_A_CHOICES = [
+        ('TITULAR', 'Titular'),
+        ('CONJUGE', 'Cônjuge'),
     ]
 
     STATUS_CHOICES = [
@@ -166,6 +173,7 @@ class ClienteDocumento(models.Model):
         related_name='arquivos_cliente'
     )
     tipo = models.CharField(max_length=50, choices=TIPO_CHOICES)
+    pertence_a = models.CharField(max_length=10, choices=PERTENCE_A_CHOICES, default='TITULAR')
     arquivo = models.FileField(upload_to='clientes/documentos/')
     descricao = models.CharField(max_length=200, blank=True, null=True)
     criado_em = models.DateTimeField(auto_now_add=True)

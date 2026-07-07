@@ -449,14 +449,14 @@ def wizard_arquivo_add(request, cliente_uuid):
 # ===================================================================
 
 @has_permission_decorator('criarCliente')
-def wizard_arquivo_del(request, cliente_uuid, documento_id):
+def wizard_arquivo_del(request, cliente_uuid, documento_uuid):
 	"""Remove ClienteDocumento de um rascunho específico. Retorna JSON."""
 	if request.method != 'POST':
 		return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
 
 	doc = get_object_or_404(
 		ClienteDocumento,
-		id=documento_id,
+		uuid=documento_uuid,
 		cliente__uuid=cliente_uuid,
 		cliente__is_ativo=False,
 	)
@@ -644,10 +644,10 @@ def adicionar_documento_cliente(request, cliente_uuid):
 # ===================================================================
 
 @has_permission_decorator('alterarCliente')
-def excluir_documento_cliente(request, documento_id):
+def excluir_documento_cliente(request, documento_uuid):
     if request.method != 'POST':
         raise Http404
-    doc = get_object_or_404(ClienteDocumento, id=documento_id)
+    doc = get_object_or_404(ClienteDocumento, uuid=documento_uuid)
     cliente_uuid = doc.cliente.uuid
     doc.delete()
     messages.success(request, 'Documento excluído com sucesso!')

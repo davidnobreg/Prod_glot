@@ -333,7 +333,7 @@
 									</td>
 									<td>
 										<form method="POST"
-										      action="{% url 'excluir-documento-cliente' doc.id %}"
+										      action="{% url 'excluir-documento-cliente' doc.uuid %}"
 										      onsubmit="return confirm('Excluir este documento?');">
 											{% csrf_token %}
 											<button type="submit" class="btn btn-link text-danger p-0" style="font-size:.8rem;">

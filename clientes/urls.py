@@ -11,9 +11,9 @@ urlpatterns = [
     path('listar_clientes/', views.listaCliente, name='lista-cliente'),
     path('listar_clientes_relatorio/', views.listaClienteRelatorio, name='lista-cliente-relatorio'),
     path('<uuid:cliente_uuid>/documentos/adicionar/', views.adicionar_documento_cliente, name='adicionar-documento-cliente'),
-    path('documentos/<int:documento_id>/excluir/', views.excluir_documento_cliente, name='excluir-documento-cliente'),
+    path('documentos/<uuid:documento_uuid>/excluir/', views.excluir_documento_cliente, name='excluir-documento-cliente'),
     path('<uuid:cliente_uuid>/wizard/arquivo-add/', views.wizard_arquivo_add, name='wizard-arquivo-add'),
-    path('<uuid:cliente_uuid>/wizard/arquivo-del/<int:documento_id>/', views.wizard_arquivo_del, name='wizard-arquivo-del'),
+    path('<uuid:cliente_uuid>/wizard/arquivo-del/<uuid:documento_uuid>/', views.wizard_arquivo_del, name='wizard-arquivo-del'),
     path('wizard/salvar-passo/', views.wizard_salvar_passo, name='wizard-salvar-passo'),
     path('<uuid:cliente_uuid>/wizard/finalizar/', views.wizard_finalizar, name='wizard-finalizar'),
 

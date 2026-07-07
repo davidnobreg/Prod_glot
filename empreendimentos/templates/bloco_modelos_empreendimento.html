@@ -30,14 +30,14 @@
             {% if v.padrao %}
               <span class="badge bg-success">Padrão</span>
             {% else %}
-              <form method="post" action="{% url 'modelo-set-padrao' empreendimento.pk v.pk %}" class="d-inline">
+              <form method="post" action="{% url 'modelo-set-padrao' empreendimento.uuid v.uuid %}" class="d-inline">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-xs btn-outline-secondary btn-sm py-0 px-1">Definir padrão</button>
               </form>
             {% endif %}
           </td>
           <td>
-            <form method="post" action="{% url 'modelo-desvincular' empreendimento.pk v.pk %}" class="d-inline">
+            <form method="post" action="{% url 'modelo-desvincular' empreendimento.uuid v.uuid %}" class="d-inline">
               {% csrf_token %}
               <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-1"
                       onclick="return confirm('Desvincular este modelo?')">
@@ -63,7 +63,7 @@
         <h5 class="modal-title">Vincular modelo de documento</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form method="post" action="{% url 'modelo-vincular' empreendimento.pk %}">
+      <form method="post" action="{% url 'modelo-vincular' empreendimento.uuid %}">
         {% csrf_token %}
         <div class="modal-body">
           <div class="mb-3">

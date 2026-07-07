@@ -201,6 +201,12 @@ class ModeloDocumentoHistorico(models.Model):
 # Vínculo empreendimento ↔ modelo
 # ----------------------------------------------------------
 class EmpreendimentoDocumento(models.Model):
+	uuid = models.UUIDField(
+		default=uuid.uuid4,
+		editable=False,
+		unique=True,
+		db_index=True
+	)
 	empreendimento = models.ForeignKey('empreendimentos.Empreendimento', on_delete=models.CASCADE, related_name='documentos_config')
 	modelo = models.ForeignKey(ModeloDocumento, on_delete=models.PROTECT, related_name='empreendimentos_vinculo')
 	padrao = models.BooleanField(default=False)

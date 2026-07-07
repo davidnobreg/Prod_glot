@@ -1212,8 +1212,8 @@ def criarUsuarioEmpreendimento(request):
     return redirect('detalhe-empreendimento', id=empreendimento.id)"""
 
 @require_POST
-def deleteUsuarioEmpreendimento(request, id):
-    vinculo = get_object_or_404(UsuarioEmpreendimento, id=id)
+def deleteUsuarioEmpreendimento(request, usuario_empreendimento_uuid):
+    vinculo = get_object_or_404(UsuarioEmpreendimento, uuid=usuario_empreendimento_uuid)
 
     empreendimento_uuid = vinculo.empreendimento.uuid
 
@@ -1227,8 +1227,8 @@ def deleteUsuarioEmpreendimento(request, id):
 
 @require_POST
 @login_required
-def modelo_vincular(request, empr_id):
-    empreendimento = get_object_or_404(Empreendimento, pk=empr_id)
+def modelo_vincular(request, empreendimento_uuid):
+    empreendimento = get_object_or_404(Empreendimento, uuid=empreendimento_uuid)
     modelo_id = request.POST.get('modelo_id')
     padrao = request.POST.get('padrao') == '1'
 
@@ -1259,8 +1259,8 @@ def modelo_vincular(request, empr_id):
 
 @require_POST
 @login_required
-def modelo_desvincular(request, empr_id, vinculo_id):
-    vinculo = get_object_or_404(EmpreendimentoDocumento, pk=vinculo_id, empreendimento_id=empr_id)
+def modelo_desvincular(request, empreendimento_uuid, vinculo_uuid):
+    vinculo = get_object_or_404(EmpreendimentoDocumento, uuid=vinculo_uuid, empreendimento__uuid=empreendimento_uuid)
     empreendimento_uuid = vinculo.empreendimento.uuid
     vinculo.delete()
     messages.success(request, 'Modelo desvinculado.')
@@ -1269,11 +1269,11 @@ def modelo_desvincular(request, empr_id, vinculo_id):
 
 @require_POST
 @login_required
-def modelo_set_padrao(request, empr_id, vinculo_id):
-    vinculo = get_object_or_404(EmpreendimentoDocumento, pk=vinculo_id, empreendimento_id=empr_id)
+def modelo_set_padrao(request, empreendimento_uuid, vinculo_uuid):
+    vinculo = get_object_or_404(EmpreendimentoDocumento, uuid=vinculo_uuid, empreendimento__uuid=empreendimento_uuid)
     # Remove padrão dos outros do mesmo tipo
     EmpreendimentoDocumento.objects.filter(
-        empreendimento_id=empr_id,
+        empreendimento_id=vinculo.empreendimento_id,
         modelo__tipo=vinculo.modelo.tipo,
         padrao=True,
     ).update(padrao=False)

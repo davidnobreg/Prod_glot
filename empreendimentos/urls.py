@@ -196,7 +196,7 @@ urlpatterns = [
     ),
 
     path(
-        'usuariosempreendimento/<int:id>/delete/',
+        'usuariosempreendimento/<uuid:usuario_empreendimento_uuid>/delete/',
         deleteUsuarioEmpreendimento,
         name='delete-usuario-empreendimento'
     ),
@@ -205,19 +205,19 @@ urlpatterns = [
     # Modelos de documento
     # =========================
     path(
-        'empreendimento/<int:empr_id>/modelo/vincular/',
+        'empreendimento/<uuid:empreendimento_uuid>/modelo/vincular/',
         modelo_vincular,
         name='modelo-vincular'
     ),
 
     path(
-        'empreendimento/<int:empr_id>/modelo/<int:vinculo_id>/desvincular/',
+        'empreendimento/<uuid:empreendimento_uuid>/modelo/<uuid:vinculo_uuid>/desvincular/',
         modelo_desvincular,
         name='modelo-desvincular'
     ),
 
     path(
-        'empreendimento/<int:empr_id>/modelo/<int:vinculo_id>/padrao/',
+        'empreendimento/<uuid:empreendimento_uuid>/modelo/<uuid:vinculo_uuid>/padrao/',
         modelo_set_padrao,
         name='modelo-set-padrao'
     ),

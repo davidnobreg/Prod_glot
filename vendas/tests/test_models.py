@@ -1,7 +1,7 @@
 import pytest
 from django.db import IntegrityError, transaction
 
-from vendas.models import RegisterVenda, VendaDocumento
+from vendas.models import RegisterVenda, TypeVenda, VendaDocumento
 
 
 @pytest.mark.django_db
@@ -21,6 +21,23 @@ class TestRegisterVendaStr:
 		)
 		resultado = str(venda)
 		assert resultado is not None
+
+
+@pytest.mark.django_db
+class TestTypeVendaNaoAceite:
+
+	def test_filtro_por_constante_encontra_valor_gravado_pelas_views(self, cliente_pf, admin_user):
+		"""CancelarAceiteReservaView e a checagem em create_views.py gravam/comparam
+		o literal 'NAO_ACEITE' (underscore) — o TextChoices precisa bater com isso,
+		senão o filtro nunca encontra essas linhas."""
+		RegisterVenda.objects.create(
+			lote=None,
+			cliente=cliente_pf,
+			corretor=admin_user,
+			tipo_venda='NAO_ACEITE',
+			is_ativo=False,
+		)
+		assert RegisterVenda.objects.filter(tipo_venda=TypeVenda.NAO_ACEITE).count() == 1
 
 
 @pytest.mark.django_db

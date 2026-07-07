@@ -246,7 +246,7 @@ class RegisterVendaForm(forms.ModelForm):
 
             except InvalidOperation:
                 raise ValidationError(
-                    'Valor monetÃƒÆ’Ã‚Â¡rio invÃƒÆ’Ã‚Â¡lido.'
+                    'Valor monetário inválido.'
                 )
 
         return Decimal(value)
@@ -282,7 +282,7 @@ class RegisterVendaForm(forms.ModelForm):
 
             if desconto > total:
                 raise ValidationError(
-                    'O desconto nÃƒÆ’Ã‚Â£o pode ser maior que o valor total.'
+                    'O desconto não pode ser maior que o valor total.'
                 )
 
         return desconto
@@ -318,7 +318,7 @@ class RegisterVendaForm(forms.ModelForm):
 
         if valor_financiado < 0:
             raise ValidationError(
-                'O valor financiado nÃƒÆ’Ã‚Â£o pode ser negativo.'
+                'O valor financiado não pode ser negativo.'
             )
 
         return cleaned
@@ -342,7 +342,7 @@ class RegisterVendaForm(forms.ModelForm):
         # VALORES
         # ==========================================
 
-        instance.valor_total = (
+        instance.valor_inicio_contrato = (
             self._calcular_valor_total()
         )
 
@@ -384,6 +384,12 @@ class RegisterVendaForm(forms.ModelForm):
         ).quantize(Decimal('0.01'))
 
     def _calcular_valor_financiado(self):
+        """
+        total - desconto - entrada. valor_sinal NÃO entra nessa conta —
+        comportamento intencional, confirmado com o cliente (sinal é
+        registrado no contrato mas não abate o saldo financiado).
+        Não alterar sem validar de novo com o cliente antes.
+        """
 
         total = self._calcular_valor_total()
 
@@ -411,7 +417,7 @@ class RegisterVendaForm(forms.ModelForm):
 
         if parcelas <= 0:
             raise ValidationError(
-                'Quantidade de parcelas invÃƒÆ’Ã‚Â¡lida.'
+                'Quantidade de parcelas inválida.'
             )
 
         valor_financiado = (

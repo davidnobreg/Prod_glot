@@ -114,6 +114,12 @@ class VendaDocumento(models.Model):
 
 	objects = VendaDocumentoQuerySet.as_manager()
 
+	uuid = models.UUIDField(
+	    default=uuid.uuid4,
+	    editable=False,
+	    unique=True,
+	    db_index=True
+	)
 	venda = models.ForeignKey(RegisterVenda, on_delete=models.CASCADE, related_name='documentos_assinados')
 	tipo = models.CharField(max_length=30, choices=TIPO_CHOICES, default='outros')
 	arquivo_assinado = models.FileField(

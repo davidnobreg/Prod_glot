@@ -554,7 +554,7 @@
                                             {% if user.tipo_usuario == 'ADMINISTRADOR' and doc.status == 'enviado' %}
                                                 <td style="white-space:nowrap;">
                                                     <form method="POST"
-                                                          action="{% url 'venda-documento-aprovar' doc.pk %}"
+                                                          action="{% url 'venda-documento-aprovar' doc.uuid %}"
                                                           style="display:inline;">
                                                         {% csrf_token %}
                                                         <button type="submit"
@@ -562,7 +562,7 @@
                                                         </button>
                                                     </form>
                                                     <form method="POST"
-                                                          action="{% url 'venda-documento-rejeitar' doc.pk %}"
+                                                          action="{% url 'venda-documento-rejeitar' doc.uuid %}"
                                                           style="display:inline;">
                                                         {% csrf_token %}
                                                         <button type="submit"

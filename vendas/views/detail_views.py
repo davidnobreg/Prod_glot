@@ -430,11 +430,11 @@ class VendaDocumentoUploadView(LoginRequiredMixin, View):
 
 class VendaDocumentoAprovarView(LoginRequiredMixin, View):
 
-    def post(self, request, pk):
+    def post(self, request, doc_uuid):
         if getattr(request.user, 'tipo_usuario', None) != 'ADMINISTRADOR':
             raise Http404
 
-        doc = get_object_or_404(VendaDocumento, pk=pk)
+        doc = get_object_or_404(VendaDocumento, uuid=doc_uuid)
 
         with transaction.atomic():
             VendaDocumento.objects.filter(
@@ -452,11 +452,11 @@ class VendaDocumentoAprovarView(LoginRequiredMixin, View):
 
 class VendaDocumentoRejeitarView(LoginRequiredMixin, View):
 
-    def post(self, request, pk):
+    def post(self, request, doc_uuid):
         if getattr(request.user, 'tipo_usuario', None) != 'ADMINISTRADOR':
             raise Http404
 
-        doc = get_object_or_404(VendaDocumento, pk=pk)
+        doc = get_object_or_404(VendaDocumento, uuid=doc_uuid)
         doc.status = 'rejeitado'
         doc.save(update_fields=['status'])
 

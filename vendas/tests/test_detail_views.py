@@ -631,7 +631,7 @@ class TestVendaDocumentoUploadView:
 
 class TestVendaDocumentoAprovarView:
 	"""
-	URL: /vendas/venda/documento/<pk>/aprovar/  (POST only)
+	URL: /vendas/venda/documento/<uuid>/aprovar/  (POST only)
 	Proteção: LoginRequiredMixin + tipo_usuario == 'ADMINISTRADOR' (else 404).
 	"""
 
@@ -648,7 +648,7 @@ class TestVendaDocumentoAprovarView:
 
 	def test_admin_aprova_documento(self, client, admin_user, doc_enviado):
 		client.force_login(admin_user)
-		url = reverse('venda-documento-aprovar', kwargs={'pk': doc_enviado.pk})
+		url = reverse('venda-documento-aprovar', kwargs={'doc_uuid': doc_enviado.uuid})
 		response = client.post(url)
 		assert response.status_code == 302
 		doc_enviado.refresh_from_db()
@@ -656,32 +656,32 @@ class TestVendaDocumentoAprovarView:
 
 	def test_aprovado_por_preenchido(self, client, admin_user, doc_enviado):
 		client.force_login(admin_user)
-		url = reverse('venda-documento-aprovar', kwargs={'pk': doc_enviado.pk})
+		url = reverse('venda-documento-aprovar', kwargs={'doc_uuid': doc_enviado.uuid})
 		client.post(url)
 		doc_enviado.refresh_from_db()
 		assert doc_enviado.aprovado_por == admin_user
 
 	def test_aprovado_em_preenchido(self, client, admin_user, doc_enviado):
 		client.force_login(admin_user)
-		url = reverse('venda-documento-aprovar', kwargs={'pk': doc_enviado.pk})
+		url = reverse('venda-documento-aprovar', kwargs={'doc_uuid': doc_enviado.uuid})
 		client.post(url)
 		doc_enviado.refresh_from_db()
 		assert doc_enviado.aprovado_em is not None
 
 	def test_nao_admin_retorna_404(self, client, corretor_user, doc_enviado):
 		client.force_login(corretor_user)
-		url = reverse('venda-documento-aprovar', kwargs={'pk': doc_enviado.pk})
+		url = reverse('venda-documento-aprovar', kwargs={'doc_uuid': doc_enviado.uuid})
 		response = client.post(url)
 		assert response.status_code == 404
 
 	def test_anonimo_redirecionado(self, client, doc_enviado):
-		url = reverse('venda-documento-aprovar', kwargs={'pk': doc_enviado.pk})
+		url = reverse('venda-documento-aprovar', kwargs={'doc_uuid': doc_enviado.uuid})
 		response = client.post(url)
 		assert response.status_code == 302
 
 	def test_redirect_para_reservado_detalhes(self, client, admin_user, doc_enviado):
 		client.force_login(admin_user)
-		url = reverse('venda-documento-aprovar', kwargs={'pk': doc_enviado.pk})
+		url = reverse('venda-documento-aprovar', kwargs={'doc_uuid': doc_enviado.uuid})
 		response = client.post(url)
 		expected = reverse(
 			'reservadoDetalhes',
@@ -700,7 +700,7 @@ class TestVendaDocumentoAprovarView:
 			arquivo_assinado='fake/anterior.pdf', enviado_por=admin_user,
 		)
 		client.force_login(admin_user)
-		url = reverse('venda-documento-aprovar', kwargs={'pk': doc_enviado.pk})
+		url = reverse('venda-documento-aprovar', kwargs={'doc_uuid': doc_enviado.uuid})
 		response = client.post(url)
 
 		assert response.status_code == 302
@@ -719,7 +719,7 @@ class TestVendaDocumentoAprovarView:
 			arquivo_assinado='fake/contrato.pdf', enviado_por=admin_user,
 		)
 		client.force_login(admin_user)
-		url = reverse('venda-documento-aprovar', kwargs={'pk': doc_enviado.pk})
+		url = reverse('venda-documento-aprovar', kwargs={'doc_uuid': doc_enviado.uuid})
 		client.post(url)
 
 		contrato_aprovado.refresh_from_db()
@@ -730,7 +730,7 @@ class TestVendaDocumentoAprovarView:
 
 class TestVendaDocumentoRejeitarView:
 	"""
-	URL: /vendas/venda/documento/<pk>/rejeitar/  (POST only)
+	URL: /vendas/venda/documento/<uuid>/rejeitar/  (POST only)
 	Proteção: LoginRequiredMixin + tipo_usuario == 'ADMINISTRADOR' (else 404).
 	"""
 
@@ -747,7 +747,7 @@ class TestVendaDocumentoRejeitarView:
 
 	def test_admin_rejeita_documento(self, client, admin_user, doc_enviado):
 		client.force_login(admin_user)
-		url = reverse('venda-documento-rejeitar', kwargs={'pk': doc_enviado.pk})
+		url = reverse('venda-documento-rejeitar', kwargs={'doc_uuid': doc_enviado.uuid})
 		response = client.post(url)
 		assert response.status_code == 302
 		doc_enviado.refresh_from_db()
@@ -755,26 +755,26 @@ class TestVendaDocumentoRejeitarView:
 
 	def test_nao_admin_retorna_404(self, client, corretor_user, doc_enviado):
 		client.force_login(corretor_user)
-		url = reverse('venda-documento-rejeitar', kwargs={'pk': doc_enviado.pk})
+		url = reverse('venda-documento-rejeitar', kwargs={'doc_uuid': doc_enviado.uuid})
 		response = client.post(url)
 		assert response.status_code == 404
 
 	def test_anonimo_redirecionado(self, client, doc_enviado):
-		url = reverse('venda-documento-rejeitar', kwargs={'pk': doc_enviado.pk})
+		url = reverse('venda-documento-rejeitar', kwargs={'doc_uuid': doc_enviado.uuid})
 		response = client.post(url)
 		assert response.status_code == 302
 
 	def test_rejeitar_nao_altera_aprovado_por(self, client, admin_user, doc_enviado):
 		"""Rejeitar não deve setar aprovado_por."""
 		client.force_login(admin_user)
-		url = reverse('venda-documento-rejeitar', kwargs={'pk': doc_enviado.pk})
+		url = reverse('venda-documento-rejeitar', kwargs={'doc_uuid': doc_enviado.uuid})
 		client.post(url)
 		doc_enviado.refresh_from_db()
 		assert doc_enviado.aprovado_por is None
 
 	def test_redirect_para_reservado_detalhes(self, client, admin_user, doc_enviado):
 		client.force_login(admin_user)
-		url = reverse('venda-documento-rejeitar', kwargs={'pk': doc_enviado.pk})
+		url = reverse('venda-documento-rejeitar', kwargs={'doc_uuid': doc_enviado.uuid})
 		response = client.post(url)
 		expected = reverse(
 			'reservadoDetalhes',

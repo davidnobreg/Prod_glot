@@ -238,6 +238,14 @@ class TestReservadoDetalheView:
 			venda=venda, tipo='contrato_assinado', status='aprovado', ciclo=1,
 			arquivo_assinado=_fake_file(), enviado_por=admin_user, documento_gerado=doc_contrato,
 		)
+		ClienteDocumento.objects.create(
+			cliente=venda.cliente, tipo='CNH', arquivo='fake/cnh.pdf', status='disponivel',
+		)
+		ClienteDocumento.objects.create(
+			cliente=venda.cliente, tipo='COMPROVANTE_RESIDENCIA',
+			arquivo='fake/comp.pdf', status='disponivel',
+		)
+		# cliente_pf (conftest) tem estado_civil='solteiro' — COMPROVANTE_ESTADO_CIVIL não obrigatório
 		client.force_login(admin_user)
 		url = reverse('reservadoDetalhes', kwargs={'reserva_uuid': venda.lote.uuid})
 		response = client.get(url)

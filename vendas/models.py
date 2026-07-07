@@ -1,11 +1,22 @@
 ﻿import uuid
 from decimal import Decimal
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 from datetime import datetime
 from clientes.models import Cliente
 from empreendimentos.models import Lote, Empreendimento
 from accounts.models import User
+
+EXTENSOES_DOCUMENTO_ASSINADO = ('pdf', 'jpg', 'jpeg', 'png')
+
+
+def validate_documento_assinado(value):
+	ext = value.name.rsplit('.', 1)[-1].lower() if '.' in value.name else ''
+	if ext not in EXTENSOES_DOCUMENTO_ASSINADO:
+		raise ValidationError('Envie PDF, JPG ou PNG.')
+	if value.size > 10 * 1024 * 1024:
+		raise ValidationError('Arquivo não pode exceder 10 MB.')
 
 
 class TypeVenda(models.TextChoices):
@@ -105,7 +116,10 @@ class VendaDocumento(models.Model):
 
 	venda = models.ForeignKey(RegisterVenda, on_delete=models.CASCADE, related_name='documentos_assinados')
 	tipo = models.CharField(max_length=30, choices=TIPO_CHOICES, default='outros')
-	arquivo_assinado = models.FileField(upload_to='vendas/documentos_assinados/')
+	arquivo_assinado = models.FileField(
+		upload_to='vendas/documentos_assinados/',
+		validators=[validate_documento_assinado],
+	)
 	status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='enviado')
 	ciclo = models.PositiveIntegerField(default=1)
 	observacao = models.TextField(blank=True)

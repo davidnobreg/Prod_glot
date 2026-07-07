@@ -13,7 +13,7 @@
 			<p class="glot-banner-subtitle">{{ usuario.get_full_name|default:usuario.username }}</p>
 		</div>
 		<div class="glot-header-actions">
-			<a href="{% url 'update-usuario' usuario.pk %}" class="glot-btn-ghost"><i class="bi bi-arrow-left"></i> Voltar</a>
+			<a href="{% url 'update-usuario' usuario.uuid %}" class="glot-btn-ghost"><i class="bi bi-arrow-left"></i> Voltar</a>
 		</div>
 	</div>
 
@@ -38,7 +38,7 @@
 				{% endfor %}
 
 				<div class="tw:flex tw:gap-3 tw:justify-end tw:mt-6">
-					<a href="{% url 'update-usuario' usuario.pk %}" class="glot-btn-ghost">Cancelar</a>
+					<a href="{% url 'update-usuario' usuario.uuid %}" class="glot-btn-ghost">Cancelar</a>
 					<button type="submit" class="glot-btn-primary"><i class="bi bi-check-lg"></i> Salvar</button>
 				</div>
 			</div>

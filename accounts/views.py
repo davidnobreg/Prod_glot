@@ -148,8 +148,8 @@ def _contexto_vendas_corretor(usuario, request):
 
 
 @has_permission_decorator('alterarUsuario')
-def alteraUsuario(request, id):
-    usuario = get_object_or_404(User, id=id)
+def alteraUsuario(request, usuario_uuid):
+    usuario = get_object_or_404(User, uuid=usuario_uuid)
     template_name = 'update_usuario.html'
 
     if request.method == 'GET':
@@ -176,8 +176,8 @@ def alteraUsuario(request, id):
 
 @has_permission_decorator('deletarUsuario')
 @require_POST
-def deleteUsuario(request, id):
-    usuario = get_object_or_404(User, id=id)
+def deleteUsuario(request, usuario_uuid):
+    usuario = get_object_or_404(User, uuid=usuario_uuid)
     usuario.is_active = False
     usuario.save(update_fields=['is_active'])
     messages.success(request, "Usuario desativado com sucesso.")
@@ -361,8 +361,8 @@ def excluir_grupo(request, pk):
 
 @login_required
 @user_passes_test(_is_admin)
-def associar_grupos(request, pk):
-    usuario = get_object_or_404(User, pk=pk)
+def associar_grupos(request, usuario_uuid):
+    usuario = get_object_or_404(User, uuid=usuario_uuid)
 
     if request.method == 'POST':
         grupo_ids = request.POST.getlist('grupos')
@@ -370,7 +370,7 @@ def associar_grupos(request, pk):
         usuario.groups.set(grupos)
         nome = usuario.get_full_name().strip() or usuario.username
         messages.success(request, f"Grupos de {nome} atualizados.")
-        return redirect('update-usuario', id=usuario.pk)
+        return redirect('update-usuario', usuario_uuid=usuario.uuid)
 
     atuais = set(usuario.groups.values_list('id', flat=True))
     grupos = Group.objects.annotate(
@@ -398,18 +398,18 @@ def associar_grupos(request, pk):
 # =========================================================
 
 @login_required
-def impersonate_start(request, pk):
+def impersonate_start(request, usuario_uuid):
     # Apenas Administrador pode impersonate
     if not _is_admin(request.user):
         messages.error(request, "Sem permissao para acessar como outro usuario.")
         return redirect('lista-usuario')
 
-    # Nao permitir impersonate de si mesmo
-    if request.user.pk == pk:
-        messages.warning(request, "Voce nao pode acessar como voce mesmo.")
-        return redirect('update-usuario', id=pk)
+    target = get_object_or_404(User, uuid=usuario_uuid)
 
-    target = get_object_or_404(User, pk=pk)
+    # Nao permitir impersonate de si mesmo
+    if request.user.pk == target.pk:
+        messages.warning(request, "Voce nao pode acessar como voce mesmo.")
+        return redirect('update-usuario', usuario_uuid=usuario_uuid)
 
     # IMPORTANTE: salvar o id original ANTES do login.
     # login() faz flush da sessao quando o pk do usuario muda,

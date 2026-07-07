@@ -17,7 +17,7 @@ def modelo_com_paragrafo(superuser):
 @pytest.mark.django_db
 def test_paragrafo_aceita_e_persiste_espacamento_entre_linhas(logged_browser, live_server, modelo_com_paragrafo):
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('#tiptapEditor .ProseMirror')
 
@@ -34,7 +34,7 @@ def test_paragrafo_aceita_e_persiste_espacamento_entre_linhas(logged_browser, li
 @pytest.mark.django_db
 def test_espacamento_padrao_remove_o_atributo(logged_browser, live_server, modelo_com_paragrafo):
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('#tiptapEditor .ProseMirror')
 
@@ -61,7 +61,7 @@ def test_clicar_no_dropdown_real_aplica_espacamento_com_ponto_decimal(
 	# já no formato certo ('2'), pulando o clique real no botão renderizado
 	# pelo template. Este teste clica no botão de verdade.
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('#tiptapEditor .ProseMirror')
 

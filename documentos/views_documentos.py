@@ -82,9 +82,9 @@ def modelos_lista(request):
 
 
 @has_permission_decorator('documentoModelos')
-def modelo_editor(request, pk=None):
-	modelo = get_object_or_404(ModeloDocumento, pk=pk) if pk else None
-	salvar_url = reverse('documentos:modelo-salvar', args=[pk]) if pk else reverse('documentos:modelo-salvar-novo')
+def modelo_editor(request, modelo_uuid=None):
+	modelo = get_object_or_404(ModeloDocumento, uuid=modelo_uuid) if modelo_uuid else None
+	salvar_url = reverse('documentos:modelo-salvar', args=[modelo.uuid]) if modelo else reverse('documentos:modelo-salvar-novo')
 	conteudo = modelo.conteudo_html if modelo else ''
 
 	empreendimentos_vinculo = []
@@ -143,7 +143,7 @@ def modelo_editor(request, pk=None):
 
 
 @has_permission_decorator('documentoModelos')
-def modelo_salvar(request, pk=None):
+def modelo_salvar(request, modelo_uuid=None):
 	if request.method != 'POST':
 		return JsonResponse({'ok': False, 'erros': ['Método inválido']}, status=405)
 	try:
@@ -159,8 +159,8 @@ def modelo_salvar(request, pk=None):
 	titulo = (dados.get('titulo') or '').strip() or 'Sem título'
 	tipo = dados.get('tipo') or TipoDocumento.OUTROS
 
-	if pk:
-		modelo = get_object_or_404(ModeloDocumento, pk=pk)
+	if modelo_uuid:
+		modelo = get_object_or_404(ModeloDocumento, uuid=modelo_uuid)
 		modelo.titulo = titulo
 		modelo.tipo = tipo
 		modelo.conteudo_html = conteudo
@@ -173,36 +173,36 @@ def modelo_salvar(request, pk=None):
 	return JsonResponse({
 		'ok': True,
 		'id': modelo.pk,
-		# URL de salvamento já vinculada ao pk — o autosave de um modelo novo
+		# URL de salvamento já vinculada ao uuid — o autosave de um modelo novo
 		# passa a atualizar o mesmo registro em vez de criar duplicatas.
-		'salvar_url': reverse('documentos:modelo-salvar', args=[modelo.pk]),
+		'salvar_url': reverse('documentos:modelo-salvar', args=[modelo.uuid]),
 		'redirect': reverse('documentos:modelos-lista'),
 	})
 
 
 @has_permission_decorator('documentoModelos')
-def modelo_preview(request, pk):
-	modelo = get_object_or_404(ModeloDocumento, pk=pk)
+def modelo_preview(request, modelo_uuid):
+	modelo = get_object_or_404(ModeloDocumento, uuid=modelo_uuid)
 	html = services.renderizar_variaveis(modelo.conteudo_html, _contexto_exemplo())
 	return render(request, 'documentos/modelo_preview.html', {'modelo': modelo, 'html': html})
 
 
 @has_permission_decorator('documentoModelos')
-def modelo_duplicar(request, pk):
+def modelo_duplicar(request, modelo_uuid):
 	if request.method != 'POST':
 		return redirect('documentos:modelos-lista')
-	modelo = get_object_or_404(ModeloDocumento, pk=pk)
+	modelo = get_object_or_404(ModeloDocumento, uuid=modelo_uuid)
 	copia = services.duplicar_modelo(modelo, request.user)
 	messages.success(request, f'Modelo duplicado: {copia.titulo}')
-	return redirect('documentos:modelo-editar', pk=copia.pk)
+	return redirect('documentos:modelo-editor', modelo_uuid=copia.uuid)
 
 
 @has_permission_decorator('documentoModelos')
-def modelo_toggle_ativo(request, pk):
+def modelo_toggle_ativo(request, modelo_uuid):
 	"""Alterna ativo/inativo do modelo (nunca deleta). Só POST."""
 	if request.method != 'POST':
 		return redirect('documentos:modelos-lista')
-	modelo = get_object_or_404(ModeloDocumento, pk=pk)
+	modelo = get_object_or_404(ModeloDocumento, uuid=modelo_uuid)
 	modelo.ativo = not modelo.ativo
 	modelo.save(update_fields=['ativo'])
 	estado = 'reativado' if modelo.ativo else 'inativado'
@@ -211,8 +211,8 @@ def modelo_toggle_ativo(request, pk):
 
 
 @has_permission_decorator('documentoModelos')
-def modelo_historico(request, pk):
-	modelo = get_object_or_404(ModeloDocumento, pk=pk)
+def modelo_historico(request, modelo_uuid):
+	modelo = get_object_or_404(ModeloDocumento, uuid=modelo_uuid)
 	return render(request, 'documentos/modelo_historico.html', {
 		'modelo': modelo,
 		'historico': modelo.historico.all(),

@@ -24,7 +24,7 @@ def modelo_com_empreendimento(superuser):
 def test_arrastar_marcador_de_margem_persiste_e_preserva_texto(logged_browser, live_server, modelo_com_empreendimento):
 	modelo, empr = modelo_com_empreendimento
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('.doc-ruler-horizontal')
 	page.select_option('#modeloEmpreendimento', str(empr.uuid))
@@ -65,7 +65,7 @@ def test_toolbar_atua_no_editor_vivo_apos_drag_de_margem(logged_browser, live_se
 	# a toolbar, provando que ela passou a agir sobre o editor vivo.
 	modelo, empr = modelo_com_empreendimento
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('.doc-ruler-horizontal')
 	page.select_option('#modeloEmpreendimento', str(empr.uuid))

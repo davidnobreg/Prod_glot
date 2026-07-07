@@ -17,7 +17,7 @@ def modelo_com_paragrafo(superuser):
 @pytest.mark.django_db
 def test_paragrafo_aceita_e_persiste_atributos_de_recuo(logged_browser, live_server, modelo_com_paragrafo):
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('#tiptapEditor .ProseMirror')
 

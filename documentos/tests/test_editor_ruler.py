@@ -23,7 +23,7 @@ def modelo_com_empreendimento(superuser):
 @pytest.mark.django_db
 def test_regua_renderiza_com_zonas_de_margem(logged_browser, live_server, modelo_com_empreendimento):
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_empreendimento.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_empreendimento.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('.doc-ruler-horizontal')
 	page.wait_for_selector('.doc-ruler-vertical')
@@ -41,7 +41,7 @@ def test_regua_vertical_tem_numeracao_em_polegadas(logged_browser, live_server, 
 	# Achado: criarTicks() só era chamado pro horiz — a régua vertical
 	# renderizava sem nenhum tick/numeração, diferente da horizontal.
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_empreendimento.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_empreendimento.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('.doc-ruler-vertical')
 
@@ -65,7 +65,7 @@ def test_paginacao_real_usa_margem_do_empreendimento_desde_a_carga_inicial(
 	# Este teste NÃO arrasta nada: só carrega a página e confere que a
 	# paginação já nasce certa.
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_empreendimento.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_empreendimento.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('.doc-ruler-horizontal')
 
@@ -103,7 +103,7 @@ def test_trocar_empreendimento_no_dropdown_repagina_o_editor(logged_browser, liv
 	EmpreendimentoDocumento.objects.create(empreendimento=empr2, modelo=modelo, ordem=1)
 
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('.doc-ruler-horizontal')
 

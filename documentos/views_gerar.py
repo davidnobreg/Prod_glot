@@ -98,7 +98,7 @@ def gerar_documento(request, venda_uuid):
                 substitui_id=int(substitui_id) if substitui_id else None,
             )
             messages.success(request, f'Documento {doc.numero} gerado com sucesso.')
-            return redirect('documentos:documento-detalhe', pk=doc.pk)
+            return redirect('documentos:documento-detalhe', documento_uuid=doc.uuid)
         except Exception as e:
             messages.error(request, str(e))
             return redirect(request.path)
@@ -135,13 +135,13 @@ def gerar_documento(request, venda_uuid):
 # Corretor só acessa documentos de proposta
 # ----------------------------------------------------------
 @has_permission_decorator('documentoVisualizar')
-def documento_detalhe(request, pk):
+def documento_detalhe(request, documento_uuid):
     doc = get_object_or_404(
         DocumentoGerado.objects.select_related(
             'modelo', 'venda__cliente', 'venda__lote__quadra__empr',
             'criado_por',
         ),
-        pk=pk,
+        uuid=documento_uuid,
     )
     tipos_ok = _tipos_permitidos(request.user)
     if doc.modelo.tipo not in tipos_ok:
@@ -158,24 +158,24 @@ def documento_detalhe(request, pk):
 # ----------------------------------------------------------
 @require_POST
 @has_permission_decorator('documentoFinalizar')
-def documento_finalizar(request, pk):
+def documento_finalizar(request, documento_uuid):
     if not has_role(request.user, Administrador):
         messages.error(request, 'Apenas administradores podem finalizar documentos.')
-        return redirect('documentos:documento-detalhe', pk=pk)
-    doc = get_object_or_404(DocumentoGerado, pk=pk)
+        return redirect('documentos:documento-detalhe', documento_uuid=documento_uuid)
+    doc = get_object_or_404(DocumentoGerado, uuid=documento_uuid)
     try:
         finalizar_documento(doc, request.user)
         messages.success(request, f'Documento {doc.numero} enviado para finalização.')
     except Exception as e:
         messages.error(request, str(e))
-    return redirect('documentos:documento-detalhe', pk=pk)
+    return redirect('documentos:documento-detalhe', documento_uuid=documento_uuid)
 
 
 # ----------------------------------------------------------
 # Status do documento (polling)
 # ----------------------------------------------------------
-def documento_status(request, pk):
-    doc = get_object_or_404(DocumentoGerado.objects.only('status', 'arquivo_pdf'), pk=pk)
+def documento_status(request, documento_uuid):
+    doc = get_object_or_404(DocumentoGerado.objects.only('status', 'arquivo_pdf'), uuid=documento_uuid)
     return JsonResponse({
         'status': doc.status,
         'pdf_url': doc.arquivo_pdf.url if doc.arquivo_pdf else None,
@@ -187,18 +187,18 @@ def documento_status(request, pk):
 # ----------------------------------------------------------
 @require_POST
 @has_permission_decorator('documentoFinalizar')
-def documento_cancelar(request, pk):
+def documento_cancelar(request, documento_uuid):
     if not has_role(request.user, Administrador):
         messages.error(request, 'Apenas administradores podem cancelar documentos.')
-        return redirect('documentos:documento-detalhe', pk=pk)
-    doc = get_object_or_404(DocumentoGerado, pk=pk)
+        return redirect('documentos:documento-detalhe', documento_uuid=documento_uuid)
+    doc = get_object_or_404(DocumentoGerado, uuid=documento_uuid)
     if doc.status == StatusDocumento.FINALIZADO:
         messages.error(request, 'Documento finalizado não pode ser cancelado.')
-        return redirect('documentos:documento-detalhe', pk=pk)
+        return redirect('documentos:documento-detalhe', documento_uuid=documento_uuid)
     doc.status = StatusDocumento.CANCELADO
     doc.save(update_fields=['status'])
     messages.success(request, f'Documento {doc.numero} cancelado.')
-    return redirect('documentos:documento-detalhe', pk=pk)
+    return redirect('documentos:documento-detalhe', documento_uuid=documento_uuid)
 
 
 # ----------------------------------------------------------
@@ -206,9 +206,9 @@ def documento_cancelar(request, pk):
 # ----------------------------------------------------------
 @xframe_options_sameorigin
 @has_permission_decorator('documentoVisualizar')
-def documento_preview(request, pk):
+def documento_preview(request, documento_uuid):
     from django.http import HttpResponse, HttpResponseForbidden
-    doc = get_object_or_404(DocumentoGerado, pk=pk)
+    doc = get_object_or_404(DocumentoGerado, uuid=documento_uuid)
     tipos_ok = _tipos_permitidos(request.user)
     if doc.modelo.tipo not in tipos_ok:
         return HttpResponseForbidden('Sem permissão.')

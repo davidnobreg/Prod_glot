@@ -1,4 +1,5 @@
 import hashlib
+import uuid
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -135,6 +136,12 @@ class ModeloDocumentoManager(models.Manager):
 
 
 class ModeloDocumento(models.Model):
+	uuid = models.UUIDField(
+		default=uuid.uuid4,
+		editable=False,
+		unique=True,
+		db_index=True
+	)
 	titulo = models.CharField(max_length=255)
 	tipo = models.CharField(max_length=30, choices=TipoDocumento.choices)
 	conteudo_html = models.TextField(blank=True)
@@ -308,6 +315,12 @@ class Distrato(models.Model):
 # Documento gerado (instância final, imutável quando finalizada)
 # ----------------------------------------------------------
 class DocumentoGerado(models.Model):
+	uuid = models.UUIDField(
+		default=uuid.uuid4,
+		editable=False,
+		unique=True,
+		db_index=True
+	)
 	numero = models.CharField(max_length=20, unique=True, editable=False)
 	modelo = models.ForeignKey(ModeloDocumento, on_delete=models.PROTECT)
 	modelo_versao_snapshot = models.PositiveIntegerField()

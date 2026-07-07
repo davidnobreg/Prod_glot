@@ -27,7 +27,7 @@
 			<p class="small text-muted mb-1">Documentos vinculados:</p>
 			<ul class="small">
 				{% for d in distrato.documentos.all %}
-					<li><a href="{% url 'documentos:documento-detalhe' d.pk %}">{{ d.numero }}</a> — {{ d.get_status_display }}</li>
+					<li><a href="{% url 'documentos:documento-detalhe' d.uuid %}">{{ d.numero }}</a> — {{ d.get_status_display }}</li>
 				{% empty %}
 					<li class="text-muted">Nenhum. Gere e finalize um documento antes de concluir.</li>
 				{% endfor %}

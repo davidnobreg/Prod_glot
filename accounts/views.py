@@ -210,15 +210,6 @@ def criarUsuariosEmpreendimento(request):
     return redirect('detalhe-empreendimento', uuid=empreendimento.uuid)
 
 
-@has_permission_decorator('deleteUsuarioEmpreendimento')
-@require_POST
-def deleteUsuarioEmpreendimento(request, usuario_empreendimento_uuid):
-    usuario = get_object_or_404(UsuarioEmpreendimento, uuid=usuario_empreendimento_uuid)
-    usuario.ativo = False
-    usuario.save(update_fields=['ativo'])
-    return redirect('detalhe-empreendimento', uuid=usuario.empreendimento.uuid)
-
-
 # =========================================================
 # Grupos de acesso (Fase 2)
 # =========================================================

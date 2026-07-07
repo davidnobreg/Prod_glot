@@ -8,7 +8,7 @@ import os
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from django.http import FileResponse, Http404, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from rolepermissions.checkers import has_permission
@@ -20,10 +20,8 @@ from vendas.models import RegisterVenda
 from . import services
 from .models import (
 	Distrato,
-	DocumentoGerado,
 	EmpreendimentoDocumento,
 	ModeloDocumento,
-	StatusDocumento,
 	TipoDocumento,
 	VariavelDocumento,
 )
@@ -217,95 +215,6 @@ def modelo_historico(request, modelo_uuid):
 		'modelo': modelo,
 		'historico': modelo.historico.all(),
 	})
-
-
-# ----------------------------------------------------------
-# Geração / documentos
-# ----------------------------------------------------------
-@has_permission_decorator('documentoGerar')
-def gerar_documento(request, venda_pk):
-	venda = get_object_or_404(RegisterVenda, pk=venda_pk)
-	empreendimento = venda.lote.quadra.empr if venda.lote else None
-	modelos = ModeloDocumento.objects.para_empreendimento(empreendimento) if empreendimento else ModeloDocumento.objects.none()
-
-	if request.method == 'POST':
-		tipo = request.POST.get('tipo')
-		modelo_id = request.POST.get('modelo_id') or None
-		try:
-			doc = services.gerar_documento_venda(venda, tipo, request.user, modelo_id=modelo_id)
-		except (ValidationError, ModeloDocumento.DoesNotExist) as e:
-			messages.error(request, str(e))
-			return redirect('documentos:gerar-documento', venda_pk=venda.pk)
-		return redirect('documentos:documento-detalhe', pk=doc.pk)
-
-	return render(request, 'documentos/gerar_documento.html', {
-		'venda': venda,
-		'tipos': TipoDocumento.choices,
-		'modelos': modelos,
-	})
-
-
-@has_permission_decorator('documentoVisualizar')
-def documento_detalhe(request, pk):
-	doc = get_object_or_404(DocumentoGerado, pk=pk)
-	return render(request, 'documentos/documento_detalhe.html', {'doc': doc})
-
-
-@has_permission_decorator('documentoFinalizar')
-def documento_finalizar(request, pk):
-	if request.method != 'POST':
-		return redirect('documentos:documento-detalhe', pk=pk)
-	doc = get_object_or_404(DocumentoGerado, pk=pk)
-	try:
-		services.finalizar_documento(doc, request.user)
-	except ValidationError as e:
-		messages.error(request, str(e))
-	return redirect('documentos:documento-detalhe', pk=pk)
-
-
-@has_permission_decorator('documentoVisualizar')
-def documento_status(request, pk):
-	doc = get_object_or_404(DocumentoGerado, pk=pk)
-	pdf_url = doc.arquivo_pdf.url if doc.arquivo_pdf else None
-	return JsonResponse({'status': doc.status, 'pdf_url': pdf_url})
-
-
-@has_permission_decorator('documentoGerar')
-def documento_substituir(request, pk):
-	if request.method != 'POST':
-		return redirect('documentos:documento-detalhe', pk=pk)
-	doc = get_object_or_404(DocumentoGerado, pk=pk)
-	if not doc.venda:
-		messages.error(request, 'Documento sem venda vinculada.')
-		return redirect('documentos:documento-detalhe', pk=pk)
-	try:
-		novo = services.gerar_documento_venda(
-			doc.venda, doc.modelo.tipo, request.user,
-			modelo_id=doc.modelo_id, substitui_id=doc.pk,
-		)
-	except ValidationError as e:
-		messages.error(request, str(e))
-		return redirect('documentos:documento-detalhe', pk=pk)
-	return redirect('documentos:documento-detalhe', pk=novo.pk)
-
-
-@has_permission_decorator('documentoGerar')
-def documento_cancelar(request, pk):
-	if request.method != 'POST':
-		return redirect('documentos:documento-detalhe', pk=pk)
-	doc = get_object_or_404(DocumentoGerado, pk=pk)
-	doc.status = StatusDocumento.CANCELADO
-	doc.save(update_fields=['status'])
-	messages.success(request, 'Documento cancelado.')
-	return redirect('documentos:documento-detalhe', pk=pk)
-
-
-@has_permission_decorator('documentoVisualizar')
-def documento_pdf(request, pk):
-	doc = get_object_or_404(DocumentoGerado, pk=pk)
-	if not doc.arquivo_pdf:
-		raise Http404('PDF ainda não gerado.')
-	return FileResponse(doc.arquivo_pdf.open('rb'), filename=f'{doc.numero}.pdf')
 
 
 # ----------------------------------------------------------

@@ -137,15 +137,6 @@ def selectCliente(request, cliente_uuid):
 
 
 # ===================================================================
-# selectClienteEndereco — mantido como endpoint de transição
-# ===================================================================
-
-# @has_permission_decorator('selectClienteEndereco')
-def selectClienteEndereco(request, endereco_id):
-    raise Http404
-
-
-# ===================================================================
 # criarCliente
 # ===================================================================
 

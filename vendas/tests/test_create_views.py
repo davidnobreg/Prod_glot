@@ -58,8 +58,21 @@ class TestCriarVendaView:
 			documento_gerado=contrato_gerado_finalizado,
 		)
 
+	@pytest.fixture
+	def checklist_cliente_completo(self, venda):
+		from clientes.models import ClienteDocumento
+		ClienteDocumento.objects.create(
+			cliente=venda.cliente, tipo='CNH', arquivo='fake/cnh.pdf', status='disponivel',
+		)
+		ClienteDocumento.objects.create(
+			cliente=venda.cliente, tipo='COMPROVANTE_RESIDENCIA',
+			arquivo='fake/comp.pdf', status='disponivel',
+		)
+		# cliente_pf (conftest) tem estado_civil='solteiro' — COMPROVANTE_ESTADO_CIVIL não obrigatório
+
 	def test_post_avanca_tipo_venda_para_pre_venda(
 		self, client, admin_user, venda, proposta_aprovada, contrato_aprovado,
+		checklist_cliente_completo,
 	):
 		client.force_login(admin_user)
 		client.post(reverse('criar-venda', kwargs={'venda_uuid': venda.uuid}))
@@ -68,6 +81,7 @@ class TestCriarVendaView:
 
 	def test_post_avanca_lote_para_pre_venda(
 		self, client, admin_user, venda, proposta_aprovada, contrato_aprovado,
+		checklist_cliente_completo,
 	):
 		client.force_login(admin_user)
 		client.post(reverse('criar-venda', kwargs={'venda_uuid': venda.uuid}))
@@ -84,6 +98,7 @@ class TestCriarVendaView:
 
 	def test_redirect_para_pre_venda_detalhe(
 		self, client, admin_user, venda, proposta_aprovada, contrato_aprovado,
+		checklist_cliente_completo,
 	):
 		client.force_login(admin_user)
 		response = client.post(reverse('criar-venda', kwargs={'venda_uuid': venda.uuid}))

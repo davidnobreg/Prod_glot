@@ -15,9 +15,9 @@ urlpatterns = [
 
     path('listar_usuarios/', views.listarUsuario, name='lista-usuario'),
 
-    path('delete_usuarios/<int:id>/', views.deleteUsuario, name='delete-usuario'),
+    path('delete_usuarios/<uuid:usuario_uuid>/', views.deleteUsuario, name='delete-usuario'),
 
-    path('alterar_usuarios/<int:id>/', views.alteraUsuario, name='update-usuario'),
+    path('alterar_usuarios/<uuid:usuario_uuid>/', views.alteraUsuario, name='update-usuario'),
 
     path('usuariosempreendimento/multiplos/', views.criarUsuariosEmpreendimento, name='criar-usuarios-empreendimento'),
 
@@ -30,9 +30,9 @@ urlpatterns = [
     path('grupos/<int:pk>/excluir/', views.excluir_grupo, name='excluir_grupo'),
 
     # Associar usuario a grupos (Fase 2 complemento)
-    path('usuario/<int:pk>/grupos/', views.associar_grupos, name='associar_grupos'),
+    path('usuario/<uuid:usuario_uuid>/grupos/', views.associar_grupos, name='associar_grupos'),
 
     # Impersonate (Fase 3)
     path('usuario/impersonate/stop/', views.impersonate_stop, name='impersonate_stop'),
-    path('usuario/<int:pk>/impersonate/', views.impersonate_start, name='impersonate_start'),
+    path('usuario/<uuid:usuario_uuid>/impersonate/', views.impersonate_start, name='impersonate_start'),
 ]

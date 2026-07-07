@@ -107,7 +107,7 @@ class AccountsViewsTests(TestCase):
             tipo_usuario='CORRETOR',
         )
 
-        response = self.client.get(reverse('delete-usuario', args=[target.id]))
+        response = self.client.get(reverse('delete-usuario', args=[target.uuid]))
 
         self.assertEqual(response.status_code, 405)
         target.refresh_from_db()
@@ -122,7 +122,7 @@ class AccountsViewsTests(TestCase):
             tipo_usuario='CORRETOR',
         )
 
-        response = self.client.post(reverse('delete-usuario', args=[target.id]))
+        response = self.client.post(reverse('delete-usuario', args=[target.uuid]))
 
         self.assertRedirects(response, reverse('lista-usuario'))
         target.refresh_from_db()

@@ -27,11 +27,11 @@
 		</div>
 		<div class="glot-header-actions">
 			{% if user.tipo_usuario == "ADMINISTRADOR" %}
-				<a href="{% url 'associar_grupos' usuario.pk %}" class="glot-btn-secondary">
+				<a href="{% url 'associar_grupos' usuario.uuid %}" class="glot-btn-secondary">
 					<i class="bi bi-people"></i> Gerenciar Grupos
 				</a>
 				{% if user.pk != usuario.pk %}
-					<a href="{% url 'impersonate_start' usuario.pk %}" class="glot-btn-ghost"
+					<a href="{% url 'impersonate_start' usuario.uuid %}" class="glot-btn-ghost"
 					   onclick="return confirm('Acessar o sistema como {{ usuario.get_full_name|default:usuario.username|escapejs }}?');">
 						<i class="bi bi-person-badge"></i> Acessar como este usuário
 					</a>
@@ -130,7 +130,7 @@
 						</div>
 						<div class="tw:flex tw:gap-2">
 							<button type="submit" class="glot-btn-primary tw:w-full">Filtrar</button>
-							<a href="{% url 'update-usuario' usuario.pk %}" class="glot-btn-ghost tw:w-full">Limpar</a>
+							<a href="{% url 'update-usuario' usuario.uuid %}" class="glot-btn-ghost tw:w-full">Limpar</a>
 						</div>
 					</form>
 				</div>

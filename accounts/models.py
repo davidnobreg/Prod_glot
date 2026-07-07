@@ -11,6 +11,12 @@ class User(AbstractUser):
                              ('CORRETOR', 'CORRETOR'),
                              ('PROPRIETARIO', 'PROPRIETARIO'))
 
+    uuid = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+        unique=True,
+        db_index=True
+    )
     tipo_usuario = models.CharField(max_length=13, choices=choices_tipo_usuario)
     creci = models.CharField('Creci', max_length=50, blank=True)
     contato = models.CharField(

@@ -12,7 +12,8 @@ from django.http import Http404
 from rolepermissions.decorators import has_permission_decorator
 
 from empreendimentos.models import Lote
-from vendas.models import RegisterVenda, VendaDocumento
+from django.core.exceptions import ValidationError
+from vendas.models import RegisterVenda, VendaDocumento, validate_documento_assinado
 from vendas.services import checklist_documentos_cliente, documento_gerado_mais_recente
 from clientes.models import ClienteTelefone, ClienteDocumento
 from documentos.models import (
@@ -397,6 +398,12 @@ class VendaDocumentoUploadView(LoginRequiredMixin, View):
         arquivo = request.FILES.get('arquivo_assinado')
         if not arquivo:
             messages.error(request, 'Arquivo obrigatório.')
+            return redirect('reservadoDetalhes', reserva_uuid=venda.lote.uuid)
+
+        try:
+            validate_documento_assinado(arquivo)
+        except ValidationError as exc:
+            messages.error(request, ' '.join(exc.messages))
             return redirect('reservadoDetalhes', reserva_uuid=venda.lote.uuid)
 
         ciclo_atual = (

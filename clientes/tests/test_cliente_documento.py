@@ -230,7 +230,7 @@ class ExcluirDocumentoViewTest(TestCase):
 			doc = ClienteDocumento.objects.create(
 				cliente=self.cliente, tipo='RG', arquivo=_fake_file(),
 			)
-		url = reverse('excluir-documento-cliente', args=[doc.id])
+		url = reverse('excluir-documento-cliente', args=[doc.uuid])
 		response = self.client.post(url)
 		self.assertRedirects(
 			response,
@@ -244,7 +244,7 @@ class ExcluirDocumentoViewTest(TestCase):
 			doc = ClienteDocumento.objects.create(
 				cliente=self.cliente, tipo='RG', arquivo=_fake_file(),
 			)
-		url = reverse('excluir-documento-cliente', args=[doc.id])
+		url = reverse('excluir-documento-cliente', args=[doc.uuid])
 		response = self.client.get(url)
 		self.assertEqual(response.status_code, 404)
 
@@ -254,7 +254,7 @@ class ExcluirDocumentoViewTest(TestCase):
 				cliente=self.cliente, tipo='RG', arquivo=_fake_file(),
 			)
 		self.client.logout()
-		url = reverse('excluir-documento-cliente', args=[doc.id])
+		url = reverse('excluir-documento-cliente', args=[doc.uuid])
 		response = self.client.post(url)
 		self.assertEqual(response.status_code, 403)
 

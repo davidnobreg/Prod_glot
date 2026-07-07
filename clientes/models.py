@@ -167,6 +167,12 @@ class ClienteDocumento(models.Model):
         default='disponivel',
     )
 
+    uuid = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+        unique=True,
+        db_index=True
+    )
     cliente = models.ForeignKey(
         'Cliente',
         on_delete=models.CASCADE,

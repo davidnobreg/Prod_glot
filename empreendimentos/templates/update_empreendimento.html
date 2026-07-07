@@ -64,7 +64,7 @@
 
 <section class="content">
 	<div class="container-fluid">
-		<form action="{% url 'alterar-empreendimento' empreendimento.id %}" method="post"
+		<form action="{% url 'alterar-empreendimento' empreendimento.uuid %}" method="post"
 		      enctype="multipart/form-data" novalidate>
 			{% csrf_token %}
 

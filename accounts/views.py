@@ -207,7 +207,7 @@ def criarUsuariosEmpreendimento(request):
             relacao.save(update_fields=['ativo'])
 
     messages.success(request, "Usuarios associados com sucesso.")
-    return redirect('detalhe-empreendimento', id=empreendimento.id)
+    return redirect('detalhe-empreendimento', uuid=empreendimento.uuid)
 
 
 @has_permission_decorator('deleteUsuarioEmpreendimento')
@@ -216,7 +216,7 @@ def deleteUsuarioEmpreendimento(request, id):
     usuario = get_object_or_404(UsuarioEmpreendimento, id=id)
     usuario.ativo = False
     usuario.save(update_fields=['ativo'])
-    return redirect('detalhe-empreendimento', id=usuario.empreendimento.id)
+    return redirect('detalhe-empreendimento', uuid=usuario.empreendimento.uuid)
 
 
 # =========================================================

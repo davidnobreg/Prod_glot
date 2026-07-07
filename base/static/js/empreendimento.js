@@ -20,18 +20,18 @@ document.addEventListener("DOMContentLoaded", function () {
     if (empreendimentoModal) {
         empreendimentoModal.addEventListener('show.bs.modal', event => {
             const button = event.relatedTarget;
-            const empreendimentoId = button.getAttribute('data-id');
+            const empreendimentoUuid = button.getAttribute('data-uuid');
 
-            fetch(`/empreendimentos/select/${empreendimentoId}/`)
+            fetch(`/empreendimentos/select/${empreendimentoUuid}/`)
                 .then(response => {
                     if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
                     return response.json();
                 })
                 .then(data => {
-                    preencherModalEmpreendimento(empreendimentoId, data);
+                    preencherModalEmpreendimento(empreendimentoUuid, data);
 
                     if (formDeletarEmpreendimento) {
-                        formDeletarEmpreendimento.setAttribute("action", `/empreendimentos/deleta_empreendimento/${data.id}/`);
+                        formDeletarEmpreendimento.setAttribute("action", `/empreendimentos/deleta_empreendimento/${empreendimentoUuid}/`);
                     }
                 })
                 .catch(error => {

@@ -71,25 +71,25 @@ urlpatterns = [
     ),
 
     path(
-        'select/<int:empreendimento_id>/',
+        'select/<uuid:empreendimento_uuid>/',
         selectEmpreendimento,
         name='select-empreendimento'
     ),
 
     path(
-        'alterar_empreendimento/<int:id>/',
+        'alterar_empreendimento/<uuid:uuid>/',
         alteraEmpreendimento,
         name='alterar-empreendimento'
     ),
 
     path(
-        'deleta_empreendimento/<int:empreendimento_Id>/',
+        'deleta_empreendimento/<uuid:empreendimento_uuid>/',
         deleteEmpreendimento,
         name='deletar-empreendimento'
     ),
 
     path(
-        'detalhe_empreendimento/<int:id>/',
+        'detalhe_empreendimento/<uuid:uuid>/',
         detalheEmpreendimento,
         name='detalhe-empreendimento'
     ),
@@ -98,7 +98,7 @@ urlpatterns = [
     # Importação de dados
     # =========================
     path(
-        'insert_arq/<int:id>/',
+        'insert_arq/<uuid:uuid>/',
         importarDados.as_view(),
         name='arquivo'
     ),
@@ -172,7 +172,7 @@ urlpatterns = [
     # Esta rota está importada no seu arquivo original.
     # Mantenha se estiver sendo usada em algum template.
     path(
-        'alterar_lote/<int:id>/',
+        'alterar_lote/<uuid:uuid>/',
         alteraLote,
         name='alterar-lote'
     ),
@@ -181,7 +181,7 @@ urlpatterns = [
     # Relatórios
     # =========================
     path(
-        'relatorio_financeiro/<int:id>/',
+        'relatorio_financeiro/<uuid:uuid>/',
         relatorioFinanceiro,
         name='relatorio-financeiro'
     ),
@@ -226,17 +226,17 @@ urlpatterns = [
     # Exportar / Importar lotes em massa
     # =========================
     path(
-        'detalhe_empreendimento/<int:empreendimento_id>/lotes/exportar/',
+        'detalhe_empreendimento/<uuid:empreendimento_uuid>/lotes/exportar/',
         exportar_lotes,
         name='exportar-lotes',
     ),
     path(
-        'detalhe_empreendimento/<int:empreendimento_id>/lotes/importar/',
+        'detalhe_empreendimento/<uuid:empreendimento_uuid>/lotes/importar/',
         importar_lotes,
         name='importar-lotes',
     ),
     path(
-        'detalhe_empreendimento/<int:empreendimento_id>/lotes/importar/confirmar/',
+        'detalhe_empreendimento/<uuid:empreendimento_uuid>/lotes/importar/confirmar/',
         importar_lotes_confirmar,
         name='importar-lotes-confirmar',
     ),

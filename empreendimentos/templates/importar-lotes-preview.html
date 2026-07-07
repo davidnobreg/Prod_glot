@@ -101,11 +101,11 @@
 	</div>
 
 	<form method="post"
-	      action="{% url 'importar-lotes-confirmar' empreendimento.id %}">
+	      action="{% url 'importar-lotes-confirmar' empreendimento.uuid %}">
 		{% csrf_token %}
 		<input type="hidden" name="alteracoes_json" value="{{ alteracoes_json }}">
 		<div class="d-flex gap-2">
-			<a href="{% url 'detalhe-empreendimento' empreendimento.id %}"
+			<a href="{% url 'detalhe-empreendimento' empreendimento.uuid %}"
 			   class="btn btn-outline-secondary">Cancelar</a>
 			<button type="submit" class="btn btn-success">
 				<i class="fas fa-check me-1"></i>Confirmar {{ alteracoes|length }} alterações
@@ -115,7 +115,7 @@
 
 	{% else %}
 	<div class="alert alert-info">Nenhuma alteração detectada no arquivo enviado.</div>
-	<a href="{% url 'detalhe-empreendimento' empreendimento.id %}"
+	<a href="{% url 'detalhe-empreendimento' empreendimento.uuid %}"
 	   class="btn btn-outline-secondary">Voltar</a>
 	{% endif %}
 

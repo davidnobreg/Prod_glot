@@ -78,7 +78,7 @@ class ExportarLotesTest(TestCase):
 		self.empr = _make_empreendimento()
 		self.quadra = _make_quadra(self.empr)
 		self.lote = _make_lote(self.quadra)
-		self.url = reverse('exportar-lotes', args=[self.empr.id])
+		self.url = reverse('exportar-lotes', args=[self.empr.uuid])
 
 	def test_exportar_lotes_xlsx(self):
 		response = self.client.get(self.url)
@@ -128,7 +128,7 @@ class ImportarLotesTest(TestCase):
 		self.empr = _make_empreendimento()
 		self.quadra = _make_quadra(self.empr)
 		self.lote = _make_lote(self.quadra, area='200', valor_metro_quadrado='1500.00')
-		self.url = reverse('importar-lotes', args=[self.empr.id])
+		self.url = reverse('importar-lotes', args=[self.empr.uuid])
 
 	def _post_xlsx(self, rows):
 		buf = _make_xlsx(rows)
@@ -179,7 +179,7 @@ class ImportarLotesConfirmarTest(TestCase):
 		self.empr = _make_empreendimento()
 		self.quadra = _make_quadra(self.empr)
 		self.lote = _make_lote(self.quadra, area='200', valor_metro_quadrado='1500.00')
-		self.url = reverse('importar-lotes-confirmar', args=[self.empr.id])
+		self.url = reverse('importar-lotes-confirmar', args=[self.empr.uuid])
 
 	def _post_confirmar(self, alteracoes):
 		return self.client.post(self.url, {
@@ -198,7 +198,7 @@ class ImportarLotesConfirmarTest(TestCase):
 		response = self._post_confirmar(alteracoes)
 		self.assertRedirects(
 			response,
-			reverse('detalhe-empreendimento', args=[self.empr.id]),
+			reverse('detalhe-empreendimento', args=[self.empr.uuid]),
 			fetch_redirect_response=False,
 		)
 		self.lote.refresh_from_db()
@@ -220,7 +220,7 @@ class ImportarLotesConfirmarTest(TestCase):
 		response = self.client.post(self.url, {'alteracoes_json': 'invalido{'})
 		self.assertRedirects(
 			response,
-			reverse('detalhe-empreendimento', args=[self.empr.id]),
+			reverse('detalhe-empreendimento', args=[self.empr.uuid]),
 			fetch_redirect_response=False,
 		)
 

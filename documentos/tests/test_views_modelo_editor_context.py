@@ -27,7 +27,7 @@ class ModeloEditorEmpreendimentosContextTest(TestCase):
 		EmpreendimentoDocumento.objects.create(empreendimento=self.empr, modelo=self.modelo)
 
 	def test_editor_lista_empreendimento_vinculado_com_margens(self):
-		url = reverse('documentos:modelo-editor', args=[self.modelo.pk])
+		url = reverse('documentos:modelo-editor', args=[self.modelo.uuid])
 		resp = self.client.get(url)
 		self.assertEqual(resp.status_code, 200)
 		self.assertContains(resp, 'Loteamento Régua Teste')
@@ -40,7 +40,7 @@ class ModeloEditorEmpreendimentosContextTest(TestCase):
 			titulo='Proposta Sem Vínculo', tipo=TipoDocumento.PROPOSTA,
 			conteudo_html='<p>x</p>', criado_por=self.user,
 		)
-		url = reverse('documentos:modelo-editor', args=[modelo_sem_vinculo.pk])
+		url = reverse('documentos:modelo-editor', args=[modelo_sem_vinculo.uuid])
 		resp = self.client.get(url)
 		self.assertEqual(resp.status_code, 200)
 		self.assertEqual(resp.context['empreendimentos_vinculo'], [])
@@ -59,7 +59,7 @@ class ModeloEditorFontesContextTest(TestCase):
 		)
 
 	def test_editor_lista_fontes_e_tamanhos_fixos(self):
-		url = reverse('documentos:modelo-editor', args=[self.modelo.pk])
+		url = reverse('documentos:modelo-editor', args=[self.modelo.uuid])
 		resp = self.client.get(url)
 		self.assertEqual(resp.status_code, 200)
 		self.assertEqual(

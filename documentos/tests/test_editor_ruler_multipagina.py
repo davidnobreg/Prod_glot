@@ -21,7 +21,7 @@ def modelo_multipagina(superuser):
 @pytest.mark.django_db
 def test_regua_vertical_altura_acompanha_numero_de_paginas(logged_browser, live_server, modelo_multipagina):
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_multipagina.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_multipagina.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('.doc-ruler-vertical')
 	page.wait_for_timeout(500)  # requestAnimationFrame da contagem inicial de páginas
@@ -39,7 +39,7 @@ def test_regua_vertical_altura_acompanha_numero_de_paginas(logged_browser, live_
 @pytest.mark.django_db
 def test_regua_vertical_so_primeira_pagina_tem_marcador_arrastavel(logged_browser, live_server, modelo_multipagina):
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_multipagina.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_multipagina.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('.doc-ruler-vertical')
 	page.wait_for_timeout(500)
@@ -51,7 +51,7 @@ def test_regua_vertical_so_primeira_pagina_tem_marcador_arrastavel(logged_browse
 @pytest.mark.django_db
 def test_regua_vertical_cada_pagina_tem_zona_de_margem(logged_browser, live_server, modelo_multipagina):
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_multipagina.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_multipagina.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('.doc-ruler-vertical')
 	page.wait_for_timeout(500)

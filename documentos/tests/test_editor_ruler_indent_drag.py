@@ -33,7 +33,7 @@ def modelo_com_paragrafo_e_empreendimento(superuser):
 @pytest.mark.django_db
 def test_arrastar_marcador_de_recuo_atualiza_paragrafo(logged_browser, live_server, modelo_com_paragrafo):
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('#tiptapEditor .ProseMirror')
 
@@ -61,7 +61,7 @@ def test_arrastar_marcador_de_recuo_primeira_linha_atualiza_paragrafo(logged_bro
 	# primeira linha e confere que ele aplica text-indent (indentFirstLine),
 	# não margin-left (indentLeft).
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('#tiptapEditor .ProseMirror')
 
@@ -86,7 +86,7 @@ def test_marcadores_de_recuo_seguem_o_paragrafo_do_cursor(logged_browser, live_s
 	# diferentes deve reposicionar os marcadores (via selectionUpdate/transaction),
 	# sem exigir um drag.
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('#tiptapEditor .ProseMirror')
 
@@ -115,7 +115,7 @@ def test_recuo_sobrevive_a_reinicio_de_editor_por_drag_de_margem(
 	# no parágrafo (IndentAttrsExtension) e não é estado interno do ruler.
 	modelo, empr = modelo_com_paragrafo_e_empreendimento
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('#tiptapEditor .ProseMirror')
 	page.select_option('#modeloEmpreendimento', str(empr.uuid))

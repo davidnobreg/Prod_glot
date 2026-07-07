@@ -25,7 +25,7 @@ def cenario_completo(superuser):
 def test_fluxo_completo_regua_margem_e_recuo(logged_browser, live_server, cenario_completo):
 	modelo, empr = cenario_completo
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('.doc-ruler-horizontal')
 

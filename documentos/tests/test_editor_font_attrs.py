@@ -17,7 +17,7 @@ def modelo_com_paragrafo(superuser):
 @pytest.mark.django_db
 def test_cor_fonte_e_tamanho_convivem_no_mesmo_span(logged_browser, live_server, modelo_com_paragrafo):
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('#tiptapEditor .ProseMirror')
 
@@ -46,7 +46,7 @@ def test_cor_fonte_e_tamanho_convivem_no_mesmo_span(logged_browser, live_server,
 @pytest.mark.django_db
 def test_remover_fonte_preserva_cor(logged_browser, live_server, modelo_com_paragrafo):
 	page = logged_browser
-	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.pk])}'
+	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo_com_paragrafo.uuid])}'
 	page.goto(url)
 	page.wait_for_selector('#tiptapEditor .ProseMirror')
 

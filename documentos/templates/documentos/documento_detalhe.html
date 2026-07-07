@@ -16,7 +16,7 @@
         <i class="bi bi-printer me-1"></i>Imprimir / PDF
       </button>
       {% if doc.status == 'rascunho' and user.tipo_usuario == "ADMINISTRADOR" %}
-      <form method="post" action="{% url 'documentos:documento-finalizar' doc.pk %}">
+      <form method="post" action="{% url 'documentos:documento-finalizar' doc.uuid %}">
         {% csrf_token %}
         <button type="submit" class="btn btn-success btn-sm"
                 onclick="return confirm('Finalizar documento?')">
@@ -30,7 +30,7 @@
       </a>
       {% endif %}
       {% if user.tipo_usuario == "ADMINISTRADOR" and doc.status == 'rascunho' or user.tipo_usuario == "ADMINISTRADOR" and doc.status == 'processando' %}
-      <form method="post" action="{% url 'documentos:documento-cancelar' doc.pk %}">
+      <form method="post" action="{% url 'documentos:documento-cancelar' doc.uuid %}">
         {% csrf_token %}
         <button type="submit" class="btn btn-outline-danger btn-sm"
                 onclick="return confirm('Cancelar este documento?')">
@@ -72,7 +72,7 @@
   <script>
     (function poll() {
       setTimeout(function () {
-        fetch("{% url 'documentos:documento-status' doc.pk %}")
+        fetch("{% url 'documentos:documento-status' doc.uuid %}")
           .then(r => r.json())
           .then(data => {
             if (data.status === 'finalizado' || data.status === 'cancelado') {
@@ -106,7 +106,7 @@
     <div class="card-body p-0" style="background:#6c757d; min-height:90vh;">
       <iframe
         id="preview-frame"
-        src="{% url 'documentos:documento-preview' doc.pk %}"
+        src="{% url 'documentos:documento-preview' doc.uuid %}"
         style="width:100%; height:90vh; border:0; display:block;"
         title="Preview do documento">
       </iframe>

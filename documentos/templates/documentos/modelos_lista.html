@@ -25,13 +25,13 @@
 						<td>{% if m.ativo %}<span class="badge bg-success">sim</span>{% else %}<span class="badge bg-danger">não</span>{% endif %}</td>
 						<td class="small text-muted">{{ m.atualizado_em|date:'d/m/Y H:i' }}</td>
 						<td class="text-end">
-							<a href="{% url 'documentos:modelo-preview' m.pk %}" class="btn btn-sm btn-light" title="Preview" target="_blank"><i class="bi bi-eye"></i></a>
-							<a href="{% url 'documentos:modelo-editor' m.pk %}" class="btn btn-sm btn-light" title="Editar"><i class="bi bi-pencil"></i></a>
-							<a href="{% url 'documentos:modelo-historico' m.pk %}" class="btn btn-sm btn-light" title="Versões"><i class="bi bi-clock-history"></i></a>
-							<form method="post" action="{% url 'documentos:modelo-duplicar' m.pk %}" class="d-inline">{% csrf_token %}
+							<a href="{% url 'documentos:modelo-preview' m.uuid %}" class="btn btn-sm btn-light" title="Preview" target="_blank"><i class="bi bi-eye"></i></a>
+							<a href="{% url 'documentos:modelo-editor' m.uuid %}" class="btn btn-sm btn-light" title="Editar"><i class="bi bi-pencil"></i></a>
+							<a href="{% url 'documentos:modelo-historico' m.uuid %}" class="btn btn-sm btn-light" title="Versões"><i class="bi bi-clock-history"></i></a>
+							<form method="post" action="{% url 'documentos:modelo-duplicar' m.uuid %}" class="d-inline">{% csrf_token %}
 								<button class="btn btn-sm btn-light" title="Duplicar"><i class="bi bi-files"></i></button>
 							</form>
-							<form method="post" action="{% url 'documentos:modelo-toggle-ativo' m.pk %}" class="d-inline">{% csrf_token %}
+							<form method="post" action="{% url 'documentos:modelo-toggle-ativo' m.uuid %}" class="d-inline">{% csrf_token %}
 								{% if m.ativo %}
 								<button class="btn btn-sm btn-outline-danger" title="Inativar" onclick="return confirm('Inativar o modelo {{ m.titulo|escapejs }}?');"><i class="bi bi-slash-circle me-1"></i>Inativar</button>
 								{% else %}

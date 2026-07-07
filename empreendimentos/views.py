@@ -58,8 +58,8 @@ from reportlab.platypus import (
 
 
 @has_permission_decorator('selectEmpreendimento')
-def selectEmpreendimento(request, empreendimento_id):
-    empreendimento = get_object_or_404(Empreendimento, id=empreendimento_id)
+def selectEmpreendimento(request, empreendimento_uuid):
+    empreendimento = get_object_or_404(Empreendimento, uuid=empreendimento_uuid)
 
     data = {
         "id": empreendimento.id,
@@ -142,8 +142,8 @@ def listaEmpreendimento(request):
 
 
 @has_permission_decorator('alterarEmpreendimento')
-def alteraEmpreendimento(request, id):
-    empreendimento = get_object_or_404(Empreendimento, id=id)
+def alteraEmpreendimento(request, uuid):
+    empreendimento = get_object_or_404(Empreendimento, uuid=uuid)
 
     # =========================
     # GET
@@ -201,8 +201,8 @@ def alteraEmpreendimento(request, id):
 
 @has_permission_decorator('deletarEmpreendimento')
 @require_POST
-def deleteEmpreendimento(request, empreendimento_Id):
-    empreendimento = Empreendimento.objects.get(id=empreendimento_Id)
+def deleteEmpreendimento(request, empreendimento_uuid):
+    empreendimento = get_object_or_404(Empreendimento, uuid=empreendimento_uuid)
     empreendimento.is_ativo = False
     empreendimento.save()
     return redirect('lista-empreendimento-tabela')
@@ -444,13 +444,14 @@ def editarAtualizarLote(request, lote_uuid):
 class importarDados(View):
     template_name = 'empreendimento_arq.html'
 
-    def get(self, request, id, *args, **kwargs):
-        empreendimento = Empreendimento.objects.get(id=id)
+    def get(self, request, uuid, *args, **kwargs):
+        empreendimento = get_object_or_404(Empreendimento, uuid=uuid)
         form = ArquivoForm()
         context = {'form': form, 'empreendimento': empreendimento}
         return render(request, self.template_name, context)
 
-    def post(self, request, id):
+    def post(self, request, uuid):
+        empreendimento = get_object_or_404(Empreendimento, uuid=uuid)
         form = ArquivoForm(request.POST, request.FILES)
         if form.is_valid():
             arquivo = request.FILES['arquivo']
@@ -468,16 +469,16 @@ class importarDados(View):
 
             # Iterar sobre as linhas do DataFrame e criar registros
             for _, row in df.iterrows():
-                self.criar_quadra(row, id)
+                self.criar_quadra(row, empreendimento.id)
             messages.success(request, "Arquivo importado com sucesso!")
             return redirect('lista-empreendimento-tabela')  # Ajuste para onde quer redirecionar
 
         return render(request, self.template_name, {'form': form})
 
-    def criar_quadra(self, row, id):
+    def criar_quadra(self, row, empreendimento_id):
         quadra, _ = Quadra.objects.get_or_create(
             namequadra=row["quadra"],
-            empr_id=id  # Supondo que 'empr' seja uma ForeignKey para 'empreendimento'
+            empr_id=empreendimento_id  # Supondo que 'empr' seja uma ForeignKey para 'empreendimento'
         )
 
         # Criar o lote com a situação original do arquivo
@@ -490,10 +491,10 @@ class importarDados(View):
         )
 
 
-def detalheEmpreendimento(request, id):
+def detalheEmpreendimento(request, uuid):
     template_name = 'detalhes-do-empreendimento.html'
 
-    empreendimento = get_object_or_404(Empreendimento, id=id)
+    empreendimento = get_object_or_404(Empreendimento, uuid=uuid)
 
     # =========================
     # Paginação de usuários disponíveis
@@ -585,28 +586,28 @@ from collections import OrderedDict
 import math
 
 
-def relatorioFinanceiro(request, id):
+def relatorioFinanceiro(request, uuid):
     template_name = 'relatorio-financeiro.html'
 
-    empreendimento = Empreendimento.objects.get(id=id)
+    empreendimento = get_object_or_404(Empreendimento, uuid=uuid)
 
     lotes = Lote.objects.filter(quadra__empr_id=empreendimento.id).filter(
         Q(situacao='DISPONIVEL') | Q(situacao='RESERVADO') | Q(situacao='VENDIDO'))
     lotes_disponiveis = Lote.objects.filter(quadra__empr_id=empreendimento.id).filter(
         Q(situacao='DISPONIVEL') | Q(situacao='RESERVADO')
     )
-    lotes_vendidos = Lote.objects.filter(quadra__empr_id=id, situacao='VENDIDO')
+    lotes_vendidos = Lote.objects.filter(quadra__empr_id=empreendimento.id, situacao='VENDIDO')
 
     lotes_indisponivel = Lote.objects.filter(quadra__empr_id=empreendimento.id).filter(
         Q(situacao='CONSTRUTORA') | Q(situacao='INDISPONIVEL')
     )
 
-    quantidade_lotes = Lote.objects.filter(quadra__empr_id=id).count()
-    quantidade_lotes_disponivel = Lote.objects.filter(quadra__empr_id=id).filter(
+    quantidade_lotes = Lote.objects.filter(quadra__empr_id=empreendimento.id).count()
+    quantidade_lotes_disponivel = Lote.objects.filter(quadra__empr_id=empreendimento.id).filter(
         Q(situacao='DISPONIVEL') | Q(situacao='RESERVADO')).count()
-    quantidade_lotes_vendidos = Lote.objects.filter(quadra__empr_id=id, situacao='VENDIDO').count()
+    quantidade_lotes_vendidos = Lote.objects.filter(quadra__empr_id=empreendimento.id, situacao='VENDIDO').count()
 
-    quantidade_lotes_indisponivel = Lote.objects.filter(quadra__empr_id=id).filter(
+    quantidade_lotes_indisponivel = Lote.objects.filter(quadra__empr_id=empreendimento.id).filter(
         Q(situacao='CONSTRUTORA') | Q(situacao='INDISPONIVEL')).count()
 
     data_atual = timezone.now()
@@ -718,8 +719,8 @@ def relatorioFinanceiro(request, id):
 
 
 @has_permission_decorator('reservarLote')
-def alteraLote(request, id):
-    lote = get_object_or_404(Lote, id=id)
+def alteraLote(request, uuid):
+    lote = get_object_or_404(Lote, uuid=uuid)
     get_tempo = Empreendimento.objects.get(id=lote.quadra.empr_id)
 
     try:
@@ -1157,7 +1158,7 @@ def criarUsuarioEmpreendimento(request):
 
     if not users_ids:
         messages.warning(request, 'Selecione pelo menos um corretor para adicionar.')
-        return redirect('detalhe-empreendimento', id=empreendimento.id)
+        return redirect('detalhe-empreendimento', uuid=empreendimento.uuid)
 
     usuarios = User.objects.filter(id__in=users_ids)
 
@@ -1184,9 +1185,9 @@ def criarUsuarioEmpreendimento(request):
     else:
         messages.info(request, 'Os corretores selecionados já estavam vinculados.')
 
-    return redirect('detalhe-empreendimento', id=empreendimento.id)
+    return redirect('detalhe-empreendimento', uuid=empreendimento.uuid)
 
-    return redirect('detalhe-empreendimento', id=empreendimento.id)
+    return redirect('detalhe-empreendimento', uuid=empreendimento.uuid)
 """@require_http_methods(["POST"])
 def criarUsuarioEmpreendimento(request):
     users_ids = request.POST.getlist('users')  # Lista de usuários
@@ -1214,14 +1215,14 @@ def criarUsuarioEmpreendimento(request):
 def deleteUsuarioEmpreendimento(request, id):
     vinculo = get_object_or_404(UsuarioEmpreendimento, id=id)
 
-    empreendimento_id = vinculo.empreendimento_id
+    empreendimento_uuid = vinculo.empreendimento.uuid
 
     vinculo.ativo = False
     vinculo.save(update_fields=['ativo'])
 
     messages.success(request, 'Corretor removido com sucesso.')
 
-    return redirect('detalhe-empreendimento', id=empreendimento_id)
+    return redirect('detalhe-empreendimento', uuid=empreendimento_uuid)
 
 
 @require_POST
@@ -1253,16 +1254,17 @@ def modelo_vincular(request, empr_id):
     except Exception as e:
         messages.error(request, str(e))
 
-    return redirect('detalhe-empreendimento', id=empr_id)
+    return redirect('detalhe-empreendimento', uuid=empreendimento.uuid)
 
 
 @require_POST
 @login_required
 def modelo_desvincular(request, empr_id, vinculo_id):
     vinculo = get_object_or_404(EmpreendimentoDocumento, pk=vinculo_id, empreendimento_id=empr_id)
+    empreendimento_uuid = vinculo.empreendimento.uuid
     vinculo.delete()
     messages.success(request, 'Modelo desvinculado.')
-    return redirect('detalhe-empreendimento', id=empr_id)
+    return redirect('detalhe-empreendimento', uuid=empreendimento_uuid)
 
 
 @require_POST
@@ -1278,7 +1280,7 @@ def modelo_set_padrao(request, empr_id, vinculo_id):
     vinculo.padrao = True
     vinculo.save(update_fields=['padrao'])
     messages.success(request, f'"{vinculo.modelo.titulo}" definido como padrão.')
-    return redirect('detalhe-empreendimento', id=empr_id)
+    return redirect('detalhe-empreendimento', uuid=vinculo.empreendimento.uuid)
 
 
 # ===================================================================
@@ -1297,8 +1299,8 @@ def _lote_tem_venda_ativa(lote):
 
 
 @has_permission_decorator('atualizarLotes')
-def exportar_lotes(request, empreendimento_id):
-    empr = get_object_or_404(Empreendimento, id=empreendimento_id)
+def exportar_lotes(request, empreendimento_uuid):
+    empr = get_object_or_404(Empreendimento, uuid=empreendimento_uuid)
     lotes = (
         Lote.objects
         .filter(quadra__empr=empr)
@@ -1359,19 +1361,19 @@ def exportar_lotes(request, empreendimento_id):
 
 @has_permission_decorator('atualizarLotes')
 @require_http_methods(['POST'])
-def importar_lotes(request, empreendimento_id):
-    empr = get_object_or_404(Empreendimento, id=empreendimento_id)
+def importar_lotes(request, empreendimento_uuid):
+    empr = get_object_or_404(Empreendimento, uuid=empreendimento_uuid)
     arquivo = request.FILES.get('arquivo')
     if not arquivo:
         messages.error(request, 'Selecione um arquivo xlsx.')
-        return redirect(reverse('detalhe-empreendimento', args=[empreendimento_id]))
+        return redirect(reverse('detalhe-empreendimento', args=[empr.uuid]))
 
     try:
         wb = openpyxl.load_workbook(arquivo, data_only=True)
         ws = wb.active
     except Exception:
         messages.error(request, 'Arquivo inválido. Envie um xlsx gerado pela exportação.')
-        return redirect(reverse('detalhe-empreendimento', args=[empreendimento_id]))
+        return redirect(reverse('detalhe-empreendimento', args=[empr.uuid]))
 
     ids_empr = set(
         Lote.objects.filter(quadra__empr=empr).values_list('id', flat=True)
@@ -1480,13 +1482,13 @@ def importar_lotes(request, empreendimento_id):
 
 @has_permission_decorator('atualizarLotes')
 @require_POST
-def importar_lotes_confirmar(request, empreendimento_id):
-    empr = get_object_or_404(Empreendimento, id=empreendimento_id)
+def importar_lotes_confirmar(request, empreendimento_uuid):
+    empr = get_object_or_404(Empreendimento, uuid=empreendimento_uuid)
     try:
         alteracoes = json.loads(request.POST.get('alteracoes_json', '[]'))
     except json.JSONDecodeError:
         messages.error(request, 'Dados inválidos. Refaça a importação.')
-        return redirect(reverse('detalhe-empreendimento', args=[empreendimento_id]))
+        return redirect(reverse('detalhe-empreendimento', args=[empr.uuid]))
 
     ids_empr = set(
         Lote.objects.filter(quadra__empr=empr).values_list('id', flat=True)
@@ -1526,4 +1528,4 @@ def importar_lotes_confirmar(request, empreendimento_id):
     if ignorados:
         partes.append(f'⚠️ {ignorados} ignorados (venda ativa)')
     messages.success(request, ' — '.join(partes))
-    return redirect(reverse('detalhe-empreendimento', args=[empreendimento_id]))
+    return redirect(reverse('detalhe-empreendimento', args=[empr.uuid]))

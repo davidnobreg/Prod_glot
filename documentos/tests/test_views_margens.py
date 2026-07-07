@@ -27,7 +27,7 @@ class EmpreendimentoMargensSalvarTest(TestCase):
 		self.empr = _make_empreendimento()
 
 	def test_salva_margens_validas_cria_configuracao(self):
-		url = reverse('documentos:empreendimento-margens-salvar', args=[self.empr.pk])
+		url = reverse('documentos:empreendimento-margens-salvar', args=[self.empr.uuid])
 		resp = self.client.post(
 			url,
 			data=json.dumps({'margem_sup': 30, 'margem_dir': 25, 'margem_inf': 25, 'margem_esq': 35}),
@@ -43,7 +43,7 @@ class EmpreendimentoMargensSalvarTest(TestCase):
 
 	def test_atualiza_configuracao_existente(self):
 		ConfiguracaoDocumento.objects.create(empreendimento=self.empr)
-		url = reverse('documentos:empreendimento-margens-salvar', args=[self.empr.pk])
+		url = reverse('documentos:empreendimento-margens-salvar', args=[self.empr.uuid])
 		self.client.post(
 			url,
 			data=json.dumps({'margem_sup': 40, 'margem_dir': 20, 'margem_inf': 20, 'margem_esq': 30}),
@@ -54,7 +54,7 @@ class EmpreendimentoMargensSalvarTest(TestCase):
 		self.assertEqual(cfg.margem_sup, 40)
 
 	def test_rejeita_margem_fora_do_intervalo(self):
-		url = reverse('documentos:empreendimento-margens-salvar', args=[self.empr.pk])
+		url = reverse('documentos:empreendimento-margens-salvar', args=[self.empr.uuid])
 		resp = self.client.post(
 			url,
 			data=json.dumps({'margem_sup': 200, 'margem_dir': 25, 'margem_inf': 25, 'margem_esq': 35}),
@@ -65,6 +65,6 @@ class EmpreendimentoMargensSalvarTest(TestCase):
 		self.assertFalse(ConfiguracaoDocumento.objects.filter(empreendimento=self.empr).exists())
 
 	def test_get_nao_permitido(self):
-		url = reverse('documentos:empreendimento-margens-salvar', args=[self.empr.pk])
+		url = reverse('documentos:empreendimento-margens-salvar', args=[self.empr.uuid])
 		resp = self.client.get(url)
 		self.assertEqual(resp.status_code, 405)

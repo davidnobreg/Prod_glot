@@ -159,7 +159,7 @@
 	const selectEmpreendimento = document.getElementById('modeloEmpreendimento')
 	function empreendimentoSelecionado() {
 		if (!selectEmpreendimento || !selectEmpreendimento.value) { return null }
-		return empreendimentos.find(e => String(e.id) === selectEmpreendimento.value) || null
+		return empreendimentos.find(e => String(e.uuid) === selectEmpreendimento.value) || null
 	}
 	// Só permite arrastar a régua se HÁ empreendimento selecionado E o usuário
 	// tem a permissão exigida pelo endpoint de persistência (documentoConfig) --
@@ -218,7 +218,7 @@
 		reiniciarEditorComNovaMargem(margensPx)
 		const emp = empreendimentoSelecionado()
 		if (!emp) { return }
-		fetch(`/documentos/empreendimentos/${emp.id}/margens/`, {
+		fetch(`/documentos/empreendimentos/${emp.uuid}/margens/`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
 			body: JSON.stringify({

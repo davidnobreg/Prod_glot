@@ -118,7 +118,7 @@ def test_recuo_sobrevive_a_reinicio_de_editor_por_drag_de_margem(
 	url = f'{live_server.url}{reverse("documentos:modelo-editor", args=[modelo.pk])}'
 	page.goto(url)
 	page.wait_for_selector('#tiptapEditor .ProseMirror')
-	page.select_option('#modeloEmpreendimento', str(empr.pk))
+	page.select_option('#modeloEmpreendimento', str(empr.uuid))
 
 	page.click('#tiptapEditor .ProseMirror p')
 

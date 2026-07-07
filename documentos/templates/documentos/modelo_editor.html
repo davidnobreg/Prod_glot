@@ -30,7 +30,7 @@
 				<select id="modeloEmpreendimento" class="form-select form-select-sm">
 					<option value="">Padrão ABNT (somente leitura)</option>
 					{% for e in empreendimentos_vinculo %}
-						<option value="{{ e.id }}">{{ e.nome }}</option>
+						<option value="{{ e.uuid }}">{{ e.nome }}</option>
 					{% endfor %}
 				</select>
 			</div>

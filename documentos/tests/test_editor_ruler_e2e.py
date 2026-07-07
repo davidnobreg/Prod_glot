@@ -32,7 +32,7 @@ def test_fluxo_completo_regua_margem_e_recuo(logged_browser, live_server, cenari
 	texto_original = page.evaluate('window._editor.getHTML()')
 	assert 'Cláusula primeira' in texto_original
 
-	page.select_option('#modeloEmpreendimento', str(empr.pk))
+	page.select_option('#modeloEmpreendimento', str(empr.uuid))
 
 	marcador_margem = page.locator('.doc-ruler-marcador-margem-esquerda')
 	box = marcador_margem.bounding_box()

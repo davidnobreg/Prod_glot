@@ -116,7 +116,7 @@ def test_trocar_empreendimento_no_dropdown_repagina_o_editor(logged_browser, liv
 	# empr1 é o primeiro vínculo -> margensIniciais já usa suas margens (35mm ~132px).
 	assert 125 < margem_esq_atual() < 140
 
-	page.select_option('#modeloEmpreendimento', str(empr2.pk))
+	page.select_option('#modeloEmpreendimento', str(empr2.uuid))
 	page.wait_for_timeout(300)
 	# empr2: 50mm ~= 188.9px
 	assert 180 < margem_esq_atual() < 200

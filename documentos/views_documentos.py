@@ -95,7 +95,7 @@ def modelo_editor(request, pk=None):
 		for v in vinculos:
 			cfg = getattr(v.empreendimento, 'config_documento', None)
 			empreendimentos_vinculo.append({
-				'id': v.empreendimento_id,
+				'uuid': str(v.empreendimento.uuid),
 				'nome': v.empreendimento.nome,
 				'margem_sup': cfg.margem_sup if cfg else 25,
 				'margem_dir': cfg.margem_dir if cfg else 20,
@@ -363,10 +363,10 @@ def variaveis_lista(request):
 # Margens de página por empreendimento (régua)
 # ----------------------------------------------------------
 @has_permission_decorator('documentoConfig')
-def empreendimento_margens_salvar(request, empreendimento_id):
+def empreendimento_margens_salvar(request, empreendimento_uuid):
 	if request.method != 'POST':
 		return JsonResponse({'ok': False, 'erros': ['Método inválido']}, status=405)
-	empreendimento = get_object_or_404(Empreendimento, pk=empreendimento_id)
+	empreendimento = get_object_or_404(Empreendimento, uuid=empreendimento_uuid)
 	try:
 		dados = json.loads(request.body)
 	except json.JSONDecodeError:

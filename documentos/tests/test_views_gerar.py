@@ -64,7 +64,7 @@ class GerarDocumentoEtapaGateTest(TestCase):
 		do cenário de teste, não é mais o mecanismo do gate."""
 		lote = _make_lote(self.quadra, situacao='ANALISE')
 		venda = RegisterVenda.objects.create(lote=lote, tipo_venda='ANALISE')
-		url = reverse('documentos:gerar-documento', args=[venda.pk])
+		url = reverse('documentos:gerar-documento', args=[venda.uuid])
 		response = self.client.get(url)
 		self.assertEqual(response.status_code, 200)
 		self.assertIn('proposta', response.context['modelos_por_tipo'])
@@ -88,7 +88,7 @@ class GerarDocumentoEtapaGateTest(TestCase):
 			venda=venda, tipo='proposta_assinada', status='aprovado',
 			documento_gerado=doc_gerado, enviado_por=self.user, arquivo_assinado='fake/p.pdf',
 		)
-		url = reverse('documentos:gerar-documento', args=[venda.pk])
+		url = reverse('documentos:gerar-documento', args=[venda.uuid])
 		response = self.client.get(url)
 		self.assertIn('contrato', response.context['modelos_por_tipo'])
 
@@ -106,7 +106,7 @@ class GerarDocumentoEtapaGateTest(TestCase):
 			enviado_por=self.user, arquivo_assinado='fake/p.pdf',
 			# documento_gerado=None — upload avulso, sem lastro, igual à venda 301
 		)
-		url = reverse('documentos:gerar-documento', args=[venda.pk])
+		url = reverse('documentos:gerar-documento', args=[venda.uuid])
 		response = self.client.get(url)
 		self.assertNotIn('contrato', response.context['modelos_por_tipo'])
 
@@ -116,7 +116,7 @@ class GerarDocumentoEtapaGateTest(TestCase):
 		cenário de teste, não é mais o mecanismo do gate."""
 		lote = _make_lote(self.quadra, situacao='ANALISE')
 		venda = RegisterVenda.objects.create(lote=lote, tipo_venda='ANALISE')
-		url = reverse('documentos:gerar-documento', args=[venda.pk])
+		url = reverse('documentos:gerar-documento', args=[venda.uuid])
 		response = self.client.post(url, {'tipo': 'contrato'})
 		self.assertRedirects(response, url, fetch_redirect_response=False)
 		self.assertFalse(DocumentoGerado.objects.filter(venda=venda, modelo__tipo='contrato').exists())
@@ -153,7 +153,7 @@ class GerarDocumentoIsolamentoTest(TestCase):
 		)
 
 	def test_docs_existentes_isolado_por_venda(self):
-		url = reverse('documentos:gerar-documento', args=[self.venda_a.pk])
+		url = reverse('documentos:gerar-documento', args=[self.venda_a.uuid])
 		response = self.client.get(url)
 		docs = list(response.context['docs_existentes'])
 		self.assertIn(self.doc_a, docs)

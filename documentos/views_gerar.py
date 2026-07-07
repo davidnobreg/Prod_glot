@@ -68,10 +68,10 @@ def _tipos_disponiveis(user, venda):
 # Gerar documento a partir de uma venda
 # ----------------------------------------------------------
 @has_permission_decorator('documentoGerar')
-def gerar_documento(request, venda_pk):
+def gerar_documento(request, venda_uuid):
     venda = get_object_or_404(
         RegisterVenda.objects.select_related('cliente', 'lote__quadra__empr'),
-        pk=venda_pk,
+        uuid=venda_uuid,
     )
     empreendimento = venda.lote.quadra.empr
     tipos_ok = _tipos_disponiveis(request.user, venda)

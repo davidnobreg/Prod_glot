@@ -7,7 +7,7 @@
 			<span class="badge bg-secondary">{{ distrato.get_status_display }}</span>
 		</h5>
 		<div class="d-flex gap-2">
-			<a href="{% url 'documentos:gerar-documento' distrato.venda_id %}" class="btn btn-outline-primary btn-sm rounded-pill">Gerar documento</a>
+			<a href="{% url 'documentos:gerar-documento' distrato.venda.uuid %}" class="btn btn-outline-primary btn-sm rounded-pill">Gerar documento</a>
 			{% if distrato.status == 'rascunho' %}
 			<form method="post" action="{% url 'documentos:distrato-concluir' distrato.pk %}"
 				onsubmit="return confirm('Concluir distrato? A venda será desativada e o lote voltará a DISPONÍVEL.')">{% csrf_token %}

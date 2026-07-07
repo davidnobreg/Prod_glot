@@ -43,7 +43,7 @@ urlpatterns = [
     path('modelos/<int:pk>/historico/', modelo_historico, name='modelo-historico'),
     path('modelos/<int:pk>/duplicar/', modelo_duplicar, name='modelo-duplicar'),
     path('modelos/<int:pk>/toggle-ativo/', modelo_toggle_ativo, name='modelo-toggle-ativo'),
-    path('empreendimentos/<int:empreendimento_id>/margens/', empreendimento_margens_salvar, name='empreendimento-margens-salvar'),
+    path('empreendimentos/<uuid:empreendimento_uuid>/margens/', empreendimento_margens_salvar, name='empreendimento-margens-salvar'),
     path('variaveis/', variaveis_lista, name='variaveis-lista'),
     path('proposta/<uuid:venda_uuid>/', proposta, name='proposta'),
     path('proposta/legado/<uuid:venda_uuid>/', proposta_legado, name='proposta-legado'),
@@ -53,7 +53,7 @@ urlpatterns = [
     path('contrato/<uuid:venda_uuid>/', contrato, name='contrato'),
     path('contrato/pdf/<uuid:venda_uuid>/', contrato_pdf, name='contrato_pdf'),
 
-    path('gerar/<int:venda_pk>/', gerar_documento, name='gerar-documento'),
+    path('gerar/<uuid:venda_uuid>/', gerar_documento, name='gerar-documento'),
     path('doc/<int:pk>/', documento_detalhe, name='documento-detalhe'),
     path('doc/<int:pk>/preview/', documento_preview, name='documento-preview'),
     path('doc/<int:pk>/finalizar/', documento_finalizar, name='documento-finalizar'),

@@ -237,7 +237,7 @@ def listaEmpreendimentoTabela(request):
 
         # Adicionando as informações do empreendimento na lista
         empreendimento_info.append({
-            'id': empreendimento.id,
+            'uuid': empreendimento.uuid,
             'nome': empreendimento.nome,
             'tempo_reserva': empreendimento.tempo_reserva,
             'quantidade_parcela': empreendimento.quantidade_parcela,

@@ -1211,6 +1211,7 @@ def criarUsuarioEmpreendimento(request):
     messages.success(request, "Usuários adicionados com sucesso!")
     return redirect('detalhe-empreendimento', id=empreendimento.id)"""
 
+@has_permission_decorator('deleteUsuarioEmpreendimento')
 @require_POST
 def deleteUsuarioEmpreendimento(request, usuario_empreendimento_uuid):
     vinculo = get_object_or_404(UsuarioEmpreendimento, uuid=usuario_empreendimento_uuid)

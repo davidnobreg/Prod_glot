@@ -8,6 +8,7 @@ set -e
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 DAY_OF_WEEK=$(date +"%u")  # 1=segunda ... 7=domingo
+RAWFILE="/tmp/glot_${TIMESTAMP}.sql"
 FILENAME="glot_${TIMESTAMP}.sql.gz"
 FILEPATH="/tmp/${FILENAME}"
 RETENTION_DAYS="${RETENTION_DAYS:-7}"
@@ -28,14 +29,18 @@ trap 'rc=$?; [ $rc -ne 0 ] && notify "error" "backup falhou (exit $rc)"' EXIT
 
 echo "[backup] Iniciando backup: ${FILENAME}"
 
-# 1. pg_dump
+# 1. pg_dump (arquivo separado do gzip -- num pipe `sh` sem pipefail, o exit
+# code de pg_dump seria mascarado pelo do gzip e um dump incompleto passaria
+# como sucesso. Já aconteceu: erro de permissão numa sequence).
 PGPASSWORD="${DB_PASSWORD}" pg_dump \
 	-h "${DB_HOST}" \
 	-U "${DB_USER}" \
 	-d "${DB_NAME}" \
 	--no-owner \
 	--no-acl \
-	| gzip > "${FILEPATH}"
+	-f "${RAWFILE}"
+
+gzip "${RAWFILE}"
 
 echo "[backup] pg_dump concluído. Tamanho: $(du -sh ${FILEPATH} | cut -f1)"
 

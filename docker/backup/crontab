@@ -1,1 +1,0 @@
-0 3 * * * /app/backup.sh >> /var/log/glot-backup/backup.log 2>&1

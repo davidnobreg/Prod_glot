@@ -1,95 +1,91 @@
-#!/bin/bash
-set -euo pipefail
+#!/bin/sh
+set -e
 
-# Retenção NÃO é feita aqui — é responsabilidade de uma B2 Lifecycle Rule
-# configurada uma vez no bucket (ver docs/backup-postgres-b2.md). Deletar
-# versões manualmente via CLI é frágil entre versões do b2 CLI; lifecycle
-# rule do próprio B2 é a forma robusta de aplicar RETENTION_DAYS.
-#
-# Sintaxe do b2 CLI abaixo assume b2>=4 (pinado no Dockerfile). Depois do
-# build, rodar `docker run --rm <imagem> b2 version` pra confirmar antes de
-# considerar isso testado.
+# Variáveis injetadas via environment (Portainer, ver Docker-compose.yml):
+# DB_HOST, DB_NAME, DB_USER, DB_PASSWORD
+# AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_S3_ENDPOINT_URL, BACKUP_BUCKET
+# Opcional: RETENTION_DAYS (default 7), NOTIFY_WEBHOOK_URL
 
-if [ -f /app/.env.container ]; then
-    set -a
-    . /app/.env.container
-    set +a
-fi
-
-# DB_HOST/PORT/NAME e as vars de config do backup vêm do configuration/.env
-# (mesmo arquivo que o Django lê, ver core/settings.py:35) — montado read-only
-# no container. Usa grep em vez de source pra nunca sobrescrever DB_USER
-# (que já veio fixo como glot_backup_ro via .env.container acima).
-CONFIG_ENV_FILE="${CONFIG_ENV_FILE:-/app/configuration/.env}"
-if [ -f "$CONFIG_ENV_FILE" ]; then
-    ler_config() { grep -m1 "^${1}=" "$CONFIG_ENV_FILE" | cut -d= -f2-; }
-    DB_HOST="${DB_HOST:-$(ler_config DB_HOST)}"
-    DB_PORT="${DB_PORT:-$(ler_config DB_PORT)}"
-    DB_NAME="${DB_NAME:-$(ler_config DB_NAME)}"
-    B2_BACKUP_BUCKET_NAME="${B2_BACKUP_BUCKET_NAME:-$(ler_config B2_BACKUP_BUCKET_NAME)}"
-    RETENTION_DAYS="${RETENTION_DAYS:-$(ler_config RETENTION_DAYS)}"
-    NOTIFY_WEBHOOK_URL="${NOTIFY_WEBHOOK_URL:-$(ler_config NOTIFY_WEBHOOK_URL)}"
-fi
-
-DB_PASSWORD_FILE="${DB_PASSWORD_FILE:-/run/secrets/db_password}"
-B2_KEY_ID_FILE="${B2_KEY_ID_FILE:-/run/secrets/b2_backup_key_id}"
-B2_APP_KEY_FILE="${B2_APP_KEY_FILE:-/run/secrets/b2_backup_application_key}"
-
-: "${DB_HOST:?DB_HOST não definido}"
-: "${DB_PORT:?DB_PORT não definido}"
-: "${DB_NAME:?DB_NAME não definido}"
-: "${DB_USER:?DB_USER não definido}"
-: "${B2_BACKUP_BUCKET_NAME:?B2_BACKUP_BUCKET_NAME não definido}"
-
-DB_PASSWORD=$(cat "$DB_PASSWORD_FILE")
-B2_KEY_ID=$(cat "$B2_KEY_ID_FILE")
-B2_APP_KEY=$(cat "$B2_APP_KEY_FILE")
-
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-DUMP_FILE="/tmp/glot_${TIMESTAMP}.dump"
-REMOTE_NAME="glot_${TIMESTAMP}.dump"
-LOG_PREFIX="[glot-backup ${TIMESTAMP}]"
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+DAY_OF_WEEK=$(date +"%u")  # 1=segunda ... 7=domingo
+FILENAME="glot_${TIMESTAMP}.sql.gz"
+FILEPATH="/tmp/${FILENAME}"
+RETENTION_DAYS="${RETENTION_DAYS:-7}"
 
 notify() {
-    local status="$1" message="$2"
+    status="$1"
+    message="$2"
     [ -z "${NOTIFY_WEBHOOK_URL:-}" ] && return 0
     curl -fsS -X POST "$NOTIFY_WEBHOOK_URL" \
         -H "Content-Type: application/json" \
         -d "{\"status\":\"${status}\",\"message\":\"${message}\",\"timestamp\":\"${TIMESTAMP}\"}" \
-        >/dev/null 2>&1 || echo "$LOG_PREFIX aviso: falha ao notificar webhook"
+        >/dev/null 2>&1 || echo "[backup] aviso: falha ao notificar webhook"
 }
 
-cleanup() {
-    rm -f "$DUMP_FILE"
-}
-trap cleanup EXIT
+# set -e mata o script na primeira falha (pg_dump/aws) -- esse trap garante
+# que o webhook ainda recebe o aviso de erro antes do processo morrer.
+trap 'rc=$?; [ $rc -ne 0 ] && notify "error" "backup falhou (exit $rc)"' EXIT
 
-echo "$LOG_PREFIX iniciando pg_dump de ${DB_NAME}@${DB_HOST}:${DB_PORT}"
+echo "[backup] Iniciando backup: ${FILENAME}"
 
-if ! PGPASSWORD="$DB_PASSWORD" pg_dump \
-        -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" \
-        -Fc -Z 6 -f "$DUMP_FILE"; then
-    echo "$LOG_PREFIX ERRO: pg_dump falhou"
-    notify "error" "pg_dump falhou para ${DB_NAME}"
-    exit 1
+# 1. pg_dump
+PGPASSWORD="${DB_PASSWORD}" pg_dump \
+	-h "${DB_HOST}" \
+	-U "${DB_USER}" \
+	-d "${DB_NAME}" \
+	--no-owner \
+	--no-acl \
+	| gzip > "${FILEPATH}"
+
+echo "[backup] pg_dump concluído. Tamanho: $(du -sh ${FILEPATH} | cut -f1)"
+
+# 2. Upload para B2 via aws cli (compatível S3)
+aws s3 cp "${FILEPATH}" "s3://${BACKUP_BUCKET}/daily/${FILENAME}" \
+	--endpoint-url "${AWS_S3_ENDPOINT_URL}" \
+	--no-progress
+
+echo "[backup] Upload daily/${FILENAME} concluído"
+
+# 3. Se for domingo, copiar também para /weekly/
+if [ "${DAY_OF_WEEK}" = "7" ]; then
+	WEEKLY_NAME="glot_weekly_${TIMESTAMP}.sql.gz"
+	aws s3 cp "${FILEPATH}" "s3://${BACKUP_BUCKET}/weekly/${WEEKLY_NAME}" \
+		--endpoint-url "${AWS_S3_ENDPOINT_URL}" \
+		--no-progress
+	echo "[backup] Upload weekly/${WEEKLY_NAME} concluído"
 fi
 
-DUMP_SIZE=$(du -h "$DUMP_FILE" | cut -f1)
-echo "$LOG_PREFIX dump gerado (${DUMP_SIZE}), autorizando b2"
+# 4. Limpeza local
+rm -f "${FILEPATH}"
 
-if ! b2 account authorize "$B2_KEY_ID" "$B2_APP_KEY" >/dev/null 2>&1; then
-    echo "$LOG_PREFIX ERRO: falha ao autorizar conta b2"
-    notify "error" "falha ao autorizar b2 account"
-    exit 1
-fi
+# 5. Retenção: deletar daily/ com mais de RETENTION_DAYS dias
+echo "[backup] Aplicando retenção (daily > ${RETENTION_DAYS} dias)..."
+CUTOFF=$(date -u -d "@$(($(date -u +%s) - RETENTION_DAYS * 86400))" +"%Y%m%d")
 
-echo "$LOG_PREFIX enviando ${REMOTE_NAME} para bucket ${B2_BACKUP_BUCKET_NAME}"
+aws s3 ls "s3://${BACKUP_BUCKET}/daily/" \
+	--endpoint-url "${AWS_S3_ENDPOINT_URL}" \
+	| awk '{print $4}' \
+	| while read -r key; do
+		FILE_DATE=$(echo "${key}" | grep -oE '[0-9]{8}' | head -1)
+		if [ -n "${FILE_DATE}" ] && [ "${FILE_DATE}" -lt "${CUTOFF}" ]; then
+			echo "[backup] Deletando daily/${key} (${FILE_DATE} < ${CUTOFF})"
+			aws s3 rm "s3://${BACKUP_BUCKET}/daily/${key}" \
+				--endpoint-url "${AWS_S3_ENDPOINT_URL}"
+		fi
+	done
 
-if ! b2 file upload "$B2_BACKUP_BUCKET_NAME" "$DUMP_FILE" "$REMOTE_NAME" >/dev/null; then
-    echo "$LOG_PREFIX ERRO: upload pro b2 falhou"
-    notify "error" "upload falhou para ${REMOTE_NAME}"
-    exit 1
-fi
+# 6. Retenção: manter apenas 4 backups semanais
+echo "[backup] Aplicando retenção (weekly > 4 arquivos)..."
+aws s3 ls "s3://${BACKUP_BUCKET}/weekly/" \
+	--endpoint-url "${AWS_S3_ENDPOINT_URL}" \
+	| awk '{print $4}' \
+	| sort \
+	| head -n -4 \
+	| while read -r key; do
+		echo "[backup] Deletando weekly/${key}"
+		aws s3 rm "s3://${BACKUP_BUCKET}/weekly/${key}" \
+			--endpoint-url "${AWS_S3_ENDPOINT_URL}"
+	done
 
-echo "$LOG_PREFIX backup concluído com sucesso: ${REMOTE_NAME} (${DUMP_SIZE})"
-notify "success" "backup ${REMOTE_NAME} enviado (${DUMP_SIZE})"
+echo "[backup] Backup finalizado com sucesso: ${FILENAME}"
+notify "success" "backup ${FILENAME} enviado"

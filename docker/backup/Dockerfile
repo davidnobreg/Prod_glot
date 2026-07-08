@@ -1,27 +1,15 @@
-# ATENÇÃO: confirmar que a major version bate com o Postgres real de produção
-# antes de subir (pg_dump deve ser >= versão do servidor). Ajustar a tag abaixo
-# se o servidor não for Postgres 16.
-FROM postgres:16-alpine
+# Mesma major version do Postgres compartilhado com o DN Imob (host
+# "postgres17" no Swarm) — pg_dump precisa bater com a versão do servidor.
+FROM postgres:17-alpine
 
-RUN apk add --no-cache \
-        dcron \
-        bash \
-        curl \
-        tzdata \
-        python3 \
-        py3-pip \
-    && pip install --no-cache-dir --break-system-packages "b2>=4,<5"
+RUN apk add --no-cache aws-cli
 
-ENV TZ=America/Sao_Paulo
+COPY backup.sh /backup.sh
+RUN chmod +x /backup.sh
 
-WORKDIR /app
+# 05:00 UTC = 02:00 Brasília. crond do busybox (nativo do Alpine) herda o
+# ambiente do container nos jobs — não precisa de entrypoint pra isso.
+RUN echo "0 5 * * * /backup.sh >> /proc/1/fd/1 2>> /proc/1/fd/2" \
+    | crontab -
 
-COPY backup.sh entrypoint.sh /app/
-COPY crontab /etc/crontabs/root
-
-RUN chmod +x /app/backup.sh /app/entrypoint.sh \
-    && chmod 0600 /etc/crontabs/root \
-    && mkdir -p /var/log/glot-backup
-
-ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["crond", "-f", "-l", "2"]

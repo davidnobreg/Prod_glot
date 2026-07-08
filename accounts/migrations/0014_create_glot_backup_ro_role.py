@@ -2,9 +2,8 @@ from django.db import migrations
 
 # Cria a role Postgres só-leitura usada pelo container glot-backup (pg_dump).
 # NÃO define senha aqui — senha nunca vai pro git. A role fica NOLOGIN até
-# alguém rodar manualmente no servidor:
-#   ALTER ROLE glot_backup_ro WITH LOGIN PASSWORD '<senha-do-secret>';
-# (ver docs/backup-postgres-b2.md pro comando exato)
+# a migration 0015 rodar (ela ativa o login automaticamente lendo
+# GLOT_DB_PASSWORD do ambiente, toda vez que o Django migra).
 
 CREATE_ROLE_SQL = """
 DO $$

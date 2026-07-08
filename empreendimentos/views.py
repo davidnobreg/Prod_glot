@@ -1317,7 +1317,7 @@ def exportar_lotes(request, empreendimento_uuid):
     header_font = Font(color='FFFFFF', bold=True)
     locked_fill = PatternFill(fill_type='solid', fgColor='D3D3D3')
 
-    headers = ['id', 'numero', 'quadra', 'area', 'preco', 'status', 'descricao', 'cliente_reserva']
+    headers = ['id', 'numero', 'quadra', 'area', 'preco', 'status', 'medidas_Confrontacoes', 'cliente_reserva', 'corretor',]
     for col_idx, header in enumerate(headers, 1):
         cell = ws.cell(row=1, column=col_idx, value=header)
         cell.fill = header_fill
@@ -1339,6 +1339,7 @@ def exportar_lotes(request, empreendimento_uuid):
             status_cell.fill = locked_fill
         ws.cell(row=row_idx, column=7, value=lote.medidasConfrontacoes or '')
         ws.cell(row=row_idx, column=8, value=lote.cliente_reserva or '')
+        ws.cell(row=row_idx, column=9, value=lote.user or '')
 
     for col in ws.columns:
         max_len = max((len(str(c.value or '')) for c in col), default=10)
@@ -1388,8 +1389,8 @@ def importar_lotes(request, empreendimento_uuid):
         if not any(cell is not None for cell in row):
             continue
 
-        row_padded = (list(row) + [None] * 8)[:8]
-        lote_id_raw, numero, quadra_nome, area, preco, status, descricao, cliente_reserva_val = row_padded
+        row_padded = (list(row) + [None] * 9)[:9]
+        lote_id_raw, numero, quadra_nome, area, preco, status, medidas_Confrontacoes, cliente_reserva_val, corretor = row_padded
 
         if lote_id_raw is None:
             erros.append({'linha': row_idx, 'motivo': 'ID ausente'})
@@ -1456,17 +1457,23 @@ def importar_lotes(request, empreendimento_uuid):
                 if status_str != lote.situacao:
                     campos['situacao'] = {'atual': lote.situacao, 'novo': status_str}
 
-        if descricao is not None:
-            descricao_str = str(descricao).strip()
+        if medidas_Confrontacoes is not None:
+            medidas_Confrontacoes_str = str(medidas_Confrontacoes).strip()
             atual = (lote.medidasConfrontacoes or '').strip()
-            if descricao_str != atual:
-                campos['medidasConfrontacoes'] = {'atual': atual, 'novo': descricao_str}
+            if medidas_Confrontacoes_str != atual:
+                campos['medidasConfrontacoes'] = {'atual': atual, 'novo': medidas_Confrontacoes_str}
 
         if cliente_reserva_val is not None:
             cr_str = str(cliente_reserva_val).strip()
             atual_cr = (lote.cliente_reserva or '').strip()
             if cr_str != atual_cr:
                 campos['cliente_reserva'] = {'atual': atual_cr, 'novo': cr_str}
+
+        if corretor is not None:
+            corretor_str = str(corretor).strip()
+            atual_cr_user = (lote.user or '').strip()
+            if corretor_str != atual_cr_user:
+                campos['user'] = {'atual': atual_cr_user, 'novo': corretor_str}
 
         if campos:
             alteracoes.append({'id': lote_id, 'numero': lote.lote, 'campos': campos})
@@ -1494,7 +1501,7 @@ def importar_lotes_confirmar(request, empreendimento_uuid):
     ids_empr = set(
         Lote.objects.filter(quadra__empr=empr).values_list('id', flat=True)
     )
-    campos_permitidos = {'area', 'valor_metro_quadrado', 'situacao', 'medidasConfrontacoes', 'cliente_reserva'}
+    campos_permitidos = {'area', 'valor_metro_quadrado', 'situacao', 'medidasConfrontacoes', 'cliente_reserva', 'user'}
 
     atualizados = 0
     ignorados = 0

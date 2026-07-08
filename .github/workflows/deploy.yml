@@ -37,6 +37,18 @@ jobs:
           build-args: |
             GIT_COMMIT=${{ github.sha }}
 
+      - name: Build e push da imagem glot-backup
+        uses: docker/build-push-action@v5
+        with:
+          context: ./docker/backup
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/glot-backup:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/glot-backup:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: Redeploy via API do Portainer
         env:
           DOCKER_DEFAULT_PLATFORM: linux/arm64

@@ -165,6 +165,42 @@ services:
       restart_policy:
         condition: on-failure
 
+  glot-backup:
+    image: davidnobrega/glot-backup:latest
+
+    # DB_HOST/PORT/NAME/B2_BACKUP_BUCKET_NAME/RETENTION_DAYS/NOTIFY_WEBHOOK_URL
+    # vêm do mesmo configuration/.env que o serviço web já usa (ver
+    # core/settings.py:35) — não duplicar aqui via ${VAR}, o Portainer não
+    # repassa essas variáveis pro stack (só GIT_COMMIT/SENTRY_DSN/PDF_ENGINE).
+    # DB_USER é fixo: NÃO reusar o DB_USER do .env (esse é o usuário admin do
+    # Django) — glot_backup_ro é a role só-leitura dedicada (ver migration
+    # accounts/0014).
+    environment:
+      - DB_USER=glot_backup_ro
+
+    volumes:
+      - configuration:/app/configuration:ro
+      - glot_backup_logs:/var/log/glot-backup
+
+    secrets:
+      - source: glot_db_password
+        target: db_password
+      - source: b2_backup_key_id
+        target: b2_backup_key_id
+      - source: b2_backup_application_key
+        target: b2_backup_application_key
+
+    networks:
+      - app_network
+
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+
 volumes:
   configuration:
     external: true
@@ -181,9 +217,21 @@ volumes:
   celerybeat:
     external: true
 
+  glot_backup_logs:
+
 networks:
   app_network:
     external: true
 
   npm_public:
+    external: true
+
+secrets:
+  glot_db_password:
+    external: true
+
+  b2_backup_key_id:
+    external: true
+
+  b2_backup_application_key:
     external: true

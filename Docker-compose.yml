@@ -12,6 +12,9 @@ services:
       - ENVIRONMENT=production
       - GIT_COMMIT=${GIT_COMMIT}
       - RUN_MIGRATIONS=true
+      # Lida só pela migration accounts/0015 (ALTER ROLE glot_backup_ro
+      # automático a cada migrate) — Django não usa isso em mais nada.
+      - GLOT_DB_PASSWORD=${GLOT_DB_PASSWORD}
 
     volumes:
       - configuration:/app/configuration
@@ -168,38 +171,33 @@ services:
   glot-backup:
     image: davidnobrega/glot-backup:latest
 
-    # DB_HOST/PORT/NAME/B2_BACKUP_BUCKET_NAME/RETENTION_DAYS/NOTIFY_WEBHOOK_URL
-    # vêm do mesmo configuration/.env que o serviço web já usa (ver
-    # core/settings.py:35) — não duplicar aqui via ${VAR}, o Portainer não
-    # repassa essas variáveis pro stack (só GIT_COMMIT/SENTRY_DSN/PDF_ENGINE).
-    # DB_USER é fixo: NÃO reusar o DB_USER do .env (esse é o usuário admin do
-    # Django) — glot_backup_ro é a role só-leitura dedicada (ver migration
-    # accounts/0014).
+    # postgres17 é o mesmo host Swarm usado pelo DN Imob (Postgres
+    # compartilhado, bancos diferentes). DB_USER fixo: NÃO trocar por
+    # ${DB_USER} genérico — isso puxaria o usuário admin do Django. A role
+    # glot_backup_ro é só-leitura (accounts/migrations/0014) e tem a senha
+    # ativada automaticamente pela migration accounts/0015 a partir do mesmo
+    # GLOT_DB_PASSWORD injetado no serviço web.
     environment:
-      - DB_USER=glot_backup_ro
-
-    volumes:
-      - configuration:/app/configuration:ro
-      - glot_backup_logs:/var/log/glot-backup
-
-    secrets:
-      - source: glot_db_password
-        target: db_password
-      - source: b2_backup_key_id
-        target: b2_backup_key_id
-      - source: b2_backup_application_key
-        target: b2_backup_application_key
+      DB_HOST: postgres17
+      DB_NAME: ${DB_NAME}
+      DB_USER: glot_backup_ro
+      DB_PASSWORD: ${GLOT_DB_PASSWORD}
+      AWS_ACCESS_KEY_ID: ${BACKUP_B2_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${BACKUP_B2_APPLICATION_KEY}
+      AWS_S3_ENDPOINT_URL: https://s3.us-east-005.backblazeb2.com
+      AWS_DEFAULT_REGION: us-east-005
+      BACKUP_BUCKET: glot-db-backups-prod
 
     networks:
       - app_network
 
     deploy:
       replicas: 1
+      restart_policy:
+        condition: any
       placement:
         constraints:
           - node.role == manager
-      restart_policy:
-        condition: on-failure
 
 volumes:
   configuration:
@@ -217,21 +215,9 @@ volumes:
   celerybeat:
     external: true
 
-  glot_backup_logs:
-
 networks:
   app_network:
     external: true
 
   npm_public:
-    external: true
-
-secrets:
-  glot_db_password:
-    external: true
-
-  b2_backup_key_id:
-    external: true
-
-  b2_backup_application_key:
     external: true

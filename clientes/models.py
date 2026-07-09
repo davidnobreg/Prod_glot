@@ -4,6 +4,8 @@ from decimal import Decimal
 from django.db import models
 from django.core.validators import RegexValidator
 
+from .validators import validate_documento_representante
+
 
 # ==========================================================
 # LISTA DE ESTADOS
@@ -74,6 +76,8 @@ class Cliente(models.Model):
     conj_numero_rg = models.CharField(max_length=20, blank=True, null=True)
     conj_orgao_emissor_rg = models.CharField(max_length=20, blank=True, null=True)
     conj_documento = models.CharField(max_length=14, blank=True, null=True)
+    conj_profissao = models.CharField(max_length=100, blank=True, null=True)
+    conj_nacionalidade = models.CharField(max_length=100, blank=True, null=True)
 
     # ======================================================
     # MÉTODO PARA VALIDAR CPF
@@ -222,3 +226,112 @@ class ClienteTelefone(models.Model):
     class Meta:
         verbose_name = "Telefone do Cliente"
         verbose_name_plural = "Telefones dos Clientes"
+
+
+# ==========================================================
+# REPRESENTANTE LEGAL (sócio/administrador) — cliente PJ
+# ==========================================================
+class ClienteRepresentante(models.Model):
+    """Pessoa física que representa um Cliente PJ (sócio/administrador).
+
+    Não é 1:1 com Cliente (uma PJ pode ter N representantes) e o mesmo CPF
+    pode representar mais de uma PJ diferente — por isso `documento` NÃO é
+    unique global (ver unique_together), diferente de `Cliente.documento`.
+    """
+
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    cliente = models.ForeignKey(
+        Cliente, on_delete=models.CASCADE, related_name='representantes'
+    )
+
+    nome = models.CharField(max_length=100)
+    documento = models.CharField(max_length=14, help_text="CPF, apenas números.")
+    numero_rg = models.CharField(max_length=20, blank=True)
+    orgao_emissor_rg = models.CharField(max_length=20, blank=True)
+    email = models.EmailField(max_length=200, blank=True)
+    cargo = models.CharField(max_length=100, blank=True)
+    estado_civil = models.CharField(
+        max_length=22, choices=Cliente.choices_estado_civil, blank=True
+    )
+
+    conj_nome = models.CharField(max_length=100, blank=True)
+    conj_numero_rg = models.CharField(max_length=20, blank=True)
+    conj_orgao_emissor_rg = models.CharField(max_length=20, blank=True)
+    conj_documento = models.CharField(max_length=14, blank=True)
+
+    is_ativo = models.BooleanField(default=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Representante do Cliente'
+        verbose_name_plural = 'Representantes do Cliente'
+        unique_together = [('cliente', 'documento')]
+        ordering = ['-criado_em']
+
+    def __str__(self):
+        return f'{self.nome} ({self.documento}) — {self.cliente.name}'
+
+    def save(self, *args, **kwargs):
+        if self.nome:
+            self.nome = self.nome.strip().upper()
+        if self.documento:
+            self.documento = re.sub(r"[^0-9]", "", self.documento)
+        if self.conj_documento:
+            self.conj_documento = re.sub(r"[^0-9]", "", self.conj_documento)
+        if self.conj_nome:
+            self.conj_nome = self.conj_nome.strip().upper()
+        if self.email:
+            self.email = self.email.strip().lower()
+        super().save(*args, **kwargs)
+
+
+# ==========================================================
+# DOCUMENTOS DO REPRESENTANTE (e do cônjuge dele)
+# ==========================================================
+class RepresentanteDocumento(models.Model):
+
+    TIPO_CHOICES = [
+        ('RG', 'RG'),
+        ('CPF', 'CPF'),
+        ('CNH', 'CNH'),
+        ('PROCURACAO', 'Procuração'),
+        ('COMPROVANTE_ESTADO_CIVIL', 'Comprovante de Estado Civil'),
+        ('OUTROS', 'Outros'),
+    ]
+
+    PERTENCE_A_CHOICES = [
+        ('TITULAR', 'Titular'),
+        ('CONJUGE', 'Cônjuge'),
+    ]
+
+    STATUS_CHOICES = [
+        ('processando', 'Processando'),
+        ('disponivel', 'Disponível'),
+        ('erro', 'Erro'),
+    ]
+
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    representante = models.ForeignKey(
+        ClienteRepresentante, on_delete=models.CASCADE, related_name='documentos'
+    )
+    tipo = models.CharField(max_length=50, choices=TIPO_CHOICES)
+    pertence_a = models.CharField(
+        max_length=10, choices=PERTENCE_A_CHOICES, default='TITULAR'
+    )
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default='disponivel',
+    )
+    arquivo = models.FileField(
+        upload_to='clientes/documentos_representante/',
+        validators=[validate_documento_representante],
+    )
+    descricao = models.CharField(max_length=200, blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Documento do Representante'
+        verbose_name_plural = 'Documentos do Representante'
+        ordering = ['-criado_em']
+
+    def __str__(self):
+        return f'{self.get_tipo_display()} — {self.representante}'

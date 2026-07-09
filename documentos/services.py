@@ -217,8 +217,8 @@ def montar_contexto_venda(venda, usuario):
 			'nome': cliente.conj_nome or '' if cliente else '',
 			'cpf_formatado': _formatar_cpf_cnpj(cliente.conj_documento) if cliente else '',
 			'rg': cliente.conj_numero_rg or '' if cliente else '',
-			'profissao': '',        # sem campo conj_profissao no model
-			'nacionalidade': '',    # sem campo conj_nacionalidade no model
+			'profissao': cliente.conj_profissao or '' if cliente else '',
+			'nacionalidade': cliente.conj_nacionalidade or '' if cliente else '',
 		},
 		'empreendimento': {
 			'nome': empr.nome if empr else '',

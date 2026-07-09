@@ -85,6 +85,7 @@ class ClienteBaseForm(forms.ModelForm):
 			'end_rua', 'end_complemento', 'end_numero', 'end_bairro',
 			'end_cep', 'end_cidade', 'end_estado',
 			'conj_nome', 'conj_numero_rg', 'conj_orgao_emissor_rg', 'conj_documento',
+			'conj_profissao', 'conj_nacionalidade',
 		)
 		labels = {
 			'name': 'Nome',
@@ -314,6 +315,7 @@ class ClienteConjugeForm(forms.ModelForm):
 		fields = [
 			'conj_nome', 'conj_numero_rg',
 			'conj_orgao_emissor_rg', 'conj_documento',
+			'conj_profissao', 'conj_nacionalidade',
 		]
 
 	def clean_conj_documento(self):
@@ -340,14 +342,16 @@ class ClienteConjugeForm(forms.ModelForm):
 			'conj_documento': {'placeholder': 'CPF', 'class': 'mask-doc'},
 			'conj_numero_rg': {'placeholder': 'Nº do RG', 'class': 'mask-rg'},
 			'conj_orgao_emissor_rg': {'placeholder': 'Órgão emissor do RG'},
+			'conj_profissao': {'placeholder': 'Profissão do Cônjuge'},
+			'conj_nacionalidade': {'placeholder': 'Nacionalidade do Cônjuge'},
 		}
 		for field_name, attrs in config.items():
 			if field_name in self.fields:
 				self.fields[field_name].widget.attrs.update(attrs)
 				_apply_widget_style(self.fields[field_name])
 
-		left_fields = ['conj_nome', 'conj_documento']
-		right_fields = ['conj_numero_rg', 'conj_orgao_emissor_rg']
+		left_fields = ['conj_nome', 'conj_documento', 'conj_profissao']
+		right_fields = ['conj_numero_rg', 'conj_orgao_emissor_rg', 'conj_nacionalidade']
 
 		for field_name in left_fields:
 			if field_name in self.fields:

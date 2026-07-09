@@ -4,7 +4,15 @@ from decimal import Decimal, InvalidOperation
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import Cliente, ClienteDocumento, ClienteTelefone, choices_estado
+from .models import (
+	Cliente,
+	ClienteDocumento,
+	ClienteRepresentante,
+	ClienteTelefone,
+	RepresentanteDocumento,
+	choices_estado,
+)
+from .validators import validar_cpf
 
 
 # ===================================================================
@@ -39,20 +47,8 @@ def _apply_widget_style(field):
 
 
 # ===================================================================
-# Validações CPF / CNPJ
+# Validação CNPJ (validar_cpf consolidada em clientes/validators.py)
 # ===================================================================
-def validar_cpf(cpf):
-	if len(cpf) != 11 or cpf == cpf[0] * 11:
-		return False
-	soma = sum(int(cpf[i]) * (10 - i) for i in range(9))
-	dig1 = (soma * 10 % 11) % 10
-	if dig1 != int(cpf[9]):
-		return False
-	soma = sum(int(cpf[i]) * (11 - i) for i in range(10))
-	dig2 = (soma * 10 % 11) % 10
-	return dig2 == int(cpf[10])
-
-
 def validar_cnpj(cnpj):
 	if len(cnpj) != 14 or cnpj == cnpj[0] * 14:
 		return False
@@ -422,6 +418,65 @@ class ClienteDocumentoForm(forms.ModelForm):
 			else ClienteDocumento.TIPO_CHOICES_PF
 		)
 		self.fields['tipo'].choices = [('', '---------')] + choices
+		for field in self.fields.values():
+			field.required = False
+			_apply_widget_style(field)
+		self.fields['tipo'].required = True
+		self.fields['arquivo'].required = True
+		self.fields['arquivo'].widget.attrs['accept'] = '.jpg,.jpeg,.png,.pdf'
+		self.fields['pertence_a'].initial = 'TITULAR'
+
+
+# ===================================================================
+# FORM REPRESENTANTE LEGAL (sócio/administrador) — cliente PJ
+# ===================================================================
+class ClienteRepresentanteForm(forms.ModelForm):
+
+	class Meta:
+		model = ClienteRepresentante
+		fields = [
+			'nome', 'documento', 'numero_rg', 'orgao_emissor_rg', 'email', 'cargo',
+			'estado_civil', 'conj_nome', 'conj_numero_rg', 'conj_orgao_emissor_rg',
+			'conj_documento',
+		]
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		for field in self.fields.values():
+			field.required = False
+			_apply_widget_style(field)
+		self.fields['nome'].required = True
+		self.fields['documento'].required = True
+
+	def clean_documento(self):
+		documento = re.sub(r'[^0-9]', '', self.cleaned_data.get('documento', ''))
+		if not validar_cpf(documento):
+			raise ValidationError('CPF inválido.')
+		return documento
+
+	def clean(self):
+		cleaned_data = super().clean()
+		if cleaned_data.get('estado_civil') == 'casado' and not cleaned_data.get('conj_nome'):
+			self.add_error('conj_nome', 'Nome do cônjuge é obrigatório.')
+		return cleaned_data
+
+
+# ===================================================================
+# FORM DOCUMENTO DO REPRESENTANTE (tabela RepresentanteDocumento)
+# ===================================================================
+class RepresentanteDocumentoForm(forms.ModelForm):
+
+	class Meta:
+		model = RepresentanteDocumento
+		fields = ['tipo', 'pertence_a', 'arquivo', 'descricao']
+		widgets = {
+			'arquivo': forms.FileInput(),
+			'descricao': forms.TextInput(attrs={'placeholder': 'Descrição (opcional)'}),
+		}
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.fields['tipo'].choices = [('', '---------')] + RepresentanteDocumento.TIPO_CHOICES
 		for field in self.fields.values():
 			field.required = False
 			_apply_widget_style(field)

@@ -2,6 +2,7 @@ import json
 import re as _re
 
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Prefetch, Q
@@ -14,10 +15,12 @@ from .forms import (
     ClienteDocumentoForm,
     ClienteEnderecoForm,
     ClienteForm,
+    ClienteRepresentanteForm,
     ClienteTelefoneForm,
     ClienteUpdateForm,
+    RepresentanteDocumentoForm,
 )
-from .models import Cliente, ClienteDocumento, ClienteTelefone
+from .models import Cliente, ClienteDocumento, ClienteRepresentante, ClienteTelefone, RepresentanteDocumento
 
 
 # ===================================================================
@@ -83,6 +86,11 @@ def _wizard_validar_finalizacao(cliente):
     if (getattr(cliente, 'estado_civil', '') or '').lower() == 'casado':
         if not (getattr(cliente, 'conj_nome', '') or '').strip():
             erros['conj_nome'] = 'Nome do cônjuge é obrigatório.'
+    if _get_tipo_pessoa(cliente) == 'PJ':
+        from clientes.services import validar_representantes_pj
+        erro_representantes = validar_representantes_pj(cliente)
+        if erro_representantes:
+            erros['representantes'] = erro_representantes
     return erros
 
 
@@ -456,6 +464,115 @@ def wizard_arquivo_del(request, cliente_uuid, documento_uuid):
 
 
 # ===================================================================
+# wizard_representante_add
+# ===================================================================
+
+@has_permission_decorator('criarCliente')
+def wizard_representante_add(request, cliente_uuid):
+	"""Adiciona ClienteRepresentante a um cliente PJ rascunho. Retorna JSON."""
+	if request.method != 'POST':
+		return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
+
+	draft = get_object_or_404(Cliente, uuid=cliente_uuid, is_ativo=False)
+	form = ClienteRepresentanteForm(request.POST)
+
+	if form.is_valid():
+		from clientes.services import criar_representante
+		try:
+			representante = criar_representante(draft, form.cleaned_data)
+		except ValidationError as e:
+			return JsonResponse({'ok': False, 'error': '; '.join(e.messages)})
+		return JsonResponse({
+			'ok': True,
+			'representante': {
+				'uuid': str(representante.uuid),
+				'nome': representante.nome,
+				'documento': representante.documento,
+				'cargo': representante.cargo,
+				'estado_civil': representante.get_estado_civil_display(),
+			}
+		})
+
+	first_error = next(
+		(v[0] for v in form.errors.values() if v),
+		'Erro ao salvar representante.'
+	)
+	return JsonResponse({'ok': False, 'error': first_error})
+
+
+# ===================================================================
+# wizard_representante_del
+# ===================================================================
+
+@has_permission_decorator('criarCliente')
+def wizard_representante_del(request, cliente_uuid, representante_uuid):
+	"""Remove ClienteRepresentante de um rascunho específico. Retorna JSON."""
+	if request.method != 'POST':
+		return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
+
+	draft = get_object_or_404(Cliente, uuid=cliente_uuid, is_ativo=False)
+	from clientes.services import remover_representante
+	remover_representante(representante_uuid, draft)
+	return JsonResponse({'ok': True})
+
+
+# ===================================================================
+# wizard_representante_arquivo_add
+# ===================================================================
+
+@has_permission_decorator('criarCliente')
+def wizard_representante_arquivo_add(request, representante_uuid):
+	"""Adiciona RepresentanteDocumento a um representante de rascunho. Retorna JSON."""
+	if request.method != 'POST':
+		return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
+
+	representante = get_object_or_404(
+		ClienteRepresentante, uuid=representante_uuid, cliente__is_ativo=False
+	)
+	form = RepresentanteDocumentoForm(request.POST, request.FILES)
+
+	if form.is_valid():
+		doc = form.save(commit=False)
+		doc.representante = representante
+		doc.status = 'processando'
+		doc.save()
+		return JsonResponse({
+			'ok': True,
+			'doc': {
+				'uuid': str(doc.uuid),
+				'tipo_display': doc.get_tipo_display(),
+				'descricao': doc.descricao or '',
+				'arquivo_url': doc.arquivo.url,
+			}
+		})
+
+	first_error = next(
+		(v[0] for v in form.errors.values() if v),
+		'Erro ao salvar documento.'
+	)
+	return JsonResponse({'ok': False, 'error': first_error})
+
+
+# ===================================================================
+# wizard_representante_arquivo_del
+# ===================================================================
+
+@has_permission_decorator('criarCliente')
+def wizard_representante_arquivo_del(request, documento_uuid):
+	"""Remove RepresentanteDocumento de um rascunho específico. Retorna JSON."""
+	if request.method != 'POST':
+		return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
+
+	doc = get_object_or_404(
+		RepresentanteDocumento,
+		uuid=documento_uuid,
+		representante__cliente__is_ativo=False,
+	)
+	doc.delete()
+	return JsonResponse({'ok': True})
+
+
+# ===================================================================
 # wizard_salvar_passo — AJAX: cria/atualiza cliente por etapa
 # ===================================================================
 
@@ -581,13 +698,16 @@ def wizard_finalizar(request, cliente_uuid):
 	if erros:
 		return JsonResponse({'ok': False, 'errors': erros}, status=400)
 
-	from clientes.tasks import processar_documentos_pendentes
+	from clientes.tasks import processar_documentos_pendentes, processar_documentos_representante_pendentes
 
 	with transaction.atomic():
 		draft.is_ativo = True
 		draft.save(update_fields=['is_ativo'])
 		transaction.on_commit(
 			lambda: processar_documentos_pendentes.delay(str(draft.uuid))
+		)
+		transaction.on_commit(
+			lambda: processar_documentos_representante_pendentes.delay(str(draft.uuid))
 		)
 
 	origem = request.POST.get('origem', 'lista')

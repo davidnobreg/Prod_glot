@@ -6,6 +6,7 @@
 	var ALL_STEPS = [
 		{ id: 'step-1', label: 'Dados pessoais' },
 		{ id: 'step-2', label: 'Cônjuge', conditional: true },
+		{ id: 'step-7', label: 'Representantes', conditional: true },
 		{ id: 'step-4', label: 'Endereço' },
 		{ id: 'step-5', label: 'Contatos' },
 		{ id: 'step-3', label: 'Documentos' },
@@ -35,6 +36,7 @@
 	var steps = [];
 	var cur = 0;
 	var wizardArquivos = [];
+	var wizardRepresentantes = [];
 	var clienteUuid = '';
 
 	// -----------------------------------------------------------------------
@@ -47,11 +49,11 @@
 	}
 
 	function rebuildSteps() {
-		if (isCasado()) {
-			steps = ALL_STEPS.slice();
-		} else {
-			steps = ALL_STEPS.filter(function (s) { return !s.conditional; });
-		}
+		steps = ALL_STEPS.filter(function (s) {
+			if (s.id === 'step-2') return isCasado();
+			if (s.id === 'step-7') return getTipoPessoa() === 'PJ';
+			return true;
+		});
 	}
 
 	function getVal(id) {
@@ -159,6 +161,10 @@
 			if (!getVal('id_conj_nome')) errors.push('Nome do cônjuge é obrigatório.');
 		}
 
+		if (stepId === 'step-7') {
+			if (!wizardRepresentantes.length) errors.push('Informe ao menos um representante legal.');
+		}
+
 		// step-3 (Documentos) — sem campos obrigatórios
 
 		if (stepId === 'step-4') {
@@ -254,6 +260,7 @@
 
 		if (steps[index].id === 'step-6') renderReview();
 		if (steps[index].id === 'step-3') onArquivosStepEnter();
+		if (steps[index].id === 'step-7') renderRepresentantesList();
 	}
 
 	// -----------------------------------------------------------------------
@@ -388,6 +395,203 @@
 	};
 
 	// -----------------------------------------------------------------------
+	// Step Representantes legais (PJ) — AJAX inline
+	// -----------------------------------------------------------------------
+
+	function _wzUrlRepresentanteAdd() {
+		var base = (window.WIZARD_URLS && window.WIZARD_URLS.representanteAddBase)
+			|| '/clientes/00000000-0000-0000-0000-000000000000/wizard/representante/add/';
+		return base.replace('00000000-0000-0000-0000-000000000000', clienteUuid);
+	}
+
+	function _wzUrlRepresentanteDel(repUuid) {
+		var base = (window.WIZARD_URLS && window.WIZARD_URLS.representanteDelBase)
+			|| '/clientes/00000000-0000-0000-0000-000000000000/wizard/representante/11111111-1111-1111-1111-111111111111/del/';
+		return base
+			.replace('00000000-0000-0000-0000-000000000000', clienteUuid)
+			.replace('11111111-1111-1111-1111-111111111111', repUuid);
+	}
+
+	function _wzUrlRepresentanteArquivoAdd(repUuid) {
+		var base = (window.WIZARD_URLS && window.WIZARD_URLS.representanteArquivoAddBase)
+			|| '/clientes/wizard/representante/11111111-1111-1111-1111-111111111111/arquivo-add/';
+		return base.replace('11111111-1111-1111-1111-111111111111', repUuid);
+	}
+
+	function _wzUrlRepresentanteArquivoDel(docUuid) {
+		var base = (window.WIZARD_URLS && window.WIZARD_URLS.representanteArquivoDelBase)
+			|| '/clientes/wizard/representante/arquivo-del/22222222-2222-2222-2222-222222222222/';
+		return base.replace('22222222-2222-2222-2222-222222222222', docUuid);
+	}
+
+	function toggleRepConjugeGroup() {
+		var ec = document.getElementById('wz-rep-estado-civil');
+		var group = document.getElementById('wz-rep-conjuge-group');
+		if (group) group.style.display = (ec && ec.value === 'casado') ? '' : 'none';
+	}
+
+	function renderRepresentantesList() {
+		var container = document.getElementById('wz-rep-lista');
+		if (!container) return;
+
+		if (!wizardRepresentantes.length) {
+			container.innerHTML = '<p class="text-muted small mb-0">Nenhum representante adicionado ainda.</p>';
+			return;
+		}
+
+		container.innerHTML = wizardRepresentantes.map(function (r, idx) {
+			var docsHtml = (r.documentos || []).map(function (d) {
+				return '<span class="badge bg-secondary me-1 mb-1">' + d.tipo_display
+					+ ' <i class="fas fa-times ms-1" style="cursor:pointer;" '
+					+ 'onclick="wizardDelRepresentanteArquivo(\'' + r.uuid + '\',\'' + d.uuid + '\')"></i></span>';
+			}).join('');
+			return '<div class="card mb-2" style="border-radius:8px;">'
+				+ '<div class="card-body py-2 px-3">'
+				+ '<div class="d-flex justify-content-between align-items-start">'
+				+ '<div><strong>' + r.nome + '</strong> — ' + r.documento
+				+ (r.cargo ? ' · ' + r.cargo : '') + (r.estado_civil ? ' · ' + r.estado_civil : '') + '</div>'
+				+ '<button type="button" class="btn btn-danger btn-sm" style="border-radius:6px;" '
+				+ 'onclick="wizardDelRepresentante(\'' + r.uuid + '\')"><i class="fas fa-trash"></i></button>'
+				+ '</div>'
+				+ '<div class="mt-2">'
+				+ '<div class="mb-1">' + (docsHtml || '<span class="text-muted small">Sem documentos anexados.</span>') + '</div>'
+				+ '<div class="d-flex gap-1 align-items-end flex-wrap">'
+				+ '<select id="wz-rep-doc-tipo-' + idx + '" class="glot-select" style="max-width:160px;">'
+				+ '<option value="">Tipo doc.</option><option value="RG">RG</option><option value="CPF">CPF</option>'
+				+ '<option value="CNH">CNH</option><option value="PROCURACAO">Procuração</option>'
+				+ '<option value="COMPROVANTE_ESTADO_CIVIL">Comprovante de Estado Civil</option>'
+				+ '<option value="OUTROS">Outros</option>'
+				+ '</select>'
+				+ '<input type="file" id="wz-rep-doc-arquivo-' + idx + '" class="glot-input" '
+				+ 'accept=".jpg,.jpeg,.png,.pdf" style="max-width:200px;">'
+				+ '<button type="button" class="btn btn-outline-primary btn-sm" '
+				+ 'onclick="wizardAddRepresentanteArquivo(\'' + r.uuid + '\',' + idx + ')">'
+				+ '<i class="fas fa-paperclip"></i></button>'
+				+ '</div></div></div></div>';
+		}).join('');
+	}
+
+	window.wizardAddRepresentante = function () {
+		var errEl = document.getElementById('wz-rep-erro');
+
+		if (!clienteUuid) {
+			if (errEl) { errEl.textContent = 'Aguarde: o cadastro ainda está sendo salvo.'; errEl.style.display = ''; }
+			return;
+		}
+
+		var nome = getVal('wz-rep-nome');
+		var documento = getVal('wz-rep-documento');
+		if (!nome || !documento) {
+			if (errEl) { errEl.textContent = 'Nome e CPF são obrigatórios.'; errEl.style.display = ''; }
+			return;
+		}
+		var estadoCivil = getVal('wz-rep-estado-civil');
+		if (estadoCivil === 'casado' && !getVal('wz-rep-conj-nome')) {
+			if (errEl) { errEl.textContent = 'Informe o nome do cônjuge do representante.'; errEl.style.display = ''; }
+			return;
+		}
+		if (errEl) errEl.style.display = 'none';
+
+		var data = new FormData();
+		data.append('csrfmiddlewaretoken', getCsrf());
+		data.append('nome', nome);
+		data.append('documento', documento);
+		data.append('numero_rg', getVal('wz-rep-numero-rg'));
+		data.append('orgao_emissor_rg', getVal('wz-rep-orgao-emissor-rg'));
+		data.append('email', getVal('wz-rep-email'));
+		data.append('cargo', getVal('wz-rep-cargo'));
+		data.append('estado_civil', estadoCivil);
+		data.append('conj_nome', getVal('wz-rep-conj-nome'));
+		data.append('conj_numero_rg', getVal('wz-rep-conj-numero-rg'));
+		data.append('conj_orgao_emissor_rg', getVal('wz-rep-conj-orgao-emissor-rg'));
+		data.append('conj_documento', getVal('wz-rep-conj-documento'));
+
+		wizardFetch(_wzUrlRepresentanteAdd(), { method: 'POST', body: data })
+			.then(function (d) {
+				if (d.ok) {
+					d.representante.documentos = [];
+					wizardRepresentantes.push(d.representante);
+					renderRepresentantesList();
+					['wz-rep-nome', 'wz-rep-documento', 'wz-rep-numero-rg', 'wz-rep-orgao-emissor-rg',
+					 'wz-rep-email', 'wz-rep-cargo', 'wz-rep-conj-nome', 'wz-rep-conj-numero-rg',
+					 'wz-rep-conj-orgao-emissor-rg', 'wz-rep-conj-documento'].forEach(function (id) {
+						var el = document.getElementById(id);
+						if (el) el.value = '';
+					});
+					var ecEl = document.getElementById('wz-rep-estado-civil');
+					if (ecEl) ecEl.selectedIndex = 0;
+					toggleRepConjugeGroup();
+				} else {
+					if (errEl) { errEl.textContent = d.error || 'Erro ao adicionar representante.'; errEl.style.display = ''; }
+				}
+			})
+			.catch(function (err) {
+				if (errEl) { errEl.textContent = err.message || 'Erro de conexão.'; errEl.style.display = ''; }
+			});
+	};
+
+	window.wizardDelRepresentante = function (repUuid) {
+		if (!confirm('Remover este representante?')) return;
+
+		var data = new FormData();
+		data.append('csrfmiddlewaretoken', getCsrf());
+
+		wizardFetch(_wzUrlRepresentanteDel(repUuid), { method: 'POST', body: data })
+			.then(function (d) {
+				if (d.ok) {
+					wizardRepresentantes = wizardRepresentantes.filter(function (r) { return r.uuid !== repUuid; });
+					renderRepresentantesList();
+				}
+			})
+			.catch(function () {});
+	};
+
+	window.wizardAddRepresentanteArquivo = function (repUuid, idx) {
+		var tipoEl = document.getElementById('wz-rep-doc-tipo-' + idx);
+		var arquivoEl = document.getElementById('wz-rep-doc-arquivo-' + idx);
+		if (!tipoEl || !tipoEl.value) { alert('Selecione o tipo do documento.'); return; }
+		if (!arquivoEl || !arquivoEl.files || !arquivoEl.files[0]) { alert('Selecione um arquivo.'); return; }
+
+		var data = new FormData();
+		data.append('csrfmiddlewaretoken', getCsrf());
+		data.append('tipo', tipoEl.value);
+		data.append('pertence_a', 'TITULAR');
+		data.append('arquivo', arquivoEl.files[0]);
+
+		wizardFetch(_wzUrlRepresentanteArquivoAdd(repUuid), { method: 'POST', body: data })
+			.then(function (d) {
+				if (d.ok) {
+					var rep = wizardRepresentantes.filter(function (r) { return r.uuid === repUuid; })[0];
+					if (rep) {
+						rep.documentos = rep.documentos || [];
+						rep.documentos.push(d.doc);
+					}
+					renderRepresentantesList();
+				} else {
+					alert(d.error || 'Erro ao anexar documento.');
+				}
+			})
+			.catch(function (err) { alert(err.message || 'Erro de conexão.'); });
+	};
+
+	window.wizardDelRepresentanteArquivo = function (repUuid, docUuid) {
+		if (!confirm('Excluir este arquivo?')) return;
+
+		var data = new FormData();
+		data.append('csrfmiddlewaretoken', getCsrf());
+
+		wizardFetch(_wzUrlRepresentanteArquivoDel(docUuid), { method: 'POST', body: data })
+			.then(function (d) {
+				if (d.ok) {
+					var rep = wizardRepresentantes.filter(function (r) { return r.uuid === repUuid; })[0];
+					if (rep) rep.documentos = (rep.documentos || []).filter(function (doc) { return doc.uuid !== docUuid; });
+					renderRepresentantesList();
+				}
+			})
+			.catch(function () {});
+	};
+
+	// -----------------------------------------------------------------------
 	// Revisão
 	// -----------------------------------------------------------------------
 
@@ -441,6 +645,15 @@
 				['RG', displayVal('id_conj_numero_rg')],
 				['Órgão emissor', displayVal('id_conj_orgao_emissor_rg')],
 			]);
+		}
+
+		if (getTipoPessoa() === 'PJ') {
+			var repRows = wizardRepresentantes.length
+				? wizardRepresentantes.map(function (r) {
+					return [r.nome, r.documento + (r.cargo ? ' · ' + r.cargo : '')];
+				})
+				: [['Representantes', 'Nenhum representante adicionado']];
+			html += rvSection('Representantes legais', 'fas fa-user-tie', '#c62828', repRows);
 		}
 
 		var arqRows = wizardArquivos.length
@@ -635,6 +848,9 @@
 			docField.addEventListener('input', updateDocLabels);
 			updateDocLabels();
 		}
+
+		var repEstadoCivil = document.getElementById('wz-rep-estado-civil');
+		if (repEstadoCivil) repEstadoCivil.addEventListener('change', toggleRepConjugeGroup);
 
 		var btnNext = document.getElementById('wizard-btn-next');
 		var btnPrev = document.getElementById('wizard-btn-prev');

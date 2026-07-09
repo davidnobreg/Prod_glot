@@ -13,6 +13,10 @@ urlpatterns = [
     path('documentos/<uuid:documento_uuid>/excluir/', views.excluir_documento_cliente, name='excluir-documento-cliente'),
     path('<uuid:cliente_uuid>/wizard/arquivo-add/', views.wizard_arquivo_add, name='wizard-arquivo-add'),
     path('<uuid:cliente_uuid>/wizard/arquivo-del/<uuid:documento_uuid>/', views.wizard_arquivo_del, name='wizard-arquivo-del'),
+    path('<uuid:cliente_uuid>/wizard/representante/add/', views.wizard_representante_add, name='wizard-representante-add'),
+    path('<uuid:cliente_uuid>/wizard/representante/<uuid:representante_uuid>/del/', views.wizard_representante_del, name='wizard-representante-del'),
+    path('wizard/representante/<uuid:representante_uuid>/arquivo-add/', views.wizard_representante_arquivo_add, name='wizard-representante-arquivo-add'),
+    path('wizard/representante/arquivo-del/<uuid:documento_uuid>/', views.wizard_representante_arquivo_del, name='wizard-representante-arquivo-del'),
     path('wizard/salvar-passo/', views.wizard_salvar_passo, name='wizard-salvar-passo'),
     path('<uuid:cliente_uuid>/wizard/finalizar/', views.wizard_finalizar, name='wizard-finalizar'),
 

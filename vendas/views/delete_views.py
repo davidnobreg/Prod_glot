@@ -90,7 +90,7 @@ class CancelarReservaView(View):
 
         messages.success(request, "Reserva cancelada com sucesso!")
 
-        return redirect('lista-empreendimento')
+        return redirect('listar-quadras', empreendimento_uuid=lote.quadra.empr.uuid)
 
 
 @method_decorator(has_permission_decorator('cancelarAceiteReservado'), name='dispatch')
@@ -112,6 +112,32 @@ class CancelarAceiteReservaView(View):
 
         messages.error(request, "Reserva não aceita!")
 
-        return redirect('lista-empreendimento')
+        return redirect('listar-quadras', empreendimento_uuid=lote.quadra.empr.uuid)
+
+
+@method_decorator(has_permission_decorator('criarVenda'), name='dispatch')
+class CancelarPreVendaView(View):
+
+    @transaction.atomic
+    def post(self, request, venda_uuid, *args, **kwargs):
+        venda = get_object_or_404(RegisterVenda, uuid=venda_uuid)
+
+        if request.user.tipo_usuario != 'ADMINISTRADOR':
+            messages.error(request, "Acesso não permitido.")
+            return redirect('reservadoDetalhes', reserva_uuid=venda.lote.uuid)
+
+        lote = venda.lote
+
+        # Volta um passo: Pré-Venda -> Reservado. Lote continua reservado
+        # (não libera pra DISPONIVEL), só desfaz o avanço feito em CriarVendaView.
+        venda.tipo_venda = 'RESERVADO'
+        venda.save(update_fields=['tipo_venda'])
+
+        lote.situacao = 'RESERVADO'
+        lote.save(update_fields=['situacao'])
+
+        messages.success(request, "Pré-venda cancelada. Venda voltou para Reservado.")
+
+        return redirect('reservadoDetalhes', reserva_uuid=lote.uuid)
 
 

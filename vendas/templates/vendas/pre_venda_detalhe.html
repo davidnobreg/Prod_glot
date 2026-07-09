@@ -187,6 +187,12 @@
             color: #fff;
         }
 
+        .reserva-button-danger {
+            background: #ef4444;
+            border-color: #fecaca;
+            color: #fff;
+        }
+
         .reserva-button:hover,
         .reserva-button:focus {
             color: #fff;
@@ -444,6 +450,14 @@
                             </button>
 
                             {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
+                                <button type="button"
+                                        class="reserva-button reserva-button-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#ModalCancelarPreVenda">
+                                    <i class="bi bi-x-circle"></i>
+                                    Cancelar Pré-Venda
+                                </button>
+
                                 <form method="POST"
                                       action="{% url 'efetivar-venda' venda.uuid %}"
                                       class="reserva-action-form"
@@ -468,6 +482,40 @@
             </div>
         </section>
     </div>
+
+    {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
+        <div class="modal fade" id="ModalCancelarPreVenda" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cancelar Pré-Venda</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+
+                    <form method="post" action="{% url 'cancelar-pre-venda' venda.uuid %}">
+                        {% csrf_token %}
+
+                        <div class="modal-body">
+                            <p>Isso volta a venda pro passo anterior — status <strong>Reservado</strong>. O lote continua reservado (não fica disponível de novo).</p>
+                            <p><strong>Cliente:</strong> {{ venda.cliente }}</p>
+                            <p><strong>Empreendimento:</strong> {{ venda.lote.quadra.empr.nome }}</p>
+                            <p><strong>Quadra:</strong> {{ venda.lote.quadra }}</p>
+                            <p><strong>Lote:</strong> {{ venda.lote }}</p>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-danger rounded-pill px-4">
+                                Confirmar Cancelamento
+                            </button>
+                            <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                                Voltar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 
     <script>
         (function () {

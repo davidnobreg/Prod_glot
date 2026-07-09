@@ -12,6 +12,7 @@ from .views.delete_views import (
     CancelarReservadoCadastroView,
     CancelarReservaView,
     CancelarAceiteReservaView,
+    CancelarPreVendaView,
 
 )
 from .views.detail_views import (
@@ -56,6 +57,7 @@ urlpatterns = [
     path('reservado_delete_aceite/<uuid:reserva_uuid>/', CancelarAceiteReservaView.as_view(), name='delete-aceite'),# 13
 
     path('pre-venda/<uuid:venda_uuid>/', PreVendaDetalheView.as_view(), name='pre-venda-detalhe'),
+    path('pre-venda/cancelar/<uuid:venda_uuid>/', CancelarPreVendaView.as_view(), name='cancelar-pre-venda'),
     path('efetivar-venda/<uuid:venda_uuid>/', EfetivarVendaView.as_view(), name='efetivar-venda'),
     path('venda/<uuid:venda_uuid>/documento/upload/', VendaDocumentoUploadView.as_view(), name='venda-documento-upload'),
     path('venda/documento/<uuid:doc_uuid>/aprovar/', VendaDocumentoAprovarView.as_view(), name='venda-documento-aprovar'),

@@ -2,6 +2,7 @@ import pytest
 from django.contrib.messages import get_messages
 from django.urls import reverse
 
+from accounts.models import User
 from vendas.models import VendaDocumento
 
 
@@ -63,12 +64,31 @@ class TestCancelarAceiteReservaView:
 
 	def test_cancela_aceite_marca_nao_aceite_e_lote_pre_reserva(self, client, admin_user, venda):
 		client.force_login(admin_user)
-		client.post(reverse('delete-aceite', kwargs={'reserva_uuid': venda.uuid}))
+		response = client.post(reverse('delete-aceite', kwargs={'reserva_uuid': venda.uuid}))
 		venda.refresh_from_db()
 		venda.lote.refresh_from_db()
 		assert venda.tipo_venda == 'NAO_ACEITE'
 		assert venda.is_ativo is False
 		assert venda.lote.situacao == 'PRE-RESERVA'
+		assert response.url == reverse(
+			'listar-quadras', kwargs={'empreendimento_uuid': venda.lote.quadra.empr.uuid}
+		)
+
+	def test_administrador_nao_superuser_tem_permissao(self, client, db, venda):
+		"""Botão 'Não aceita' em analisa.html é admin-only, mas a role
+		Administrador não tinha o codename cancelarAceiteReservado (só a role
+		Corretor tinha) — gap de permissão real, só não pego pelos outros
+		testes por usarem admin_user com is_superuser=True (bypassa o decorator)."""
+		administrador = User.objects.create_user(
+			username='administrador_nao_super',
+			password='senha123',
+			tipo_usuario='ADMINISTRADOR',
+		)
+		client.force_login(administrador)
+		response = client.post(reverse('delete-aceite', kwargs={'reserva_uuid': venda.uuid}))
+		assert response.status_code == 302
+		venda.refresh_from_db()
+		assert venda.tipo_venda == 'NAO_ACEITE'
 
 
 class TestCancelarReservaView:
@@ -115,9 +135,36 @@ class TestCancelarReservaView:
 
 	def test_cancelar_reserva_atualiza_venda_e_lote(self, client, admin_user, venda):
 		client.force_login(admin_user)
-		client.post(reverse('delete-reservado', kwargs={'reserva_uuid': venda.uuid}))
+		response = client.post(reverse('delete-reservado', kwargs={'reserva_uuid': venda.uuid}))
 		venda.refresh_from_db()
 		venda.lote.refresh_from_db()
 		assert venda.tipo_venda == 'CANCELADA'
 		assert venda.is_ativo is False
 		assert venda.lote.situacao == 'DISPONIVEL'
+		assert response.url == reverse(
+			'listar-quadras', kwargs={'empreendimento_uuid': venda.lote.quadra.empr.uuid}
+		)
+
+
+class TestCancelarPreVendaView:
+	"""
+	URL: /vendas/pre-venda/cancelar/<venda_uuid>/
+	Proteção: has_permission_decorator('criarVenda') + checagem ADMINISTRADOR em runtime.
+	"""
+
+	def test_cancela_pre_venda_volta_para_reservado(self, client, admin_user, venda_pre_venda):
+		client.force_login(admin_user)
+		response = client.post(reverse('cancelar-pre-venda', kwargs={'venda_uuid': venda_pre_venda.uuid}))
+
+		venda_pre_venda.refresh_from_db()
+		venda_pre_venda.lote.refresh_from_db()
+		assert venda_pre_venda.tipo_venda == 'RESERVADO'
+		assert venda_pre_venda.lote.situacao == 'RESERVADO'
+		assert response.url == reverse('reservadoDetalhes', kwargs={'reserva_uuid': venda_pre_venda.lote.uuid})
+
+	def test_nao_administrador_e_bloqueado(self, client, corretor_user, venda_pre_venda):
+		client.force_login(corretor_user)
+		client.post(reverse('cancelar-pre-venda', kwargs={'venda_uuid': venda_pre_venda.uuid}))
+
+		venda_pre_venda.refresh_from_db()
+		assert venda_pre_venda.tipo_venda == 'PRE-VENDA'

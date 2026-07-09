@@ -240,7 +240,7 @@ def montar_contexto_venda(venda, usuario):
 			'numero': lote.lote if lote else '',
 			'area_formatada': f'{area:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.'),
 			'valor_formatado': formatar_moeda_br(valor_lote),
-			'medidas': lote.dimenssoes if lote else '',
+			'medidas': lote.medidas if lote else '',
 			'confrontacoes': lote.confrontacoes if lote else '',
 		},
 		'venda': {

@@ -161,6 +161,7 @@ class Lote(models.Model):
     comprimento = models.DecimalField(verbose_name="comprimento", max_digits=5, decimal_places=2, blank=True, null=True)
     dimenssoes = models.BooleanField(default=True)
     confrontacoes = models.TextField(blank=True)
+    medidas = models.TextField(blank=True)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

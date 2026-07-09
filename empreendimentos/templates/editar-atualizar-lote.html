@@ -43,13 +43,13 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="{{ form.medidasConfrontacoes.id_for_label }}" class="form-label fw-semibold">
-                            {{ form.medidasConfrontacoes.label }}
+                        <label for="{{ form.confrontacoes.id_for_label }}" class="form-label fw-semibold">
+                            {{ form.confrontacoes.label }}
                         </label>
-                        {{ form.medidasConfrontacoes }}
-                        {% if form.medidasConfrontacoes.errors %}
+                        {{ form.confrontacoes }}
+                        {% if form.confrontacoes.errors %}
                             <div class="invalid-feedback d-block">
-                                {{ form.medidasConfrontacoes.errors|striptags }}
+                                {{ form.confrontacoes.errors|striptags }}
                             </div>
                         {% endif %}
                     </div>

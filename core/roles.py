@@ -71,6 +71,7 @@ class Administrador(AbstractUserRole):
         'criarVenda': True,
         'renovarReserva': True,
         'cancelarReservado': True,
+        'cancelarAceiteReservado': True,
         'cancelarVenda': True,
 
     }

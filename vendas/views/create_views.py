@@ -18,8 +18,6 @@ from empreendimentos.models import Lote
 
 from core.utils import formatar_moeda
 
-from decimal import Decimal
-
 
 def _documento_assinado_com_lastro(venda, tipo):
 	return venda.documentos_assinados.vigentes().filter(
@@ -449,48 +447,24 @@ class CriarReservadoView(UpdateView):
 		)
 
 		# =================================================
-		# DESCONTO
-		# =================================================
-
-		desconto = (
-			form.cleaned_data.get(
-				'valor_desconto'
-			)
-			or Decimal('0.00')
-		)
-
-		# =================================================
 		# TIPO VENDA
 		# =================================================
+		# Toda reserva criada entra por ANALISE, sem exceção — é a porta de
+		# entrada da venda (RESERVADO só é atingido via AceitaReservaView,
+		# depois de aprovação do gestor).
 
-		if desconto > Decimal('0.00'):
+		reserva.tipo_venda = (
+			'ANALISE'
+		)
 
-			reserva.tipo_venda = (
-				'ANALISE'
-			)
+		lote.situacao = (
+			'ANALISE'
+		)
 
-			lote.situacao = (
-				'ANALISE'
-			)
-
-			mensagem = (
-				'Reserva enviada para '
-				'análise e aguardando aprovação.'
-			)
-
-		else:
-
-			reserva.tipo_venda = (
-				'RESERVADO'
-			)
-
-			lote.situacao = (
-				'RESERVADO'
-			)
-
-			mensagem = (
-				'Reserva realizada com sucesso!'
-			)
+		mensagem = (
+			'Reserva enviada para '
+			'análise e aguardando aprovação.'
+		)
 
 		# =================================================
 		# STATUS
@@ -722,4 +696,4 @@ class AceitaReservaView(View):
 
 		messages.success(request, "Reserva aceita com sucesso!")
 
-		return redirect('lista-empreendimento')
+		return redirect('listar-quadras', empreendimento_uuid=lote.quadra.empr.uuid)

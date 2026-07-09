@@ -220,6 +220,84 @@
 				</div>
 
 				<!-- ================================================
+				     ETAPA 7 — Representantes legais (condicional: só PJ)
+				     ================================================ -->
+				<div id="step-7" class="wizard-step" style="display:none;">
+					<p class="wz-step-head" style="color:#c62828;">
+						<i class="fas fa-user-tie me-2"></i>Representantes legais
+						<small style="font-weight:normal;font-size:.75rem;color:#aaa;text-transform:none;letter-spacing:0;">
+							· obrigatório ao menos 1 sócio/administrador
+						</small>
+					</p>
+					<div id="wz-rep-lista" class="mb-3"></div>
+					<div id="wz-rep-form">
+						<div class="row g-2">
+							<div class="col-md-4">
+								<label class="form-label">Nome <span class="text-danger">*</span></label>
+								<input type="text" id="wz-rep-nome" class="glot-input">
+							</div>
+							<div class="col-md-3">
+								<label class="form-label">CPF <span class="text-danger">*</span></label>
+								<input type="text" id="wz-rep-documento" class="glot-input mask-doc" maxlength="14">
+							</div>
+							<div class="col-md-3">
+								<label class="form-label">Cargo</label>
+								<input type="text" id="wz-rep-cargo" class="glot-input">
+							</div>
+							<div class="col-md-2">
+								<label class="form-label">Estado civil</label>
+								<select id="wz-rep-estado-civil" class="glot-select">
+									<option value="">—</option>
+									<option value="solteiro">Solteiro</option>
+									<option value="casado">Casado</option>
+									<option value="divorciado">Divorciado</option>
+									<option value="viuvo">Viúvo</option>
+									<option value="separado_judicialmente">Separado judicialmente</option>
+									<option value="uniao_estavel">União estável</option>
+								</select>
+							</div>
+							<div class="col-md-4">
+								<label class="form-label">RG</label>
+								<input type="text" id="wz-rep-numero-rg" class="glot-input">
+							</div>
+							<div class="col-md-4">
+								<label class="form-label">Órgão emissor</label>
+								<input type="text" id="wz-rep-orgao-emissor-rg" class="glot-input">
+							</div>
+							<div class="col-md-4">
+								<label class="form-label">E-mail</label>
+								<input type="email" id="wz-rep-email" class="glot-input">
+							</div>
+						</div>
+						<div id="wz-rep-conjuge-group" style="display:none;" class="row g-2 mt-1">
+							<div class="col-12"><div class="step-sublabel">Cônjuge do representante</div></div>
+							<div class="col-md-4">
+								<label class="form-label">Nome do cônjuge <span class="text-danger">*</span></label>
+								<input type="text" id="wz-rep-conj-nome" class="glot-input">
+							</div>
+							<div class="col-md-3">
+								<label class="form-label">CPF do cônjuge</label>
+								<input type="text" id="wz-rep-conj-documento" class="glot-input mask-doc" maxlength="14">
+							</div>
+							<div class="col-md-3">
+								<label class="form-label">RG do cônjuge</label>
+								<input type="text" id="wz-rep-conj-numero-rg" class="glot-input">
+							</div>
+							<div class="col-md-2">
+								<label class="form-label">Órgão emissor</label>
+								<input type="text" id="wz-rep-conj-orgao-emissor-rg" class="glot-input">
+							</div>
+						</div>
+						<div class="mt-2">
+							<button type="button" class="btn btn-success" style="border-radius:8px;" onclick="wizardAddRepresentante()">
+								<i class="fas fa-plus me-1"></i>Adicionar representante
+							</button>
+						</div>
+						<div id="wz-rep-erro" class="alert alert-danger mt-2" style="display:none;font-size:.85rem;"></div>
+					</div>
+				</div>
+
+				<!-- ================================================
 				     STEP-3 — Documentos (posição 5 na sequência do wizard, penúltimo)
 				     ================================================ -->
 				<div id="step-3" class="wizard-step" style="display:none;">
@@ -396,6 +474,10 @@
 		arquivoAddBase: '{% url "wizard-arquivo-add" cliente_uuid="00000000-0000-0000-0000-000000000000" %}',
 		arquivoDelBase: '{% url "wizard-arquivo-del" cliente_uuid="00000000-0000-0000-0000-000000000000" documento_uuid="00000000-0000-0000-0000-000000000000" %}',
 		finalizarBase:  '{% url "wizard-finalizar" cliente_uuid="00000000-0000-0000-0000-000000000000" %}',
+		representanteAddBase: '{% url "wizard-representante-add" cliente_uuid="00000000-0000-0000-0000-000000000000" %}',
+		representanteDelBase: '{% url "wizard-representante-del" cliente_uuid="00000000-0000-0000-0000-000000000000" representante_uuid="11111111-1111-1111-1111-111111111111" %}',
+		representanteArquivoAddBase: '{% url "wizard-representante-arquivo-add" representante_uuid="11111111-1111-1111-1111-111111111111" %}',
+		representanteArquivoDelBase: '{% url "wizard-representante-arquivo-del" documento_uuid="22222222-2222-2222-2222-222222222222" %}',
 	};
 </script>
 <script src="{% static 'js/cliente_wizard.js' %}"></script>

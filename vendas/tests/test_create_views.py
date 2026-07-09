@@ -278,3 +278,26 @@ class TestEfetivarVendaView:
 		client.post(reverse('efetivar-venda', kwargs={'venda_uuid': venda_pre_venda.uuid}))
 		venda_pre_venda.refresh_from_db()
 		assert venda_pre_venda.tipo_venda != 'VENDIDO'
+
+
+class TestAceitaReservaView:
+	"""
+	URL: /vendas/aceita_analise/<reserva_uuid>/
+	"""
+
+	def test_aceita_marca_reservado_e_volta_pro_loteamento(self, client, admin_user, venda):
+		venda.tipo_venda = 'ANALISE'
+		venda.save(update_fields=['tipo_venda'])
+
+		client.force_login(admin_user)
+		response = client.post(reverse('aceita-analise', kwargs={'reserva_uuid': venda.uuid}))
+
+		venda.refresh_from_db()
+		venda.lote.refresh_from_db()
+		assert venda.tipo_venda == 'RESERVADO'
+		assert venda.is_ativo is True
+		assert venda.aceite_proposta == admin_user
+		assert venda.lote.situacao == 'RESERVADO'
+		assert response.url == reverse(
+			'listar-quadras', kwargs={'empreendimento_uuid': venda.lote.quadra.empr.uuid}
+		)

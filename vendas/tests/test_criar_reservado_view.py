@@ -37,7 +37,9 @@ class TestCriarReservadoViewGet:
 @pytest.mark.django_db
 class TestCriarReservadoViewPost:
 
-	def test_post_sem_desconto_cria_reserva_como_reservado(self, client, admin_user, lote, cliente_pf):
+	def test_post_sem_desconto_cria_reserva_como_analise(self, client, admin_user, lote, cliente_pf):
+		"""Toda reserva criada é a porta de entrada da venda: sempre ANALISE,
+		mesmo sem desconto e sem histórico prévio no lote."""
 		client.force_login(admin_user)
 		response = client.post(
 			reverse('reserva-create', kwargs={'reserva_uuid': lote.uuid}),
@@ -54,9 +56,9 @@ class TestCriarReservadoViewPost:
 		lote.refresh_from_db()
 		venda = RegisterVenda.objects.get(lote=lote)
 		assert response.status_code == 302
-		assert venda.tipo_venda == 'RESERVADO'
+		assert venda.tipo_venda == 'ANALISE'
 		assert venda.is_ativo is True
-		assert lote.situacao == 'RESERVADO'
+		assert lote.situacao == 'ANALISE'
 
 	def test_post_com_desconto_cria_reserva_como_analise(self, client, admin_user, lote, cliente_pf):
 		client.force_login(admin_user)
@@ -99,7 +101,9 @@ class TestCriarReservadoViewPost:
 		assert any('existe uma' in m.lower() and 'venda ativa' in m.lower() for m in mensagens)
 		assert RegisterVenda.objects.filter(lote=lote).count() == 1
 
-	def test_post_permite_nova_reserva_se_anterior_esta_cancelada(self, client, admin_user, lote, cliente_pf, venda):
+	def test_post_reserva_apos_cancelamento_vai_para_analise(self, client, admin_user, lote, cliente_pf, venda):
+		"""Reserva que reaproveita o registro cancelado anterior (mesmo pk, via
+		OneToOne lote-reg_venda) também cai em ANALISE, como qualquer outra."""
 		venda.tipo_venda = 'CANCELADA'
 		venda.is_ativo = False
 		venda.save(update_fields=['tipo_venda', 'is_ativo'])
@@ -118,5 +122,30 @@ class TestCriarReservadoViewPost:
 		)
 
 		venda.refresh_from_db()
-		assert venda.tipo_venda == 'RESERVADO'
+		lote.refresh_from_db()
+		assert venda.tipo_venda == 'ANALISE'
+		assert venda.is_ativo is True
+		assert lote.situacao == 'ANALISE'
+
+	def test_post_reserva_apos_nao_aceite_vai_para_analise(self, client, admin_user, lote, cliente_pf, venda):
+		"""Mesmo padrão vale pra reaproveitamento de registro NAO_ACEITE."""
+		venda.tipo_venda = 'NAO_ACEITE'
+		venda.is_ativo = False
+		venda.save(update_fields=['tipo_venda', 'is_ativo'])
+
+		client.force_login(admin_user)
+		client.post(
+			reverse('reserva-create', kwargs={'reserva_uuid': lote.uuid}),
+			data={
+				'cliente': cliente_pf.pk,
+				'valor_desconto': 'R$ 0,00',
+				'valor_entrada': 'R$ 0,00',
+				'valor_sinal': 'R$ 0,00',
+				'quantidade_parcelas': 12,
+				'reajuste': 'True',
+			},
+		)
+
+		venda.refresh_from_db()
+		assert venda.tipo_venda == 'ANALISE'
 		assert venda.is_ativo is True

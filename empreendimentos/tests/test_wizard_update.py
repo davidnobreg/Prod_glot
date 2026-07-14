@@ -141,3 +141,7 @@ class WizardUpdateCancelarViewTest(TestCase):
 		self.assertEqual(Empreendimento.objects.filter(is_ativo=False).count(), 0)
 		self.real.refresh_from_db()
 		self.assertTrue(self.real.is_ativo)
+
+	def test_get_rejeitado_com_405(self):
+		response = self.client.get(reverse('wizard_update_cancelar', args=[self.real.uuid]))
+		self.assertEqual(response.status_code, 405)

@@ -571,3 +571,16 @@ class WizardUpdateStep6CommitTest(TestCase):
 		self.real.refresh_from_db()
 		self.assertEqual(self.real.endereco_empresa_id, endereco_empresa_pk_original)
 		self.assertEqual(self.real.endereco_empresa.rua, 'Rua Empresa Editada')
+
+
+class BotaoEditarListaTest(TestCase):
+
+	def setUp(self):
+		self.user = make_user()
+		self.client.force_login(self.user)
+		self.real = make_empreendimento()
+
+	def test_lista_aponta_editar_pro_wizard_update(self):
+		response = self.client.get(reverse('lista-empreendimento-tabela'))
+		url_esperada = reverse('empreendimento_update_step1', args=[self.real.uuid])
+		self.assertContains(response, url_esperada)

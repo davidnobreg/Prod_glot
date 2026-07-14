@@ -1,7 +1,39 @@
-const CEP_MAPEAMENTOS = [
+/* Mapeamentos legados (ids fixos, sem prefix de formset/prefix Django). */
+const CEP_MAPEAMENTOS_FIXOS = [
 	{ cep: 'id_end_cep', rua: 'id_end_rua', complemento: 'id_end_complemento', bairro: 'id_end_bairro', cidade: 'id_end_cidade', estado: 'id_end_estado' },
 	{ cep: 'id_cep', rua: 'id_rua', complemento: 'id_complemento', bairro: 'id_bairro', cidade: 'id_cidade', estado: 'id_estado' },
 ];
+
+/* Deriva o mapa de um input de CEP qualquer, incluindo os com prefix
+ * (ex: id_empresa-cep, id_representante-0-endereco-cep) — troca o sufixo
+ * "cep" por cada campo irmão, mantendo o mesmo prefixo. */
+function mapaDoInputCep(cepInput) {
+	const id = cepInput.id;
+	if (!id.endsWith('cep')) return null;
+	const base = id.slice(0, -'cep'.length);
+	return {
+		cep: id,
+		rua: base + 'rua',
+		complemento: base + 'complemento',
+		bairro: base + 'bairro',
+		cidade: base + 'cidade',
+		estado: base + 'estado',
+	};
+}
+
+function encontrarInputsCep() {
+	const encontrados = new Map();
+	for (const mapa of CEP_MAPEAMENTOS_FIXOS) {
+		const input = document.getElementById(mapa.cep);
+		if (input) encontrados.set(input, mapa);
+	}
+	document.querySelectorAll('input[id$="cep"], input[id$="-cep"]').forEach((input) => {
+		if (encontrados.has(input)) return;
+		const mapa = mapaDoInputCep(input);
+		if (mapa) encontrados.set(input, mapa);
+	});
+	return encontrados;
+}
 
 const cepValido = (cep) => cep.length === 8 && /^[0-9]+$/.test(cep);
 
@@ -51,9 +83,7 @@ async function pesquisarCep(mapa) {
 const _handlers = new Map();
 
 function registrarListenersCep() {
-	for (const mapa of CEP_MAPEAMENTOS) {
-		const cepInput = document.getElementById(mapa.cep);
-		if (!cepInput) continue;
+	for (const [cepInput, mapa] of encontrarInputsCep()) {
 		if (_handlers.has(cepInput)) {
 			cepInput.removeEventListener('focusout', _handlers.get(cepInput));
 		}

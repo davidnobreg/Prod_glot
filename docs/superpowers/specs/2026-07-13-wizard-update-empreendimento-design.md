@@ -20,12 +20,22 @@ Ao abrir o wizard de update pro empreendimento de `uuid` (URL usa
 1. `_get_or_create_draft(request, empreendimento_uuid)` busca o real
    (`is_ativo=True`) e, se a sessão ainda não aponta pra um draft desse
    real, cria uma cópia `Empreendimento(is_ativo=False)`: todos os campos
-   escalares copiados + `logo` copiada via `ContentFile` + dois `Endereco`
-   novos (cópias independentes de `endereco_empresa`/`endereco_empreendimento`
-   — não reaproveita as FKs do real).
-2. Sessão guarda só o ponteiro:
-   `request.session['wizard_update'] = {"<uuid-do-real>": {"draft_uuid": "..."}}`.
-   Nenhum campo de formulário fica em sessão.
+   escalares copiados (**exceto `cnpj`**, ver exceção abaixo) + `logo`
+   copiada via `ContentFile` + dois `Endereco` novos (cópias independentes
+   de `endereco_empresa`/`endereco_empreendimento` — não reaproveita as FKs
+   do real).
+2. Sessão guarda o ponteiro + o cnpj pendente:
+   `request.session['wizard_update'] = {"<uuid-do-real>": {"draft_uuid": "...", "cnpj_pendente": "..."}}`.
+   Nenhum outro campo de formulário fica em sessão.
+
+**Exceção — `cnpj`**: `Empreendimento.cnpj` tem `unique=True` no banco.
+Copiar `cnpj=real.cnpj` pro draft na criação estouraria `IntegrityError`
+(duas linhas simultâneas com o mesmo CNPJ — a constraint não faz exceção
+pra `is_ativo=False`). Por isso `cnpj` nunca é gravado na coluna do draft
+(fica sempre `None` lá); o valor pendente de edição vive em
+`cnpj_pendente` na sessão (string simples, sem risco de serialização —
+diferente do caso do `logo`) e só é aplicado ao `real.cnpj` no commit
+final do step 6.
 3. Steps 1, 2, 3, 5 leem/escrevem no **draft** (mesmo padrão dos forms de
    cadastro: `instance=draft`). Upload de logo é FileField normal no draft,
    sem gambiarra de sessão.
@@ -73,19 +83,20 @@ cleanup agora.
 ## `services.py` — função nova
 
 ```python
-def _copiar_endereco_draft_para_real(endereco_real, endereco_draft):
-    """Atualiza campos do Endereco real com valores do draft. Não cria instância nova."""
-    if endereco_draft is None:
-        return endereco_real
-    campos = ['cep', 'rua', 'numero', 'complemento', 'bairro', 'cidade', 'estado']
-    if endereco_real is None:
-        return criar_ou_atualizar_endereco(
-            {c: getattr(endereco_draft, c) for c in campos}
-        )
-    for campo in campos:
-        setattr(endereco_real, campo, getattr(endereco_draft, campo))
-    endereco_real.save()
-    return endereco_real
+CAMPOS_ENDERECO = ('cep', 'rua', 'numero', 'complemento', 'bairro', 'cidade', 'estado')
+
+
+def sincronizar_endereco(endereco_destino, endereco_origem):
+    """Copia os campos de `endereco_origem` pra dentro de `endereco_destino`
+    (cria um Endereco novo se `endereco_destino` for None; retorna
+    `endereco_destino` sem alterar nada se `endereco_origem` for None).
+    Uma função só cobre as duas direções do mecanismo de draft-copy: criar
+    a cópia do real pro draft (destino=None) e copiar de volta do draft
+    pro real no commit final (destino=endereco do real)."""
+    if endereco_origem is None:
+        return endereco_destino
+    dados = {campo: getattr(endereco_origem, campo) for campo in CAMPOS_ENDERECO}
+    return criar_ou_atualizar_endereco(dados, endereco=endereco_destino)
 ```
 
 Todo o resto (`criar_ou_atualizar_endereco`, `criar_representante`,
@@ -204,24 +215,27 @@ GET: lista `real.documentos.all()` + form de upload (igual step6 cadastro,
 mas sem a seção "Modelos vinculados" reaproveitar modelo_vinculado do
 draft — usa do real).
 
-POST `finalizar`:
+POST `finalizar` (`cnpj` tratado à parte via `cnpj_pendente` da sessão —
+ver exceção na seção de persistência acima; demais campos escalares
+copiados direto do draft):
 ```python
 with transaction.atomic():
-    campos = ['nome', 'telefone', 'observacao', 'cnpj', 'razaoSocial',
+    campos = ['nome', 'telefone', 'observacao', 'razaoSocial',
               'codBanco', 'banco', 'agencia', 'conta', 'matricula',
               'cidade_foro', 'tempo_reserva', 'quantidade_parcela',
               'desconto', 'tipo_correcao']
     for campo in campos:
         setattr(real, campo, getattr(draft, campo))
+    real.cnpj = cnpj_pendente  # lido da sessão, nunca do draft
 
     if draft.logo:
         if real.logo:
             real.logo.delete(save=False)
         real.logo.save(draft.logo.name.split('/')[-1], ContentFile(draft.logo.read()), save=False)
 
-    real.endereco_empresa = empreendimento_services._copiar_endereco_draft_para_real(
+    real.endereco_empresa = empreendimento_services.sincronizar_endereco(
         real.endereco_empresa, draft.endereco_empresa)
-    real.endereco_empreendimento = empreendimento_services._copiar_endereco_draft_para_real(
+    real.endereco_empreendimento = empreendimento_services.sincronizar_endereco(
         real.endereco_empreendimento, draft.endereco_empreendimento)
 
     real.full_clean(validate_unique=False)

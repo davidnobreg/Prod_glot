@@ -28,11 +28,20 @@ def _copiar_logo(logo_origem, instance_destino):
 	próprio uuid no path, ver `_upload_logo_empreendimento` em models.py)."""
 	if not logo_origem:
 		return
+	try:
+		conteudo = logo_origem.read()
+	except FileNotFoundError:
+		# referência no banco aponta pra arquivo que não existe mais no
+		# storage (dado pré-existente inconsistente) — trata como "sem logo
+		# pra copiar" em vez de derrubar a página inteira com 500.
+		return
+	finally:
+		logo_origem.close()  # solta o handle antes que o chamador possa deletar logo_origem (Windows bloqueia delete de arquivo aberto)
 	if instance_destino.logo:
 		instance_destino.logo.delete(save=False)
 	instance_destino.logo.save(
 		logo_origem.name.rsplit('/', 1)[-1],
-		ContentFile(logo_origem.read()),
+		ContentFile(conteudo),
 		save=False,
 	)
 

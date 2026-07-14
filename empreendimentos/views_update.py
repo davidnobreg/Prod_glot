@@ -11,9 +11,9 @@ from base.models import Endereco
 
 from .forms import (
 	EmpresaStep2Form, EmpreendimentoStep3Form, EnderecoForm,
-	RepresentanteFormSet, DocumentoRepresentanteForm,
+	RepresentanteFormSet, DocumentoRepresentanteForm, DocumentoEmpreendimentoForm,
 )
-from .models import Empreendimento, RepresentanteLegal, DocumentoRepresentante
+from .models import Empreendimento, RepresentanteLegal, DocumentoRepresentante, DocumentoEmpreendimento
 from . import services as empreendimento_services
 from . import forms_update
 
@@ -354,4 +354,45 @@ def wizard_update_rep_doc_del(request, empreendimento_uuid, doc_uuid):
 		representante__empreendimento__is_ativo=True,
 	)
 	empreendimento_services.remover_documento_representante(documento)
+	return JsonResponse({'ok': True})
+
+
+@has_permission_decorator('alterarEmpreendimento')
+def wizard_update_step6(request, empreendimento_uuid):
+	real, draft = _get_or_create_draft(request, empreendimento_uuid)
+	documentos = real.documentos.all().order_by('categoria', 'criado_em')
+
+	return _wizard_update_render(request, 'wizard/update/step6_documentos.html', 6, real, {
+		'documentos': documentos,
+		'doc_form': DocumentoEmpreendimentoForm(),
+	})
+
+
+@has_permission_decorator('alterarEmpreendimento')
+@require_POST
+def wizard_update_doc_upload(request, empreendimento_uuid):
+	real = get_object_or_404(Empreendimento, uuid=empreendimento_uuid, is_ativo=True)
+	form = DocumentoEmpreendimentoForm(request.POST, request.FILES)
+	if not form.is_valid():
+		erros = '; '.join(f'{campo}: {", ".join(msgs)}' for campo, msgs in form.errors.items())
+		return JsonResponse({'ok': False, 'error': erros}, status=400)
+
+	documento = empreendimento_services.criar_documento_empreendimento(
+		real,
+		form.cleaned_data['categoria'],
+		form.cleaned_data['arquivo'],
+		nome=form.cleaned_data.get('nome', ''),
+		usuario=request.user,
+	)
+	return JsonResponse({'ok': True, 'documento': _documento_json(documento)})
+
+
+@has_permission_decorator('alterarEmpreendimento')
+@require_POST
+def wizard_update_doc_del(request, empreendimento_uuid, doc_uuid):
+	documento = get_object_or_404(
+		DocumentoEmpreendimento, uuid=doc_uuid,
+		empreendimento__uuid=empreendimento_uuid, empreendimento__is_ativo=True,
+	)
+	empreendimento_services.remover_documento_empreendimento(documento)
 	return JsonResponse({'ok': True})

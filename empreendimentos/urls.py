@@ -178,6 +178,24 @@ urlpatterns = [
     ),
 
     path(
+        'editar/<uuid:empreendimento_uuid>/step6/',
+        views_update.wizard_update_step6,
+        name='empreendimento_update_step6'
+    ),
+
+    path(
+        'editar/<uuid:empreendimento_uuid>/doc/upload/',
+        views_update.wizard_update_doc_upload,
+        name='wizard_update_doc_upload'
+    ),
+
+    path(
+        'editar/<uuid:empreendimento_uuid>/doc/<uuid:doc_uuid>/remover/',
+        views_update.wizard_update_doc_del,
+        name='wizard_update_doc_del'
+    ),
+
+    path(
         'editar/<uuid:empreendimento_uuid>/representante/<uuid:rep_uuid>/remover/',
         views_update.wizard_update_rep_del,
         name='wizard_update_rep_del'

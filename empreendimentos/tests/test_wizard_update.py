@@ -7,7 +7,7 @@ from base.models import Endereco
 from empreendimentos import services as empreendimento_services
 from empreendimentos import views_update
 from empreendimentos import forms_update
-from empreendimentos.models import Empreendimento, RepresentanteLegal
+from empreendimentos.models import Empreendimento, RepresentanteLegal, DocumentoEmpreendimento
 from empreendimentos.forms import DocumentoRepresentanteForm
 
 User = get_user_model()
@@ -451,3 +451,45 @@ class WizardUpdateStep5Test(TestCase):
 
 		self.real.refresh_from_db()
 		self.assertEqual(self.real.tempo_reserva, 10)
+
+
+@override_settings(
+	DEFAULT_FILE_STORAGE='django.core.files.storage.FileSystemStorage',
+	STORAGES={
+		'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+		'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
+	},
+)
+class WizardUpdateStep6DocTest(TestCase):
+
+	def setUp(self):
+		self.user = make_user()
+		self.client.force_login(self.user)
+		self.real = make_empreendimento()
+
+	def test_get_lista_documentos_do_real(self):
+		documento = empreendimento_services.criar_documento_empreendimento(
+			self.real, 'contrato_social',
+			SimpleUploadedFile('cs.pdf', b'x', content_type='application/pdf'),
+		)
+		url = reverse('empreendimento_update_step6', args=[self.real.uuid])
+		response = self.client.get(url)
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, documento.nome_exibicao())
+
+	def test_upload_cria_documento_no_real(self):
+		url = reverse('wizard_update_doc_upload', args=[self.real.uuid])
+		arquivo = SimpleUploadedFile('alvara.pdf', b'x', content_type='application/pdf')
+		response = self.client.post(url, {'categoria': 'alvara', 'nome': '', 'arquivo': arquivo})
+		data = response.json()
+		self.assertTrue(data['ok'])
+		self.assertEqual(self.real.documentos.count(), 1)
+
+	def test_remover_documento_do_real(self):
+		documento = empreendimento_services.criar_documento_empreendimento(
+			self.real, 'alvara', SimpleUploadedFile('a.pdf', b'x', content_type='application/pdf'),
+		)
+		url = reverse('wizard_update_doc_del', args=[self.real.uuid, documento.uuid])
+		response = self.client.post(url)
+		self.assertEqual(response.json(), {'ok': True})
+		self.assertEqual(self.real.documentos.count(), 0)

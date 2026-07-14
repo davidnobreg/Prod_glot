@@ -1,13 +1,16 @@
 from django.core.files.base import ContentFile
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib import messages
 from django.views.decorators.http import require_POST
 
 from rolepermissions.decorators import has_permission_decorator
 
 from base.models import Endereco
 
+from .forms import EmpresaStep2Form, EmpreendimentoStep3Form, EnderecoForm
 from .models import Empreendimento
 from . import services as empreendimento_services
+from . import forms_update
 
 _WIZARD_UPDATE_SESSION_KEY = 'wizard_update'
 
@@ -97,6 +100,43 @@ def _deletar_draft(request, empreendimento_uuid):
 	del wizard_session[session_key]
 	request.session[_WIZARD_UPDATE_SESSION_KEY] = wizard_session
 	request.session.modified = True
+
+
+_WIZARD_UPDATE_STEPS = [
+	('Dados gerais', 'empreendimento_update_step1'),
+	('Empresa', 'empreendimento_update_step2'),
+	('Endereço', 'empreendimento_update_step3'),
+	('Representantes', 'empreendimento_update_step4'),
+	('Configurações', 'empreendimento_update_step5'),
+	('Documentos', 'empreendimento_update_step6'),
+]
+
+
+def _wizard_update_render(request, template, current_step, real, context):
+	context['wizard_steps'] = _WIZARD_UPDATE_STEPS
+	context['current_step'] = current_step
+	context['empreendimento'] = real
+	return render(request, template, context)
+
+
+@has_permission_decorator('alterarEmpreendimento')
+def wizard_update_step1(request, empreendimento_uuid):
+	real, draft = _get_or_create_draft(request, empreendimento_uuid)
+
+	if request.method == 'POST':
+		form = forms_update.EmpreendimentoUpdateStep1Form(
+			request.POST, request.FILES, instance=draft, real_pk=real.pk,
+		)
+		if form.is_valid():
+			form.save()
+			return redirect('empreendimento_update_step2', empreendimento_uuid=empreendimento_uuid)
+		messages.error(request, 'Verifique os campos obrigatórios.')
+	else:
+		form = forms_update.EmpreendimentoUpdateStep1Form(instance=draft, real_pk=real.pk)
+
+	return _wizard_update_render(request, 'wizard/update/step1_dados_gerais.html', 1, real, {
+		'form': form,
+	})
 
 
 @has_permission_decorator('alterarEmpreendimento')

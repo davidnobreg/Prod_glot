@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Editar Empreendimento{% endblock %}
+
+{% block content %}
+<style>
+	.wiz-steps{background:#fff;border-radius:12px;padding:20px 32px 16px;margin-bottom:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+	.wiz-steps-row{display:flex;align-items:flex-start}
+	.wiz-step-col{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+	.wiz-step-col:not(:last-child)::after{content:'';position:absolute;top:14px;left:50%;width:100%;height:2px;background:#dde1e7;z-index:0}
+	.wiz-step-col.done:not(:last-child)::after{background:#08789a}
+	.wiz-step-circle{width:28px;height:28px;border-radius:50%;border:2px solid #dde1e7;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#bbb;position:relative;z-index:1;flex-shrink:0}
+	.wiz-step-col.done .wiz-step-circle,.wiz-step-col.active .wiz-step-circle{background:#08789a;border-color:#08789a;color:#fff}
+	.wiz-step-lbl{font-size:11px;color:#bbb;margin-top:5px;font-weight:600;text-align:center;white-space:nowrap}
+	.wiz-step-col.active .wiz-step-lbl,.wiz-step-col.done .wiz-step-lbl{color:#08789a}
+
+	.wiz-card{border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);border:1px solid #e9ecef;margin-bottom:1.5rem}
+	.wiz-card .card-body{padding:1.5rem}
+	.wiz-sec-head{display:flex;align-items:center;gap:8px;margin-bottom:1.1rem}
+	.wiz-sec-head i{color:#08789a;font-size:14px}
+	.wiz-sec-head span{font-size:12px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.06em}
+	.wiz-sec-divider{flex:1;height:1px;background:#eef0f4;margin-left:10px}
+	.wiz-inner-div{height:1px;background:#eef0f4;margin:1.25rem 0}
+
+	.wiz-rep-card{border:1px solid #e4e8ee;border-radius:10px;overflow:hidden;margin-bottom:12px}
+	.wiz-rep-head{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;background:#f6f8fb;border-bottom:1px solid #e4e8ee}
+	.wiz-rep-badge{font-size:10px;font-weight:700;color:#08789a;background:#dff2f2;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em}
+	.wiz-rep-body{padding:16px 18px}
+	.wiz-btn-add-rep{width:100%;display:flex;align-items:center;justify-content:center;gap:7px;padding:11px;border:2px dashed #b5d8d8;border-radius:8px;background:#f2fafa;color:#08789a;font-size:13px;font-weight:700;margin-top:4px}
+	.wiz-btn-add-rep:hover{background:#08789a;color:#fff;border-style:solid}
+
+	.wiz-cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+	.wiz-cfg-card{background:#f6f8fb;border:1px solid #e4e8ee;border-radius:8px;padding:13px 15px}
+	.wiz-cfg-card .hint{font-size:11px;color:#aaa;margin-top:5px;line-height:1.4}
+
+	.wiz-doc-row{display:flex;align-items:center;gap:11px;padding:9px 13px;border:1px solid #e4e8ee;border-radius:8px;background:#fff;margin-bottom:8px}
+	.wiz-doc-ic{width:32px;height:32px;background:#dff2f2;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#08789a;flex-shrink:0}
+	.wiz-badge-std{font-size:10px;background:#dff2f2;color:#08789a;padding:1px 7px;border-radius:20px;font-weight:700;margin-left:5px}
+
+	.wiz-action-bar{background:#fff;border-top:2px solid #e9ecef;padding:1rem 1.5rem;border-radius:0 0 12px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;box-shadow:0 -2px 8px rgba(0,0,0,.05)}
+</style>
+
+<div class="content-header">
+	<div class="container-fluid">
+		<div class="row align-items-center">
+			<div class="col">
+				<h1 class="mb-0" style="font-size:1.4rem;font-weight:700;">Editar Empreendimento</h1>
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb mb-0" style="font-size:.8rem;">
+						<li class="breadcrumb-item"><a href="/">Início</a></li>
+						<li class="breadcrumb-item">
+							<a href="{% url 'lista-empreendimento-tabela' %}">Empreendimentos</a>
+						</li>
+						<li class="breadcrumb-item active">Editar</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+	</div>
+</div>
+
+<section class="content">
+	<div class="container-fluid">
+
+		{% if messages %}
+			{% for message in messages %}
+				<div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+					{{ message }}
+					<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+				</div>
+			{% endfor %}
+		{% endif %}
+
+		<div class="wiz-steps">
+			<div class="wiz-steps-row">
+				{% for nome, url_name in wizard_steps %}
+					<div class="wiz-step-col {% if forloop.counter == current_step %}active{% elif forloop.counter < current_step %}done{% endif %}">
+						<div class="wiz-step-circle">
+							{% if forloop.counter < current_step %}<i class="fas fa-check" style="font-size:10px"></i>{% else %}{{ forloop.counter }}{% endif %}
+						</div>
+						<div class="wiz-step-lbl">{{ nome }}</div>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+
+		{% block step_content %}{% endblock %}
+
+	</div>
+</section>
+{% endblock %}

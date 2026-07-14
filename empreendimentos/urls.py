@@ -148,6 +148,12 @@ urlpatterns = [
     # Wizard de update de Empreendimento
     # =========================
     path(
+        'editar/<uuid:empreendimento_uuid>/step1/',
+        views_update.wizard_update_step1,
+        name='empreendimento_update_step1'
+    ),
+
+    path(
         'editar/<uuid:empreendimento_uuid>/cancelar/',
         views_update.wizard_update_cancelar,
         name='wizard_update_cancelar'

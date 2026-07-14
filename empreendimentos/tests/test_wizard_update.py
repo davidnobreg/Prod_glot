@@ -171,6 +171,38 @@ class EmpreendimentoUpdateStep1FormTest(TestCase):
 		self.assertIn('nome', form.errors)
 
 
+class WizardUpdateStep1Test(TestCase):
+
+	def setUp(self):
+		self.user = make_user()
+		self.client.force_login(self.user)
+		self.real = make_empreendimento(nome='Nome Antigo')
+		self.url = reverse('empreendimento_update_step1', args=[self.real.uuid])
+
+	def test_get_pre_preenche_com_dados_do_real(self):
+		response = self.client.get(self.url)
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, 'Nome Antigo')
+
+	def test_post_valido_atualiza_draft_nao_real(self):
+		response = self.client.post(self.url, {
+			'nome': 'Nome Novo', 'telefone': '(83) 97777-7777', 'observacao': 'obs nova',
+		})
+		self.assertRedirects(response, reverse('empreendimento_update_step2', args=[self.real.uuid]))
+
+		self.real.refresh_from_db()
+		self.assertEqual(self.real.nome, 'Nome Antigo')
+
+		draft = Empreendimento.objects.get(is_ativo=False)
+		self.assertEqual(draft.nome, 'Nome Novo')
+		self.assertEqual(draft.observacao, 'obs nova')
+
+	def test_anonimo_bloqueado(self):
+		self.client.logout()
+		response = self.client.get(self.url)
+		self.assertEqual(response.status_code, 403)
+
+
 class EmpresaUpdateStep2FormTest(TestCase):
 
 	def setUp(self):

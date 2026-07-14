@@ -140,6 +140,42 @@ def wizard_update_step1(request, empreendimento_uuid):
 
 
 @has_permission_decorator('alterarEmpreendimento')
+def wizard_update_step2(request, empreendimento_uuid):
+	real, draft = _get_or_create_draft(request, empreendimento_uuid)
+	session_key = str(empreendimento_uuid)
+
+	if request.method == 'POST':
+		form = forms_update.EmpresaUpdateStep2Form(request.POST, instance=draft, real_pk=real.pk)
+		form_endereco = EnderecoForm(request.POST, prefix='empresa', instance=draft.endereco_empresa)
+
+		if form.is_valid() and form_endereco.is_valid():
+			cnpj_pendente = form.cleaned_data['cnpj']
+			empreendimento = form.save(commit=False)
+			empreendimento.cnpj = None  # nunca grava no draft — ver Global Constraints
+			empreendimento.endereco_empresa = empreendimento_services.criar_ou_atualizar_endereco(
+				form_endereco.cleaned_data, endereco=draft.endereco_empresa
+			)
+			empreendimento.save()
+
+			wizard_session = request.session.get(_WIZARD_UPDATE_SESSION_KEY, {})
+			wizard_session[session_key]['cnpj_pendente'] = cnpj_pendente
+			request.session[_WIZARD_UPDATE_SESSION_KEY] = wizard_session
+			request.session.modified = True
+
+			return redirect('empreendimento_update_step3', empreendimento_uuid=empreendimento_uuid)
+
+		messages.error(request, 'Verifique os campos obrigatórios.')
+	else:
+		cnpj_pendente = request.session.get(_WIZARD_UPDATE_SESSION_KEY, {}).get(session_key, {}).get('cnpj_pendente', real.cnpj)
+		form = forms_update.EmpresaUpdateStep2Form(instance=draft, real_pk=real.pk, initial={'cnpj': cnpj_pendente})
+		form_endereco = EnderecoForm(prefix='empresa', instance=draft.endereco_empresa)
+
+	return _wizard_update_render(request, 'wizard/update/step2_empresa.html', 2, real, {
+		'form': form, 'form_endereco': form_endereco,
+	})
+
+
+@has_permission_decorator('alterarEmpreendimento')
 @require_POST
 def wizard_update_cancelar(request, empreendimento_uuid):
 	_deletar_draft(request, empreendimento_uuid)

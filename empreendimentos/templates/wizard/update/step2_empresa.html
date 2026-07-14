@@ -1,0 +1,102 @@
+{% extends 'wizard/update/_base_wizard_update.html' %}
+
+{% block step_content %}
+<form method="post" novalidate>
+	{% csrf_token %}
+
+	<div class="card wiz-card">
+		<div class="card-body">
+			<div class="wiz-sec-head"><i class="fas fa-briefcase"></i><span>Pessoa jurídica</span><div class="wiz-sec-divider"></div></div>
+			<div class="row g-3">
+				<div class="col-md-6">
+					<label class="form-label">CNPJ <span class="text-danger">*</span></label>
+					{{ form.cnpj }}
+					{% if form.cnpj.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.cnpj.errors|striptags }}</div>{% endif %}
+				</div>
+				<div class="col-md-6">
+					<label class="form-label">Razão social <span class="text-danger">*</span></label>
+					{{ form.razaoSocial }}
+					{% if form.razaoSocial.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.razaoSocial.errors|striptags }}</div>{% endif %}
+				</div>
+			</div>
+
+			<div class="wiz-inner-div"></div>
+			<div class="wiz-sec-head"><i class="fas fa-university"></i><span>Dados bancários</span><div class="wiz-sec-divider"></div></div>
+			<div class="row g-3">
+				<div class="col-md-6">
+					<label class="form-label">Banco <span class="text-danger">*</span></label>
+					{{ form.banco }}
+					{% if form.banco.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.banco.errors|striptags }}</div>{% endif %}
+				</div>
+				<div class="col-md-6">
+					<label class="form-label">Código do banco</label>
+					{{ form.codBanco }}
+				</div>
+				<div class="col-md-6">
+					<label class="form-label">Agência <span class="text-danger">*</span></label>
+					{{ form.agencia }}
+					{% if form.agencia.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.agencia.errors|striptags }}</div>{% endif %}
+				</div>
+				<div class="col-md-6">
+					<label class="form-label">Conta <span class="text-danger">*</span></label>
+					{{ form.conta }}
+					{% if form.conta.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.conta.errors|striptags }}</div>{% endif %}
+				</div>
+			</div>
+
+			<div class="wiz-inner-div"></div>
+			<div class="wiz-sec-head"><i class="fas fa-map-marker-alt"></i><span>Endereço da empresa</span><div class="wiz-sec-divider"></div></div>
+			<div class="row g-3">
+				<div class="col-md-3">
+					<label class="form-label">CEP <span class="text-danger">*</span></label>
+					{{ form_endereco.cep }}
+					{% if form_endereco.cep.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.cep.errors|striptags }}</div>{% endif %}
+				</div>
+				<div class="col-md-7">
+					<label class="form-label">Cidade <span class="text-danger">*</span></label>
+					{{ form_endereco.cidade }}
+					{% if form_endereco.cidade.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.cidade.errors|striptags }}</div>{% endif %}
+				</div>
+				<div class="col-md-2">
+					<label class="form-label">Estado <span class="text-danger">*</span></label>
+					{{ form_endereco.estado }}
+					{% if form_endereco.estado.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.estado.errors|striptags }}</div>{% endif %}
+				</div>
+				<div class="col-md-6">
+					<label class="form-label">Bairro <span class="text-danger">*</span></label>
+					{{ form_endereco.bairro }}
+					{% if form_endereco.bairro.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.bairro.errors|striptags }}</div>{% endif %}
+				</div>
+				<div class="col-md-6">
+					<label class="form-label">Rua <span class="text-danger">*</span></label>
+					{{ form_endereco.rua }}
+					{% if form_endereco.rua.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.rua.errors|striptags }}</div>{% endif %}
+				</div>
+				<div class="col-md-6">
+					<label class="form-label">Número <span class="text-danger">*</span></label>
+					{{ form_endereco.numero }}
+					{% if form_endereco.numero.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.numero.errors|striptags }}</div>{% endif %}
+				</div>
+				<div class="col-md-6">
+					<label class="form-label">Complemento <span class="text-muted">opcional</span></label>
+					{{ form_endereco.complemento }}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="wiz-action-bar">
+		<button type="submit" name="cancelar" formaction="{% url 'wizard_update_cancelar' empreendimento.uuid %}" formnovalidate class="btn btn-outline-danger" style="border-radius:8px;">
+			<i class="fas fa-times me-1"></i>Cancelar
+		</button>
+		<div class="d-flex gap-2">
+			<a href="{% url 'empreendimento_update_step1' empreendimento.uuid %}" class="btn btn-outline-secondary" style="border-radius:8px;">
+				<i class="fas fa-arrow-left me-1"></i>Anterior
+			</a>
+			<button type="submit" class="btn" style="background:#08789a;color:#fff;border-radius:8px;">
+				Próximo <i class="fas fa-arrow-right ms-1"></i>
+			</button>
+		</div>
+	</div>
+</form>
+{% endblock %}

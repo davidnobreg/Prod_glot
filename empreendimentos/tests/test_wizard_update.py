@@ -227,3 +227,39 @@ class EmpresaUpdateStep2FormTest(TestCase):
 		)
 		self.assertFalse(form.is_valid())
 		self.assertIn('cnpj', form.errors)
+
+
+class WizardUpdateStep2Test(TestCase):
+
+	def setUp(self):
+		self.user = make_user()
+		self.client.force_login(self.user)
+		self.real = make_empreendimento(cnpj='11222333000181')
+		self.url = reverse('empreendimento_update_step2', args=[self.real.uuid])
+
+	def test_post_valido_atualiza_draft_e_endereco_do_draft(self):
+		# 'banco' é CharField com choices=TypeBancos (chave '001', não o
+		# rótulo 'Banco do Brasil'); form_endereco usa prefix='empresa'
+		# (mesmo padrão de views.wizard_step2), então as chaves de endereço
+		# no POST precisam do prefixo 'empresa-'.
+		response = self.client.post(self.url, {
+			'cnpj': '99888777000166', 'razaoSocial': 'Razao Nova',
+			'codBanco': '001', 'banco': '001', 'agencia': '1234', 'conta': '5678',
+			'empresa-cep': '58101000', 'empresa-rua': 'Rua Nova Empresa', 'empresa-numero': '20',
+			'empresa-complemento': '', 'empresa-bairro': 'Bairro Novo', 'empresa-cidade': 'Campina Grande', 'empresa-estado': 'PB',
+		})
+		self.assertRedirects(response, reverse('empreendimento_update_step3', args=[self.real.uuid]))
+
+		draft = Empreendimento.objects.get(is_ativo=False)
+		self.assertEqual(draft.razaoSocial, 'Razao Nova')
+		self.assertIsNone(draft.cnpj)  # cnpj nunca vai pro draft — ver Global Constraints
+		self.assertEqual(draft.endereco_empresa.rua, 'Rua Nova Empresa')
+
+		session = self.client.session
+		self.assertEqual(
+			session['wizard_update'][str(self.real.uuid)]['cnpj_pendente'], '99888777000166'
+		)
+
+		self.real.refresh_from_db()
+		self.assertIsNone(self.real.endereco_empresa)
+		self.assertEqual(self.real.cnpj, '11222333000181')  # só aplica no commit final (Task 11)

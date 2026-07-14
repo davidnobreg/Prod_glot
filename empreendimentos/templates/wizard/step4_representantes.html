@@ -1,0 +1,270 @@
+{% extends 'wizard/_base_wizard.html' %}
+{% load static %}
+
+{% block step_content %}
+<form method="post" id="form-representantes" novalidate>
+	{% csrf_token %}
+	{{ formset.management_form }}
+
+	<div class="card wiz-card">
+		<div class="card-body">
+			<div class="wiz-sec-head"><i class="fas fa-users"></i><span>Representantes legais</span><div class="wiz-sec-divider"></div></div>
+			<p class="text-muted" style="font-size:.85rem;">Sócios ou administradores que assinam contratos por esta empresa. Pelo menos 1 obrigatório.</p>
+
+			{% if formset.non_form_errors %}
+				<div class="alert alert-danger">{{ formset.non_form_errors }}</div>
+			{% endif %}
+
+			<div id="rep-list">
+				{% for rep_form, endereco_form, rep_docs, doc_form in reps_com_endereco %}
+					<div class="wiz-rep-card" data-rep-index="{{ forloop.counter0 }}" {% if rep_form.instance.pk %}data-rep-uuid="{{ rep_form.instance.uuid }}"{% endif %}>
+						<div class="wiz-rep-head">
+							<span class="wiz-rep-badge">{% if forloop.first %}Representante principal{% else %}Representante {{ forloop.counter }}{% endif %}</span>
+							<button type="button" class="btn btn-sm btn-outline-secondary btn-rep-remove">
+								<i class="fas fa-times me-1"></i>Remover
+							</button>
+						</div>
+						<div class="wiz-rep-body">
+							{{ rep_form.id }}
+							<div class="row g-3">
+								<div class="col-md-6">
+									<label class="form-label">Nome completo <span class="text-danger">*</span></label>
+									{{ rep_form.nome }}
+									{% if rep_form.nome.errors %}<div class="text-danger" style="font-size:.8rem;">{{ rep_form.nome.errors|striptags }}</div>{% endif %}
+								</div>
+								<div class="col-md-6">
+									<label class="form-label">CPF <span class="text-danger">*</span></label>
+									{{ rep_form.documento }}
+									{% if rep_form.documento.errors %}<div class="text-danger" style="font-size:.8rem;">{{ rep_form.documento.errors|striptags }}</div>{% endif %}
+								</div>
+								<div class="col-md-4">
+									<label class="form-label">RG</label>
+									{{ rep_form.numero_rg }}
+								</div>
+								<div class="col-md-4">
+									<label class="form-label">Órgão emissor</label>
+									{{ rep_form.orgao_emissor_rg }}
+								</div>
+								<div class="col-md-4">
+									<label class="form-label">Cargo <span class="text-danger">*</span></label>
+									{{ rep_form.cargo }}
+									{% if rep_form.cargo.errors %}<div class="text-danger" style="font-size:.8rem;">{{ rep_form.cargo.errors|striptags }}</div>{% endif %}
+								</div>
+								<div class="col-md-6">
+									<label class="form-label">E-mail</label>
+									{{ rep_form.email }}
+								</div>
+								<div class="col-md-6">
+									<label class="form-label">Estado civil</label>
+									{{ rep_form.estado_civil }}
+								</div>
+							</div>
+
+							<div class="wiz-inner-div"></div>
+							<div class="wiz-sec-head" style="margin-bottom:.6rem;"><i class="fas fa-map-marker-alt" style="font-size:12px;"></i><span style="font-size:11px;">Endereço do representante</span></div>
+							<div class="row g-3">
+								<div class="col-md-3">
+									<label class="form-label">CEP <span class="text-danger">*</span></label>
+									{{ endereco_form.cep }}
+									{% if endereco_form.cep.errors %}<div class="text-danger" style="font-size:.8rem;">{{ endereco_form.cep.errors|striptags }}</div>{% endif %}
+								</div>
+								<div class="col-md-7">
+									<label class="form-label">Cidade <span class="text-danger">*</span></label>
+									{{ endereco_form.cidade }}
+									{% if endereco_form.cidade.errors %}<div class="text-danger" style="font-size:.8rem;">{{ endereco_form.cidade.errors|striptags }}</div>{% endif %}
+								</div>
+								<div class="col-md-2">
+									<label class="form-label">Estado <span class="text-danger">*</span></label>
+									{{ endereco_form.estado }}
+									{% if endereco_form.estado.errors %}<div class="text-danger" style="font-size:.8rem;">{{ endereco_form.estado.errors|striptags }}</div>{% endif %}
+								</div>
+								<div class="col-md-6">
+									<label class="form-label">Bairro <span class="text-danger">*</span></label>
+									{{ endereco_form.bairro }}
+									{% if endereco_form.bairro.errors %}<div class="text-danger" style="font-size:.8rem;">{{ endereco_form.bairro.errors|striptags }}</div>{% endif %}
+								</div>
+								<div class="col-md-6">
+									<label class="form-label">Rua <span class="text-danger">*</span></label>
+									{{ endereco_form.rua }}
+									{% if endereco_form.rua.errors %}<div class="text-danger" style="font-size:.8rem;">{{ endereco_form.rua.errors|striptags }}</div>{% endif %}
+								</div>
+								<div class="col-md-6">
+									<label class="form-label">Número <span class="text-danger">*</span></label>
+									{{ endereco_form.numero }}
+									{% if endereco_form.numero.errors %}<div class="text-danger" style="font-size:.8rem;">{{ endereco_form.numero.errors|striptags }}</div>{% endif %}
+								</div>
+								<div class="col-md-6">
+									<label class="form-label">Complemento <span class="text-muted">opcional</span></label>
+									{{ endereco_form.complemento }}
+								</div>
+							</div>
+
+							<div class="wiz-inner-div"></div>
+							<div class="conjuge-section" style="display:none">
+								<div class="wiz-sec-head" style="margin-bottom:.6rem;"><i class="fa-solid fa-ring" style="font-size:12px;"></i><span style="font-size:11px;">Dados do cônjuge</span></div>
+								<div class="row g-3">
+									<div class="col-md-6">
+										<label class="form-label">Nome do cônjuge</label>
+										{{ rep_form.conj_nome }}
+										{% if rep_form.conj_nome.errors %}<div class="text-danger" style="font-size:.8rem;">{{ rep_form.conj_nome.errors|striptags }}</div>{% endif %}
+									</div>
+									<div class="col-md-6">
+										<label class="form-label">CPF do cônjuge</label>
+										{{ rep_form.conj_documento }}
+										{% if rep_form.conj_documento.errors %}<div class="text-danger" style="font-size:.8rem;">{{ rep_form.conj_documento.errors|striptags }}</div>{% endif %}
+									</div>
+									<div class="col-md-6">
+										<label class="form-label">RG do cônjuge</label>
+										{{ rep_form.conj_numero_rg }}
+									</div>
+									<div class="col-md-6">
+										<label class="form-label">Órgão emissor</label>
+										{{ rep_form.conj_orgao_emissor_rg }}
+									</div>
+								</div>
+							</div>
+
+							<div class="wiz-inner-div"></div>
+							<div class="wiz-sec-head" style="margin-bottom:.6rem;"><i class="fas fa-file-arrow-up" style="font-size:12px;"></i><span style="font-size:11px;">Documentos do representante</span></div>
+
+							{% if rep_form.instance.pk %}
+								<div class="rep-doc-list" data-rep-uuid="{{ rep_form.instance.uuid }}">
+									{% for doc in rep_docs %}
+										<div class="wiz-doc-row" data-doc-uuid="{{ doc.uuid }}">
+											<div class="wiz-doc-ic"><i class="far {% if doc.extensao == 'pdf' %}fa-file-pdf{% else %}fa-file-image{% endif %}"></i></div>
+											<div class="flex-grow-1">
+												<div style="font-size:13px;font-weight:600;">{{ doc.nome_exibicao }}</div>
+												<div class="text-muted" style="font-size:11px;">{{ doc.get_categoria_display }}</div>
+											</div>
+											<a href="{{ doc.arquivo.url }}" target="_blank" class="btn btn-outline-secondary btn-sm"><i class="fas fa-eye"></i></a>
+											<button type="button" class="btn btn-outline-danger btn-sm btn-rep-doc-remove"><i class="fas fa-trash"></i></button>
+										</div>
+									{% empty %}
+										<p class="text-muted rep-doc-empty-msg" style="font-size:.8rem;">Nenhum documento anexado ainda.</p>
+									{% endfor %}
+								</div>
+								<!-- div, não <form>: já estamos dentro do <form id="form-representantes">
+								     e HTML não permite <form> aninhado (navegador descarta a tag
+								     silenciosamente e a classe some do DOM renderizado). -->
+								<div class="rep-doc-upload-form d-flex gap-2 align-items-end mt-2" data-rep-uuid="{{ rep_form.instance.uuid }}">
+									<div style="min-width:200px;">{{ doc_form.categoria }}</div>
+									<div class="flex-grow-1">{{ doc_form.nome }}</div>
+									<div>{{ doc_form.arquivo }}</div>
+									<button type="button" class="btn btn-outline-secondary btn-sm btn-rep-doc-upload">
+										<span class="btn-label"><i class="fas fa-paperclip me-1"></i>Anexar</span>
+										<span class="spinner-border spinner-border-sm d-none" role="status"></span>
+									</button>
+								</div>
+								<div class="text-danger mt-1 d-none rep-doc-upload-error" style="font-size:.8rem;"></div>
+							{% else %}
+								<p class="text-muted" style="font-size:.8rem;">Salve este representante (clique em Próximo) para anexar documentos.</p>
+							{% endif %}
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+
+			<button type="button" class="wiz-btn-add-rep" id="btn-add-rep">
+				<i class="fas fa-plus"></i> Adicionar outro representante
+			</button>
+		</div>
+	</div>
+
+	<div class="wiz-action-bar">
+		<a href="{% url 'lista-empreendimento-tabela' %}" class="btn btn-outline-danger" style="border-radius:8px;">
+			<i class="fas fa-times me-1"></i>Cancelar
+		</a>
+		<div class="d-flex gap-2">
+			<a href="{% url 'empreendimento_wizard_step3' %}" class="btn btn-outline-secondary" style="border-radius:8px;">
+				<i class="fas fa-arrow-left me-1"></i>Anterior
+			</a>
+			<button type="submit" class="btn" style="background:#08789a;color:#fff;border-radius:8px;">
+				Próximo <i class="fas fa-arrow-right ms-1"></i>
+			</button>
+		</div>
+	</div>
+</form>
+
+<!-- Template oculto usado pelo JS pra adicionar um novo representante em branco -->
+<template id="empty-rep-template">
+	<div class="wiz-rep-card" data-rep-index="__prefix__">
+		<div class="wiz-rep-head">
+			<span class="wiz-rep-badge">Representante</span>
+			<button type="button" class="btn btn-sm btn-outline-secondary btn-rep-remove">
+				<i class="fas fa-times me-1"></i>Remover
+			</button>
+		</div>
+		<div class="wiz-rep-body">
+			{{ formset.empty_form.id }}
+			<div class="row g-3">
+				<div class="col-md-6">
+					<label class="form-label">Nome completo <span class="text-danger">*</span></label>
+					{{ formset.empty_form.nome }}
+				</div>
+				<div class="col-md-6">
+					<label class="form-label">CPF <span class="text-danger">*</span></label>
+					{{ formset.empty_form.documento }}
+				</div>
+				<div class="col-md-4">
+					<label class="form-label">RG</label>
+					{{ formset.empty_form.numero_rg }}
+				</div>
+				<div class="col-md-4">
+					<label class="form-label">Órgão emissor</label>
+					{{ formset.empty_form.orgao_emissor_rg }}
+				</div>
+				<div class="col-md-4">
+					<label class="form-label">Cargo <span class="text-danger">*</span></label>
+					{{ formset.empty_form.cargo }}
+				</div>
+				<div class="col-md-6">
+					<label class="form-label">E-mail</label>
+					{{ formset.empty_form.email }}
+				</div>
+				<div class="col-md-6">
+					<label class="form-label">Estado civil</label>
+					{{ formset.empty_form.estado_civil }}
+				</div>
+			</div>
+
+			<div class="wiz-inner-div"></div>
+			<div class="wiz-sec-head" style="margin-bottom:.6rem;"><i class="fas fa-map-marker-alt" style="font-size:12px;"></i><span style="font-size:11px;">Endereço do representante</span></div>
+			<div class="row g-3">
+				<div class="col-md-3"><label class="form-label">CEP <span class="text-danger">*</span></label>{{ empty_endereco_form.cep }}</div>
+				<div class="col-md-7"><label class="form-label">Cidade <span class="text-danger">*</span></label>{{ empty_endereco_form.cidade }}</div>
+				<div class="col-md-2"><label class="form-label">Estado <span class="text-danger">*</span></label>{{ empty_endereco_form.estado }}</div>
+				<div class="col-md-6"><label class="form-label">Bairro <span class="text-danger">*</span></label>{{ empty_endereco_form.bairro }}</div>
+				<div class="col-md-6"><label class="form-label">Rua <span class="text-danger">*</span></label>{{ empty_endereco_form.rua }}</div>
+				<div class="col-md-6"><label class="form-label">Número <span class="text-danger">*</span></label>{{ empty_endereco_form.numero }}</div>
+				<div class="col-md-6"><label class="form-label">Complemento <span class="text-muted">opcional</span></label>{{ empty_endereco_form.complemento }}</div>
+			</div>
+
+			<div class="wiz-inner-div"></div>
+			<div class="conjuge-section" style="display:none">
+				<div class="wiz-sec-head" style="margin-bottom:.6rem;"><i class="fa-solid fa-ring" style="font-size:12px;"></i><span style="font-size:11px;">Dados do cônjuge</span></div>
+				<div class="row g-3">
+					<div class="col-md-6"><label class="form-label">Nome do cônjuge</label>{{ formset.empty_form.conj_nome }}</div>
+					<div class="col-md-6"><label class="form-label">CPF do cônjuge</label>{{ formset.empty_form.conj_documento }}</div>
+					<div class="col-md-6"><label class="form-label">RG do cônjuge</label>{{ formset.empty_form.conj_numero_rg }}</div>
+					<div class="col-md-6"><label class="form-label">Órgão emissor</label>{{ formset.empty_form.conj_orgao_emissor_rg }}</div>
+				</div>
+			</div>
+
+			<div class="wiz-inner-div"></div>
+			<div class="wiz-sec-head" style="margin-bottom:.6rem;"><i class="fas fa-file-arrow-up" style="font-size:12px;"></i><span style="font-size:11px;">Documentos do representante</span></div>
+			<p class="text-muted" style="font-size:.8rem;">Salve este representante (clique em Próximo) para anexar documentos.</p>
+		</div>
+	</div>
+</template>
+
+<script src="{% static 'js/empreendimento_wizard.js' %}"></script>
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		EmpreendimentoWizard.initRepresentantes({
+			removeUrlTemplate: '{% url "empreendimento_wizard_representante_del" representante_uuid="00000000-0000-0000-0000-000000000000" %}',
+			docUploadUrlTemplate: '{% url "wizard_rep_doc_upload" rep_uuid="00000000-0000-0000-0000-000000000000" %}',
+			docRemoveUrlTemplate: '{% url "wizard_rep_doc_remover" doc_uuid="00000000-0000-0000-0000-000000000000" %}',
+		});
+	});
+</script>
+{% endblock %}

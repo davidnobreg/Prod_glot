@@ -1,0 +1,47 @@
+{% extends 'wizard/_base_wizard.html' %}
+
+{% block step_content %}
+<form method="post" enctype="multipart/form-data" novalidate>
+	{% csrf_token %}
+
+	<div class="card wiz-card">
+		<div class="card-body">
+			<div class="wiz-sec-head"><i class="fas fa-building"></i><span>Dados do empreendimento</span><div class="wiz-sec-divider"></div></div>
+			<div class="row g-3">
+				<div class="col-md-6">
+					<label class="form-label" for="{{ form.nome.id_for_label }}">Nome do empreendimento <span class="text-danger">*</span></label>
+					{{ form.nome }}
+					{% if form.nome.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.nome.errors|striptags }}</div>{% endif %}
+				</div>
+				<div class="col-md-6">
+					<label class="form-label" for="{{ form.telefone.id_for_label }}">Telefone de contato <span class="text-danger">*</span></label>
+					{{ form.telefone }}
+					{% if form.telefone.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.telefone.errors|striptags }}</div>{% endif %}
+				</div>
+				<div class="col-12">
+					<label class="form-label" for="{{ form.observacao.id_for_label }}">Observações <span class="text-muted">opcional</span></label>
+					{{ form.observacao }}
+				</div>
+			</div>
+
+			<div class="wiz-inner-div"></div>
+			<div class="wiz-sec-head"><i class="far fa-image"></i><span>Logo</span><div class="wiz-sec-divider"></div></div>
+			<div class="row g-3">
+				<div class="col-md-6">
+					{{ form.logo }}
+					{% if form.logo.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.logo.errors|striptags }}</div>{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="wiz-action-bar">
+		<a href="{% url 'lista-empreendimento-tabela' %}" class="btn btn-outline-danger" style="border-radius:8px;">
+			<i class="fas fa-times me-1"></i>Cancelar
+		</a>
+		<button type="submit" class="btn" style="background:#08789a;color:#fff;border-radius:8px;">
+			Próximo <i class="fas fa-arrow-right ms-1"></i>
+		</button>
+	</div>
+</form>
+{% endblock %}

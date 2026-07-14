@@ -39,8 +39,12 @@ from django.contrib.auth.models import User
 from tornado.http1connection import parse_int
 
 from .forms import (EmpreendimentoForm, ArquivoForm, LoteForm, EmpreendimentoUpdateForm,
-                    AtualizarLoteForm)
-from .models import Empreendimento, Quadra, Lote, TypeLote
+                    AtualizarLoteForm, EnderecoForm, EmpreendimentoStep1Form,
+                    EmpresaStep2Form, EmpreendimentoStep3Form, RepresentanteFormSet,
+                    DocumentoEmpreendimentoForm, DocumentoRepresentanteForm)
+from .models import (Empreendimento, Quadra, Lote, TypeLote, RepresentanteLegal,
+                    DocumentoEmpreendimento, DocumentoRepresentante)
+from . import services as empreendimento_services
 from accounts.models import User, UsuarioEmpreendimento
 from vendas.models import RegisterVenda
 from documentos.models import ModeloDocumento, EmpreendimentoDocumento
@@ -82,39 +86,8 @@ def criarEmpreendimento(request):
 
         try:
             with transaction.atomic():
-
-                empreendimento = form.save()
-
-                # =========================
-                # Salvar Imagens
-                # =========================
-                files = request.FILES.getlist('Empreendimento')
-                erros = []
-
-                for file in files:
-                    if not file.content_type.startswith('image/'):
-                        erros.append(f"{file.name} não é uma imagem válida.")
-                        continue
-
-                    img = ImagemEmpreendimento(
-                        empreendimento=empreendimento,
-                        imagem=file
-                    )
-
-                    try:
-                        img.full_clean()
-                        img.save()
-                    except ValidationError as e:
-                        erros.append(f"Erro na imagem {file.name}: {e}")
-
+                form.save()
                 messages.success(request, "Empreendimento criado com sucesso!")
-
-                if erros:
-                    messages.warning(
-                        request,
-                        "Algumas imagens não foram salvas:\n" + "\n".join(erros)
-                    )
-
                 return redirect('lista-empreendimento-tabela')
 
         except Exception as e:
@@ -127,6 +100,373 @@ def criarEmpreendimento(request):
         'form': EmpreendimentoForm(),
     })
 
+
+# ===================================================================
+# Wizard de cadastro de Empreendimento
+# ===================================================================
+
+_WIZARD_SESSION_KEY = 'wizard_empreendimento_uuid'
+
+_WIZARD_STEPS = [
+    ('Dados gerais', 'empreendimento_wizard_step1'),
+    ('Empresa', 'empreendimento_wizard_step2'),
+    ('Endereço', 'empreendimento_wizard_step3'),
+    ('Representantes', 'empreendimento_wizard_step4'),
+    ('Configurações', 'empreendimento_wizard_step5'),
+    ('Documentos', 'empreendimento_wizard_step6'),
+]
+
+
+def _wizard_get_draft(request):
+    """Retorna empreendimento rascunho (is_ativo=False) apontado pela
+    sessão, ou None se não houver rascunho em andamento."""
+    empreendimento_uuid = request.session.get(_WIZARD_SESSION_KEY)
+    if not empreendimento_uuid:
+        return None
+    return Empreendimento.objects.filter(uuid=empreendimento_uuid, is_ativo=False).first()
+
+
+def _wizard_render(request, template, current_step, context):
+    context['wizard_steps'] = _WIZARD_STEPS
+    context['current_step'] = current_step
+    return render(request, template, context)
+
+
+@has_permission_decorator('criarEmpreendimento')
+def wizard_step1(request):
+    """Step 1 — dados gerais. Cria o rascunho (is_ativo=False) no POST."""
+    draft = _wizard_get_draft(request)
+
+    if request.method == 'POST':
+        form = EmpreendimentoStep1Form(request.POST, request.FILES, instance=draft)
+        if form.is_valid():
+            empreendimento = form.save(commit=False)
+            empreendimento.is_ativo = False
+            if empreendimento.tempo_reserva is None:
+                empreendimento.tempo_reserva = 0
+            if empreendimento.quantidade_parcela is None:
+                empreendimento.quantidade_parcela = 0
+            empreendimento.save()
+            request.session[_WIZARD_SESSION_KEY] = str(empreendimento.uuid)
+            return redirect('empreendimento_wizard_step2')
+
+        messages.error(request, 'Verifique os campos obrigatórios.')
+        return _wizard_render(request, 'wizard/step1_dados_gerais.html', 1, {'form': form})
+
+    form = EmpreendimentoStep1Form(instance=draft)
+    return _wizard_render(request, 'wizard/step1_dados_gerais.html', 1, {'form': form})
+
+
+@has_permission_decorator('criarEmpreendimento')
+def wizard_step2(request):
+    """Step 2 — empresa + endereço da empresa (obrigatório, próprio)."""
+    draft = _wizard_get_draft(request)
+    if draft is None:
+        messages.error(request, 'Inicie o cadastro pelo passo 1.')
+        return redirect('empreendimento_wizard_step1')
+
+    if request.method == 'POST':
+        form = EmpresaStep2Form(request.POST, instance=draft)
+        form_endereco = EnderecoForm(request.POST, prefix='empresa', instance=draft.endereco_empresa)
+
+        if form.is_valid() and form_endereco.is_valid():
+            with transaction.atomic():
+                empreendimento = form.save(commit=False)
+                empreendimento.endereco_empresa = empreendimento_services.criar_ou_atualizar_endereco(
+                    form_endereco.cleaned_data, endereco=draft.endereco_empresa
+                )
+                empreendimento.save()
+            return redirect('empreendimento_wizard_step3')
+
+        messages.error(request, 'Verifique os campos obrigatórios.')
+        return _wizard_render(request, 'wizard/step2_empresa.html', 2, {
+            'form': form, 'form_endereco': form_endereco,
+        })
+
+    form = EmpresaStep2Form(instance=draft)
+    form_endereco = EnderecoForm(prefix='empresa', instance=draft.endereco_empresa)
+    return _wizard_render(request, 'wizard/step2_empresa.html', 2, {
+        'form': form, 'form_endereco': form_endereco,
+    })
+
+
+@has_permission_decorator('criarEmpreendimento')
+def wizard_step3(request):
+    """Step 3 — endereço do empreendimento (loteamento), obrigatório, próprio."""
+    draft = _wizard_get_draft(request)
+    if draft is None:
+        messages.error(request, 'Inicie o cadastro pelo passo 1.')
+        return redirect('empreendimento_wizard_step1')
+
+    if request.method == 'POST':
+        form = EmpreendimentoStep3Form(request.POST, instance=draft)
+        form_endereco = EnderecoForm(request.POST, prefix='empreendimento', instance=draft.endereco_empreendimento)
+
+        if form.is_valid() and form_endereco.is_valid():
+            with transaction.atomic():
+                empreendimento = form.save(commit=False)
+                empreendimento.endereco_empreendimento = empreendimento_services.criar_ou_atualizar_endereco(
+                    form_endereco.cleaned_data, endereco=draft.endereco_empreendimento
+                )
+                empreendimento.save()
+            return redirect('empreendimento_wizard_step4')
+
+        messages.error(request, 'Verifique os campos obrigatórios.')
+        return _wizard_render(request, 'wizard/step3_endereco.html', 3, {
+            'form': form, 'form_endereco': form_endereco,
+        })
+
+    form = EmpreendimentoStep3Form(instance=draft)
+    form_endereco = EnderecoForm(prefix='empreendimento', instance=draft.endereco_empreendimento)
+    return _wizard_render(request, 'wizard/step3_endereco.html', 3, {
+        'form': form, 'form_endereco': form_endereco,
+    })
+
+
+@has_permission_decorator('criarEmpreendimento')
+def wizard_step4(request):
+    """Step 4 — representantes legais (sócio/administrador), mínimo 1,
+    cada um com seu próprio endereço."""
+    draft = _wizard_get_draft(request)
+    if draft is None:
+        messages.error(request, 'Inicie o cadastro pelo passo 1.')
+        return redirect('empreendimento_wizard_step1')
+
+    queryset = RepresentanteLegal.objects.filter(empreendimento=draft, is_ativo=True).order_by('id')
+
+    if request.method == 'POST':
+        formset = RepresentanteFormSet(request.POST, queryset=queryset, prefix='representante')
+        enderecos_forms = [
+            EnderecoForm(request.POST, prefix=f'representante-{i}-endereco')
+            for i in range(len(formset.forms))
+        ]
+
+        if formset.is_valid() and all(f.is_valid() for f in enderecos_forms):
+            with transaction.atomic():
+                for form, form_endereco in zip(formset.forms, enderecos_forms):
+                    if not form.cleaned_data or form.cleaned_data.get('DELETE'):
+                        continue
+                    representante = form.instance
+                    dados = {k: v for k, v in form.cleaned_data.items() if k != 'id'}
+                    if representante.pk:
+                        empreendimento_services.atualizar_representante(
+                            representante, dados, endereco_dados=form_endereco.cleaned_data
+                        )
+                    else:
+                        empreendimento_services.criar_representante(
+                            draft, dados, endereco_dados=form_endereco.cleaned_data
+                        )
+            return redirect('empreendimento_wizard_step5')
+
+        messages.error(request, 'Verifique os campos obrigatórios dos representantes.')
+        docs_forms = [DocumentoRepresentanteForm() for _ in formset.forms]
+        reps_docs = [
+            form.instance.documentos.all() if form.instance.pk else DocumentoRepresentante.objects.none()
+            for form in formset.forms
+        ]
+        return _wizard_render(request, 'wizard/step4_representantes.html', 4, {
+            'formset': formset, 'enderecos_forms': enderecos_forms,
+            'reps_com_endereco': zip(formset.forms, enderecos_forms, reps_docs, docs_forms),
+            'empty_endereco_form': EnderecoForm(prefix='representante-__prefix__-endereco'),
+            'empty_doc_form': DocumentoRepresentanteForm(),
+        })
+
+    formset = RepresentanteFormSet(queryset=queryset, prefix='representante')
+    enderecos_forms = [
+        EnderecoForm(prefix=f'representante-{i}-endereco', instance=form.instance.endereco if form.instance.pk else None)
+        for i, form in enumerate(formset.forms)
+    ]
+    docs_forms = [DocumentoRepresentanteForm() for _ in formset.forms]
+    reps_docs = [
+        form.instance.documentos.all() if form.instance.pk else DocumentoRepresentante.objects.none()
+        for form in formset.forms
+    ]
+    return _wizard_render(request, 'wizard/step4_representantes.html', 4, {
+        'formset': formset, 'enderecos_forms': enderecos_forms,
+        'reps_com_endereco': zip(formset.forms, enderecos_forms, reps_docs, docs_forms),
+        'empty_endereco_form': EnderecoForm(prefix='representante-__prefix__-endereco'),
+        'empty_doc_form': DocumentoRepresentanteForm(),
+    })
+
+
+@has_permission_decorator('criarEmpreendimento')
+@require_POST
+def wizard_representante_del(request, representante_uuid):
+    """Remove (soft-delete) representante do rascunho atual. Retorna JSON."""
+    draft = _wizard_get_draft(request)
+    if draft is None:
+        return JsonResponse({'ok': False, 'error': 'Rascunho não encontrado.'}, status=404)
+
+    representante = get_object_or_404(RepresentanteLegal, uuid=representante_uuid, empreendimento=draft)
+    if draft.is_ativo:
+        empreendimento_services.desativar_representante(representante)
+    else:
+        representante.delete()
+    return JsonResponse({'ok': True})
+
+
+def _documento_json(documento):
+    ext = documento.arquivo.name.rsplit('.', 1)[-1].lower() if '.' in documento.arquivo.name else ''
+    return {
+        'uuid': str(documento.uuid),
+        'nome_exibicao': documento.nome_exibicao(),
+        'categoria': documento.categoria,
+        'categoria_display': documento.get_categoria_display(),
+        'url': documento.arquivo.url,
+        'ext': ext,
+    }
+
+
+@has_permission_decorator('criarEmpreendimento')
+@require_POST
+def wizard_rep_doc_upload(request, rep_uuid):
+    """Upload AJAX de documento do representante (ou do cônjuge, se casado)."""
+    draft = _wizard_get_draft(request)
+    if draft is None:
+        return JsonResponse({'ok': False, 'error': 'Rascunho não encontrado.'}, status=404)
+
+    representante = get_object_or_404(RepresentanteLegal, uuid=rep_uuid, empreendimento=draft)
+
+    form = DocumentoRepresentanteForm(request.POST, request.FILES)
+    if not form.is_valid():
+        erros = '; '.join(f'{campo}: {", ".join(msgs)}' for campo, msgs in form.errors.items())
+        return JsonResponse({'ok': False, 'error': erros}, status=400)
+
+    try:
+        documento = empreendimento_services.criar_documento_representante(
+            representante,
+            form.cleaned_data['categoria'],
+            form.cleaned_data['arquivo'],
+            nome=form.cleaned_data.get('nome', ''),
+            usuario=request.user,
+        )
+    except ValidationError as e:
+        return JsonResponse({'ok': False, 'error': '; '.join(e.messages)}, status=400)
+
+    return JsonResponse({'ok': True, 'documento': _documento_json(documento)})
+
+
+@has_permission_decorator('criarEmpreendimento')
+@require_POST
+def wizard_rep_doc_remover(request, doc_uuid):
+    draft = _wizard_get_draft(request)
+    if draft is None:
+        return JsonResponse({'ok': False, 'error': 'Rascunho não encontrado.'}, status=404)
+
+    documento = get_object_or_404(DocumentoRepresentante, uuid=doc_uuid, representante__empreendimento=draft)
+    empreendimento_services.remover_documento_representante(documento)
+    return JsonResponse({'ok': True})
+
+
+@has_permission_decorator('criarEmpreendimento')
+def wizard_step5(request):
+    """Step 5 — configurações (reserva, parcelas, desconto, correção)."""
+    draft = _wizard_get_draft(request)
+    if draft is None:
+        messages.error(request, 'Inicie o cadastro pelo passo 1.')
+        return redirect('empreendimento_wizard_step1')
+
+    campos = ('tempo_reserva', 'quantidade_parcela', 'desconto', 'tipo_correcao')
+
+    if request.method == 'POST':
+        for campo in campos:
+            if campo in request.POST:
+                setattr(draft, campo, request.POST.get(campo))
+        try:
+            draft.full_clean(validate_unique=False)
+            draft.save(update_fields=campos)
+        except ValidationError as e:
+            messages.error(request, '; '.join(e.messages) if hasattr(e, 'messages') else str(e))
+            return _wizard_render(request, 'wizard/step5_configuracoes.html', 5, {'empreendimento': draft})
+        return redirect('empreendimento_wizard_step6')
+
+    return _wizard_render(request, 'wizard/step5_configuracoes.html', 5, {'empreendimento': draft})
+
+
+@has_permission_decorator('criarEmpreendimento')
+def wizard_step6(request):
+    """Step 6 — documentos + commit final: ativa o empreendimento."""
+    draft = _wizard_get_draft(request)
+    if draft is None:
+        messages.error(request, 'Inicie o cadastro pelo passo 1.')
+        return redirect('empreendimento_wizard_step1')
+
+    if request.method == 'POST':
+        erros = []
+        if not draft.nome or not draft.telefone:
+            erros.append('Dados gerais incompletos.')
+        if not draft.endereco_empresa:
+            erros.append('Endereço da empresa é obrigatório.')
+        if not draft.endereco_empreendimento:
+            erros.append('Endereço do empreendimento é obrigatório.')
+        if not draft.representantes.filter(is_ativo=True).exists():
+            erros.append('Informe ao menos um representante legal.')
+
+        if erros:
+            for erro in erros:
+                messages.error(request, erro)
+            return redirect('empreendimento_wizard_step6')
+
+        with transaction.atomic():
+            draft.is_ativo = True
+            draft.save(update_fields=['is_ativo'])
+
+        request.session.pop(_WIZARD_SESSION_KEY, None)
+        messages.success(request, 'Empreendimento cadastrado com sucesso!')
+        return redirect('lista-empreendimento-tabela')
+
+    modelos_vinculados = EmpreendimentoDocumento.objects.filter(
+        empreendimento=draft
+    ).select_related('modelo').order_by('modelo__tipo', 'ordem')
+
+    ids_vinculados = modelos_vinculados.values_list('modelo_id', flat=True)
+    modelos_disponiveis = ModeloDocumento.objects.filter(ativo=True).exclude(id__in=ids_vinculados)
+
+    documentos = draft.documentos.all()
+
+    return _wizard_render(request, 'wizard/step6_documentos.html', 6, {
+        'empreendimento': draft,
+        'modelos_vinculados': modelos_vinculados,
+        'modelos_disponiveis': modelos_disponiveis,
+        'documentos': documentos,
+        'doc_form': DocumentoEmpreendimentoForm(),
+    })
+
+
+@has_permission_decorator('criarEmpreendimento')
+@require_POST
+def wizard_doc_empreendimento_upload(request):
+    """Upload AJAX de documento real (PDF/imagem) vinculado ao empreendimento."""
+    draft = _wizard_get_draft(request)
+    if draft is None:
+        return JsonResponse({'ok': False, 'error': 'Rascunho não encontrado.'}, status=404)
+
+    form = DocumentoEmpreendimentoForm(request.POST, request.FILES)
+    if not form.is_valid():
+        erros = '; '.join(f'{campo}: {", ".join(msgs)}' for campo, msgs in form.errors.items())
+        return JsonResponse({'ok': False, 'error': erros}, status=400)
+
+    documento = empreendimento_services.criar_documento_empreendimento(
+        draft,
+        form.cleaned_data['categoria'],
+        form.cleaned_data['arquivo'],
+        nome=form.cleaned_data.get('nome', ''),
+        usuario=request.user,
+    )
+
+    return JsonResponse({'ok': True, 'documento': _documento_json(documento)})
+
+
+@has_permission_decorator('criarEmpreendimento')
+@require_POST
+def wizard_doc_empreendimento_remover(request, doc_uuid):
+    draft = _wizard_get_draft(request)
+    if draft is None:
+        return JsonResponse({'ok': False, 'error': 'Rascunho não encontrado.'}, status=404)
+
+    documento = get_object_or_404(DocumentoEmpreendimento, uuid=doc_uuid, empreendimento=draft)
+    empreendimento_services.remover_documento_empreendimento(documento)
+    return JsonResponse({'ok': True})
 
 
 @has_permission_decorator('listaEmpreendimento')
@@ -857,7 +1197,7 @@ def listaReservasTemporaria(request):
     return render(request, 'relatorio_de_reservas_temporario.html', context)
 
 
-# @has_permission_decorator('liberaLote')
+@has_permission_decorator('liberaLote')
 def liberaLote(request, lote_uuid):
     get_lote = get_object_or_404(Lote, uuid=lote_uuid)
 

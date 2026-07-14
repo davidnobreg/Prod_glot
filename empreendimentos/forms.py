@@ -1,7 +1,13 @@
 ﻿import re
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Empreendimento, Lote
+from django.forms import modelformset_factory
+
+from base.models import Endereco
+from .models import (
+    Empreendimento, Lote, RepresentanteLegal,
+    DocumentoEmpreendimento, DocumentoRepresentante,
+)
 
 
 # Doc: https://docs.djangoproject.com/en/5.1/topics/http/file-uploads/
@@ -388,3 +394,200 @@ class AtualizarLoteForm(forms.ModelForm):
                 'class': 'form-check-input',
             }),
         }
+
+
+# ==========================================================
+# WIZARD DE CADASTRO DE EMPREENDIMENTO
+# ==========================================================
+
+class EnderecoForm(forms.ModelForm):
+    """Endereço genérico (base.Endereco). Usado com prefix diferente pra
+    cada uma das 3 entidades do wizard (empresa, empreendimento,
+    representante) — cada uma tem sua própria instância, nunca reutilizada."""
+
+    class Meta:
+        model = Endereco
+        fields = ('cep', 'rua', 'numero', 'complemento', 'bairro', 'cidade', 'estado')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        config = {
+            'cep': {'placeholder': 'Digite o CEP'},
+            'rua': {'placeholder': 'Rua ou Avenida'},
+            'numero': {'placeholder': 'Número'},
+            'complemento': {'placeholder': 'Complemento'},
+            'bairro': {'placeholder': 'Bairro'},
+            'cidade': {'placeholder': 'Cidade'},
+        }
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({'class': 'form-control mb-3'})
+            if field_name in config:
+                field.widget.attrs.update(config[field_name])
+
+
+class EmpreendimentoStep1Form(forms.ModelForm):
+    class Meta:
+        model = Empreendimento
+        fields = ('nome', 'telefone', 'observacao', 'logo')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({'class': 'form-control mb-3'})
+        self.fields['telefone'].widget.attrs.update({'class': 'form-control mb-3 mask-phone'})
+        self.fields['observacao'].widget = forms.Textarea(attrs={'class': 'form-control mb-3', 'rows': 4})
+
+    def clean_nome(self):
+        nome = self.cleaned_data.get('nome')
+        if not nome:
+            return nome
+
+        qs = Empreendimento.objects.filter(nome__iexact=nome, is_ativo=True)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise ValidationError('Já existe um empreendimento ativo com este nome.')
+
+        return nome
+
+
+class EmpresaStep2Form(forms.ModelForm):
+    class Meta:
+        model = Empreendimento
+        fields = ('cnpj', 'razaoSocial', 'codBanco', 'banco', 'agencia', 'conta')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['banco'].choices = [('', 'Selecione o Banco')] + list(self.fields['banco'].choices)
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({'class': 'form-control mb-3'})
+        self.fields['cnpj'].widget.attrs.update({
+            'class': 'form-control mb-3 mask-doc', 'placeholder': 'CNPJ (apenas números)', 'maxlength': '18',
+        })
+
+    def clean_cnpj(self):
+        cnpj = self.cleaned_data.get('cnpj')
+        if not cnpj:
+            return cnpj
+
+        cnpj = re.sub(r'\D', '', cnpj)
+        if len(cnpj) != 14:
+            raise ValidationError('CNPJ deve conter exatamente 14 números.')
+
+        qs = Empreendimento.objects.filter(cnpj=cnpj)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise ValidationError('Este CNPJ já está cadastrado.')
+
+        return cnpj
+
+
+class EmpreendimentoStep3Form(forms.ModelForm):
+    """Dados do empreendimento (loteamento) em si — não confundir com o
+    endereço da empresa (step 2). O endereço deste step vem de um
+    EnderecoForm(prefix='empreendimento') separado, instanciado na view."""
+
+    class Meta:
+        model = Empreendimento
+        fields = ('matricula', 'cidade_foro')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({'class': 'form-control mb-3'})
+        self.fields['matricula'].widget.attrs.update({'placeholder': 'Matrícula do imóvel'})
+        self.fields['cidade_foro'].widget.attrs.update({'placeholder': 'Cidade do foro (ex: Mauriti - CE)'})
+
+
+class RepresentanteForm(forms.ModelForm):
+    class Meta:
+        model = RepresentanteLegal
+        fields = (
+            'nome', 'documento', 'numero_rg', 'orgao_emissor_rg', 'cargo', 'email', 'estado_civil',
+            'conj_nome', 'conj_documento', 'conj_numero_rg', 'conj_orgao_emissor_rg',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({'class': 'form-control mb-3'})
+            field.required = False
+        self.fields['nome'].required = True
+        self.fields['documento'].required = True
+        self.fields['cargo'].required = True
+
+        self.fields['documento'].widget.attrs.update({'class': 'form-control mb-3 mask-doc', 'placeholder': 'CPF do representante'})
+        self.fields['nome'].widget.attrs.update({'placeholder': 'Nome do representante'})
+        self.fields['numero_rg'].widget.attrs.update({'placeholder': 'RG do representante'})
+        self.fields['cargo'].widget.attrs.update({'placeholder': 'Cargo (ex: Sócio-administrador)'})
+        self.fields['conj_nome'].widget.attrs.update({'placeholder': 'Nome do cônjuge'})
+        self.fields['conj_documento'].widget.attrs.update({'class': 'form-control mb-3 mask-doc', 'placeholder': 'CPF do cônjuge'})
+        self.fields['conj_numero_rg'].widget.attrs.update({'placeholder': 'RG do cônjuge'})
+        self.fields['conj_orgao_emissor_rg'].widget.attrs.update({'placeholder': 'Órgão emissor'})
+
+    def clean_documento(self):
+        documento = self.cleaned_data.get('documento')
+        if not documento:
+            return documento
+
+        documento = re.sub(r'\D', '', documento)
+        if len(documento) != 11:
+            raise ValidationError('CPF deve conter exatamente 11 números.')
+
+        return documento
+
+    def clean_conj_documento(self):
+        documento = self.cleaned_data.get('conj_documento')
+        if not documento:
+            return documento
+
+        documento = re.sub(r'\D', '', documento)
+        if len(documento) != 11:
+            raise ValidationError('CPF do cônjuge deve conter exatamente 11 números.')
+
+        return documento
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get('estado_civil') == 'casado':
+            if not cleaned.get('conj_nome'):
+                self.add_error('conj_nome', 'Obrigatório quando casado(a)')
+            if not cleaned.get('conj_documento'):
+                self.add_error('conj_documento', 'Obrigatório quando casado(a)')
+        return cleaned
+
+
+RepresentanteFormSet = modelformset_factory(
+    RepresentanteLegal,
+    form=RepresentanteForm,
+    extra=0,
+    min_num=1,
+    validate_min=True,
+    can_delete=False,
+)
+
+
+class DocumentoEmpreendimentoForm(forms.ModelForm):
+    class Meta:
+        model = DocumentoEmpreendimento
+        fields = ('categoria', 'nome', 'arquivo')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['nome'].required = False
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control mb-3'})
+
+
+class DocumentoRepresentanteForm(forms.ModelForm):
+    class Meta:
+        model = DocumentoRepresentante
+        fields = ('categoria', 'nome', 'arquivo')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['nome'].required = False
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control mb-3'})

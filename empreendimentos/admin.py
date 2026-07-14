@@ -81,6 +81,29 @@ class LoteAdmin(admin.ModelAdmin):
 
 admin.site.register(models.Lote, LoteAdmin)
 
+# Admin para o modelo RepresentanteLegal
+class RepresentanteLegalAdmin(admin.ModelAdmin):
+    list_display = ['id', 'nome', 'documento', 'cargo', 'empreendimento', 'is_ativo']
+    search_fields = ['nome', 'documento', 'empreendimento__nome']
+
+admin.site.register(models.RepresentanteLegal, RepresentanteLegalAdmin)
+
+# Admin para o modelo DocumentoEmpreendimento
+class DocumentoEmpreendimentoAdmin(admin.ModelAdmin):
+    list_display = ['id', 'nome_exibicao', 'categoria', 'empreendimento', 'criado_em']
+    search_fields = ['nome', 'empreendimento__nome']
+    list_filter = ['categoria']
+
+admin.site.register(models.DocumentoEmpreendimento, DocumentoEmpreendimentoAdmin)
+
+# Admin para o modelo DocumentoRepresentante
+class DocumentoRepresentanteAdmin(admin.ModelAdmin):
+    list_display = ['id', 'nome_exibicao', 'categoria', 'representante', 'criado_em']
+    search_fields = ['nome', 'representante__nome']
+    list_filter = ['categoria']
+
+admin.site.register(models.DocumentoRepresentante, DocumentoRepresentanteAdmin)
+
 # Admin para a tabela intermediária UsuarioEmpreendimento
 class UsuarioEmpreendimentoAdmin(admin.ModelAdmin):
     list_display = ['id', 'get_nome_usuario', 'usuario', 'empreendimento', 'ativo']

@@ -11,6 +11,19 @@ from .views import (
     deleteEmpreendimento,
     detalheEmpreendimento,
 
+    # Wizard de cadastro de empreendimento
+    wizard_step1,
+    wizard_step2,
+    wizard_step3,
+    wizard_step4,
+    wizard_step5,
+    wizard_step6,
+    wizard_representante_del,
+    wizard_rep_doc_upload,
+    wizard_rep_doc_remover,
+    wizard_doc_empreendimento_upload,
+    wizard_doc_empreendimento_remover,
+
     # Importação
     importarDados,
 
@@ -92,6 +105,41 @@ urlpatterns = [
         'detalhe_empreendimento/<uuid:uuid>/',
         detalheEmpreendimento,
         name='detalhe-empreendimento'
+    ),
+
+    # =========================
+    # Wizard de cadastro de Empreendimento
+    # =========================
+    path('cadastrar/step1/', wizard_step1, name='empreendimento_wizard_step1'),
+    path('cadastrar/step2/', wizard_step2, name='empreendimento_wizard_step2'),
+    path('cadastrar/step3/', wizard_step3, name='empreendimento_wizard_step3'),
+    path('cadastrar/step4/', wizard_step4, name='empreendimento_wizard_step4'),
+    path(
+        'cadastrar/step4/representante/<uuid:representante_uuid>/del/',
+        wizard_representante_del,
+        name='empreendimento_wizard_representante_del'
+    ),
+    path(
+        'cadastrar/step4/representante/<uuid:rep_uuid>/documento/upload/',
+        wizard_rep_doc_upload,
+        name='wizard_rep_doc_upload'
+    ),
+    path(
+        'cadastrar/step4/representante/documento/<uuid:doc_uuid>/remover/',
+        wizard_rep_doc_remover,
+        name='wizard_rep_doc_remover'
+    ),
+    path('cadastrar/step5/', wizard_step5, name='empreendimento_wizard_step5'),
+    path('cadastrar/step6/', wizard_step6, name='empreendimento_wizard_step6'),
+    path(
+        'cadastrar/step6/documento/upload/',
+        wizard_doc_empreendimento_upload,
+        name='wizard_doc_empreendimento_upload'
+    ),
+    path(
+        'cadastrar/step6/documento/<uuid:doc_uuid>/remover/',
+        wizard_doc_empreendimento_remover,
+        name='wizard_doc_empreendimento_remover'
     ),
 
     # =========================

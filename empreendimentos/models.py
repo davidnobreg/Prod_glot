@@ -1,4 +1,6 @@
-﻿import uuid
+﻿import re
+import uuid
+from django.conf import settings
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.db import models
@@ -16,6 +18,29 @@ def _validate_logo_arquivo(value):
 
 def _upload_logo_empreendimento(instance, filename):
     return f'empreendimentos/{instance.uuid}/documentos/{filename}'
+
+
+EXTENSOES_DOCUMENTO_WIZARD = ('pdf', 'jpg', 'jpeg', 'png', 'webp')
+TAMANHO_MAXIMO_DOCUMENTO_WIZARD = 20 * 1024 * 1024  # 20MB
+
+
+def _validate_documento_wizard(value):
+    """Extensão + tamanho de documentos anexados no wizard (empreendimento
+    e representante) — mesma convenção de `clientes.validators.validate_documento_representante`,
+    implementação local pra não criar dependência empreendimentos → clientes."""
+    ext = value.name.rsplit('.', 1)[-1].lower() if '.' in value.name else ''
+    if ext not in EXTENSOES_DOCUMENTO_WIZARD:
+        raise ValidationError('Envie PDF, JPG, PNG ou WEBP.')
+    if value.size > TAMANHO_MAXIMO_DOCUMENTO_WIZARD:
+        raise ValidationError('Arquivo não pode exceder 20 MB.')
+
+
+def _upload_documento_empreendimento(instance, filename):
+    return f'empreendimentos/documentos/{timezone.now():%Y/%m}/{filename}'
+
+
+def _upload_documento_representante(instance, filename):
+    return f'empreendimentos/representantes/{timezone.now():%Y/%m}/{filename}'
 
 # ==========================================================
 # LISTA DE ESTADOS
@@ -86,6 +111,14 @@ class Empreendimento(models.Model):
     representante_rg = models.CharField(max_length=30, blank=True, default='')
     matricula = models.CharField(max_length=100, blank=True, default='')
     cidade_foro = models.CharField(max_length=100, blank=True, default='')
+    endereco_empreendimento = models.ForeignKey(
+        'base.Endereco', null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='empreendimentos'
+    )
+    endereco_empresa = models.ForeignKey(
+        'base.Endereco', null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='empresas'
+    )
 
 
 
@@ -173,3 +206,162 @@ class Lote(models.Model):
         verbose_name = 'Lote'
         verbose_name_plural = 'Lotes'
         ordering = ['id']
+
+
+CHOICES_ESTADO_CIVIL = (
+    ('solteiro', 'Solteiro'),
+    ('casado', 'Casado'),
+    ('divorciado', 'Divorciado'),
+    ('viuvo', 'Viúvo'),
+    ('separado_judicialmente', 'Separado judicialmente'),
+    ('uniao_estavel', 'União estável'),
+)
+
+
+## Representante legal (sócio/administrador) do Empreendimento
+class RepresentanteLegal(models.Model):
+    uuid = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+        unique=True,
+        db_index=True
+    )
+    empreendimento = models.ForeignKey(
+        Empreendimento, on_delete=models.CASCADE,
+        related_name='representantes'
+    )
+    nome = models.CharField(max_length=255)
+    documento = models.CharField(max_length=14)  # CPF normalizado (somente números)
+    numero_rg = models.CharField(max_length=30, blank=True)
+    orgao_emissor_rg = models.CharField(max_length=20, blank=True)
+    cargo = models.CharField(max_length=100)
+    email = models.EmailField(blank=True)
+    estado_civil = models.CharField(max_length=22, choices=CHOICES_ESTADO_CIVIL, blank=True)
+    endereco = models.ForeignKey(
+        'base.Endereco', null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='representantes'
+    )
+    is_ativo = models.BooleanField(default=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    # Cônjuge — só preenchido se estado_civil = 'casado'
+    conj_nome = models.CharField(max_length=255, blank=True)
+    conj_documento = models.CharField(max_length=14, blank=True)  # CPF
+    conj_numero_rg = models.CharField(max_length=30, blank=True)
+    conj_orgao_emissor_rg = models.CharField(max_length=20, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.nome = self.nome.strip().upper()
+        self.documento = re.sub(r'\D', '', self.documento)
+        if self.email:
+            self.email = self.email.strip().lower()
+        if self.conj_nome:
+            self.conj_nome = self.conj_nome.strip().upper()
+        if self.conj_documento:
+            self.conj_documento = re.sub(r'\D', '', self.conj_documento)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return "{}".format(self.nome)
+
+    class Meta:
+        unique_together = [('empreendimento', 'documento')]
+        verbose_name = 'Representante Legal'
+        verbose_name_plural = 'Representantes Legais'
+
+
+class DocumentoEmpreendimento(models.Model):
+
+    CATEGORIA_CHOICES = [
+        ('contrato_social', 'Contrato Social'),
+        ('matricula_imovel', 'Matrícula do Imóvel'),
+        ('alvara', 'Alvará'),
+        ('memorial_descritivo', 'Memorial Descritivo'),
+        ('planta_loteamento', 'Planta do Loteamento'),
+        ('licenca_ambiental', 'Licença Ambiental'),
+        ('registro_loteamento', 'Registro do Loteamento'),
+        ('procuracao', 'Procuração'),
+        ('outro', 'Outro'),
+    ]
+
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    empreendimento = models.ForeignKey(
+        Empreendimento, on_delete=models.CASCADE,
+        related_name='documentos'
+    )
+    categoria = models.CharField(max_length=50, choices=CATEGORIA_CHOICES)
+    nome = models.CharField(max_length=255, blank=True,
+        help_text='Deixe em branco para usar o nome da categoria')
+    arquivo = models.FileField(
+        upload_to=_upload_documento_empreendimento,
+        validators=[_validate_documento_wizard],
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+    criado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='+'
+    )
+
+    class Meta:
+        verbose_name = 'Documento do Empreendimento'
+        verbose_name_plural = 'Documentos do Empreendimento'
+        ordering = ['categoria', 'criado_em']
+
+    def nome_exibicao(self):
+        return self.nome or self.get_categoria_display()
+
+    def extensao(self):
+        return self.arquivo.name.rsplit('.', 1)[-1].lower() if '.' in self.arquivo.name else ''
+
+    def __str__(self):
+        return self.nome_exibicao()
+
+
+class DocumentoRepresentante(models.Model):
+
+    CATEGORIA_CHOICES = [
+        # Documentos do representante
+        ('rg_representante', 'RG do Representante'),
+        ('cpf_representante', 'CPF do Representante'),
+        ('comprovante_residencia', 'Comprovante de Residência'),
+        ('procuracao', 'Procuração'),
+        # Documentos do cônjuge
+        ('rg_conjuge', 'RG do Cônjuge'),
+        ('cpf_conjuge', 'CPF do Cônjuge'),
+        ('certidao_casamento', 'Certidão de Casamento'),
+        ('pacto_antenupcial', 'Pacto Antenupcial'),
+        ('outro', 'Outro'),
+    ]
+
+    CATEGORIAS_CONJUGE = ('rg_conjuge', 'cpf_conjuge', 'certidao_casamento', 'pacto_antenupcial')
+
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    representante = models.ForeignKey(
+        RepresentanteLegal, on_delete=models.CASCADE,
+        related_name='documentos'
+    )
+    categoria = models.CharField(max_length=50, choices=CATEGORIA_CHOICES)
+    nome = models.CharField(max_length=255, blank=True)
+    arquivo = models.FileField(
+        upload_to=_upload_documento_representante,
+        validators=[_validate_documento_wizard],
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+    criado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='+'
+    )
+
+    class Meta:
+        verbose_name = 'Documento do Representante'
+        verbose_name_plural = 'Documentos do Representante'
+        ordering = ['categoria', 'criado_em']
+
+    def nome_exibicao(self):
+        return self.nome or self.get_categoria_display()
+
+    def extensao(self):
+        return self.arquivo.name.rsplit('.', 1)[-1].lower() if '.' in self.arquivo.name else ''
+
+    def __str__(self):
+        return self.nome_exibicao()

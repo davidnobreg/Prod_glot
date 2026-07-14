@@ -493,3 +493,81 @@ class WizardUpdateStep6DocTest(TestCase):
 		response = self.client.post(url)
 		self.assertEqual(response.json(), {'ok': True})
 		self.assertEqual(self.real.documentos.count(), 0)
+
+
+class WizardUpdateStep6CommitTest(TestCase):
+
+	def setUp(self):
+		self.user = make_user()
+		self.client.force_login(self.user)
+		self.real = make_empreendimento(
+			nome='Nome Original', cnpj='11222333000181',
+			endereco_empresa=make_endereco(rua='Rua Empresa Original'),
+			endereco_empreendimento=make_endereco(rua='Rua Empreendimento Original'),
+		)
+
+	def test_finalizar_aplica_draft_no_real_e_apaga_draft(self):
+		step1_url = reverse('empreendimento_update_step1', args=[self.real.uuid])
+		self.client.post(step1_url, {
+			'nome': 'Nome Editado', 'telefone': '(83) 96666-6666', 'observacao': 'nova obs',
+		})
+
+		step5_url = reverse('empreendimento_update_step5', args=[self.real.uuid])
+		self.client.post(step5_url, {
+			'tempo_reserva': '45', 'quantidade_parcela': '48', 'desconto': '10', 'tipo_correcao': 'INCC',
+		})
+
+		draft = Empreendimento.objects.get(is_ativo=False)
+		draft_pk = draft.pk
+		draft_endereco_empresa_pk = draft.endereco_empresa_id
+
+		step6_url = reverse('empreendimento_update_step6', args=[self.real.uuid])
+		response = self.client.post(step6_url, {'finalizar': '1'})
+		self.assertRedirects(response, reverse('lista-empreendimento-tabela'))
+
+		self.real.refresh_from_db()
+		self.assertEqual(self.real.nome, 'Nome Editado')
+		self.assertEqual(self.real.observacao, 'nova obs')
+		self.assertEqual(self.real.tempo_reserva, 45)
+		self.assertEqual(self.real.tipo_correcao, 'INCC')
+		self.assertTrue(self.real.is_ativo)
+
+		self.assertFalse(Empreendimento.objects.filter(pk=draft_pk).exists())
+		self.assertFalse(Endereco.objects.filter(pk=draft_endereco_empresa_pk).exists())
+
+	def test_finalizar_aplica_cnpj_pendente_sem_estourar_unique(self):
+		step2_url = reverse('empreendimento_update_step2', args=[self.real.uuid])
+		self.client.post(step2_url, {
+			'cnpj': '99888777000166', 'razaoSocial': 'Razao', 'codBanco': '', 'banco': '',
+			'agencia': '1', 'conta': '1',
+			'empresa-cep': '58101000', 'empresa-rua': 'Rua', 'empresa-numero': '1',
+			'empresa-complemento': '', 'empresa-bairro': 'Bairro', 'empresa-cidade': 'Cidade', 'empresa-estado': 'PB',
+		})
+
+		draft = Empreendimento.objects.get(is_ativo=False)
+		self.assertIsNone(draft.cnpj)  # confirma que nunca foi gravado no draft
+
+		step6_url = reverse('empreendimento_update_step6', args=[self.real.uuid])
+		response = self.client.post(step6_url, {'finalizar': '1'})
+		self.assertRedirects(response, reverse('lista-empreendimento-tabela'))
+
+		self.real.refresh_from_db()
+		self.assertEqual(self.real.cnpj, '99888777000166')
+
+	def test_finalizar_atualiza_endereco_do_real_in_place(self):
+		endereco_empresa_pk_original = self.real.endereco_empresa_id
+
+		step2_url = reverse('empreendimento_update_step2', args=[self.real.uuid])
+		self.client.post(step2_url, {
+			'cnpj': '11222333000181', 'razaoSocial': 'Razao', 'codBanco': '', 'banco': '',
+			'agencia': '1', 'conta': '1',
+			'empresa-cep': '58101000', 'empresa-rua': 'Rua Empresa Editada', 'empresa-numero': '99',
+			'empresa-complemento': '', 'empresa-bairro': 'Bairro Editado', 'empresa-cidade': 'Campina Grande', 'empresa-estado': 'PB',
+		})
+
+		step6_url = reverse('empreendimento_update_step6', args=[self.real.uuid])
+		self.client.post(step6_url, {'finalizar': '1'})
+
+		self.real.refresh_from_db()
+		self.assertEqual(self.real.endereco_empresa_id, endereco_empresa_pk_original)
+		self.assertEqual(self.real.endereco_empresa.rua, 'Rua Empresa Editada')

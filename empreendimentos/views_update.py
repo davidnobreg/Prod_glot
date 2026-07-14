@@ -1,5 +1,6 @@
 from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
@@ -357,10 +358,46 @@ def wizard_update_rep_doc_del(request, empreendimento_uuid, doc_uuid):
 	return JsonResponse({'ok': True})
 
 
+_CAMPOS_COMMIT_ESCALARES = (
+	# 'cnpj' de propósito fora daqui — nunca fica no draft (unique=True no
+	# banco), é aplicado à parte via `cnpj_pendente` da sessão (ver abaixo).
+	'nome', 'telefone', 'observacao', 'razaoSocial',
+	'codBanco', 'banco', 'agencia', 'conta', 'matricula',
+	'cidade_foro', 'tempo_reserva', 'quantidade_parcela',
+	'desconto', 'tipo_correcao',
+)
+
+
 @has_permission_decorator('alterarEmpreendimento')
 def wizard_update_step6(request, empreendimento_uuid):
 	real, draft = _get_or_create_draft(request, empreendimento_uuid)
 	documentos = real.documentos.all().order_by('categoria', 'criado_em')
+
+	if request.method == 'POST' and 'finalizar' in request.POST:
+		session_key = str(empreendimento_uuid)
+		wizard_session = request.session.get(_WIZARD_UPDATE_SESSION_KEY, {})
+		cnpj_pendente = wizard_session.get(session_key, {}).get('cnpj_pendente', real.cnpj)
+
+		with transaction.atomic():
+			for campo in _CAMPOS_COMMIT_ESCALARES:
+				setattr(real, campo, getattr(draft, campo))
+			real.cnpj = cnpj_pendente
+
+			_copiar_logo(draft.logo, real)
+
+			real.endereco_empresa = empreendimento_services.sincronizar_endereco(
+				real.endereco_empresa, draft.endereco_empresa
+			)
+			real.endereco_empreendimento = empreendimento_services.sincronizar_endereco(
+				real.endereco_empreendimento, draft.endereco_empreendimento
+			)
+
+			real.full_clean(validate_unique=False)
+			real.save()
+
+		_deletar_draft(request, empreendimento_uuid)
+		messages.success(request, 'Empreendimento atualizado com sucesso.')
+		return redirect('lista-empreendimento-tabela')
 
 	return _wizard_update_render(request, 'wizard/update/step6_documentos.html', 6, real, {
 		'documentos': documentos,

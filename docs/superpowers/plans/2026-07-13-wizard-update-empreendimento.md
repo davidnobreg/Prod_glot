@@ -239,7 +239,7 @@ class WizardUpdateCancelarViewTest(TestCase):
 		self.client.get(reverse('empreendimento_update_step1', args=[self.real.uuid]))
 		self.assertEqual(Empreendimento.objects.filter(is_ativo=False).count(), 1)
 
-		response = self.client.get(reverse('wizard_update_cancelar', args=[self.real.uuid]))
+		response = self.client.post(reverse('wizard_update_cancelar', args=[self.real.uuid]))
 		self.assertRedirects(response, reverse('lista-empreendimento-tabela'))
 		self.assertEqual(Empreendimento.objects.filter(is_ativo=False).count(), 0)
 		self.real.refresh_from_db()
@@ -262,7 +262,7 @@ Nota: `test_cancelar_redireciona_e_nao_altera_real` já depende da view `wizard_
 		views_update._get_or_create_draft(fake_request, self.real.uuid)
 		session.save()
 
-		response = self.client.get(reverse('wizard_update_cancelar', args=[self.real.uuid]))
+		response = self.client.post(reverse('wizard_update_cancelar', args=[self.real.uuid]))
 ```
 
 `self.client.session` (padrão documentado do Django pra pré-popular sessão em teste) já deixa o cookie de sessão pronto pro `self.client.get` seguinte reaproveitar — não precisa reatribuir nada de volta no client. Isso evita depender da Task 4 nesta task.
@@ -379,10 +379,17 @@ def _deletar_draft(request, empreendimento_uuid):
 
 
 @has_permission_decorator('alterarEmpreendimento')
+@require_POST
 def wizard_update_cancelar(request, empreendimento_uuid):
 	_deletar_draft(request, empreendimento_uuid)
 	return redirect('lista-empreendimento-tabela')
 ```
+
+`@require_POST` — a view muta estado (apaga draft + enderecos + logo), nunca
+pode ser acionável via GET (mesma classe de bug já corrigida em `vendas`,
+"GET que altera estado" — ver memória do projeto). É por isso que todo botão
+"Cancelar" nos templates (Tasks 4-10) é `<button formaction=...>` dentro do
+form existente do step, nunca `<a href=...>`.
 
 Adicionar em `empreendimentos/urls.py`: importar `views_update` e registrar a rota. No topo do arquivo, junto do bloco de imports existente, adicionar:
 
@@ -835,9 +842,9 @@ Criar `empreendimentos/templates/wizard/update/step1_dados_gerais.html`:
 	</div>
 
 	<div class="wiz-action-bar">
-		<a href="{% url 'wizard_update_cancelar' empreendimento.uuid %}" class="btn btn-outline-danger" style="border-radius:8px;">
+		<button type="submit" name="cancelar" formaction="{% url 'wizard_update_cancelar' empreendimento.uuid %}" formnovalidate class="btn btn-outline-danger" style="border-radius:8px;">
 			<i class="fas fa-times me-1"></i>Cancelar
-		</a>
+		</button>
 		<button type="submit" class="btn" style="background:#08789a;color:#fff;border-radius:8px;">
 			Próximo <i class="fas fa-arrow-right ms-1"></i>
 		</button>
@@ -1060,9 +1067,9 @@ Criar `empreendimentos/templates/wizard/update/step2_empresa.html` (idêntico a 
 	</div>
 
 	<div class="wiz-action-bar">
-		<a href="{% url 'wizard_update_cancelar' empreendimento.uuid %}" class="btn btn-outline-danger" style="border-radius:8px;">
+		<button type="submit" name="cancelar" formaction="{% url 'wizard_update_cancelar' empreendimento.uuid %}" formnovalidate class="btn btn-outline-danger" style="border-radius:8px;">
 			<i class="fas fa-times me-1"></i>Cancelar
-		</a>
+		</button>
 		<div class="d-flex gap-2">
 			<a href="{% url 'empreendimento_update_step1' empreendimento.uuid %}" class="btn btn-outline-secondary" style="border-radius:8px;">
 				<i class="fas fa-arrow-left me-1"></i>Anterior
@@ -1248,9 +1255,9 @@ Criar `empreendimentos/templates/wizard/update/step3_endereco.html` (idêntico a
 	</div>
 
 	<div class="wiz-action-bar">
-		<a href="{% url 'wizard_update_cancelar' empreendimento.uuid %}" class="btn btn-outline-danger" style="border-radius:8px;">
+		<button type="submit" name="cancelar" formaction="{% url 'wizard_update_cancelar' empreendimento.uuid %}" formnovalidate class="btn btn-outline-danger" style="border-radius:8px;">
 			<i class="fas fa-times me-1"></i>Cancelar
-		</a>
+		</button>
 		<div class="d-flex gap-2">
 			<a href="{% url 'empreendimento_update_step2' empreendimento.uuid %}" class="btn btn-outline-secondary" style="border-radius:8px;">
 				<i class="fas fa-arrow-left me-1"></i>Anterior
@@ -1462,7 +1469,7 @@ Adicionar em `empreendimentos/urls.py`:
 
 Criar `empreendimentos/templates/wizard/update/step4_representantes.html` — idêntico a `wizard/step4_representantes.html` (Task de referência: `empreendimentos/templates/wizard/step4_representantes.html` lido integralmente durante o brainstorming), trocando:
 - `{% extends 'wizard/_base_wizard.html' %}` → `{% extends 'wizard/update/_base_wizard_update.html' %}`
-- `{% url 'lista-empreendimento-tabela' %}` (botão Cancelar) → `{% url 'wizard_update_cancelar' empreendimento.uuid %}`
+- Botão Cancelar: troca de `<a href="{% url 'lista-empreendimento-tabela' %}" class="btn btn-outline-danger" style="border-radius:8px;"><i class="fas fa-times me-1"></i>Cancelar</a>` (link simples, cadastro) pra `<button type="submit" name="cancelar" formaction="{% url 'wizard_update_cancelar' empreendimento.uuid %}" formnovalidate class="btn btn-outline-danger" style="border-radius:8px;"><i class="fas fa-times me-1"></i>Cancelar</button>` — precisa ser `<button>` com `formaction`/`formnovalidate` (não `<a>`) porque `wizard_update_cancelar` agora exige POST (`@require_POST`, ver Task 2) e o botão já está dentro do `<form id="form-representantes">` existente — usar `formaction` evita aninhar um segundo `<form>` (bug de HTML já documentado: navegador descarta `<form>` aninhado silenciosamente)
 - `{% url 'empreendimento_wizard_step3' %}` (botão Anterior) → `{% url 'empreendimento_update_step3' empreendimento.uuid %}`
 - No bloco de script no final do arquivo, os 3 `{% url %}` passados pro `initRepresentantes` trocam de `empreendimento_wizard_representante_del`/`wizard_rep_doc_upload`/`wizard_rep_doc_remover` pra `wizard_update_rep_del`/`wizard_update_rep_doc_upload`/`wizard_update_rep_doc_del` (criados na Task 8), cada um recebendo também `empreendimento.uuid` como primeiro argumento posicional de `{% url %}` (rotas de update levam `empreendimento_uuid` + `rep_uuid`/`doc_uuid`):
 
@@ -1807,9 +1814,9 @@ Criar `empreendimentos/templates/wizard/update/step5_configuracoes.html`:
 	</div>
 
 	<div class="wiz-action-bar">
-		<a href="{% url 'wizard_update_cancelar' empreendimento.uuid %}" class="btn btn-outline-danger" style="border-radius:8px;">
+		<button type="submit" name="cancelar" formaction="{% url 'wizard_update_cancelar' empreendimento.uuid %}" formnovalidate class="btn btn-outline-danger" style="border-radius:8px;">
 			<i class="fas fa-times me-1"></i>Cancelar
-		</a>
+		</button>
 		<div class="d-flex gap-2">
 			<a href="{% url 'empreendimento_update_step4' empreendimento.uuid %}" class="btn btn-outline-secondary" style="border-radius:8px;">
 				<i class="fas fa-arrow-left me-1"></i>Anterior
@@ -1975,7 +1982,7 @@ Adicionar em `empreendimentos/urls.py`:
     ),
 ```
 
-Criar `empreendimentos/templates/wizard/update/step6_documentos.html` (sem a seção "Modelos vinculados" do cadastro — fora de escopo desta feature, não pedida no prompt; sem botão "Salvar empreendimento" ainda, vem na Task 11):
+Criar `empreendimentos/templates/wizard/update/step6_documentos.html` (sem a seção "Modelos vinculados" do cadastro — fora de escopo desta feature, não pedida no prompt). O botão "Salvar empreendimento" já vai no template desta task (o form em si só faz algo quando o POST chega em `wizard_update_step6` — que nesta task ainda não trata `'finalizar'`, isso é adicionado na Task 11; até lá, submeter esse form só re-renderiza a página sem erro):
 
 ```html
 {% extends 'wizard/update/_base_wizard_update.html' %}
@@ -2029,14 +2036,14 @@ Criar `empreendimentos/templates/wizard/update/step6_documentos.html` (sem a se�
 <form method="post">
 	{% csrf_token %}
 	<div class="wiz-action-bar">
-		<a href="{% url 'wizard_update_cancelar' empreendimento.uuid %}" class="btn btn-outline-danger" style="border-radius:8px;">
+		<button type="submit" name="cancelar" formaction="{% url 'wizard_update_cancelar' empreendimento.uuid %}" formnovalidate class="btn btn-outline-danger" style="border-radius:8px;">
 			<i class="fas fa-times me-1"></i>Cancelar
-		</a>
+		</button>
 		<div class="d-flex gap-2">
 			<a href="{% url 'empreendimento_update_step5' empreendimento.uuid %}" class="btn btn-outline-secondary" style="border-radius:8px;">
 				<i class="fas fa-arrow-left me-1"></i>Anterior
 			</a>
-			<button type="submit" class="btn" style="background:#08789a;color:#fff;border-radius:8px;">
+			<button type="submit" name="finalizar" value="1" class="btn" style="background:#08789a;color:#fff;border-radius:8px;">
 				<i class="far fa-save me-1"></i>Salvar empreendimento
 			</button>
 		</div>

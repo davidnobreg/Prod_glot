@@ -281,7 +281,9 @@ def wizard_update_step5(request, empreendimento_uuid):
 			draft.save(update_fields=_CAMPOS_STEP5)
 		except ValidationError as e:
 			messages.error(request, '; '.join(e.messages) if hasattr(e, 'messages') else str(e))
-			return _wizard_update_render(request, 'wizard/update/step5_configuracoes.html', 5, real, {})
+			return _wizard_update_render(request, 'wizard/update/step5_configuracoes.html', 5, real, {
+				'draft': draft,
+			})
 		return redirect('empreendimento_update_step6', empreendimento_uuid=empreendimento_uuid)
 
 	return _wizard_update_render(request, 'wizard/update/step5_configuracoes.html', 5, real, {

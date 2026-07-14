@@ -104,8 +104,6 @@ path('editar/<uuid:empreendimento_uuid>/step4/', views_update.wizard_update_step
 path('editar/<uuid:empreendimento_uuid>/step5/', views_update.wizard_update_step5, name='empreendimento_update_step5'),
 path('editar/<uuid:empreendimento_uuid>/step6/', views_update.wizard_update_step6, name='empreendimento_update_step6'),
 
-path('editar/<uuid:empreendimento_uuid>/representante/add/',
-     views_update.wizard_update_rep_add, name='wizard_update_rep_add'),
 path('editar/<uuid:empreendimento_uuid>/representante/<uuid:rep_uuid>/remover/',
      views_update.wizard_update_rep_del, name='wizard_update_rep_del'),
 path('editar/<uuid:empreendimento_uuid>/representante/<uuid:rep_uuid>/doc/upload/',
@@ -184,13 +182,16 @@ de perguntas: manter tudo do step4 (add/remove/edit/doc) sempre imediato
 no real, sem exceção — evita representante com "metade sessão, metade
 real" dependendo de qual ação foi feita por último.
 
-Os botões "Adicionar representante" e "Remover" continuam sendo os
-endpoints AJAX imediatos abaixo (fora do submit do formset) — mesmo UX do
-cadastro (adicionar já persiste o card com uuid real, permitindo upload de
-documento na mesma tela sem esperar o "Próximo").
+"Adicionar outro representante" é 100% client-side (JS clona o
+`<template id="empty-rep-template">`, incrementa `TOTAL_FORMS` — sem
+chamada ao servidor), igual ao cadastro: não existe endpoint de "criar
+representante" isolado nem no cadastro nem no update. O card novo vira
+representante de verdade só quando o formset inteiro é submetido
+("Próximo"). "Remover" (representante já existente, com uuid) É a
+endpoint AJAX imediata abaixo — mesmo comportamento do cadastro
+(`wizard_representante_del`), só que aplicado ao real.
 
 Endpoints AJAX (todos no real):
-- `wizard_update_rep_add` — `services.criar_representante(real, dados, endereco_dados)`
 - `wizard_update_rep_del` — `services.desativar_representante(rep)` (real
   está sempre ativo, então é sempre soft-delete — sem o `if draft.is_ativo`
   do cadastro)

@@ -1,6 +1,5 @@
 import re
 
-from django import forms
 from django.core.exceptions import ValidationError
 
 from .forms import EmpreendimentoStep1Form, EmpresaStep2Form
@@ -38,20 +37,17 @@ class EmpresaUpdateStep2Form(EmpresaStep2Form):
 	def __init__(self, *args, real_pk, **kwargs):
 		self.real_pk = real_pk
 		super().__init__(*args, **kwargs)
-		# Replace the cnpj field with a CharField to avoid unique constraint validation
-		self.fields['cnpj'] = forms.CharField(
-			max_length=18,
-			required=False,
-			widget=forms.TextInput(attrs={
-				'class': 'form-control mb-3 mask-doc',
-				'placeholder': 'CNPJ (apenas números)',
-				'maxlength': '18',
-			})
-		)
 
 	def validate_unique(self):
-		"""Override to skip model-level unique constraint validation since we handle it in clean_cnpj."""
-		pass
+		"""Exclui cnpj da checagem automática de unicidade do model — clean_cnpj já
+		faz essa validação corretamente (com a exclusão de real_pk). Os demais campos
+		continuam sendo validados normalmente."""
+		exclude = list(self._get_validation_exclusions())
+		exclude.append('cnpj')
+		try:
+			self.instance.validate_unique(exclude=exclude)
+		except ValidationError as e:
+			self._update_errors(e)
 
 	def clean_cnpj(self):
 		cnpj = self.cleaned_data.get('cnpj')

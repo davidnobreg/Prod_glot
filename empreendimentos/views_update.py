@@ -383,8 +383,6 @@ def wizard_update_step6(request, empreendimento_uuid):
 				setattr(real, campo, getattr(draft, campo))
 			real.cnpj = cnpj_pendente
 
-			_copiar_logo(draft.logo, real)
-
 			real.endereco_empresa = empreendimento_services.sincronizar_endereco(
 				real.endereco_empresa, draft.endereco_empresa
 			)
@@ -394,6 +392,10 @@ def wizard_update_step6(request, empreendimento_uuid):
 
 			real.full_clean(validate_unique=False)
 			real.save()
+
+		if draft.logo:
+			_copiar_logo(draft.logo, real)
+			real.save(update_fields=['logo'])
 
 		_deletar_draft(request, empreendimento_uuid)
 		messages.success(request, 'Empreendimento atualizado com sucesso.')

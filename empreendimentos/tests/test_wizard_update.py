@@ -6,7 +6,7 @@ from base.models import Endereco
 from empreendimentos import services as empreendimento_services
 from empreendimentos import views_update
 from empreendimentos import forms_update
-from empreendimentos.models import Empreendimento
+from empreendimentos.models import Empreendimento, RepresentanteLegal
 
 User = get_user_model()
 
@@ -289,3 +289,81 @@ class WizardUpdateStep3Test(TestCase):
 
 		self.real.refresh_from_db()
 		self.assertEqual(self.real.matricula, '')
+
+
+class WizardUpdateStep4Test(TestCase):
+
+	def setUp(self):
+		self.user = make_user()
+		self.client.force_login(self.user)
+		self.real = make_empreendimento()
+		self.rep = RepresentanteLegal.objects.create(
+			empreendimento=self.real, nome='Rep Antigo', documento='11122233344',
+			cargo='Sócio',
+		)
+		self.url = reverse('empreendimento_update_step4', args=[self.real.uuid])
+
+	def _management_form(self, total=1):
+		return {
+			'representante-TOTAL_FORMS': str(total),
+			'representante-INITIAL_FORMS': '1',
+			'representante-MIN_NUM_FORMS': '1',
+			'representante-MAX_NUM_FORMS': '1000',
+		}
+
+	def test_get_lista_representantes_do_real(self):
+		response = self.client.get(self.url)
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, 'Rep Antigo')
+
+	def test_post_edita_representante_existente_direto_no_real(self):
+		data = self._management_form()
+		data.update({
+			'representante-0-id': str(self.rep.pk),
+			'representante-0-nome': 'Rep Editado',
+			'representante-0-documento': '11122233344',
+			'representante-0-cargo': 'Administrador',
+			'representante-0-estado_civil': '',
+			'representante-0-endereco': '',
+			'representante-0-endereco-cep': '58000000',
+			'representante-0-endereco-rua': 'Rua Rep',
+			'representante-0-endereco-numero': '5',
+			'representante-0-endereco-bairro': 'Bairro Rep',
+			'representante-0-endereco-cidade': 'João Pessoa',
+			'representante-0-endereco-estado': 'PB',
+		})
+		response = self.client.post(self.url, data)
+		self.assertRedirects(response, reverse('empreendimento_update_step5', args=[self.real.uuid]))
+
+		self.rep.refresh_from_db()
+		self.assertEqual(self.rep.nome, 'REP EDITADO')
+		self.assertEqual(self.rep.cargo, 'Administrador')
+
+	def test_post_adiciona_representante_novo_no_real(self):
+		data = self._management_form(total=2)
+		data.update({
+			'representante-0-id': str(self.rep.pk),
+			'representante-0-nome': self.rep.nome,
+			'representante-0-documento': self.rep.documento,
+			'representante-0-cargo': self.rep.cargo,
+			'representante-0-estado_civil': '',
+			'representante-0-endereco-cep': '', 'representante-0-endereco-rua': '',
+			'representante-0-endereco-numero': '', 'representante-0-endereco-bairro': '',
+			'representante-0-endereco-cidade': '', 'representante-0-endereco-estado': '',
+			'representante-1-id': '',
+			'representante-1-nome': 'Rep Novo',
+			'representante-1-documento': '55566677788',
+			'representante-1-cargo': 'Sócio',
+			'representante-1-estado_civil': '',
+			'representante-1-endereco-cep': '58000000',
+			'representante-1-endereco-rua': 'Rua Novo Rep',
+			'representante-1-endereco-numero': '2',
+			'representante-1-endereco-bairro': 'Bairro Novo',
+			'representante-1-endereco-cidade': 'João Pessoa',
+			'representante-1-endereco-estado': 'PB',
+		})
+		response = self.client.post(self.url, data)
+		self.assertRedirects(response, reverse('empreendimento_update_step5', args=[self.real.uuid]))
+		self.assertTrue(
+			RepresentanteLegal.objects.filter(empreendimento=self.real, nome='REP NOVO').exists()
+		)

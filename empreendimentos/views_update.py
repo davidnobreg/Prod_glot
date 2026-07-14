@@ -7,8 +7,11 @@ from rolepermissions.decorators import has_permission_decorator
 
 from base.models import Endereco
 
-from .forms import EmpresaStep2Form, EmpreendimentoStep3Form, EnderecoForm
-from .models import Empreendimento
+from .forms import (
+	EmpresaStep2Form, EmpreendimentoStep3Form, EnderecoForm,
+	RepresentanteFormSet, DocumentoRepresentanteForm,
+)
+from .models import Empreendimento, RepresentanteLegal, DocumentoRepresentante
 from . import services as empreendimento_services
 from . import forms_update
 
@@ -198,6 +201,65 @@ def wizard_update_step3(request, empreendimento_uuid):
 
 	return _wizard_update_render(request, 'wizard/update/step3_endereco.html', 3, real, {
 		'form': form, 'form_endereco': form_endereco,
+	})
+
+
+@has_permission_decorator('alterarEmpreendimento')
+def wizard_update_step4(request, empreendimento_uuid):
+	real, draft = _get_or_create_draft(request, empreendimento_uuid)
+	queryset = RepresentanteLegal.objects.filter(empreendimento=real, is_ativo=True).order_by('id')
+
+	if request.method == 'POST':
+		formset = RepresentanteFormSet(request.POST, queryset=queryset, prefix='representante')
+		enderecos_forms = [
+			EnderecoForm(request.POST, prefix=f'representante-{i}-endereco')
+			for i in range(len(formset.forms))
+		]
+
+		if formset.is_valid() and all(f.is_valid() for f in enderecos_forms):
+			for form, form_endereco in zip(formset.forms, enderecos_forms):
+				if not form.cleaned_data or form.cleaned_data.get('DELETE'):
+					continue
+				representante = form.instance
+				dados = {k: v for k, v in form.cleaned_data.items() if k != 'id'}
+				if representante.pk:
+					empreendimento_services.atualizar_representante(
+						representante, dados, endereco_dados=form_endereco.cleaned_data
+					)
+				else:
+					empreendimento_services.criar_representante(
+						real, dados, endereco_dados=form_endereco.cleaned_data
+					)
+			return redirect('empreendimento_update_step5', empreendimento_uuid=empreendimento_uuid)
+
+		messages.error(request, 'Verifique os campos obrigatórios dos representantes.')
+		docs_forms = [DocumentoRepresentanteForm() for _ in formset.forms]
+		reps_docs = [
+			form.instance.documentos.all() if form.instance.pk else DocumentoRepresentante.objects.none()
+			for form in formset.forms
+		]
+		return _wizard_update_render(request, 'wizard/update/step4_representantes.html', 4, real, {
+			'formset': formset, 'enderecos_forms': enderecos_forms,
+			'reps_com_endereco': zip(formset.forms, enderecos_forms, reps_docs, docs_forms),
+			'empty_endereco_form': EnderecoForm(prefix='representante-__prefix__-endereco'),
+			'empty_doc_form': DocumentoRepresentanteForm(),
+		})
+
+	formset = RepresentanteFormSet(queryset=queryset, prefix='representante')
+	enderecos_forms = [
+		EnderecoForm(prefix=f'representante-{i}-endereco', instance=form.instance.endereco if form.instance.pk else None)
+		for i, form in enumerate(formset.forms)
+	]
+	docs_forms = [DocumentoRepresentanteForm() for _ in formset.forms]
+	reps_docs = [
+		form.instance.documentos.all() if form.instance.pk else DocumentoRepresentante.objects.none()
+		for form in formset.forms
+	]
+	return _wizard_update_render(request, 'wizard/update/step4_representantes.html', 4, real, {
+		'formset': formset, 'enderecos_forms': enderecos_forms,
+		'reps_com_endereco': zip(formset.forms, enderecos_forms, reps_docs, docs_forms),
+		'empty_endereco_form': EnderecoForm(prefix='representante-__prefix__-endereco'),
+		'empty_doc_form': DocumentoRepresentanteForm(),
 	})
 
 

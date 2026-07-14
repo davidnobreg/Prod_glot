@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from base.models import Endereco
@@ -7,6 +8,7 @@ from empreendimentos import services as empreendimento_services
 from empreendimentos import views_update
 from empreendimentos import forms_update
 from empreendimentos.models import Empreendimento, RepresentanteLegal
+from empreendimentos.forms import DocumentoRepresentanteForm
 
 User = get_user_model()
 
@@ -314,7 +316,7 @@ class WizardUpdateStep4Test(TestCase):
 	def test_get_lista_representantes_do_real(self):
 		response = self.client.get(self.url)
 		self.assertEqual(response.status_code, 200)
-		self.assertContains(response, 'Rep Antigo')
+		self.assertContains(response, 'REP ANTIGO')
 
 	def test_post_edita_representante_existente_direto_no_real(self):
 		data = self._management_form()
@@ -367,3 +369,59 @@ class WizardUpdateStep4Test(TestCase):
 		self.assertTrue(
 			RepresentanteLegal.objects.filter(empreendimento=self.real, nome='REP NOVO').exists()
 		)
+
+
+class WizardUpdateRepDelTest(TestCase):
+
+	def setUp(self):
+		self.user = make_user()
+		self.client.force_login(self.user)
+		self.real = make_empreendimento()
+		self.rep1 = RepresentanteLegal.objects.create(
+			empreendimento=self.real, nome='Rep Um', documento='11111111111', cargo='Sócio')
+		self.rep2 = RepresentanteLegal.objects.create(
+			empreendimento=self.real, nome='Rep Dois', documento='22222222222', cargo='Sócio')
+
+	def test_del_desativa_representante_do_real(self):
+		url = reverse('wizard_update_rep_del', args=[self.real.uuid, self.rep1.uuid])
+		response = self.client.post(url)
+		self.assertEqual(response.json(), {'ok': True})
+		self.rep1.refresh_from_db()
+		self.assertFalse(self.rep1.is_ativo)
+
+
+@override_settings(
+	DEFAULT_FILE_STORAGE='django.core.files.storage.FileSystemStorage',
+	STORAGES={
+		'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+		'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
+	},
+)
+class WizardUpdateRepDocTest(TestCase):
+
+	def setUp(self):
+		self.user = make_user()
+		self.client.force_login(self.user)
+		self.real = make_empreendimento()
+		self.rep = RepresentanteLegal.objects.create(
+			empreendimento=self.real, nome='Rep Doc', documento='33333333333', cargo='Sócio')
+
+	def test_upload_cria_documento_no_representante_do_real(self):
+		url = reverse('wizard_update_rep_doc_upload', args=[self.real.uuid, self.rep.uuid])
+		arquivo = SimpleUploadedFile('rg.pdf', b'conteudo-fake', content_type='application/pdf')
+		response = self.client.post(url, {
+			'categoria': 'rg_representante', 'nome': '', 'arquivo': arquivo,
+		})
+		data = response.json()
+		self.assertTrue(data['ok'])
+		self.assertEqual(self.rep.documentos.count(), 1)
+
+	def test_remover_documento(self):
+		documento = empreendimento_services.criar_documento_representante(
+			self.rep, 'rg_representante',
+			SimpleUploadedFile('rg.pdf', b'x', content_type='application/pdf'),
+		)
+		url = reverse('wizard_update_rep_doc_del', args=[self.real.uuid, documento.uuid])
+		response = self.client.post(url)
+		self.assertEqual(response.json(), {'ok': True})
+		self.assertEqual(self.rep.documentos.count(), 0)

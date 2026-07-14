@@ -172,6 +172,24 @@ urlpatterns = [
     ),
 
     path(
+        'editar/<uuid:empreendimento_uuid>/representante/<uuid:rep_uuid>/remover/',
+        views_update.wizard_update_rep_del,
+        name='wizard_update_rep_del'
+    ),
+
+    path(
+        'editar/<uuid:empreendimento_uuid>/representante/<uuid:rep_uuid>/doc/upload/',
+        views_update.wizard_update_rep_doc_upload,
+        name='wizard_update_rep_doc_upload'
+    ),
+
+    path(
+        'editar/<uuid:empreendimento_uuid>/representante/doc/<uuid:doc_uuid>/remover/',
+        views_update.wizard_update_rep_doc_del,
+        name='wizard_update_rep_doc_del'
+    ),
+
+    path(
         'editar/<uuid:empreendimento_uuid>/cancelar/',
         views_update.wizard_update_cancelar,
         name='wizard_update_cancelar'

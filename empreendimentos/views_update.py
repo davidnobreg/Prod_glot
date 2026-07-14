@@ -1,4 +1,6 @@
 from django.core.files.base import ContentFile
+from django.core.exceptions import ValidationError
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.views.decorators.http import require_POST
@@ -268,3 +270,62 @@ def wizard_update_step4(request, empreendimento_uuid):
 def wizard_update_cancelar(request, empreendimento_uuid):
 	_deletar_draft(request, empreendimento_uuid)
 	return redirect('lista-empreendimento-tabela')
+
+
+def _documento_json(documento):
+	ext = documento.arquivo.name.rsplit('.', 1)[-1].lower() if '.' in documento.arquivo.name else ''
+	return {
+		'uuid': str(documento.uuid),
+		'nome_exibicao': documento.nome_exibicao(),
+		'categoria': documento.categoria,
+		'categoria_display': documento.get_categoria_display(),
+		'url': documento.arquivo.url,
+		'ext': ext,
+	}
+
+
+@has_permission_decorator('alterarEmpreendimento')
+@require_POST
+def wizard_update_rep_del(request, empreendimento_uuid, rep_uuid):
+	representante = get_object_or_404(
+		RepresentanteLegal, uuid=rep_uuid, empreendimento__uuid=empreendimento_uuid, empreendimento__is_ativo=True,
+	)
+	empreendimento_services.desativar_representante(representante)
+	return JsonResponse({'ok': True})
+
+
+@has_permission_decorator('alterarEmpreendimento')
+@require_POST
+def wizard_update_rep_doc_upload(request, empreendimento_uuid, rep_uuid):
+	representante = get_object_or_404(
+		RepresentanteLegal, uuid=rep_uuid, empreendimento__uuid=empreendimento_uuid, empreendimento__is_ativo=True,
+	)
+	form = DocumentoRepresentanteForm(request.POST, request.FILES)
+	if not form.is_valid():
+		erros = '; '.join(f'{campo}: {", ".join(msgs)}' for campo, msgs in form.errors.items())
+		return JsonResponse({'ok': False, 'error': erros}, status=400)
+
+	try:
+		documento = empreendimento_services.criar_documento_representante(
+			representante,
+			form.cleaned_data['categoria'],
+			form.cleaned_data['arquivo'],
+			nome=form.cleaned_data.get('nome', ''),
+			usuario=request.user,
+		)
+	except ValidationError as e:
+		return JsonResponse({'ok': False, 'error': '; '.join(e.messages)}, status=400)
+
+	return JsonResponse({'ok': True, 'documento': _documento_json(documento)})
+
+
+@has_permission_decorator('alterarEmpreendimento')
+@require_POST
+def wizard_update_rep_doc_del(request, empreendimento_uuid, doc_uuid):
+	documento = get_object_or_404(
+		DocumentoRepresentante, uuid=doc_uuid,
+		representante__empreendimento__uuid=empreendimento_uuid,
+		representante__empreendimento__is_ativo=True,
+	)
+	empreendimento_services.remover_documento_representante(documento)
+	return JsonResponse({'ok': True})

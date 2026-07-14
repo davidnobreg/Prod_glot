@@ -5,6 +5,7 @@ from django.urls import reverse
 from base.models import Endereco
 from empreendimentos import services as empreendimento_services
 from empreendimentos import views_update
+from empreendimentos import forms_update
 from empreendimentos.models import Empreendimento
 
 User = get_user_model()
@@ -145,3 +146,52 @@ class WizardUpdateCancelarViewTest(TestCase):
 	def test_get_rejeitado_com_405(self):
 		response = self.client.get(reverse('wizard_update_cancelar', args=[self.real.uuid]))
 		self.assertEqual(response.status_code, 405)
+
+
+class EmpreendimentoUpdateStep1FormTest(TestCase):
+
+	def setUp(self):
+		self.real = make_empreendimento(nome='Nome Original')
+		self.draft = make_empreendimento(nome='Nome Original', is_ativo=False, cnpj=None)
+
+	def test_nome_igual_ao_do_proprio_real_nao_gera_erro(self):
+		form = forms_update.EmpreendimentoUpdateStep1Form(
+			{'nome': 'Nome Original', 'telefone': '(83) 98888-8888', 'observacao': ''},
+			instance=self.draft, real_pk=self.real.pk,
+		)
+		self.assertTrue(form.is_valid(), form.errors)
+
+	def test_nome_de_outro_empreendimento_ativo_gera_erro(self):
+		make_empreendimento(nome='Outro Ativo', cnpj='11222333000280')
+		form = forms_update.EmpreendimentoUpdateStep1Form(
+			{'nome': 'Outro Ativo', 'telefone': '(83) 98888-8888', 'observacao': ''},
+			instance=self.draft, real_pk=self.real.pk,
+		)
+		self.assertFalse(form.is_valid())
+		self.assertIn('nome', form.errors)
+
+
+class EmpresaUpdateStep2FormTest(TestCase):
+
+	def setUp(self):
+		self.real = make_empreendimento(cnpj='11222333000181')
+		# draft nunca guarda cnpj de verdade (unique=True no banco colide com
+		# o do real) — ver Global Constraints e Task 2/5/11. Testando aqui só
+		# a validação da form, que é independente de onde o valor é gravado.
+		self.draft = make_empreendimento(nome='Draft', is_ativo=False, cnpj=None)
+
+	def test_cnpj_igual_ao_do_proprio_real_nao_gera_erro(self):
+		form = forms_update.EmpresaUpdateStep2Form(
+			{'cnpj': '11222333000181', 'razaoSocial': 'Razao', 'codBanco': '', 'banco': '', 'agencia': '1', 'conta': '1'},
+			instance=self.draft, real_pk=self.real.pk,
+		)
+		self.assertTrue(form.is_valid(), form.errors)
+
+	def test_cnpj_de_outro_empreendimento_ativo_gera_erro(self):
+		make_empreendimento(nome='Outro', cnpj='44555666000122')
+		form = forms_update.EmpresaUpdateStep2Form(
+			{'cnpj': '44555666000122', 'razaoSocial': 'Razao', 'codBanco': '', 'banco': '', 'agencia': '1', 'conta': '1'},
+			instance=self.draft, real_pk=self.real.pk,
+		)
+		self.assertFalse(form.is_valid())
+		self.assertIn('cnpj', form.errors)

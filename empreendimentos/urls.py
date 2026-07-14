@@ -60,6 +60,8 @@ from .views import (
     importar_lotes_confirmar,
 )
 
+from . import views_update
+
 
 urlpatterns = [
     # =========================
@@ -140,6 +142,15 @@ urlpatterns = [
         'cadastrar/step6/documento/<uuid:doc_uuid>/remover/',
         wizard_doc_empreendimento_remover,
         name='wizard_doc_empreendimento_remover'
+    ),
+
+    # =========================
+    # Wizard de update de Empreendimento
+    # =========================
+    path(
+        'editar/<uuid:empreendimento_uuid>/cancelar/',
+        views_update.wizard_update_cancelar,
+        name='wizard_update_cancelar'
     ),
 
     # =========================

@@ -349,9 +349,12 @@ class WizardUpdateStep4Test(TestCase):
 			'representante-0-documento': self.rep.documento,
 			'representante-0-cargo': self.rep.cargo,
 			'representante-0-estado_civil': '',
-			'representante-0-endereco-cep': '', 'representante-0-endereco-rua': '',
-			'representante-0-endereco-numero': '', 'representante-0-endereco-bairro': '',
-			'representante-0-endereco-cidade': '', 'representante-0-endereco-estado': '',
+			'representante-0-endereco-cep': '58000000',
+			'representante-0-endereco-rua': 'Rua Rep Antigo',
+			'representante-0-endereco-numero': '10',
+			'representante-0-endereco-bairro': 'Bairro Antigo',
+			'representante-0-endereco-cidade': 'João Pessoa',
+			'representante-0-endereco-estado': 'PB',
 			'representante-1-id': '',
 			'representante-1-nome': 'Rep Novo',
 			'representante-1-documento': '55566677788',
@@ -425,3 +428,26 @@ class WizardUpdateRepDocTest(TestCase):
 		response = self.client.post(url)
 		self.assertEqual(response.json(), {'ok': True})
 		self.assertEqual(self.rep.documentos.count(), 0)
+
+
+class WizardUpdateStep5Test(TestCase):
+
+	def setUp(self):
+		self.user = make_user()
+		self.client.force_login(self.user)
+		self.real = make_empreendimento(tempo_reserva=10, quantidade_parcela=12)
+		self.url = reverse('empreendimento_update_step5', args=[self.real.uuid])
+
+	def test_post_valido_atualiza_draft_nao_real(self):
+		response = self.client.post(self.url, {
+			'tempo_reserva': '15', 'quantidade_parcela': '24',
+			'desconto': '5', 'tipo_correcao': 'IPCA',
+		})
+		self.assertRedirects(response, reverse('empreendimento_update_step6', args=[self.real.uuid]))
+
+		draft = Empreendimento.objects.get(is_ativo=False)
+		self.assertEqual(draft.tempo_reserva, 15)
+		self.assertEqual(draft.tipo_correcao, 'IPCA')
+
+		self.real.refresh_from_db()
+		self.assertEqual(self.real.tempo_reserva, 10)

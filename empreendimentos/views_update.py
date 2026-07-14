@@ -265,6 +265,30 @@ def wizard_update_step4(request, empreendimento_uuid):
 	})
 
 
+_CAMPOS_STEP5 = ('tempo_reserva', 'quantidade_parcela', 'desconto', 'tipo_correcao')
+
+
+@has_permission_decorator('alterarEmpreendimento')
+def wizard_update_step5(request, empreendimento_uuid):
+	real, draft = _get_or_create_draft(request, empreendimento_uuid)
+
+	if request.method == 'POST':
+		for campo in _CAMPOS_STEP5:
+			if campo in request.POST:
+				setattr(draft, campo, request.POST.get(campo))
+		try:
+			draft.full_clean(validate_unique=False)
+			draft.save(update_fields=_CAMPOS_STEP5)
+		except ValidationError as e:
+			messages.error(request, '; '.join(e.messages) if hasattr(e, 'messages') else str(e))
+			return _wizard_update_render(request, 'wizard/update/step5_configuracoes.html', 5, real, {})
+		return redirect('empreendimento_update_step6', empreendimento_uuid=empreendimento_uuid)
+
+	return _wizard_update_render(request, 'wizard/update/step5_configuracoes.html', 5, real, {
+		'draft': draft,
+	})
+
+
 @has_permission_decorator('alterarEmpreendimento')
 @require_POST
 def wizard_update_cancelar(request, empreendimento_uuid):

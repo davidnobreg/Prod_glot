@@ -160,6 +160,12 @@ urlpatterns = [
     ),
 
     path(
+        'editar/<uuid:empreendimento_uuid>/step3/',
+        views_update.wizard_update_step3,
+        name='empreendimento_update_step3'
+    ),
+
+    path(
         'editar/<uuid:empreendimento_uuid>/cancelar/',
         views_update.wizard_update_cancelar,
         name='wizard_update_cancelar'

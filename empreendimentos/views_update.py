@@ -176,6 +176,32 @@ def wizard_update_step2(request, empreendimento_uuid):
 
 
 @has_permission_decorator('alterarEmpreendimento')
+def wizard_update_step3(request, empreendimento_uuid):
+	real, draft = _get_or_create_draft(request, empreendimento_uuid)
+
+	if request.method == 'POST':
+		form = EmpreendimentoStep3Form(request.POST, instance=draft)
+		form_endereco = EnderecoForm(request.POST, prefix='empreendimento', instance=draft.endereco_empreendimento)
+
+		if form.is_valid() and form_endereco.is_valid():
+			empreendimento = form.save(commit=False)
+			empreendimento.endereco_empreendimento = empreendimento_services.criar_ou_atualizar_endereco(
+				form_endereco.cleaned_data, endereco=draft.endereco_empreendimento
+			)
+			empreendimento.save()
+			return redirect('empreendimento_update_step4', empreendimento_uuid=empreendimento_uuid)
+
+		messages.error(request, 'Verifique os campos obrigatórios.')
+	else:
+		form = EmpreendimentoStep3Form(instance=draft)
+		form_endereco = EnderecoForm(prefix='empreendimento', instance=draft.endereco_empreendimento)
+
+	return _wizard_update_render(request, 'wizard/update/step3_endereco.html', 3, real, {
+		'form': form, 'form_endereco': form_endereco,
+	})
+
+
+@has_permission_decorator('alterarEmpreendimento')
 @require_POST
 def wizard_update_cancelar(request, empreendimento_uuid):
 	_deletar_draft(request, empreendimento_uuid)

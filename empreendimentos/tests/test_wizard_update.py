@@ -263,3 +263,29 @@ class WizardUpdateStep2Test(TestCase):
 		self.real.refresh_from_db()
 		self.assertIsNone(self.real.endereco_empresa)
 		self.assertEqual(self.real.cnpj, '11222333000181')  # só aplica no commit final (Task 11)
+
+
+class WizardUpdateStep3Test(TestCase):
+
+	def setUp(self):
+		self.user = make_user()
+		self.client.force_login(self.user)
+		self.real = make_empreendimento()
+		self.url = reverse('empreendimento_update_step3', args=[self.real.uuid])
+
+	def test_post_valido_atualiza_draft(self):
+		# EnderecoForm usa prefix='empreendimento', então as chaves de endereço
+		# no POST precisam do prefixo 'empreendimento-'.
+		response = self.client.post(self.url, {
+			'matricula': 'MAT-999', 'cidade_foro': 'Mauriti - CE',
+			'empreendimento-cep': '63160000', 'empreendimento-rua': 'Rua Loteamento', 'empreendimento-numero': '1',
+			'empreendimento-complemento': '', 'empreendimento-bairro': 'Bairro X', 'empreendimento-cidade': 'Mauriti', 'empreendimento-estado': 'CE',
+		})
+		self.assertRedirects(response, reverse('empreendimento_update_step4', args=[self.real.uuid]))
+
+		draft = Empreendimento.objects.get(is_ativo=False)
+		self.assertEqual(draft.matricula, 'MAT-999')
+		self.assertEqual(draft.endereco_empreendimento.cidade, 'Mauriti')
+
+		self.real.refresh_from_db()
+		self.assertEqual(self.real.matricula, '')

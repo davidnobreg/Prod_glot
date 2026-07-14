@@ -126,8 +126,6 @@ class WizardUpdateCancelarViewTest(TestCase):
 		self.real = make_empreendimento()
 
 	def test_cancelar_redireciona_e_nao_altera_real(self):
-		from empreendimentos import views_update
-
 		session = self.client.session
 
 		class _FakeRequest:
@@ -138,7 +136,7 @@ class WizardUpdateCancelarViewTest(TestCase):
 		views_update._get_or_create_draft(fake_request, self.real.uuid)
 		session.save()
 
-		response = self.client.get(reverse('wizard_update_cancelar', args=[self.real.uuid]))
+		response = self.client.post(reverse('wizard_update_cancelar', args=[self.real.uuid]))
 		self.assertRedirects(response, reverse('lista-empreendimento-tabela'))
 		self.assertEqual(Empreendimento.objects.filter(is_ativo=False).count(), 0)
 		self.real.refresh_from_db()

@@ -100,6 +100,7 @@ def _deletar_draft(request, empreendimento_uuid):
 
 
 @has_permission_decorator('alterarEmpreendimento')
+@require_POST
 def wizard_update_cancelar(request, empreendimento_uuid):
 	_deletar_draft(request, empreendimento_uuid)
 	return redirect('lista-empreendimento-tabela')

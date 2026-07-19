@@ -1,0 +1,514 @@
+- generic [ref=f7e2]:
+  - text: 
+  - complementary "Menu principal" [ref=f7e3]:
+    - generic [ref=f7e4]:
+      - link [ref=f7e5] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - img "logo_carlos_e_celso" [ref=f7e7]
+        - generic [ref=f7e8]:
+          - strong [ref=f7e9]: GLOT
+          - text: Sistema de Gestão
+      - button "Recolher menu" [ref=f7e10] [cursor=pointer]:
+        - generic [ref=f7e11]: 
+      - text: 
+    - generic [ref=f7e12]:
+      - generic [ref=f7e13]: Usuario logado
+      - strong [ref=f7e14]: DAVID
+      - text: ADMINISTRADOR
+    - navigation [ref=f7e15]:
+      - link " Dashboard" [ref=f7e16] [cursor=pointer]:
+        - /url: /dashboard/
+        - generic [ref=f7e17]: 
+        - generic [ref=f7e18]: Dashboard
+      - link " Empreendimentos" [ref=f7e19] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - generic [ref=f7e20]: 
+        - generic [ref=f7e21]: Empreendimentos
+      - button "Listagem " [ref=f7e22] [cursor=pointer]:
+        - generic [ref=f7e23]: Listagem
+        - generic [ref=f7e24]: 
+      - text:  
+      - button "Movimentacao " [ref=f7e25] [cursor=pointer]:
+        - generic [ref=f7e26]: Movimentacao
+        - generic [ref=f7e27]: 
+      - text:    
+      - button "Cadastros " [ref=f7e28] [cursor=pointer]:
+        - generic [ref=f7e29]: Cadastros
+        - generic [ref=f7e30]: 
+      - text:    
+      - button "Documentos " [ref=f7e31] [cursor=pointer]:
+        - generic [ref=f7e32]: Documentos
+        - generic [ref=f7e33]: 
+      - text:  
+    - button " Sair" [ref=f7e36] [cursor=pointer]:
+      - generic [ref=f7e37]: 
+      - generic [ref=f7e38]: Sair
+  - generic [ref=f7e39]:
+    - main [ref=f7e40]:
+      - generic [ref=f7e43]:
+        - generic [ref=f7e44]:
+          - heading "Empreendimentos" [level=1] [ref=f7e45]
+          - navigation "breadcrumb" [ref=f7e46]:
+            - list [ref=f7e47]:
+              - listitem [ref=f7e48]:
+                - link "Início" [ref=f7e49] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=f7e50]: / Empreendimentos
+        - link "Novo Empreendimento" [ref=f7e52] [cursor=pointer]:
+          - /url: /empreendimentos/cadastrar/step1/
+          - generic [ref=f7e53]: 
+          - text: Novo Empreendimento
+      - generic [ref=f7e55]:
+        - generic [ref=f7e57]:
+          - searchbox "Buscar empreendimento..." [ref=f7e59]
+          - button "Filtrar" [ref=f7e60] [cursor=pointer]:
+            - generic [ref=f7e61]: 
+          - link "Limpar" [ref=f7e62] [cursor=pointer]:
+            - /url: /empreendimentos/listar_empreendimento/
+            - generic [ref=f7e63]: 
+        - generic [ref=f7e64]:
+          - generic [ref=f7e67]:
+            - link "LOT. PORTAL MAURITI" [ref=f7e68] [cursor=pointer]:
+              - /url: /empreendimentos/detalhe_empreendimento/b7367e91-0177-4742-b391-64fb73e13820/
+            - generic [ref=f7e69]:
+              - generic [ref=f7e70]:
+                - generic [ref=f7e71]: 
+                - text: 35 Disponível
+              - generic [ref=f7e72]:
+                - generic [ref=f7e73]: 
+                - text: 2 Reservados
+              - generic [ref=f7e74]:
+                - generic [ref=f7e75]: 
+                - text: 242 Vendidos
+              - generic [ref=f7e76]: 12 Outras
+            - generic [ref=f7e77]:
+              - generic [ref=f7e78]: Vendas
+              - generic [ref=f7e79]: 242/291
+            - progressbar [ref=f7e81]
+            - generic [ref=f7e82]:
+              - generic [ref=f7e83]:
+                - generic [ref=f7e84]: 
+                - text: 5 dias reserva
+              - generic [ref=f7e85]:
+                - generic [ref=f7e86]: 
+                - text: 120x parcelas
+            - generic [ref=f7e87]:
+              - link "Arquivos" [ref=f7e88] [cursor=pointer]:
+                - /url: /empreendimentos/insert_arq/b7367e91-0177-4742-b391-64fb73e13820/
+                - generic [ref=f7e89]: 
+              - link "Relatório" [ref=f7e90] [cursor=pointer]:
+                - /url: /empreendimentos/relatorio_financeiro/b7367e91-0177-4742-b391-64fb73e13820/
+                - generic [ref=f7e91]: 
+              - link "Editar" [ref=f7e92] [cursor=pointer]:
+                - /url: /empreendimentos/editar/b7367e91-0177-4742-b391-64fb73e13820/step1/
+                - generic [ref=f7e93]: 
+              - button "Excluir" [ref=f7e94] [cursor=pointer]:
+                - generic [ref=f7e95]: 
+          - generic [ref=f7e98]:
+            - link "LOT. JARDIM DA ESPANHA" [ref=f7e99] [cursor=pointer]:
+              - /url: /empreendimentos/detalhe_empreendimento/0eb6d85a-955d-4fbf-94ef-eb854e8659b6/
+            - generic [ref=f7e100]:
+              - generic [ref=f7e101]:
+                - generic [ref=f7e102]: 
+                - text: 86 Disponível
+              - generic [ref=f7e103]:
+                - generic [ref=f7e104]: 
+                - text: 0 Reservados
+              - generic [ref=f7e105]:
+                - generic [ref=f7e106]: 
+                - text: 348 Vendidos
+            - generic [ref=f7e107]:
+              - generic [ref=f7e108]: Vendas
+              - generic [ref=f7e109]: 348/437
+            - progressbar [ref=f7e111]
+            - generic [ref=f7e112]:
+              - generic [ref=f7e113]:
+                - generic [ref=f7e114]: 
+                - text: 5 dias reserva
+              - generic [ref=f7e115]:
+                - generic [ref=f7e116]: 
+                - text: 180x parcelas
+            - generic [ref=f7e117]:
+              - link "Arquivos" [ref=f7e118] [cursor=pointer]:
+                - /url: /empreendimentos/insert_arq/0eb6d85a-955d-4fbf-94ef-eb854e8659b6/
+                - generic [ref=f7e119]: 
+              - link "Relatório" [ref=f7e120] [cursor=pointer]:
+                - /url: /empreendimentos/relatorio_financeiro/0eb6d85a-955d-4fbf-94ef-eb854e8659b6/
+                - generic [ref=f7e121]: 
+              - link "Editar" [ref=f7e122] [cursor=pointer]:
+                - /url: /empreendimentos/editar/0eb6d85a-955d-4fbf-94ef-eb854e8659b6/step1/
+                - generic [ref=f7e123]: 
+              - button "Excluir" [ref=f7e124] [cursor=pointer]:
+                - generic [ref=f7e125]: 
+          - generic [ref=f7e128]:
+            - link "LOT. JARDINS DO LAGO" [ref=f7e129] [cursor=pointer]:
+              - /url: /empreendimentos/detalhe_empreendimento/9d0ccf5e-7ed6-4935-9581-7da3baac3643/
+            - generic [ref=f7e130]:
+              - generic [ref=f7e131]:
+                - generic [ref=f7e132]: 
+                - text: 231 Disponível
+              - generic [ref=f7e133]:
+                - generic [ref=f7e134]: 
+                - text: 2 Reservados
+              - generic [ref=f7e135]:
+                - generic [ref=f7e136]: 
+                - text: 301 Vendidos
+            - generic [ref=f7e137]:
+              - generic [ref=f7e138]: Vendas
+              - generic [ref=f7e139]: 301/534
+            - progressbar [ref=f7e141]
+            - generic [ref=f7e142]:
+              - generic [ref=f7e143]:
+                - generic [ref=f7e144]: 
+                - text: 10 dias reserva
+              - generic [ref=f7e145]:
+                - generic [ref=f7e146]: 
+                - text: 180x parcelas
+            - generic [ref=f7e147]:
+              - link "Arquivos" [ref=f7e148] [cursor=pointer]:
+                - /url: /empreendimentos/insert_arq/9d0ccf5e-7ed6-4935-9581-7da3baac3643/
+                - generic [ref=f7e149]: 
+              - link "Relatório" [ref=f7e150] [cursor=pointer]:
+                - /url: /empreendimentos/relatorio_financeiro/9d0ccf5e-7ed6-4935-9581-7da3baac3643/
+                - generic [ref=f7e151]: 
+              - link "Editar" [ref=f7e152] [cursor=pointer]:
+                - /url: /empreendimentos/editar/9d0ccf5e-7ed6-4935-9581-7da3baac3643/step1/
+                - generic [ref=f7e153]: 
+              - button "Excluir" [ref=f7e154] [cursor=pointer]:
+                - generic [ref=f7e155]: 
+          - generic [ref=f7e158]:
+            - link "LOT. NOVA JUAZEIRINHO" [ref=f7e159] [cursor=pointer]:
+              - /url: /empreendimentos/detalhe_empreendimento/3133ba93-7a85-4bf8-897a-3bffacb092db/
+            - generic [ref=f7e160]:
+              - generic [ref=f7e161]:
+                - generic [ref=f7e162]: 
+                - text: 99 Disponível
+              - generic [ref=f7e163]:
+                - generic [ref=f7e164]: 
+                - text: 1 Reservados
+              - generic [ref=f7e165]:
+                - generic [ref=f7e166]: 
+                - text: 664 Vendidos
+            - generic [ref=f7e167]:
+              - generic [ref=f7e168]: Vendas
+              - generic [ref=f7e169]: 664/766
+            - progressbar [ref=f7e171]
+            - generic [ref=f7e172]:
+              - generic [ref=f7e173]:
+                - generic [ref=f7e174]: 
+                - text: 5 dias reserva
+              - generic [ref=f7e175]:
+                - generic [ref=f7e176]: 
+                - text: 180x parcelas
+            - generic [ref=f7e177]:
+              - link "Arquivos" [ref=f7e178] [cursor=pointer]:
+                - /url: /empreendimentos/insert_arq/3133ba93-7a85-4bf8-897a-3bffacb092db/
+                - generic [ref=f7e179]: 
+              - link "Relatório" [ref=f7e180] [cursor=pointer]:
+                - /url: /empreendimentos/relatorio_financeiro/3133ba93-7a85-4bf8-897a-3bffacb092db/
+                - generic [ref=f7e181]: 
+              - link "Editar" [ref=f7e182] [cursor=pointer]:
+                - /url: /empreendimentos/editar/3133ba93-7a85-4bf8-897a-3bffacb092db/step1/
+                - generic [ref=f7e183]: 
+              - button "Excluir" [ref=f7e184] [cursor=pointer]:
+                - generic [ref=f7e185]: 
+          - generic [ref=f7e188]:
+            - link "LOT. CIDADE NOVA - IMACULADA-PB" [ref=f7e189] [cursor=pointer]:
+              - /url: /empreendimentos/detalhe_empreendimento/241ceb99-197a-4fea-aec7-cc72401914b4/
+            - generic [ref=f7e190]:
+              - generic [ref=f7e191]:
+                - generic [ref=f7e192]: 
+                - text: 211 Disponível
+              - generic [ref=f7e193]:
+                - generic [ref=f7e194]: 
+                - text: 0 Reservados
+              - generic [ref=f7e195]:
+                - generic [ref=f7e196]: 
+                - text: 43 Vendidos
+            - generic [ref=f7e197]:
+              - generic [ref=f7e198]: Vendas
+              - generic [ref=f7e199]: 43/254
+            - progressbar [ref=f7e201]
+            - generic [ref=f7e202]:
+              - generic [ref=f7e203]:
+                - generic [ref=f7e204]: 
+                - text: 5 dias reserva
+              - generic [ref=f7e205]:
+                - generic [ref=f7e206]: 
+                - text: 180x parcelas
+            - generic [ref=f7e207]:
+              - link "Arquivos" [ref=f7e208] [cursor=pointer]:
+                - /url: /empreendimentos/insert_arq/241ceb99-197a-4fea-aec7-cc72401914b4/
+                - generic [ref=f7e209]: 
+              - link "Relatório" [ref=f7e210] [cursor=pointer]:
+                - /url: /empreendimentos/relatorio_financeiro/241ceb99-197a-4fea-aec7-cc72401914b4/
+                - generic [ref=f7e211]: 
+              - link "Editar" [ref=f7e212] [cursor=pointer]:
+                - /url: /empreendimentos/editar/241ceb99-197a-4fea-aec7-cc72401914b4/step1/
+                - generic [ref=f7e213]: 
+              - button "Excluir" [ref=f7e214] [cursor=pointer]:
+                - generic [ref=f7e215]: 
+          - generic [ref=f7e218]:
+            - link "LOT. SANTO AMARO II" [ref=f7e219] [cursor=pointer]:
+              - /url: /empreendimentos/detalhe_empreendimento/2fc92b23-6cee-4553-bb47-fabe2a4e6d39/
+            - generic [ref=f7e220]:
+              - generic [ref=f7e221]:
+                - generic [ref=f7e222]: 
+                - text: 263 Disponível
+              - generic [ref=f7e223]:
+                - generic [ref=f7e224]: 
+                - text: 0 Reservados
+              - generic [ref=f7e225]:
+                - generic [ref=f7e226]: 
+                - text: 200 Vendidos
+              - generic [ref=f7e227]: 25 Outras
+            - generic [ref=f7e228]:
+              - generic [ref=f7e229]: Vendas
+              - generic [ref=f7e230]: 200/488
+            - progressbar [ref=f7e232]
+            - generic [ref=f7e233]:
+              - generic [ref=f7e234]:
+                - generic [ref=f7e235]: 
+                - text: 3 dias reserva
+              - generic [ref=f7e236]:
+                - generic [ref=f7e237]: 
+                - text: 180x parcelas
+            - generic [ref=f7e238]:
+              - link "Arquivos" [ref=f7e239] [cursor=pointer]:
+                - /url: /empreendimentos/insert_arq/2fc92b23-6cee-4553-bb47-fabe2a4e6d39/
+                - generic [ref=f7e240]: 
+              - link "Relatório" [ref=f7e241] [cursor=pointer]:
+                - /url: /empreendimentos/relatorio_financeiro/2fc92b23-6cee-4553-bb47-fabe2a4e6d39/
+                - generic [ref=f7e242]: 
+              - link "Editar" [ref=f7e243] [cursor=pointer]:
+                - /url: /empreendimentos/editar/2fc92b23-6cee-4553-bb47-fabe2a4e6d39/step1/
+                - generic [ref=f7e244]: 
+              - button "Excluir" [ref=f7e245] [cursor=pointer]:
+                - generic [ref=f7e246]: 
+          - generic [ref=f7e249]:
+            - link "LOT. DONA MAROCA" [ref=f7e250] [cursor=pointer]:
+              - /url: /empreendimentos/detalhe_empreendimento/8351916a-3452-4611-a30c-a7eb3486c011/
+            - generic [ref=f7e251]:
+              - generic [ref=f7e252]:
+                - generic [ref=f7e253]: 
+                - text: 59 Disponível
+              - generic [ref=f7e254]:
+                - generic [ref=f7e255]: 
+                - text: 0 Reservados
+              - generic [ref=f7e256]:
+                - generic [ref=f7e257]: 
+                - text: 316 Vendidos
+            - generic [ref=f7e258]:
+              - generic [ref=f7e259]: Vendas
+              - generic [ref=f7e260]: 316/375
+            - progressbar [ref=f7e262]
+            - generic [ref=f7e263]:
+              - generic [ref=f7e264]:
+                - generic [ref=f7e265]: 
+                - text: 6 dias reserva
+              - generic [ref=f7e266]:
+                - generic [ref=f7e267]: 
+                - text: 180x parcelas
+            - generic [ref=f7e268]:
+              - link "Arquivos" [ref=f7e269] [cursor=pointer]:
+                - /url: /empreendimentos/insert_arq/8351916a-3452-4611-a30c-a7eb3486c011/
+                - generic [ref=f7e270]: 
+              - link "Relatório" [ref=f7e271] [cursor=pointer]:
+                - /url: /empreendimentos/relatorio_financeiro/8351916a-3452-4611-a30c-a7eb3486c011/
+                - generic [ref=f7e272]: 
+              - link "Editar" [ref=f7e273] [cursor=pointer]:
+                - /url: /empreendimentos/editar/8351916a-3452-4611-a30c-a7eb3486c011/step1/
+                - generic [ref=f7e274]: 
+              - button "Excluir" [ref=f7e275] [cursor=pointer]:
+                - generic [ref=f7e276]: 
+          - generic [ref=f7e279]:
+            - link "LOT. ARNÓBIO LILIOSO" [ref=f7e280] [cursor=pointer]:
+              - /url: /empreendimentos/detalhe_empreendimento/08053f4e-fd90-4e9f-a728-6d4a11aaa5fe/
+            - generic [ref=f7e281]:
+              - generic [ref=f7e282]:
+                - generic [ref=f7e283]: 
+                - text: 14 Disponível
+              - generic [ref=f7e284]:
+                - generic [ref=f7e285]: 
+                - text: 1 Reservados
+              - generic [ref=f7e286]:
+                - generic [ref=f7e287]: 
+                - text: 158 Vendidos
+            - generic [ref=f7e288]:
+              - generic [ref=f7e289]: Vendas
+              - generic [ref=f7e290]: 158/174
+            - progressbar [ref=f7e292]
+            - generic [ref=f7e293]:
+              - generic [ref=f7e294]:
+                - generic [ref=f7e295]: 
+                - text: 5 dias reserva
+              - generic [ref=f7e296]:
+                - generic [ref=f7e297]: 
+                - text: 180x parcelas
+            - generic [ref=f7e298]:
+              - link "Arquivos" [ref=f7e299] [cursor=pointer]:
+                - /url: /empreendimentos/insert_arq/08053f4e-fd90-4e9f-a728-6d4a11aaa5fe/
+                - generic [ref=f7e300]: 
+              - link "Relatório" [ref=f7e301] [cursor=pointer]:
+                - /url: /empreendimentos/relatorio_financeiro/08053f4e-fd90-4e9f-a728-6d4a11aaa5fe/
+                - generic [ref=f7e302]: 
+              - link "Editar" [ref=f7e303] [cursor=pointer]:
+                - /url: /empreendimentos/editar/08053f4e-fd90-4e9f-a728-6d4a11aaa5fe/step1/
+                - generic [ref=f7e304]: 
+              - button "Excluir" [ref=f7e305] [cursor=pointer]:
+                - generic [ref=f7e306]: 
+          - generic [ref=f7e309]:
+            - link "LOT. PARQUE DA JAQUEIRA" [ref=f7e310] [cursor=pointer]:
+              - /url: /empreendimentos/detalhe_empreendimento/ec363e75-2836-437f-823c-35d87f2d74fc/
+            - generic [ref=f7e311]:
+              - generic [ref=f7e312]:
+                - generic [ref=f7e313]: 
+                - text: 246 Disponível
+              - generic [ref=f7e314]:
+                - generic [ref=f7e315]: 
+                - text: 0 Reservados
+              - generic [ref=f7e316]:
+                - generic [ref=f7e317]: 
+                - text: 402 Vendidos
+              - generic [ref=f7e318]: 244 Outras
+            - generic [ref=f7e319]:
+              - generic [ref=f7e320]: Vendas
+              - generic [ref=f7e321]: 402/894
+            - progressbar [ref=f7e323]
+            - generic [ref=f7e324]:
+              - generic [ref=f7e325]:
+                - generic [ref=f7e326]: 
+                - text: 5 dias reserva
+              - generic [ref=f7e327]:
+                - generic [ref=f7e328]: 
+                - text: 120x parcelas
+            - generic [ref=f7e329]:
+              - link "Arquivos" [ref=f7e330] [cursor=pointer]:
+                - /url: /empreendimentos/insert_arq/ec363e75-2836-437f-823c-35d87f2d74fc/
+                - generic [ref=f7e331]: 
+              - link "Relatório" [ref=f7e332] [cursor=pointer]:
+                - /url: /empreendimentos/relatorio_financeiro/ec363e75-2836-437f-823c-35d87f2d74fc/
+                - generic [ref=f7e333]: 
+              - link "Editar" [ref=f7e334] [cursor=pointer]:
+                - /url: /empreendimentos/editar/ec363e75-2836-437f-823c-35d87f2d74fc/step1/
+                - generic [ref=f7e335]: 
+              - button "Excluir" [ref=f7e336] [cursor=pointer]:
+                - generic [ref=f7e337]: 
+          - generic [ref=f7e340]:
+            - link "CASAS A VENDA" [ref=f7e341] [cursor=pointer]:
+              - /url: /empreendimentos/detalhe_empreendimento/c21ecd52-41cf-450f-ae87-5214e11c626f/
+            - generic [ref=f7e342]:
+              - generic [ref=f7e343]:
+                - generic [ref=f7e344]: 
+                - text: 17 Disponível
+              - generic [ref=f7e345]:
+                - generic [ref=f7e346]: 
+                - text: 0 Reservados
+              - generic [ref=f7e347]:
+                - generic [ref=f7e348]: 
+                - text: 0 Vendidos
+              - generic [ref=f7e349]: 1 Outras
+            - generic [ref=f7e350]:
+              - generic [ref=f7e351]: Vendas
+              - generic [ref=f7e352]: 0/18
+            - generic [ref=f7e353]:
+              - progressbar
+            - generic [ref=f7e354]:
+              - generic [ref=f7e355]:
+                - generic [ref=f7e356]: 
+                - text: 5 dias reserva
+              - generic [ref=f7e357]:
+                - generic [ref=f7e358]: 
+                - text: 1x parcelas
+            - generic [ref=f7e359]:
+              - link "Arquivos" [ref=f7e360] [cursor=pointer]:
+                - /url: /empreendimentos/insert_arq/c21ecd52-41cf-450f-ae87-5214e11c626f/
+                - generic [ref=f7e361]: 
+              - link "Relatório" [ref=f7e362] [cursor=pointer]:
+                - /url: /empreendimentos/relatorio_financeiro/c21ecd52-41cf-450f-ae87-5214e11c626f/
+                - generic [ref=f7e363]: 
+              - link "Editar" [ref=f7e364] [cursor=pointer]:
+                - /url: /empreendimentos/editar/c21ecd52-41cf-450f-ae87-5214e11c626f/step1/
+                - generic [ref=f7e365]: 
+              - button "Excluir" [ref=f7e366] [cursor=pointer]:
+                - generic [ref=f7e367]: 
+          - generic [ref=f7e370]:
+            - link "LOT. CONSTELAÇÃO SARMENTO" [ref=f7e371] [cursor=pointer]:
+              - /url: /empreendimentos/detalhe_empreendimento/7001ce3c-9c17-4ac2-ba2e-b3e8726e78a3/
+            - generic [ref=f7e372]:
+              - generic [ref=f7e373]:
+                - generic [ref=f7e374]: 
+                - text: 221 Disponível
+              - generic [ref=f7e375]:
+                - generic [ref=f7e376]: 
+                - text: 3 Reservados
+              - generic [ref=f7e377]:
+                - generic [ref=f7e378]: 
+                - text: 240 Vendidos
+            - generic [ref=f7e379]:
+              - generic [ref=f7e380]: Vendas
+              - generic [ref=f7e381]: 240/466
+            - progressbar [ref=f7e383]
+            - generic [ref=f7e384]:
+              - generic [ref=f7e385]:
+                - generic [ref=f7e386]: 
+                - text: 3 dias reserva
+              - generic [ref=f7e387]:
+                - generic [ref=f7e388]: 
+                - text: 180x parcelas
+            - generic [ref=f7e389]:
+              - link "Arquivos" [ref=f7e390] [cursor=pointer]:
+                - /url: /empreendimentos/insert_arq/7001ce3c-9c17-4ac2-ba2e-b3e8726e78a3/
+                - generic [ref=f7e391]: 
+              - link "Relatório" [ref=f7e392] [cursor=pointer]:
+                - /url: /empreendimentos/relatorio_financeiro/7001ce3c-9c17-4ac2-ba2e-b3e8726e78a3/
+                - generic [ref=f7e393]: 
+              - link "Editar" [ref=f7e394] [cursor=pointer]:
+                - /url: /empreendimentos/editar/7001ce3c-9c17-4ac2-ba2e-b3e8726e78a3/step1/
+                - generic [ref=f7e395]: 
+              - button "Excluir" [ref=f7e396] [cursor=pointer]:
+                - generic [ref=f7e397]: 
+          - generic [ref=f7e400]:
+            - link "Smoke Test Loteamento" [ref=f7e401] [cursor=pointer]:
+              - /url: /empreendimentos/detalhe_empreendimento/44f6d49e-0460-49ad-862c-93ec66281d71/
+            - generic [ref=f7e402]:
+              - generic [ref=f7e403]:
+                - generic [ref=f7e404]: 
+                - text: 0 Disponível
+              - generic [ref=f7e405]:
+                - generic [ref=f7e406]: 
+                - text: 0 Reservados
+              - generic [ref=f7e407]:
+                - generic [ref=f7e408]: 
+                - text: 0 Vendidos
+            - generic [ref=f7e409]:
+              - generic [ref=f7e410]:
+                - generic [ref=f7e411]: 
+                - text: 30 dias reserva
+              - generic [ref=f7e412]:
+                - generic [ref=f7e413]: 
+                - text: 60x parcelas
+            - generic [ref=f7e414]:
+              - link "Arquivos" [ref=f7e415] [cursor=pointer]:
+                - /url: /empreendimentos/insert_arq/44f6d49e-0460-49ad-862c-93ec66281d71/
+                - generic [ref=f7e416]: 
+              - link "Relatório" [ref=f7e417] [cursor=pointer]:
+                - /url: /empreendimentos/relatorio_financeiro/44f6d49e-0460-49ad-862c-93ec66281d71/
+                - generic [ref=f7e418]: 
+              - link "Editar" [ref=f7e419] [cursor=pointer]:
+                - /url: /empreendimentos/editar/44f6d49e-0460-49ad-862c-93ec66281d71/step1/
+                - generic [ref=f7e420]: 
+              - button "Excluir" [ref=f7e421] [cursor=pointer]:
+                - generic [ref=f7e422]: 
+      - text:   
+    - contentinfo [ref=f7e423]:
+      - navigation [ref=f7e424]:
+        - generic [ref=f7e425]:
+          - generic [ref=f7e426]:
+            - link "Facebook" [ref=f7e427] [cursor=pointer]:
+              - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+              - generic [ref=f7e428]: 
+            - link "Instagram" [ref=f7e429] [cursor=pointer]:
+              - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+              - generic [ref=f7e430]: 
+          - paragraph [ref=f7e431]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

@@ -1,0 +1,201 @@
+- generic [ref=f5e2]:
+  - text: 
+  - complementary "Menu principal" [ref=f5e3]:
+    - generic [ref=f5e4]:
+      - link [ref=f5e5] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - img "logo_carlos_e_celso" [ref=f5e7]
+        - generic [ref=f5e8]:
+          - strong [ref=f5e9]: GLOT
+          - text: Sistema de Gestão
+      - button "Recolher menu" [ref=f5e10] [cursor=pointer]:
+        - generic [ref=f5e11]: 
+      - text: 
+    - generic [ref=f5e12]:
+      - generic [ref=f5e13]: Usuario logado
+      - strong [ref=f5e14]: DAVID
+      - text: ADMINISTRADOR
+    - navigation [ref=f5e15]:
+      - link " Dashboard" [ref=f5e16] [cursor=pointer]:
+        - /url: /dashboard/
+        - generic [ref=f5e17]: 
+        - generic [ref=f5e18]: Dashboard
+      - link " Empreendimentos" [ref=f5e19] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - generic [ref=f5e20]: 
+        - generic [ref=f5e21]: Empreendimentos
+      - button "Listagem " [ref=f5e22] [cursor=pointer]:
+        - generic [ref=f5e23]: Listagem
+        - generic [ref=f5e24]: 
+      - text:  
+      - button "Movimentacao " [ref=f5e25] [cursor=pointer]:
+        - generic [ref=f5e26]: Movimentacao
+        - generic [ref=f5e27]: 
+      - text:    
+      - button "Cadastros " [ref=f5e28] [cursor=pointer]:
+        - generic [ref=f5e29]: Cadastros
+        - generic [ref=f5e30]: 
+      - text:    
+      - button "Documentos " [ref=f5e31] [cursor=pointer]:
+        - generic [ref=f5e32]: Documentos
+        - generic [ref=f5e33]: 
+      - text:  
+    - button " Sair" [ref=f5e36] [cursor=pointer]:
+      - generic [ref=f5e37]: 
+      - generic [ref=f5e38]: Sair
+  - generic [ref=f5e39]:
+    - main [ref=f5e40]:
+      - generic [ref=f5e44]:
+        - heading "Cadastrar Empreendimento" [level=1] [ref=f5e45]
+        - navigation "breadcrumb" [ref=f5e46]:
+          - list [ref=f5e47]:
+            - listitem [ref=f5e48]:
+              - link "Início" [ref=f5e49] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f5e50]:
+              - text: /
+              - link "Empreendimentos" [ref=f5e51] [cursor=pointer]:
+                - /url: /empreendimentos/listar_empreendimento/
+            - listitem [ref=f5e52]: / Cadastrar
+      - generic [ref=f5e54]:
+        - generic [ref=f5e56]:
+          - generic [ref=f5e57]:
+            - generic [ref=f5e58]: 
+            - generic [ref=f5e60]: Dados gerais
+          - generic [ref=f5e61]:
+            - generic [ref=f5e62]: 
+            - generic [ref=f5e64]: Empresa
+          - generic [ref=f5e65]:
+            - generic [ref=f5e66]: "3"
+            - generic [ref=f5e67]: Representantes
+          - generic [ref=f5e68]:
+            - generic [ref=f5e69]: "4"
+            - generic [ref=f5e70]: Configurações
+          - generic [ref=f5e71]:
+            - generic [ref=f5e72]: "5"
+            - generic [ref=f5e73]: Revisão
+        - generic [ref=f5e74]:
+          - generic [ref=f5e76]:
+            - generic [ref=f5e77]:
+              - generic [ref=f5e78]: 
+              - generic [ref=f5e79]: Representantes legais
+            - paragraph [ref=f5e81]: Sócios ou administradores que assinam contratos por esta empresa. Pelo menos 1 obrigatório.
+            - generic [ref=f5e83]:
+              - generic [ref=f5e84]:
+                - generic [ref=f5e85]: Representante principal
+                - button "Remover" [ref=f5e86] [cursor=pointer]:
+                  - generic [ref=f5e87]: 
+                  - text: Remover
+              - generic [ref=f5e88]:
+                - generic [ref=f5e89]:
+                  - generic [ref=f5e90]:
+                    - generic [ref=f5e91]: Nome completo *
+                    - textbox "Nome do representante" [ref=f5e92]
+                  - generic [ref=f5e93]:
+                    - generic [ref=f5e94]: CPF *
+                    - textbox "CPF do representante" [ref=f5e95]
+                  - generic [ref=f5e96]:
+                    - generic [ref=f5e97]: RG
+                    - textbox "RG do representante" [ref=f5e98]
+                  - generic [ref=f5e99]:
+                    - generic [ref=f5e100]: Órgão emissor
+                    - textbox [ref=f5e101]
+                  - generic [ref=f5e102]:
+                    - generic [ref=f5e103]: Cargo *
+                    - 'textbox "Cargo (ex: Sócio-administrador)" [ref=f5e104]'
+                  - generic [ref=f5e105]:
+                    - generic [ref=f5e106]: E-mail
+                    - textbox [ref=f5e107]
+                  - generic [ref=f5e108]:
+                    - generic [ref=f5e109]: Estado civil
+                    - combobox [ref=f5e110]:
+                      - option "---------" [selected]
+                      - option "Solteiro"
+                      - option "Casado"
+                      - option "Divorciado"
+                      - option "Viúvo"
+                      - option "Separado judicialmente"
+                      - option "União estável"
+                - generic [ref=f5e112]:
+                  - generic [ref=f5e113]: 
+                  - generic [ref=f5e114]: Endereço do representante
+                - generic [ref=f5e115]:
+                  - generic [ref=f5e116]:
+                    - generic [ref=f5e117]: CEP *
+                    - textbox "Digite o CEP" [ref=f5e118]
+                  - generic [ref=f5e119]:
+                    - generic [ref=f5e120]: Cidade *
+                    - textbox "Cidade" [ref=f5e121]
+                  - generic [ref=f5e122]:
+                    - generic [ref=f5e123]: Estado *
+                    - combobox [ref=f5e124]:
+                      - option "---------" [selected]
+                      - option "Paraíba"
+                      - option "Acre"
+                      - option "Alagoas"
+                      - option "Amapá"
+                      - option "Amazonas"
+                      - option "Bahia"
+                      - option "Ceará"
+                      - option "Distrito Federal"
+                      - option "Espírito Santo"
+                      - option "Goiás"
+                      - option "Maranhão"
+                      - option "Mato Grosso"
+                      - option "Mato Grosso do Sul"
+                      - option "Minas Gerais"
+                      - option "Pará"
+                      - option "Pernambuco"
+                      - option "Piauí"
+                      - option "Paraná"
+                      - option "Rio de Janeiro"
+                      - option "Rio Grande do Norte"
+                      - option "Rio Grande do Sul"
+                      - option "Rondônia"
+                      - option "Roraima"
+                      - option "Santa Catarina"
+                      - option "São Paulo"
+                      - option "Sergipe"
+                      - option "Tocantins"
+                  - generic [ref=f5e125]:
+                    - generic [ref=f5e126]: Bairro *
+                    - textbox "Bairro" [ref=f5e127]
+                  - generic [ref=f5e128]:
+                    - generic [ref=f5e129]: Rua *
+                    - textbox "Rua ou Avenida" [ref=f5e130]
+                  - generic [ref=f5e131]:
+                    - generic [ref=f5e132]: Número *
+                    - textbox "Número" [ref=f5e133]
+                  - generic [ref=f5e134]:
+                    - generic [ref=f5e135]: Complemento opcional
+                    - textbox "Complemento" [ref=f5e136]
+                - text: 
+                - generic [ref=f5e139]: Documentos do representante
+                - paragraph [ref=f5e141]: Salve este representante (clique em Próximo) para anexar documentos.
+            - button "Adicionar outro representante" [ref=f5e142] [cursor=pointer]:
+              - generic [ref=f5e143]: 
+              - text: Adicionar outro representante
+          - generic [ref=f5e144]:
+            - link "Cancelar" [ref=f5e145] [cursor=pointer]:
+              - /url: /empreendimentos/listar_empreendimento/
+              - generic [ref=f5e146]: 
+              - text: Cancelar
+            - generic [ref=f5e147]:
+              - link "Anterior" [ref=f5e148] [cursor=pointer]:
+                - /url: /empreendimentos/cadastrar/step2/
+                - generic [ref=f5e149]: 
+                - text: Anterior
+              - button "Próximo" [ref=f5e150] [cursor=pointer]:
+                - text: Próximo
+                - generic [ref=f5e151]: 
+    - contentinfo [ref=f5e152]:
+      - navigation [ref=f5e153]:
+        - generic [ref=f5e154]:
+          - generic [ref=f5e155]:
+            - link "Facebook" [ref=f5e156] [cursor=pointer]:
+              - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+              - generic [ref=f5e157]: 
+            - link "Instagram" [ref=f5e158] [cursor=pointer]:
+              - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+              - generic [ref=f5e159]: 
+          - paragraph [ref=f5e160]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

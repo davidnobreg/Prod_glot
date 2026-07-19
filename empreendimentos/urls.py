@@ -17,7 +17,6 @@ from .views import (
     wizard_step3,
     wizard_step4,
     wizard_step5,
-    wizard_step6,
     wizard_representante_del,
     wizard_rep_doc_upload,
     wizard_rep_doc_remover,
@@ -60,7 +59,7 @@ from .views import (
     importar_lotes_confirmar,
 )
 
-from . import views_update
+from .views import update as views_update
 
 
 urlpatterns = [
@@ -132,7 +131,6 @@ urlpatterns = [
         name='wizard_rep_doc_remover'
     ),
     path('cadastrar/step5/', wizard_step5, name='empreendimento_wizard_step5'),
-    path('cadastrar/step6/', wizard_step6, name='empreendimento_wizard_step6'),
     path(
         'cadastrar/step6/documento/upload/',
         wizard_doc_empreendimento_upload,
@@ -175,12 +173,6 @@ urlpatterns = [
         'editar/<uuid:empreendimento_uuid>/step5/',
         views_update.wizard_update_step5,
         name='empreendimento_update_step5'
-    ),
-
-    path(
-        'editar/<uuid:empreendimento_uuid>/step6/',
-        views_update.wizard_update_step6,
-        name='empreendimento_update_step6'
     ),
 
     path(

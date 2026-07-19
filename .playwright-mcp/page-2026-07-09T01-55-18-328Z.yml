@@ -1,0 +1,51 @@
+- generic [ref=e3]:
+  - main [ref=e4]:
+    - region "Login do sistema" [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - generic [ref=e8]: G
+          - generic [ref=e9]:
+            - strong [ref=e10]: GLOT
+            - text: Gestão imobiliária
+        - generic [ref=e11]:
+          - generic [ref=e12]: Vendas imobiliárias
+          - heading "Controle lotes, reservas e vendas em um só lugar." [level=1] [ref=e13]
+          - paragraph [ref=e14]: Acesse o painel para acompanhar empreendimentos, disponibilidade de lotes e movimentações comerciais com mais agilidade.
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - strong [ref=e17]: "01"
+            - text: Escolha o loteamento
+          - generic [ref=e18]:
+            - strong [ref=e19]: "02"
+            - text: Consulte quadras
+          - generic [ref=e20]:
+            - strong [ref=e21]: "03"
+            - text: Avance na venda
+      - generic [ref=e23]:
+        - generic [ref=e24]:
+          - text: Acesso restrito
+          - heading "Entrar na conta" [level=1] [ref=e25]
+          - paragraph [ref=e26]: Informe suas credenciais para acessar o sistema.
+        - generic [ref=e27]:
+          - generic [ref=e28]: Email
+          - textbox "Email" [ref=e29]:
+            - /placeholder: usuario@email.com
+        - generic [ref=e30]:
+          - generic [ref=e31]: Senha
+          - textbox "Senha" [ref=e32]:
+            - /placeholder: Digite sua senha
+        - button " Acessar sistema" [ref=e33] [cursor=pointer]:
+          - generic [ref=e34]: 
+          - text: Acessar sistema
+        - paragraph [ref=e35]: Ambiente seguro para equipe comercial e administrativa.
+  - contentinfo [ref=e36]:
+    - navigation [ref=e37]:
+      - generic [ref=e38]:
+        - generic [ref=e39]:
+          - link "Facebook" [ref=e40] [cursor=pointer]:
+            - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+            - generic [ref=e41]: 
+          - link "Instagram" [ref=e42] [cursor=pointer]:
+            - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+            - generic [ref=e43]: 
+        - paragraph [ref=e44]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

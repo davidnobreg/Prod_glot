@@ -1,7 +1,7 @@
 # Módulo: clientes
 
 > Mapeamento do estado atual do código. Documenta o que existe — não é proposta de mudança.
-> Gerado em 2026-07-07.
+> Gerado em 2026-07-07. Atualizado em 2026-07-13 (feature representante legal PJ, commit `4949210`).
 
 ---
 
@@ -11,7 +11,11 @@ App responsável pelo cadastro e gestão de clientes (pessoa física ou jurídic
 endereço, cônjuge (desnormalizado no próprio model), telefones e documentos de identificação
 (RG, CPF, CNH, comprovante de residência, etc.). Inclui um wizard multi-etapa (rascunho →
 finalização) que salva o cliente incompleto (`is_ativo=False`) a cada passo e só ativa no final,
-disparando uma task Celery de pós-processamento dos documentos enviados.
+disparando tasks Celery de pós-processamento dos documentos enviados.
+
+Cliente PJ exige ao menos 1 **representante legal** (sócio/administrador) — entidade separada
+(`ClienteRepresentante`, N por Cliente), com documentos próprios (`RepresentanteDocumento`),
+validada na finalização do wizard antes de ativar o cliente (§3, §6).
 
 Consumido por `vendas` (FK `RegisterVenda.cliente`), que também é a razão de `deleteCliente`
 bloquear exclusão se houver venda ativa.
@@ -22,21 +26,26 @@ bloquear exclusão se houver venda ativa.
 
 ```
 clientes/
-  models.py                225 linhas — Cliente, ClienteDocumento, ClienteTelefone
-  forms.py                 427 linhas — ClienteBaseForm, ClienteForm, ClienteUpdateForm,
+  models.py                337 linhas — Cliente, ClienteDocumento, ClienteTelefone,
+                                        ClienteRepresentante, RepresentanteDocumento
+  forms.py                 486 linhas — ClienteBaseForm, ClienteForm, ClienteUpdateForm,
                                         ClienteEnderecoForm, ClienteConjugeForm,
-                                        ClienteTelefoneForm, ClienteDocumentoForm
-  views.py                 670 linhas — todas as views do app (sem subpacote)
-  urls.py                   20 linhas — URLconf ativa (uuid em todos os params)
+                                        ClienteTelefoneForm, ClienteDocumentoForm,
+                                        ClienteRepresentanteForm, RepresentanteDocumentoForm
+  views.py                 790 linhas — todas as views do app (sem subpacote)
+  urls.py                   24 linhas — URLconf ativa (uuid em todos os params)
   admin.py                  26 linhas — ClienteAdmin + 2 inlines
   serializers.py            62 linhas — ClienteSerializer (DRF, não conectado — ver §10)
-  tasks.py                  29 linhas — processar_documentos_pendentes (Celery)
+  services.py               55 linhas — 1ª camada de serviço do app (representante legal)
+  validators.py             35 linhas — validar_cpf consolidada + validate_documento_representante
+  tasks.py                  58 linhas — processar_documentos_pendentes +
+                                        processar_documentos_representante_pendentes (Celery)
   apps.py                    6 linhas
   templatetags/
     format_filters.py       37 linhas — initials, format_documento
-  tests/                  1071 linhas total (ver §9)
+  tests/                  1367 linhas total (ver §9)
   templates/                6 arquivos .html (ver §8)
-  migrations/                34 arquivos (ver §11)
+  migrations/                36 arquivos (ver §11)
 ```
 
 ---
@@ -63,8 +72,11 @@ clientes/
 `choices_estado` (module-level, linha 11-18): tupla de 26 estados + DF (sem "todos os estados",
 o BR tem 26+DF = 27, confere).
 
-`Cliente.validar_cpf` (staticmethod, linhas 81-92): **código morto**, nunca chamado — a validação
-real usada pelo form é a função module-level `forms.validar_cpf` (implementação diferente).
+`Cliente.validar_cpf` (staticmethod, linhas 85-96): **código morto**, nunca chamado — a validação
+real usada pelo form é `forms.validar_cpf` (implementação diferente). Desde 2026-07-09 existe
+também `validators.validar_cpf` (extraída/consolidada, ver §2) — ou seja, **ainda há duas
+implementações vivas** além da morta em `models.py` (§10 achado #4, não resolvido pela feature
+de representante).
 
 `Cliente.save()` (linhas 98-108): normaliza `name` (upper+strip), `email` (lower+strip),
 `documento` (remove tudo que não é dígito via regex).
@@ -96,6 +108,44 @@ Tabela auxiliar de documentos/anexos.
 | `tipo` | CharField(10, choices) | celular/fixo/recado/whatsapp/outro, default `celular` |
 | `observacao` | CharField(100) | opcional |
 | `is_ativo` | BooleanField(default=`True`) | **nunca setado como `False` em nenhum fluxo real** — telefones são hard-deletados em `atualizarCliente`/`_wizard_save_contatos` (§10) |
+
+### `ClienteRepresentante` (novo, 2026-07-09)
+
+Sócio/administrador que representa um Cliente PJ. Entidade separada, **não** campo do `Cliente`
+— relação N:1 (`related_name='representantes'`). O mesmo CPF pode representar PJs diferentes,
+por isso `documento` **não** é `unique` global (diferente de `Cliente.documento`).
+
+| Campo | Tipo | Observação |
+|---|---|---|
+| `uuid` | UUIDField, unique | chave pública |
+| `cliente` | FK → `Cliente` | `CASCADE`, `related_name='representantes'` |
+| `nome`, `documento` (CPF), `numero_rg`, `orgao_emissor_rg`, `email`, `cargo` | CharField/EmailField | dados do representante |
+| `estado_civil` | CharField, choices=`Cliente.choices_estado_civil` | reaproveita as choices do Cliente |
+| `conj_nome`, `conj_numero_rg`, `conj_orgao_emissor_rg`, `conj_documento` | CharField | cônjuge do representante (mesmo padrão desnormalizado do `Cliente`) |
+| `is_ativo` | BooleanField(default=`True`) | soft-delete (ver `services.remover_representante`) |
+| `criado_em` | DateTimeField(auto_now_add) | — |
+
+`Meta.unique_together = [('cliente', 'documento')]` — unicidade por par, não global.
+`save()` normaliza `nome`/`conj_nome` (upper+strip), `documento`/`conj_documento` (só dígitos),
+`email` (lower+strip) — mesmo padrão de `Cliente.save()`.
+
+### `RepresentanteDocumento` (novo, 2026-07-09)
+
+Documentos do representante e do cônjuge dele (RG, CPF, CNH, procuração, comprovante de estado
+civil). Estrutura análoga a `ClienteDocumento`, mas **com validação server-side** desde a
+criação (`validate_documento_representante`, ver §2/`validators.py`) — diferente de
+`ClienteDocumento.arquivo`, que segue sem validador (§10 achado #3).
+
+| Campo | Tipo | Observação |
+|---|---|---|
+| `uuid` | UUIDField, unique | chave pública |
+| `representante` | FK → `ClienteRepresentante` | `CASCADE`, `related_name='documentos'` |
+| `tipo` | CharField(50, choices) | RG/CPF/CNH/PROCURACAO/COMPROVANTE_ESTADO_CIVIL/OUTROS |
+| `pertence_a` | CharField(10, choices) | `TITULAR`/`CONJUGE`, default `TITULAR` |
+| `status` | CharField(20, choices) | `processando`/`disponivel`/`erro`, default `disponivel` |
+| `arquivo` | FileField | `upload_to='clientes/documentos_representante/'`, validado por `validate_documento_representante` (pdf/jpg/jpeg/png, máx 10MB) |
+| `descricao` | CharField(200) | opcional |
+| `criado_em` | DateTimeField(auto_now_add) | — |
 
 ---
 
@@ -129,6 +179,17 @@ processando (setado em wizard_arquivo_add)
 Fora do wizard (`adicionar_documento_cliente`, uso normal pós-cadastro), o documento já nasce
 `disponivel` (default do model) — a task só roda para os que passaram pelo wizard.
 
+### `RepresentanteDocumento.status` (mesmo padrão, task irmã)
+
+```
+processando (setado em wizard_representante_arquivo_add)
+  → (processar_documentos_representante_pendentes, Celery, dispara em wizard_finalizar) disponivel
+  → (mesma task, se doc.arquivo.size lançar exceção) erro
+```
+
+Task irmã de `processar_documentos_pendentes` (não estendeu a existente — isola comportamento),
+disparada no mesmo `transaction.on_commit` de `wizard_finalizar`.
+
 ---
 
 ## 5. Views (`clientes/views.py`)
@@ -148,8 +209,12 @@ usa `@login_required` isoladamente.
 | `documentos/<uuid:documento_uuid>/excluir/` | `excluir_documento_cliente` | `alterarCliente` | POST-only (`Http404` senão) | hard-delete do documento |
 | `<uuid:cliente_uuid>/wizard/arquivo-add/` | `wizard_arquivo_add` | `criarCliente` | POST (405 senão) | anexa documento a **rascunho** (`is_ativo=False`), status inicial `processando` |
 | `<uuid:cliente_uuid>/wizard/arquivo-del/<uuid:documento_uuid>/` | `wizard_arquivo_del` | `criarCliente` | POST (405 senão) | remove documento de rascunho |
+| `<uuid:cliente_uuid>/wizard/representante/add/` | `wizard_representante_add` | `criarCliente` | POST (405 senão) | cria `ClienteRepresentante` em rascunho PJ via `services.criar_representante` |
+| `<uuid:cliente_uuid>/wizard/representante/<uuid:representante_uuid>/del/` | `wizard_representante_del` | `criarCliente` | POST (405 senão) | remove representante via `services.remover_representante` (hard/soft conforme `cliente.is_ativo`) |
+| `wizard/representante/<uuid:representante_uuid>/arquivo-add/` | `wizard_representante_arquivo_add` | `criarCliente` | POST (405 senão) | anexa `RepresentanteDocumento`, status inicial `processando` |
+| `wizard/representante/arquivo-del/<uuid:documento_uuid>/` | `wizard_representante_arquivo_del` | `criarCliente` | POST (405 senão) | remove documento de representante em rascunho |
 | `wizard/salvar-passo/` | `wizard_salvar_passo` | `criarCliente` | POST (405 senão) | despacha por `step_id` (`step-1`/`step-2`/`step-4`/`step-5`) pra um dos 4 `_wizard_save_*` |
-| `<uuid:cliente_uuid>/wizard/finalizar/` | `wizard_finalizar` | `criarCliente` | POST (405 senão) | valida obrigatórios, ativa (`is_ativo=True`), dispara Celery via `transaction.on_commit` |
+| `<uuid:cliente_uuid>/wizard/finalizar/` | `wizard_finalizar` | `criarCliente` | POST (405 senão) | valida obrigatórios (inclui `>=1 representante` se PJ, via `services.validar_representantes_pj`), ativa (`is_ativo=True`), dispara 2 tasks Celery via `transaction.on_commit` |
 
 Helpers privados (não são views, mas centrais ao fluxo): `_wizard_get_draft`,
 `_wizard_save_step1/conjuge/endereco/contatos`, `_wizard_validar_finalizacao`,
@@ -192,14 +257,26 @@ Helpers privados (não são views, mas centrais ao fluxo): `_wizard_get_draft`,
 - **Unicidade de `email`/`documento` sem excluir inativos** (`forms.py:210-213`, `225-229`):
   `clean_email`/`clean_documento` fazem `Cliente.objects.filter(...)` **sem** `is_ativo=True` —
   reforça o bug §10 #2 (documento de cliente soft-deletado nunca pode ser reaproveitado).
+- **Representante legal obrigatório para PJ** (`services.validar_representantes_pj`, chamada em
+  `_wizard_validar_finalizacao`, `views.py:89-93`): cliente PJ (`_get_tipo_pessoa == 'PJ'`) exige
+  ao menos 1 `ClienteRepresentante` com `is_ativo=True` antes de `wizard_finalizar` ativar o
+  cliente. Representante casado exige `conj_nome` preenchido (mesma regra do titular).
+- **Remoção de representante — hard ou soft conforme estado do cliente**
+  (`services.remover_representante`): se o cliente ainda é rascunho (`is_ativo=False`), hard
+  delete (nada depende ainda); se o cliente já está ativo, soft-delete (`is_ativo=False` no
+  representante) — preserva histórico caso documento/contrato já gerado referencie o
+  representante.
 
 ---
 
 ## 7. Services e Signals
 
-Não existe `clientes/services.py` nem `clientes/signal.py` — toda a lógica de negócio está
-dentro de `views.py` (funções privadas `_wizard_*`/`_normalize_*`/`_render_cliente_form`), sem
-separação em camada de serviço. Diferente de `vendas`, que tem `services.py` dedicado.
+Não existe `clientes/signal.py`. `clientes/services.py` (novo, 2026-07-09) é a **primeira
+camada de serviço do app** — hoje cobre só o fluxo de representante legal
+(`validar_representantes_pj`, `criar_representante`, `remover_representante`). O resto da lógica
+de negócio (`criarCliente`/`atualizarCliente`/wizard de dados básicos) continua dentro de
+`views.py` (funções privadas `_wizard_*`/`_normalize_*`/`_render_cliente_form`), sem
+separação — extração incompleta, não uma migração total pro padrão de `vendas.services`.
 
 ---
 
@@ -207,7 +284,7 @@ separação em camada de serviço. Diferente de `vendas`, que tem `services.py` 
 
 | Template | Uso | Stack |
 |---|---|---|
-| `cliente.html` | `criarCliente` (GET/POST inválido) | Bootstrap/AdminLTE |
+| `cliente.html` | `criarCliente` (GET/POST inválido); wizard tem step-7 condicional (só PJ) com sub-bloco de representantes+cônjuge | Bootstrap/AdminLTE |
 | `cliente_update.html` | `atualizarCliente` (GET/POST inválido) | Bootstrap/AdminLTE |
 | `lista_cliente.html` | `listaCliente` | Bootstrap/AdminLTE |
 | `lista_cliente_relatorio.html` | `listaClienteRelatorio` | Bootstrap/AdminLTE |
@@ -216,11 +293,16 @@ separação em camada de serviço. Diferente de `vendas`, que tem `services.py` 
 
 Nenhum template deste app está em Tailwind ainda (diferente de `vendas/lista_analise.html`).
 
+JS do wizard (`cliente_wizard.js`) mora em `base/static/js/` — fonte versionada real, é o que os
+finders do Django (Playwright/`live_server`) enxergam. `static/js/cliente_wizard.js` na raiz do
+projeto é gerado por `collectstatic`/gitignorado; editar lá some no próximo `collectstatic` e não
+aparece em testes E2E (só via `runserver`+WhiteNoise, que serve `STATIC_ROOT` direto).
+
 ---
 
 ## 9. Cobertura de Testes
 
-1071 linhas de teste (pytest, fixtures em `conftest.py`).
+1367 linhas de teste (pytest, fixtures em `conftest.py`).
 
 | Arquivo | Cobre |
 |---|---|
@@ -229,6 +311,7 @@ Nenhum template deste app está em Tailwind ainda (diferente de `vendas/lista_an
 | `test_cliente_documento.py` | `ClienteDocumento` (criação PF/PJ, `__str__`, `related_name`, cascade delete), `ClienteDocumentoForm` (choices por tipo_pessoa), `adicionar_documento_cliente`/`excluir_documento_cliente` (GET redireciona, POST válido/inválido, anônimo bloqueado, GET em excluir → 404) |
 | `test_integration.py` | Contexto de `atualizarCliente`, listagem (`lista-cliente`: ativo aparece/inativo não aparece), soft-delete (`delete-cliente`: marca inativo, cliente com telefone não quebra, **cliente com venda ativa bloqueado**), fluxo casado→solteiro apaga dados de cônjuge, redirect pós-criação |
 | `test_wizard.py` | Fluxo completo via Playwright E2E: navegação entre steps, upload de documento, rascunho salvo no banco, labels dinâmicos PF/PJ |
+| `test_representante.py` (novo, 2026-07-09) | 23 testes: `ClienteRepresentante`/`RepresentanteDocumento` (model, `unique_together` por par não global, cascade), `services.validar_representantes_pj`/`criar_representante`/`remover_representante` (hard vs soft delete conforme `cliente.is_ativo`), `ClienteRepresentanteForm`/`RepresentanteDocumentoForm`, views `wizard_representante_*` (add/del, doc add/del, anônimo bloqueado, method not allowed), E2E Playwright do wizard PJ completo com 2 representantes |
 
 **Sem teste dedicado:**
 - `selectCliente` (view AJAX) — nenhum teste.
@@ -244,8 +327,10 @@ Nenhum template deste app está em Tailwind ainda (diferente de `vendas/lista_an
   provavelmente passaria e exporia o problema).
 - `ClienteTelefoneForm` — sem teste dedicado.
 - `ClienteSerializer` (DRF) — sem teste (e nem está conectado a rota alguma, §10).
-- `clientes/tasks.py::processar_documentos_pendentes` — sem teste unitário (sucesso,
-  `Cliente.DoesNotExist`, exceção/retry).
+- `clientes/tasks.py::processar_documentos_pendentes`/`processar_documentos_representante_pendentes`
+  — sem teste unitário (sucesso, `Cliente.DoesNotExist`, exceção/retry).
+- `validators.validar_cpf` (consolidada, `validators.py`) — sem teste unitário próprio; a
+  cobertura existente é sobre `forms.validar_cpf` (implementação diferente, ainda em uso).
 - Templatetags `initials`/`format_documento` — sem teste unitário direto.
 - `admin.py` — sem teste (baixa prioridade, aceitável).
 
@@ -317,7 +402,9 @@ Nenhum template deste app está em Tailwind ainda (diferente de `vendas/lista_an
 13. **Lógica de negócio pesada dentro das views** — `criarCliente`/`atualizarCliente`
     (`views.py:143-331`) concentram validação de endereço, cônjuge, telefones e
     `transaction.atomic()` inline, com duplicação significativa de blocos entre as duas funções.
-    Diferente de `vendas`, que tem `services.py` — aqui não existe camada de serviço.
+    **Parcialmente endereçado em 2026-07-09**: `services.py` existe agora, mas só cobre o fluxo
+    de representante legal — o grosso da lógica de `criarCliente`/`atualizarCliente` continua na
+    view.
 
 14. **Sobreposição de semântica em `is_ativo`** (ver §4) — mesmo campo usado tanto para
     "rascunho de wizard não finalizado" quanto para "cliente soft-deletado". Não confirmado como
@@ -331,7 +418,7 @@ Nenhum template deste app está em Tailwind ainda (diferente de `vendas/lista_an
 
 ## 11. Migrations — Histórico Estrutural Relevante
 
-34 migrations no total. Marcos relevantes:
+36 migrations no total. Marcos relevantes:
 
 | Migration | Mudança |
 |---|---|
@@ -347,6 +434,8 @@ Nenhum template deste app está em Tailwind ainda (diferente de `vendas/lista_an
 | `0032` | adiciona `status` em `ClienteDocumento` |
 | `0033` | adiciona `pertence_a` e choice `RG_NOVO` |
 | `0034` | adiciona `uuid` em `ClienteDocumento` |
+| `0035` | adiciona `conj_profissao`/`conj_nacionalidade` (trabalho paralelo do usuário, commit `8dd70e6`) |
+| `0036` | **cria `ClienteRepresentante` e `RepresentanteDocumento`** (feature representante legal PJ, depende de `0035`) |
 
 Sequência 0028→0029→0030→0031 mostra uma mudança de abordagem em andamento: campos de arquivo
 direto no `Cliente` foram tentados primeiro, depois abandonados em favor da tabela auxiliar
@@ -357,18 +446,27 @@ direto no `Cliente` foram tentados primeiro, depois abandonados em favor da tabe
 ## 12. Pendências / Próximos Passos
 
 Detalhado com estimativas no relatório de auditoria: `C:\Users\David\dev-vault\GLOT\revisoes\clientes-2026-07-07.md`.
+Nenhum item abaixo foi resolvido pela feature de representante legal (2026-07-09) — permanecem
+válidos.
 
 - Corrigir `deleteCliente` para exigir POST (achado #1).
 - Ofuscar/liberar `documento` no soft-delete, igual já é feito com `email` (achado #2).
 - Adicionar validação server-side de tipo/tamanho em `ClienteDocumentoForm`/`ClienteDocumento`
-  (achado #3).
-- Unificar as 3 implementações de validação de CPF/CNPJ (achado #4).
+  (achado #3) — `RepresentanteDocumento` já tem (`validate_documento_representante`), poderia
+  servir de referência direta pro fix.
+- Unificar as implementações de validação de CPF/CNPJ — agora são **3 vivas + 1 morta**:
+  `forms.validar_cpf` (em uso pelo form de Cliente), `validators.validar_cpf` (consolidada em
+  2026-07-09, mas só documentada/pronta — sem consumidor migrado ainda), `Cliente.validar_cpf`
+  (morta) (achado #4).
 - Escrever testes para `selectCliente`, `listaClienteRelatorio`, views de wizard,
-  `_wizard_validar_finalizacao`, `deleteCliente` via GET, `ClienteTelefoneForm`, `tasks.py` (§9).
+  `_wizard_validar_finalizacao`, `deleteCliente` via GET, `ClienteTelefoneForm`, `tasks.py`,
+  `validators.validar_cpf` (§9).
 - Remover código morto: `Cliente.validar_cpf`, `ClienteSerializer`, `delete_cliente.html`, rota
   comentada em `urls.py` (achados #10, #11, #12).
-- Avaliar consolidação de `listaCliente`/`listaClienteRelatorio` e extração de service layer para
-  `criarCliente`/`atualizarCliente` (achados #6, #13) — decisão de arquitetura, não mexer sem
-  autorização.
+- Avaliar consolidação de `listaCliente`/`listaClienteRelatorio` (achado #6) — decisão de
+  arquitetura, não mexer sem autorização.
+- Estender `services.py` pro resto da lógica de `criarCliente`/`atualizarCliente` (achado #13) —
+  hoje só cobre representante legal, extração incompleta.
 - Situação de backup do projeto (banco + `media_compartilhada`, onde ficam os documentos deste
-  app) é risco crítico cross-cutting — ver seção dedicada no relatório de auditoria.
+  app, incluindo os novos de representante) é risco crítico cross-cutting — ver seção dedicada no
+  relatório de auditoria.

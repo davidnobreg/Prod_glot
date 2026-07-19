@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cadastrar Empreendimento — GLOT</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:#eef0f4;color:#333;font-size:14px;display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{width:185px;min-height:100vh;background:linear-gradient(180deg,#1e8a8a 0%,#13676a 100%);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;bottom:0;z-index:10}
+.sb-logo{display:flex;align-items:center;gap:9px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.15)}
+.sb-logo-img{width:46px;height:46px;background:#fff;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.sb-logo-img img{width:100%;height:100%;object-fit:cover}
+.sb-logo-img span{font-size:11px;font-weight:800;color:#1e8a8a;text-align:center;line-height:1.1}
+.sb-logo-text .t1{font-size:13px;font-weight:700;color:#fff}
+.sb-logo-text .t2{font-size:10px;color:rgba(255,255,255,.65);line-height:1.3}
+.sb-user{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.13)}
+.sb-user .lbl{font-size:10px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.04em}
+.sb-user .nome{font-size:13px;font-weight:700;color:#fff;line-height:1.3}
+.sb-user .role{font-size:10px;color:rgba(255,255,255,.6);text-transform:uppercase}
+.sb-nav{flex:1;padding:8px 0}
+.sb-item{display:flex;align-items:center;gap:9px;padding:9px 16px;color:rgba(255,255,255,.82);font-size:13px;font-weight:500;cursor:pointer;transition:background .13s}
+.sb-item:hover,.sb-item.active{background:rgba(255,255,255,.13);color:#fff}
+.sb-item i{width:15px;text-align:center;font-size:13px;opacity:.85}
+.sb-group{padding:9px 16px 3px;font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.07em}
+.sb-collapse{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;color:rgba(255,255,255,.75);font-size:13px;font-weight:500;cursor:pointer;transition:background .13s}
+.sb-collapse:hover{background:rgba(255,255,255,.1)}
+.sb-collapse .ci{display:flex;align-items:center;gap:9px}
+.sb-collapse i.arr{font-size:10px;opacity:.6}
+.sb-footer{padding:12px 14px}
+.btn-sair{width:100%;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;background:#d94f4f;border:none;border-radius:6px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:background .13s}
+.btn-sair:hover{background:#c23f3f}
+.sb-socials{display:flex;gap:12px;justify-content:center;margin-top:10px}
+.sb-socials i{color:rgba(255,255,255,.45);font-size:16px;cursor:pointer}
+.sb-socials i:hover{color:rgba(255,255,255,.8)}
+
+/* ── MAIN ── */
+.main{margin-left:185px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+
+/* topbar */
+.topbar{background:#fff;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:1px solid #dde1e7}
+.topbar-left .page-title{font-size:17px;font-weight:700;color:#222;line-height:1}
+.topbar-left .breadcrumb{font-size:12px;color:#aaa;margin-top:2px}
+.topbar-left .breadcrumb a{color:#1e8a8a;text-decoration:none;font-weight:500}
+.topbar-left .breadcrumb a:hover{text-decoration:underline}
+.btn-voltar{display:flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#555;font-size:13px;font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif;transition:background .13s}
+.btn-voltar:hover{background:#f4f4f4}
+
+/* content area */
+.content{padding:20px 24px;flex:1}
+
+/* ── STEPS ── */
+.steps-wrap{background:#fff;border-radius:8px;padding:20px 32px 16px;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.steps-row{display:flex;align-items:flex-start}
+.step-col{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;cursor:pointer}
+/* connector line between steps */
+.step-col:not(:last-child)::after{content:'';position:absolute;top:14px;left:50%;width:100%;height:2px;background:#dde1e7;z-index:0;transition:background .3s}
+.step-col.done:not(:last-child)::after{background:#1e8a8a}
+.step-col.active:not(:last-child)::after{background:#dde1e7}
+.step-circle{width:28px;height:28px;border-radius:50%;border:2px solid #dde1e7;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#bbb;position:relative;z-index:1;transition:all .2s;flex-shrink:0}
+.step-col.done .step-circle{background:#1e8a8a;border-color:#1e8a8a;color:#fff}
+.step-col.active .step-circle{background:#1e8a8a;border-color:#1e8a8a;color:#fff;box-shadow:0 0 0 4px rgba(30,138,138,.15)}
+.step-lbl{font-size:11px;color:#bbb;margin-top:5px;font-weight:600;text-align:center;white-space:nowrap}
+.step-col.active .step-lbl{color:#1e8a8a}
+.step-col.done .step-lbl{color:#1e8a8a}
+
+/* ── FORM CARD ── */
+.form-card{background:#fff;border-radius:8px;padding:24px 28px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+
+/* section heading — ícone + texto + linha */
+.sec-head{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+.sec-head i{color:#1e8a8a;font-size:14px}
+.sec-head span{font-size:12px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.06em}
+.sec-divider{flex:1;height:1px;background:#eef0f4;margin-left:10px}
+
+/* fields */
+.field{margin-bottom:16px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:13px;font-weight:600;color:#444;margin-bottom:5px}
+.field label .req{color:#d94f4f}
+.field label .opt{color:#bbb;font-weight:400;font-size:12px;margin-left:3px}
+.field input,.field select,.field textarea{
+  width:100%;padding:8px 11px;font-size:13px;font-family:'Nunito',sans-serif;
+  border:1px solid #d4d8df;border-radius:6px;background:#fff;color:#333;
+  outline:none;transition:border-color .15s,box-shadow .15s;line-height:1.4
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#1e8a8a;box-shadow:0 0 0 3px rgba(30,138,138,.1)}
+.field input::placeholder,.field textarea::placeholder{color:#c0c4cc}
+.field textarea{resize:vertical;min-height:82px}
+.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
+.field .hint{font-size:11px;color:#aaa;margin-top:4px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.row-cep{display:grid;grid-template-columns:140px 1fr 80px;gap:14px}
+
+/* inner divider */
+.inner-div{height:1px;background:#eef0f4;margin:20px 0}
+
+/* upload */
+.upload-box{border:2px dashed #cdd0d8;border-radius:6px;padding:22px;text-align:center;cursor:pointer;color:#bbb;transition:all .15s}
+.upload-box:hover{border-color:#1e8a8a;color:#1e8a8a;background:#f2fafa}
+.upload-box i{font-size:26px;display:block;margin-bottom:7px}
+.upload-box .u1{font-size:13px;font-weight:600}
+.upload-box .u2{font-size:11px;margin-top:3px}
+
+/* same-addr toggle */
+.chk-row{display:flex;align-items:center;gap:9px;padding:9px 13px;background:#fffce8;border:1px solid #f0df7a;border-radius:6px;cursor:pointer;margin-bottom:16px}
+.chk-row input[type=checkbox]{width:15px;height:15px;accent-color:#1e8a8a;cursor:pointer;flex-shrink:0}
+.chk-row span{font-size:13px;font-weight:600;color:#7a6800}
+
+/* rep cards */
+.rep-card{border:1px solid #e4e8ee;border-radius:8px;overflow:hidden;margin-bottom:12px}
+.rep-head{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;background:#f6f8fb;border-bottom:1px solid #e4e8ee}
+.rep-badge{font-size:10px;font-weight:700;color:#1e8a8a;background:#dff2f2;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em}
+.rep-body{padding:16px 18px}
+.btn-rmv{display:flex;align-items:center;gap:5px;padding:4px 11px;border:1px solid #ddd;border-radius:5px;background:#fff;color:#999;font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:600;transition:all .13s}
+.btn-rmv:hover{border-color:#d94f4f;color:#d94f4f;background:#fff5f5}
+.rep-subsec{font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:6px;margin:14px 0 10px}
+.rep-subsec i{color:#1e8a8a}
+.btn-add-rep{width:100%;display:flex;align-items:center;justify-content:center;gap:7px;padding:11px;border:2px dashed #b5d8d8;border-radius:8px;background:#f2fafa;color:#1e8a8a;font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .15s;margin-top:4px}
+.btn-add-rep:hover{background:#1e8a8a;color:#fff;border-style:solid}
+
+/* config */
+.cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cfg-card{background:#f6f8fb;border:1px solid #e4e8ee;border-radius:6px;padding:13px 15px}
+.cfg-card label{display:block;font-size:12px;font-weight:700;color:#555;margin-bottom:6px}
+.cfg-card input,.cfg-card select{width:100%;padding:7px 10px;font-size:13px;font-family:'Nunito',sans-serif;border:1px solid #d4d8df;border-radius:5px;background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+.cfg-card input:focus,.cfg-card select:focus{border-color:#1e8a8a;box-shadow:0 0 0 3px rgba(30,138,138,.1)}
+.cfg-card .hint{font-size:11px;color:#aaa;margin-top:5px;line-height:1.4}
+
+/* docs */
+.doc-list{display:flex;flex-direction:column;gap:8px}
+.doc-row{display:flex;align-items:center;gap:11px;padding:9px 13px;border:1px solid #e4e8ee;border-radius:6px;background:#fff}
+.doc-ic{width:32px;height:32px;background:#dff2f2;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#1e8a8a;flex-shrink:0}
+.doc-ic i{font-size:14px}
+.doc-inf{flex:1}
+.doc-name{font-size:13px;font-weight:600;color:#333}
+.doc-meta{font-size:11px;color:#bbb}
+.badge-std{font-size:10px;background:#dff2f2;color:#1e8a8a;padding:1px 7px;border-radius:20px;font-weight:700;margin-left:5px}
+.btn-doc-rm{padding:4px 10px;border:1px solid #ddd;border-radius:5px;background:#fff;color:#aaa;font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:600;transition:all .13s}
+.btn-doc-rm:hover{border-color:#d94f4f;color:#d94f4f;background:#fff5f5}
+.doc-add{display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;border:2px dashed #cdd0d8;border-radius:6px;color:#999;font-size:13px;font-weight:600;cursor:pointer;transition:all .13s}
+.doc-add:hover{border-color:#1e8a8a;color:#1e8a8a;background:#f2fafa}
+
+/* ── NAV BAR (fora do card, no fundo cinza) ── */
+.nav-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 0 4px}
+.nav-right{display:flex;align-items:center;gap:8px}
+.btn-cancelar{display:flex;align-items:center;gap:6px;padding:8px 18px;border:2px solid #d94f4f;border-radius:6px;background:#fff;color:#d94f4f;font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .13s}
+.btn-cancelar:hover{background:#fff0f0}
+.btn-anterior{display:flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#555;font-size:13px;font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif;transition:background .13s}
+.btn-anterior:hover{background:#f4f4f4}
+.btn-proximo{display:flex;align-items:center;gap:6px;padding:8px 20px;border:none;border-radius:6px;background:#1e8a8a;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:background .13s}
+.btn-proximo:hover{background:#166f6f}
+
+/* step panels */
+.step-panel{display:none}
+.step-panel.active{display:block}
+
+/* footer */
+.footer{padding:12px 24px;font-size:11px;color:#bbb;text-align:right;border-top:1px solid #e2e5ea;background:#fff;margin-top:auto}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-img"><span>GLOT</span></div>
+    <div class="sb-logo-text">
+      <div class="t1">GLOT</div>
+      <div class="t2">Sistema<br>de Gestão</div>
+    </div>
+  </div>
+  <div class="sb-user">
+    <div class="lbl">Usuário logado</div>
+    <div class="nome">DAVID</div>
+    <div class="role">ADMINISTRADOR</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-item"><i class="fa-solid fa-gauge"></i> Dashboard</div>
+    <div class="sb-item active"><i class="fa-solid fa-building"></i> Empreendimentos</div>
+    <div class="sb-group">Listagem</div>
+    <div class="sb-collapse"><span class="ci"><i class="fa-solid fa-list"></i>Listagem</span><i class="fa-solid fa-chevron-down arr"></i></div>
+    <div class="sb-group">Movimentação</div>
+    <div class="sb-collapse"><span class="ci"><i class="fa-solid fa-arrows-rotate"></i>Movimentação</span><i class="fa-solid fa-chevron-down arr"></i></div>
+    <div class="sb-group">Cadastros</div>
+    <div class="sb-collapse"><span class="ci"><i class="fa-solid fa-user-plus"></i>Cadastros</span><i class="fa-solid fa-chevron-down arr"></i></div>
+    <div class="sb-group">Documentos</div>
+    <div class="sb-collapse"><span class="ci"><i class="fa-solid fa-file-lines"></i>Documentos</span><i class="fa-solid fa-chevron-down arr"></i></div>
+  </nav>
+  <div class="sb-footer">
+    <button class="btn-sair"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+    <div class="sb-socials">
+      <i class="fa-brands fa-facebook"></i>
+      <i class="fa-brands fa-instagram"></i>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-title">Cadastrar Empreendimento</div>
+      <div class="breadcrumb"><a href="#">Início</a> / <a href="#">Empreendimentos</a> / Cadastrar</div>
+    </div>
+    <button class="btn-voltar"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+  </div>
+
+  <div class="content">
+
+    <!-- STEPS -->
+    <div class="steps-wrap">
+      <div class="steps-row">
+        <div class="step-col active" onclick="goTo(0)"><div class="step-circle" id="sc0">1</div><div class="step-lbl">Dados gerais</div></div>
+        <div class="step-col" onclick="goTo(1)"><div class="step-circle" id="sc1">2</div><div class="step-lbl">Empresa</div></div>
+        <div class="step-col" onclick="goTo(2)"><div class="step-circle" id="sc2">3</div><div class="step-lbl">Endereço</div></div>
+        <div class="step-col" onclick="goTo(3)"><div class="step-circle" id="sc3">4</div><div class="step-lbl">Representantes</div></div>
+        <div class="step-col" onclick="goTo(4)"><div class="step-circle" id="sc4">5</div><div class="step-lbl">Configurações</div></div>
+        <div class="step-col" onclick="goTo(5)"><div class="step-circle" id="sc5">6</div><div class="step-lbl">Documentos</div></div>
+      </div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="step-panel active" id="panel0">
+      <div class="form-card">
+        <div class="sec-head"><i class="fa-solid fa-building"></i><span>Dados do empreendimento</span><div class="sec-divider"></div></div>
+        <div class="row2">
+          <div class="field"><label>Nome do empreendimento <span class="req">*</span></label><input type="text" placeholder="Ex: Residencial Vila Nova" value="Residencial Bela Vista"/></div>
+          <div class="field"><label>Telefone de contato <span class="req">*</span></label><input type="text" placeholder="(99) 99999-9999" value="(88) 99876-5432"/></div>
+        </div>
+        <div class="field"><label>Observações <span class="opt">opcional</span></label><textarea placeholder="Informações adicionais sobre o empreendimento..."></textarea></div>
+
+        <div class="inner-div"></div>
+        <div class="sec-head"><i class="fa-regular fa-image"></i><span>Logo</span><div class="sec-divider"></div></div>
+        <div class="upload-box">
+          <i class="fa-regular fa-cloud-arrow-up"></i>
+          <div class="u1">Arraste a logo ou clique para selecionar</div>
+          <div class="u2">Apenas JPG · máximo 10 MB</div>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <button class="btn-cancelar"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+        <div class="nav-right"><button class="btn-proximo" onclick="goTo(1)">Próximo <i class="fa-solid fa-arrow-right"></i></button></div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step-panel" id="panel1">
+      <div class="form-card">
+        <div class="sec-head"><i class="fa-solid fa-briefcase"></i><span>Pessoa jurídica</span><div class="sec-divider"></div></div>
+        <div class="row2">
+          <div class="field"><label>CNPJ <span class="req">*</span></label><input type="text" placeholder="00.000.000/0001-00" value="12.345.678/0001-99"/></div>
+          <div class="field"><label>Razão social <span class="req">*</span></label><input type="text" value="Construtora Bela Vista Ltda"/></div>
+        </div>
+
+        <div class="inner-div"></div>
+        <div class="sec-head"><i class="fa-solid fa-building-columns"></i><span>Dados bancários</span><div class="sec-divider"></div></div>
+        <div class="row2">
+          <div class="field"><label>Banco <span class="req">*</span></label><select><option>Banco do Brasil</option><option selected>Banco do Nordeste</option><option>Caixa Econômica Federal</option><option>Sicoob</option><option>Sicred</option></select></div>
+          <div class="field"><label>Código do banco</label><input type="text" value="004"/></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Agência <span class="req">*</span></label><input type="text" value="0001"/></div>
+          <div class="field"><label>Conta <span class="req">*</span></label><input type="text" value="12345-6"/></div>
+        </div>
+
+        <div class="inner-div"></div>
+        <div class="sec-head"><i class="fa-solid fa-map-pin"></i><span>Endereço da empresa</span><div class="sec-divider"></div></div>
+        <div class="row-cep">
+          <div class="field"><label>CEP <span class="req">*</span></label><input type="text" placeholder="00000-000" value="63010-050"/></div>
+          <div class="field"><label>Cidade <span class="req">*</span></label><input type="text" value="Juazeiro do Norte"/></div>
+          <div class="field"><label>Estado <span class="req">*</span></label><select><option selected>CE</option><option>PB</option><option>PE</option><option>SP</option><option>RJ</option><option>MG</option></select></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Bairro <span class="req">*</span></label><input type="text" value="Centro"/></div>
+          <div class="field"><label>Rua <span class="req">*</span></label><input type="text" value="Rua São Pedro"/></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Número <span class="req">*</span></label><input type="text" value="120"/></div>
+          <div class="field"><label>Complemento <span class="opt">opcional</span></label><input type="text" placeholder="Sala, andar, bloco..."/></div>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <button class="btn-cancelar"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+        <div class="nav-right">
+          <button class="btn-anterior" onclick="goTo(0)"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+          <button class="btn-proximo" onclick="goTo(2)">Próximo <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step-panel" id="panel2">
+      <div class="form-card">
+        <div class="sec-head"><i class="fa-solid fa-map-pin"></i><span>Endereço do empreendimento</span><div class="sec-divider"></div></div>
+        <label class="chk-row">
+          <input type="checkbox" id="same-addr" onchange="toggleSameAddr()"/>
+          <span><i class="fa-regular fa-copy" style="margin-right:4px"></i>Usar o mesmo endereço da empresa</span>
+        </label>
+        <div id="empr-fields">
+          <div class="row-cep">
+            <div class="field"><label>CEP <span class="req">*</span></label><input type="text" placeholder="00000-000" value="63030-210"/></div>
+            <div class="field"><label>Cidade <span class="req">*</span></label><input type="text" value="Juazeiro do Norte"/></div>
+            <div class="field"><label>Estado <span class="req">*</span></label><select><option selected>CE</option><option>PB</option><option>PE</option></select></div>
+          </div>
+          <div class="row2">
+            <div class="field"><label>Bairro <span class="req">*</span></label><input type="text" value="Lagoa Seca"/></div>
+            <div class="field"><label>Rua / Estrada <span class="req">*</span></label><input type="text" value="Estrada do Sítio Alegre"/></div>
+          </div>
+          <div class="row2">
+            <div class="field"><label>Número</label><input type="text" value="s/n"/></div>
+            <div class="field"><label>Complemento / Referência <span class="opt">opcional</span></label><input type="text" placeholder="Próximo a..."/></div>
+          </div>
+        </div>
+
+        <div class="inner-div"></div>
+        <div class="sec-head"><i class="fa-solid fa-file-lines"></i><span>Registro e foro</span><div class="sec-divider"></div></div>
+        <div class="row2">
+          <div class="field"><label>Matrícula do imóvel</label><input type="text" value="12.345"/><div class="hint">Número de matrícula registrado em cartório</div></div>
+          <div class="field"><label>Cidade do foro</label><input type="text" value="Juazeiro do Norte"/><div class="hint">Comarca para resolução de disputas contratuais</div></div>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <button class="btn-cancelar"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+        <div class="nav-right">
+          <button class="btn-anterior" onclick="goTo(1)"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+          <button class="btn-proximo" onclick="goTo(3)">Próximo <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step-panel" id="panel3">
+      <div class="form-card">
+        <div class="sec-head"><i class="fa-solid fa-users"></i><span>Representantes legais</span><div class="sec-divider"></div></div>
+        <p style="font-size:13px;color:#999;margin-bottom:16px">Sócios ou administradores que assinam contratos por esta empresa. Pelo menos 1 obrigatório.</p>
+        <div id="rep-list"></div>
+        <button class="btn-add-rep" onclick="addRep()"><i class="fa-solid fa-plus"></i> Adicionar outro representante</button>
+      </div>
+      <div class="nav-bar">
+        <button class="btn-cancelar"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+        <div class="nav-right">
+          <button class="btn-anterior" onclick="goTo(2)"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+          <button class="btn-proximo" onclick="goTo(4)">Próximo <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step-panel" id="panel4">
+      <div class="form-card">
+        <div class="sec-head"><i class="fa-solid fa-sliders"></i><span>Configurações operacionais</span><div class="sec-divider"></div></div>
+        <p style="font-size:13px;color:#999;margin-bottom:16px">Parâmetros financeiros usados nas vendas e cobranças deste empreendimento.</p>
+        <div class="cfg-grid">
+          <div class="cfg-card">
+            <label>Tempo de reserva (dias) <span class="req" style="color:#d94f4f">*</span></label>
+            <input type="number" value="3" min="1"/>
+            <div class="hint">Prazo máximo que um lote fica em reserva antes de ser liberado automaticamente</div>
+          </div>
+          <div class="cfg-card">
+            <label>Quantidade de parcelas <span class="req" style="color:#d94f4f">*</span></label>
+            <input type="number" value="120" min="1"/>
+            <div class="hint">Número padrão de parcelas para financiamento</div>
+          </div>
+          <div class="cfg-card">
+            <label>Desconto padrão (%)</label>
+            <input type="number" value="0" min="0" max="100"/>
+            <div class="hint">Percentual aplicado por padrão nas propostas de venda</div>
+          </div>
+          <div class="cfg-card">
+            <label>Índice de correção <span class="req" style="color:#d94f4f">*</span></label>
+            <select><option selected>IGPM</option><option>IPCA</option><option>INCC</option></select>
+            <div class="hint">Índice de correção monetária das parcelas</div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <button class="btn-cancelar"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+        <div class="nav-right">
+          <button class="btn-anterior" onclick="goTo(3)"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+          <button class="btn-proximo" onclick="goTo(5)">Próximo <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step-panel" id="panel5">
+      <div class="form-card">
+        <div class="sec-head"><i class="fa-solid fa-file-lines"></i><span>Documentos vinculados</span><div class="sec-divider"></div></div>
+        <p style="font-size:13px;color:#999;margin-bottom:16px">Modelos de contrato e documento utilizados neste empreendimento.</p>
+        <div class="doc-list">
+          <div class="doc-row">
+            <div class="doc-ic"><i class="fa-regular fa-file-contract"></i></div>
+            <div class="doc-inf"><div class="doc-name">Contrato de compra e venda<span class="badge-std">padrão</span></div><div class="doc-meta">Modelo padrão · Vinculado em 10/06/2026</div></div>
+            <button class="btn-doc-rm">Remover</button>
+          </div>
+          <div class="doc-row">
+            <div class="doc-ic"><i class="fa-regular fa-file-lines"></i></div>
+            <div class="doc-inf"><div class="doc-name">Termo de reserva</div><div class="doc-meta">Modelo padrão · Vinculado em 10/06/2026</div></div>
+            <button class="btn-doc-rm">Remover</button>
+          </div>
+          <div class="doc-row">
+            <div class="doc-ic"><i class="fa-regular fa-file-lines"></i></div>
+            <div class="doc-inf"><div class="doc-name">Distrato</div><div class="doc-meta">Modelo padrão · Vinculado em 10/06/2026</div></div>
+            <button class="btn-doc-rm">Remover</button>
+          </div>
+          <div class="doc-add"><i class="fa-solid fa-plus"></i> Vincular modelo de documento</div>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <button class="btn-cancelar"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+        <div class="nav-right">
+          <button class="btn-anterior" onclick="goTo(4)"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+          <button class="btn-proximo"><i class="fa-regular fa-floppy-disk"></i> Salvar empreendimento</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="footer">© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151</div>
+</div>
+
+<script>
+let current=0,repCount=1,reps=[{id:1,nome:'José Almeida',cpf:'012.345.678-90',cargo:'Sócio-Administrador'}];
+
+function goTo(idx){
+  document.getElementById('panel'+current).classList.remove('active');
+  document.querySelectorAll('.step-col').forEach((el,i)=>{
+    el.classList.remove('active','done');
+    if(i<idx)el.classList.add('done');
+    else if(i===idx)el.classList.add('active');
+    document.getElementById('sc'+i).innerHTML=i<idx?'<i class="fa-solid fa-check" style="font-size:10px"></i>':(i+1);
+  });
+  current=idx;
+  document.getElementById('panel'+current).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleSameAddr(){
+  const cb=document.getElementById('same-addr');
+  const f=document.getElementById('empr-fields');
+  f.style.opacity=cb.checked?'0.3':'1';
+  f.querySelectorAll('input,select').forEach(el=>el.disabled=cb.checked);
+}
+
+function buildRep(r,idx){
+  return`<div class="rep-card" id="rcard-${r.id}">
+  <div class="rep-head">
+    <span class="rep-badge">${idx===0?'Representante principal':'Representante '+(idx+1)}</span>
+    ${reps.length>1?`<button class="btn-rmv" onclick="removeRep(${r.id})"><i class="fa-solid fa-xmark"></i> Remover</button>`:''}
+  </div>
+  <div class="rep-body">
+    <div class="row2">
+      <div class="field"><label>Nome completo <span class="req">*</span></label><input type="text" value="${r.nome}" placeholder="Nome completo"/></div>
+      <div class="field"><label>CPF <span class="req">*</span></label><input type="text" value="${r.cpf}" placeholder="000.000.000-00"/></div>
+    </div>
+    <div class="row3">
+      <div class="field"><label>RG</label><input type="text" placeholder="Número do RG"/></div>
+      <div class="field"><label>Órgão emissor</label><input type="text" placeholder="SSP/CE"/></div>
+      <div class="field"><label>Cargo <span class="req">*</span></label><input type="text" value="${r.cargo}" placeholder="Ex: Sócio-Administrador"/></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>E-mail</label><input type="text" placeholder="email@empresa.com.br"/></div>
+      <div class="field"><label>Estado civil</label><select><option>Solteiro(a)</option><option selected>Casado(a)</option><option>Divorciado(a)</option><option>Viúvo(a)</option></select></div>
+    </div>
+    <div class="inner-div"></div>
+    <div class="rep-subsec"><i class="fa-solid fa-map-pin"></i> Endereço do representante</div>
+    <div class="row-cep">
+      <div class="field"><label>CEP</label><input type="text" placeholder="00000-000"/></div>
+      <div class="field"><label>Cidade</label><input type="text" placeholder="Cidade"/></div>
+      <div class="field"><label>Estado</label><select><option>CE</option><option>PB</option><option>PE</option><option>SP</option><option>RJ</option></select></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Bairro</label><input type="text" placeholder="Bairro"/></div>
+      <div class="field"><label>Rua</label><input type="text" placeholder="Rua"/></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Número</label><input type="text" placeholder="Nº"/></div>
+      <div class="field"><label>Complemento <span class="opt">opcional</span></label><input type="text" placeholder="Apto, sala..."/></div>
+    </div>
+  </div>
+</div>`;
+}
+
+function renderReps(){document.getElementById('rep-list').innerHTML=reps.map((r,i)=>buildRep(r,i)).join('')}
+function addRep(){repCount++;reps.push({id:repCount,nome:'',cpf:'',cargo:''});renderReps()}
+function removeRep(id){if(reps.length===1)return;reps=reps.filter(r=>r.id!==id);renderReps()}
+renderReps();
+</script>
+</body>
+</html>

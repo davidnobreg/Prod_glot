@@ -1,0 +1,212 @@
+- generic [ref=f29e2]:
+  - text: 
+  - complementary "Menu principal" [ref=f29e3]:
+    - generic [ref=f29e4]:
+      - link [ref=f29e5] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - img "logo_carlos_e_celso" [ref=f29e7]
+        - generic [ref=f29e8]:
+          - strong [ref=f29e9]: GLOT
+          - text: Sistema de Gestão
+      - button "Recolher menu" [ref=f29e10] [cursor=pointer]:
+        - generic [ref=f29e11]: 
+      - text: 
+    - generic [ref=f29e12]:
+      - generic [ref=f29e13]: Usuario logado
+      - strong [ref=f29e14]: DAVID
+      - text: ADMINISTRADOR
+    - navigation [ref=f29e15]:
+      - link " Dashboard" [ref=f29e16] [cursor=pointer]:
+        - /url: /dashboard/
+        - generic [ref=f29e17]: 
+        - generic [ref=f29e18]: Dashboard
+      - link " Empreendimentos" [ref=f29e19] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - generic [ref=f29e20]: 
+        - generic [ref=f29e21]: Empreendimentos
+      - button "Listagem " [ref=f29e22] [cursor=pointer]:
+        - generic [ref=f29e23]: Listagem
+        - generic [ref=f29e24]: 
+      - text:  
+      - button "Movimentacao " [ref=f29e25] [cursor=pointer]:
+        - generic [ref=f29e26]: Movimentacao
+        - generic [ref=f29e27]: 
+      - text:    
+      - button "Cadastros " [ref=f29e28] [cursor=pointer]:
+        - generic [ref=f29e29]: Cadastros
+        - generic [ref=f29e30]: 
+      - text:    
+      - button "Documentos " [ref=f29e31] [cursor=pointer]:
+        - generic [ref=f29e32]: Documentos
+        - generic [ref=f29e33]: 
+      - text:  
+    - button " Sair" [ref=f29e36] [cursor=pointer]:
+      - generic [ref=f29e37]: 
+      - generic [ref=f29e38]: Sair
+  - generic [ref=f29e39]:
+    - main [ref=f29e40]:
+      - generic [ref=f29e44]:
+        - heading "Cadastrar Empreendimento" [level=1] [ref=f29e45]
+        - navigation "breadcrumb" [ref=f29e46]:
+          - list [ref=f29e47]:
+            - listitem [ref=f29e48]:
+              - link "Início" [ref=f29e49] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f29e50]:
+              - text: /
+              - link "Empreendimentos" [ref=f29e51] [cursor=pointer]:
+                - /url: /empreendimentos/listar_empreendimento/
+            - listitem [ref=f29e52]: / Cadastrar
+      - generic [ref=f29e54]:
+        - generic [ref=f29e56]:
+          - generic [ref=f29e57]:
+            - generic [ref=f29e58]: 
+            - generic [ref=f29e60]: Dados gerais
+          - generic [ref=f29e61]:
+            - generic [ref=f29e62]: "2"
+            - generic [ref=f29e63]: Empresa
+          - generic [ref=f29e64]:
+            - generic [ref=f29e65]: "3"
+            - generic [ref=f29e66]: Representantes
+          - generic [ref=f29e67]:
+            - generic [ref=f29e68]: "4"
+            - generic [ref=f29e69]: Configurações
+          - generic [ref=f29e70]:
+            - generic [ref=f29e71]: "5"
+            - generic [ref=f29e72]: Revisão
+        - generic [ref=f29e73]:
+          - generic [ref=f29e75]:
+            - generic [ref=f29e76]:
+              - generic [ref=f29e77]: 
+              - generic [ref=f29e78]: Pessoa jurídica
+            - generic [ref=f29e80]:
+              - generic [ref=f29e81]:
+                - generic [ref=f29e82]: CNPJ *
+                - textbox "CNPJ (apenas números)" [ref=f29e83]
+              - generic [ref=f29e84]:
+                - generic [ref=f29e85]: Razão social *
+                - textbox [ref=f29e86]
+            - generic [ref=f29e88]:
+              - generic [ref=f29e89]: 
+              - generic [ref=f29e90]: Dados bancários
+            - generic [ref=f29e92]:
+              - generic [ref=f29e93]:
+                - generic [ref=f29e94]: Banco *
+                - combobox [ref=f29e95]:
+                  - option "Selecione o Banco" [selected]
+                  - option "---------"
+                  - option "Banco do Brasil"
+                  - option "Banco do Nodeste"
+                  - option "Caixa Economica"
+                  - option "Sicoob"
+                  - option "Sincred"
+              - generic [ref=f29e96]:
+                - generic [ref=f29e97]: Código do banco
+                - textbox [ref=f29e98]
+              - generic [ref=f29e99]:
+                - generic [ref=f29e100]: Agência *
+                - textbox [ref=f29e101]
+              - generic [ref=f29e102]:
+                - generic [ref=f29e103]: Conta *
+                - textbox [ref=f29e104]
+            - generic [ref=f29e106]:
+              - generic [ref=f29e107]: 
+              - generic [ref=f29e108]: Endereço da empresa
+            - generic [ref=f29e110]:
+              - generic [ref=f29e111]:
+                - generic [ref=f29e112]: CEP *
+                - textbox "Digite o CEP" [ref=f29e113]
+              - generic [ref=f29e114]:
+                - generic [ref=f29e115]: Cidade *
+                - textbox "Cidade" [ref=f29e116]
+              - generic [ref=f29e117]:
+                - generic [ref=f29e118]: Estado *
+                - combobox [ref=f29e119]:
+                  - option "---------" [selected]
+                  - option "Paraíba"
+                  - option "Acre"
+                  - option "Alagoas"
+                  - option "Amapá"
+                  - option "Amazonas"
+                  - option "Bahia"
+                  - option "Ceará"
+                  - option "Distrito Federal"
+                  - option "Espírito Santo"
+                  - option "Goiás"
+                  - option "Maranhão"
+                  - option "Mato Grosso"
+                  - option "Mato Grosso do Sul"
+                  - option "Minas Gerais"
+                  - option "Pará"
+                  - option "Pernambuco"
+                  - option "Piauí"
+                  - option "Paraná"
+                  - option "Rio de Janeiro"
+                  - option "Rio Grande do Norte"
+                  - option "Rio Grande do Sul"
+                  - option "Rondônia"
+                  - option "Roraima"
+                  - option "Santa Catarina"
+                  - option "São Paulo"
+                  - option "Sergipe"
+                  - option "Tocantins"
+              - generic [ref=f29e120]:
+                - generic [ref=f29e121]: Bairro *
+                - textbox "Bairro" [ref=f29e122]
+              - generic [ref=f29e123]:
+                - generic [ref=f29e124]: Rua *
+                - textbox "Rua ou Avenida" [ref=f29e125]
+              - generic [ref=f29e126]:
+                - generic [ref=f29e127]: Número *
+                - textbox "Número" [ref=f29e128]
+              - generic [ref=f29e129]:
+                - generic [ref=f29e130]: Complemento opcional
+                - textbox "Complemento" [ref=f29e131]
+          - generic [ref=f29e132]:
+            - link "Cancelar" [ref=f29e133] [cursor=pointer]:
+              - /url: /empreendimentos/listar_empreendimento/
+              - generic [ref=f29e134]: 
+              - text: Cancelar
+            - generic [ref=f29e135]:
+              - link "Anterior" [ref=f29e136] [cursor=pointer]:
+                - /url: /empreendimentos/cadastrar/step1/
+                - generic [ref=f29e137]: 
+                - text: Anterior
+              - button "Próximo" [ref=f29e138] [cursor=pointer]:
+                - text: Próximo
+                - generic [ref=f29e139]: 
+        - generic [ref=f29e141]:
+          - generic [ref=f29e142]:
+            - generic [ref=f29e143]: 
+            - generic [ref=f29e144]: Documentos da empresa
+          - paragraph [ref=f29e146]: Contrato social, procuração, alvará e licença ambiental (PDF ou imagem, até 20MB).
+          - paragraph [ref=f29e148]: Nenhum documento anexado ainda.
+          - generic [ref=f29e149]:
+            - generic [ref=f29e150]:
+              - generic [ref=f29e151]: Categoria
+              - combobox [ref=f29e152]:
+                - option "Contrato Social" [selected]
+                - option "Alvará"
+                - option "Licença Ambiental"
+                - option "Procuração"
+            - generic [ref=f29e153]:
+              - generic [ref=f29e154]: Nome (opcional)
+              - textbox [ref=f29e155]
+            - generic [ref=f29e156]:
+              - generic [ref=f29e157]: Arquivo
+              - button "Choose File" [ref=f29e158] [cursor=pointer]
+            - button [ref=f29e159] [cursor=pointer]:
+              - generic [ref=f29e160]:
+                - generic [ref=f29e161]: 
+                - text: Anexar
+    - contentinfo [ref=f29e162]:
+      - navigation [ref=f29e163]:
+        - generic [ref=f29e164]:
+          - generic [ref=f29e165]:
+            - link "Facebook" [ref=f29e166] [cursor=pointer]:
+              - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+              - generic [ref=f29e167]: 
+            - link "Instagram" [ref=f29e168] [cursor=pointer]:
+              - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+              - generic [ref=f29e169]: 
+          - paragraph [ref=f29e170]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

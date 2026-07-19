@@ -4,6 +4,8 @@ from decimal import Decimal, InvalidOperation
 from django import forms
 from django.core.exceptions import ValidationError
 
+from base.models import Endereco
+
 from .models import (
 	Cliente,
 	ClienteDocumento,
@@ -459,6 +461,33 @@ class ClienteRepresentanteForm(forms.ModelForm):
 		if cleaned_data.get('estado_civil') == 'casado' and not cleaned_data.get('conj_nome'):
 			self.add_error('conj_nome', 'Nome do cônjuge é obrigatório.')
 		return cleaned_data
+
+
+# ===================================================================
+# FORM ENDEREÇO DO REPRESENTANTE (base.Endereco, opcional)
+# ===================================================================
+class EnderecoRepresentanteForm(forms.ModelForm):
+
+	class Meta:
+		model = Endereco
+		fields = ['cep', 'rua', 'numero', 'complemento', 'bairro', 'cidade', 'estado']
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		for field in self.fields.values():
+			field.required = False
+			_apply_widget_style(field)
+		config = {
+			'cep': {'placeholder': 'CEP'},
+			'rua': {'placeholder': 'Rua ou Avenida'},
+			'numero': {'placeholder': 'Número'},
+			'complemento': {'placeholder': 'Complemento'},
+			'bairro': {'placeholder': 'Bairro'},
+			'cidade': {'placeholder': 'Cidade'},
+		}
+		for name, attrs in config.items():
+			if name in self.fields:
+				self.fields[name].widget.attrs.update(attrs)
 
 
 # ===================================================================

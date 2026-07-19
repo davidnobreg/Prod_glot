@@ -1,0 +1,128 @@
+- generic [ref=f12e2]:
+  - text: 
+  - complementary "Menu principal" [ref=f12e3]:
+    - generic [ref=f12e4]:
+      - link [ref=f12e5] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - img "logo_carlos_e_celso" [ref=f12e7]
+        - generic [ref=f12e8]:
+          - strong [ref=f12e9]: GLOT
+          - text: Sistema de Gestão
+      - button "Recolher menu" [ref=f12e10] [cursor=pointer]:
+        - generic [ref=f12e11]: 
+      - text: 
+    - generic [ref=f12e12]:
+      - generic [ref=f12e13]: Usuario logado
+      - strong [ref=f12e14]: DAVID
+      - text: ADMINISTRADOR
+    - navigation [ref=f12e15]:
+      - link " Dashboard" [ref=f12e16] [cursor=pointer]:
+        - /url: /dashboard/
+        - generic [ref=f12e17]: 
+        - generic [ref=f12e18]: Dashboard
+      - link " Empreendimentos" [ref=f12e19] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - generic [ref=f12e20]: 
+        - generic [ref=f12e21]: Empreendimentos
+      - button "Listagem " [ref=f12e22] [cursor=pointer]:
+        - generic [ref=f12e23]: Listagem
+        - generic [ref=f12e24]: 
+      - text:  
+      - button "Movimentacao " [ref=f12e25] [cursor=pointer]:
+        - generic [ref=f12e26]: Movimentacao
+        - generic [ref=f12e27]: 
+      - text:    
+      - button "Cadastros " [ref=f12e28] [cursor=pointer]:
+        - generic [ref=f12e29]: Cadastros
+        - generic [ref=f12e30]: 
+      - text:    
+      - button "Documentos " [ref=f12e31] [cursor=pointer]:
+        - generic [ref=f12e32]: Documentos
+        - generic [ref=f12e33]: 
+      - text:  
+    - button " Sair" [ref=f12e36] [cursor=pointer]:
+      - generic [ref=f12e37]: 
+      - generic [ref=f12e38]: Sair
+  - generic [ref=f12e39]:
+    - main [ref=f12e40]:
+      - generic [ref=f12e44]:
+        - heading "Editar Empreendimento" [level=1] [ref=f12e45]
+        - navigation "breadcrumb" [ref=f12e46]:
+          - list [ref=f12e47]:
+            - listitem [ref=f12e48]:
+              - link "Início" [ref=f12e49] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f12e50]:
+              - text: /
+              - link "Empreendimentos" [ref=f12e51] [cursor=pointer]:
+                - /url: /empreendimentos/listar_empreendimento/
+            - listitem [ref=f12e52]: / Editar
+      - generic [ref=f12e54]:
+        - generic [ref=f12e56]:
+          - generic [ref=f12e57]:
+            - generic [ref=f12e58]: 
+            - generic [ref=f12e60]: Dados gerais
+          - generic [ref=f12e61]:
+            - generic [ref=f12e62]: 
+            - generic [ref=f12e64]: Empresa
+          - generic [ref=f12e65]:
+            - generic [ref=f12e66]: 
+            - generic [ref=f12e68]: Endereço
+          - generic [ref=f12e69]:
+            - generic [ref=f12e70]: 
+            - generic [ref=f12e72]: Representantes
+          - generic [ref=f12e73]:
+            - generic [ref=f12e74]: "5"
+            - generic [ref=f12e75]: Configurações
+          - generic [ref=f12e76]:
+            - generic [ref=f12e77]: "6"
+            - generic [ref=f12e78]: Documentos
+        - generic [ref=f12e79]:
+          - generic [ref=f12e81]:
+            - generic [ref=f12e82]:
+              - generic [ref=f12e83]: 
+              - generic [ref=f12e84]: Configurações operacionais
+            - paragraph [ref=f12e86]: Parâmetros financeiros usados nas vendas e cobranças deste empreendimento.
+            - generic [ref=f12e87]:
+              - generic [ref=f12e88]:
+                - generic [ref=f12e89]: Tempo de reserva (dias) *
+                - spinbutton [ref=f12e90]: "30"
+                - generic [ref=f12e91]: Prazo máximo que um lote fica em reserva antes de ser liberado automaticamente
+              - generic [ref=f12e92]:
+                - generic [ref=f12e93]: Quantidade de parcelas *
+                - spinbutton [ref=f12e94]: "60"
+                - generic [ref=f12e95]: Número padrão de parcelas para financiamento
+              - generic [ref=f12e96]:
+                - generic [ref=f12e97]: Desconto padrão (%)
+                - spinbutton [ref=f12e98]: "0"
+                - generic [ref=f12e99]: Percentual aplicado por padrão nas propostas de venda
+              - generic [ref=f12e100]:
+                - generic [ref=f12e101]: Índice de correção *
+                - combobox [ref=f12e102]:
+                  - option "IGPM" [selected]
+                  - option "IPCA"
+                  - option "INCC"
+                - generic [ref=f12e103]: Índice de correção monetária das parcelas
+          - generic [ref=f12e104]:
+            - button "Cancelar" [ref=f12e105] [cursor=pointer]:
+              - generic [ref=f12e106]: 
+              - text: Cancelar
+            - generic [ref=f12e107]:
+              - link "Anterior" [ref=f12e108] [cursor=pointer]:
+                - /url: /empreendimentos/editar/44f6d49e-0460-49ad-862c-93ec66281d71/step4/
+                - generic [ref=f12e109]: 
+                - text: Anterior
+              - button "Próximo" [ref=f12e110] [cursor=pointer]:
+                - text: Próximo
+                - generic [ref=f12e111]: 
+    - contentinfo [ref=f12e112]:
+      - navigation [ref=f12e113]:
+        - generic [ref=f12e114]:
+          - generic [ref=f12e115]:
+            - link "Facebook" [ref=f12e116] [cursor=pointer]:
+              - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+              - generic [ref=f12e117]: 
+            - link "Instagram" [ref=f12e118] [cursor=pointer]:
+              - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+              - generic [ref=f12e119]: 
+          - paragraph [ref=f12e120]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

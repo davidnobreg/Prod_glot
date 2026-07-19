@@ -1,0 +1,247 @@
+- generic [ref=f50e2]:
+  - text: 
+  - complementary "Menu principal" [ref=f50e3]:
+    - generic [ref=f50e4]:
+      - link [ref=f50e5] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - img "logo_carlos_e_celso" [ref=f50e7]
+        - generic [ref=f50e8]:
+          - strong [ref=f50e9]: GLOT
+          - text: Sistema de Gestão
+      - button "Recolher menu" [ref=f50e10] [cursor=pointer]:
+        - generic [ref=f50e11]: 
+      - text: 
+    - generic [ref=f50e12]:
+      - generic [ref=f50e13]: Usuario logado
+      - strong [ref=f50e14]: DAVID
+      - text: ADMINISTRADOR
+    - navigation [ref=f50e15]:
+      - link " Dashboard" [ref=f50e16] [cursor=pointer]:
+        - /url: /dashboard/
+        - generic [ref=f50e17]: 
+        - generic [ref=f50e18]: Dashboard
+      - link " Empreendimentos" [ref=f50e19] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - generic [ref=f50e20]: 
+        - generic [ref=f50e21]: Empreendimentos
+      - button "Listagem " [ref=f50e22] [cursor=pointer]:
+        - generic [ref=f50e23]: Listagem
+        - generic [ref=f50e24]: 
+      - text:  
+      - button "Movimentacao " [ref=f50e25] [cursor=pointer]:
+        - generic [ref=f50e26]: Movimentacao
+        - generic [ref=f50e27]: 
+      - text:    
+      - button "Cadastros " [ref=f50e28] [cursor=pointer]:
+        - generic [ref=f50e29]: Cadastros
+        - generic [ref=f50e30]: 
+      - text:    
+      - button "Documentos " [ref=f50e31] [cursor=pointer]:
+        - generic [ref=f50e32]: Documentos
+        - generic [ref=f50e33]: 
+      - text:  
+    - button " Sair" [ref=f50e36] [cursor=pointer]:
+      - generic [ref=f50e37]: 
+      - generic [ref=f50e38]: Sair
+  - generic [ref=f50e39]:
+    - main [ref=f50e40]:
+      - generic [ref=f50e44]:
+        - heading "Editar Empreendimento" [level=1] [ref=f50e45]
+        - navigation "breadcrumb" [ref=f50e46]:
+          - list [ref=f50e47]:
+            - listitem [ref=f50e48]:
+              - link "Início" [ref=f50e49] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f50e50]:
+              - text: /
+              - link "Empreendimentos" [ref=f50e51] [cursor=pointer]:
+                - /url: /empreendimentos/listar_empreendimento/
+            - listitem [ref=f50e52]: / Editar
+      - generic [ref=f50e54]:
+        - generic [ref=f50e56]:
+          - generic [ref=f50e57]:
+            - generic [ref=f50e58]: 
+            - generic [ref=f50e60]: Dados gerais
+          - generic [ref=f50e61]:
+            - generic [ref=f50e62]: 
+            - generic [ref=f50e64]: Empresa
+          - generic [ref=f50e65]:
+            - generic [ref=f50e66]: "3"
+            - generic [ref=f50e67]: Representantes
+          - generic [ref=f50e68]:
+            - generic [ref=f50e69]: "4"
+            - generic [ref=f50e70]: Configurações
+          - generic [ref=f50e71]:
+            - generic [ref=f50e72]: "5"
+            - generic [ref=f50e73]: Revisão
+        - generic [ref=f50e74]:
+          - generic [ref=f50e76]:
+            - generic [ref=f50e77]:
+              - generic [ref=f50e78]: 
+              - generic [ref=f50e79]: Representantes legais
+            - paragraph [ref=f50e81]: Sócios ou administradores que assinam contratos por esta empresa. Pelo menos 1 obrigatório.
+            - generic [ref=f50e83]:
+              - generic [ref=f50e84]:
+                - generic [ref=f50e85]: Representante principal
+                - button "Remover" [ref=f50e86] [cursor=pointer]:
+                  - generic [ref=f50e87]: 
+                  - text: Remover
+              - generic [ref=f50e88]:
+                - generic [ref=f50e89]:
+                  - generic [ref=f50e90]:
+                    - generic [ref=f50e91]: Nome completo *
+                    - textbox "Nome do representante" [ref=f50e92]: FULANO TESTE
+                  - generic [ref=f50e93]:
+                    - generic [ref=f50e94]: CPF *
+                    - textbox "CPF do representante" [ref=f50e95]: 123.456.789-00
+                  - generic [ref=f50e96]:
+                    - generic [ref=f50e97]: RG
+                    - textbox "RG do representante" [ref=f50e98]
+                  - generic [ref=f50e99]:
+                    - generic [ref=f50e100]: Órgão emissor
+                    - textbox [ref=f50e101]
+                  - generic [ref=f50e102]:
+                    - generic [ref=f50e103]: Cargo *
+                    - 'textbox "Cargo (ex: Sócio-administrador)" [ref=f50e104]': Socio
+                  - generic [ref=f50e105]:
+                    - generic [ref=f50e106]: E-mail
+                    - textbox [ref=f50e107]
+                  - generic [ref=f50e108]:
+                    - generic [ref=f50e109]: Estado civil
+                    - combobox [ref=f50e110]:
+                      - option "---------"
+                      - option "Solteiro"
+                      - option "Casado" [selected]
+                      - option "Divorciado"
+                      - option "Viúvo"
+                      - option "Separado judicialmente"
+                      - option "União estável"
+                - generic [ref=f50e112]:
+                  - generic [ref=f50e113]:
+                    - generic [ref=f50e114]: 
+                    - generic [ref=f50e115]: Dados do cônjuge
+                  - generic [ref=f50e116]:
+                    - generic [ref=f50e117]:
+                      - generic [ref=f50e118]: Nome do cônjuge
+                      - textbox "Nome do cônjuge" [ref=f50e119]: CICLANA TESTE
+                    - generic [ref=f50e120]:
+                      - generic [ref=f50e121]: CPF do cônjuge
+                      - textbox "CPF do cônjuge" [ref=f50e122]: 987.654.321-00
+                    - generic [ref=f50e123]:
+                      - generic [ref=f50e124]: RG do cônjuge
+                      - textbox "RG do cônjuge" [ref=f50e125]
+                    - generic [ref=f50e126]:
+                      - generic [ref=f50e127]: Órgão emissor
+                      - textbox "Órgão emissor" [ref=f50e128]
+                - generic [ref=f50e130]:
+                  - generic [ref=f50e131]: 
+                  - generic [ref=f50e132]: Endereço do representante
+                - generic [ref=f50e133]:
+                  - generic [ref=f50e134]:
+                    - generic [ref=f50e135]: CEP *
+                    - textbox "Digite o CEP" [ref=f50e136]: 63160-000
+                  - generic [ref=f50e137]:
+                    - generic [ref=f50e138]: Cidade *
+                    - textbox "Cidade" [ref=f50e139]: Potengi
+                  - generic [ref=f50e140]:
+                    - generic [ref=f50e141]: Estado *
+                    - combobox [ref=f50e142]:
+                      - option "---------"
+                      - option "Paraíba"
+                      - option "Acre"
+                      - option "Alagoas"
+                      - option "Amapá"
+                      - option "Amazonas"
+                      - option "Bahia"
+                      - option "Ceará" [selected]
+                      - option "Distrito Federal"
+                      - option "Espírito Santo"
+                      - option "Goiás"
+                      - option "Maranhão"
+                      - option "Mato Grosso"
+                      - option "Mato Grosso do Sul"
+                      - option "Minas Gerais"
+                      - option "Pará"
+                      - option "Pernambuco"
+                      - option "Piauí"
+                      - option "Paraná"
+                      - option "Rio de Janeiro"
+                      - option "Rio Grande do Norte"
+                      - option "Rio Grande do Sul"
+                      - option "Rondônia"
+                      - option "Roraima"
+                      - option "Santa Catarina"
+                      - option "São Paulo"
+                      - option "Sergipe"
+                      - option "Tocantins"
+                  - generic [ref=f50e143]:
+                    - generic [ref=f50e144]: Bairro *
+                    - textbox "Bairro" [ref=f50e145]: Centro
+                  - generic [ref=f50e146]:
+                    - generic [ref=f50e147]: Rua *
+                    - textbox "Rua ou Avenida" [ref=f50e148]: Rua Teste
+                  - generic [ref=f50e149]:
+                    - generic [ref=f50e150]: Número *
+                    - textbox "Número" [ref=f50e151]: "50"
+                  - generic [ref=f50e152]:
+                    - generic [ref=f50e153]: Complemento opcional
+                    - textbox "Complemento" [ref=f50e154]
+                - generic [ref=f50e156]: Documentos do representante
+                - generic [ref=f50e190]:
+                  - generic [ref=f50e191]: 
+                  - generic [ref=f50e193]:
+                    - generic [ref=f50e194]: RG (novo modelo) do Representante
+                    - generic [ref=f50e195]: RG (novo modelo) do Representante
+                  - link [ref=f50e196] [cursor=pointer]:
+                    - /url: /media/empreendimentos/representantes/2026/07/teste_update.pdf
+                    - generic [ref=f50e197]: 
+                  - button [ref=f50e198] [cursor=pointer]:
+                    - generic [ref=f50e199]: 
+                - generic [ref=f50e160]:
+                  - combobox [ref=f50e162]:
+                    - option "---------" [selected]
+                    - option "RG do Representante"
+                    - option "RG (novo modelo) do Representante"
+                    - option "CNH do Representante"
+                    - option "CPF do Representante"
+                    - option "Comprovante de Residência"
+                    - option "Procuração"
+                    - option "RG do Cônjuge"
+                    - option "RG (novo modelo) do Cônjuge"
+                    - option "CNH do Cônjuge"
+                    - option "CPF do Cônjuge"
+                    - option "Certidão de Casamento"
+                    - option "Pacto Antenupcial"
+                    - option "Outro"
+                  - textbox [ref=f50e164]
+                  - button "Choose File" [ref=f50e166] [cursor=pointer]
+                  - button [ref=f50e167] [cursor=pointer]:
+                    - generic [ref=f50e168]:
+                      - generic [ref=f50e169]: 
+                      - text: Anexar
+            - button "Adicionar outro representante" [ref=f50e170] [cursor=pointer]:
+              - generic [ref=f50e171]: 
+              - text: Adicionar outro representante
+          - generic [ref=f50e172]:
+            - button "Cancelar" [ref=f50e173] [cursor=pointer]:
+              - generic [ref=f50e174]: 
+              - text: Cancelar
+            - generic [ref=f50e175]:
+              - link "Anterior" [ref=f50e176] [cursor=pointer]:
+                - /url: /empreendimentos/editar/b7367e91-0177-4742-b391-64fb73e13820/step2/
+                - generic [ref=f50e177]: 
+                - text: Anterior
+              - button "Próximo" [ref=f50e178] [cursor=pointer]:
+                - text: Próximo
+                - generic [ref=f50e179]: 
+    - contentinfo [ref=f50e180]:
+      - navigation [ref=f50e181]:
+        - generic [ref=f50e182]:
+          - generic [ref=f50e183]:
+            - link "Facebook" [ref=f50e184] [cursor=pointer]:
+              - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+              - generic [ref=f50e185]: 
+            - link "Instagram" [ref=f50e186] [cursor=pointer]:
+              - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+              - generic [ref=f50e187]: 
+          - paragraph [ref=f50e188]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

@@ -1,0 +1,73 @@
+- generic [ref=f30e2]:
+  - text: 
+  - complementary "Menu principal" [ref=f30e3]:
+    - generic [ref=f30e4]:
+      - link [ref=f30e5] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - img "logo_carlos_e_celso" [ref=f30e7]
+        - generic [ref=f30e8]:
+          - strong [ref=f30e9]: GLOT
+          - text: Sistema de Gestão
+      - button "Recolher menu" [ref=f30e10] [cursor=pointer]:
+        - generic [ref=f30e11]: 
+      - text: 
+    - generic [ref=f30e12]:
+      - generic [ref=f30e13]: Usuario logado
+      - strong [ref=f30e14]: DAVID
+      - text: ADMINISTRADOR
+    - navigation [ref=f30e15]:
+      - link " Dashboard" [ref=f30e16] [cursor=pointer]:
+        - /url: /dashboard/
+        - generic [ref=f30e17]: 
+        - generic [ref=f30e18]: Dashboard
+      - link " Empreendimentos" [ref=f30e19] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - generic [ref=f30e20]: 
+        - generic [ref=f30e21]: Empreendimentos
+      - button "Listagem " [ref=f30e22] [cursor=pointer]:
+        - generic [ref=f30e23]: Listagem
+        - generic [ref=f30e24]: 
+      - text:  
+      - button "Movimentacao " [ref=f30e25] [cursor=pointer]:
+        - generic [ref=f30e26]: Movimentacao
+        - generic [ref=f30e27]: 
+      - text:    
+      - button "Cadastros " [ref=f30e28] [cursor=pointer]:
+        - generic [ref=f30e29]: Cadastros
+        - generic [ref=f30e30]: 
+      - text:    
+      - button "Documentos " [ref=f30e31] [cursor=pointer]:
+        - generic [ref=f30e32]: Documentos
+        - generic [ref=f30e33]: 
+      - text:  
+    - button " Sair" [ref=f30e36] [cursor=pointer]:
+      - generic [ref=f30e37]: 
+      - generic [ref=f30e38]: Sair
+  - generic [ref=f30e39]:
+    - main [ref=f30e40]:
+      - region "Erro interno" [ref=f30e41]:
+        - generic [ref=f30e42]:
+          - generic [ref=f30e43]: 
+          - generic [ref=f30e45]: Erro 500
+          - heading "Algo saiu do controle" [level=1] [ref=f30e46]
+          - paragraph [ref=f30e47]: O sistema encontrou um erro interno ao processar esta solicitação. Tente novamente em instantes ou informe o suporte/desenvolvimento.
+          - generic [ref=f30e48]:
+            - link " Voltar para empreendimentos" [ref=f30e49] [cursor=pointer]:
+              - /url: /empreendimentos/
+              - generic [ref=f30e50]: 
+              - text: Voltar para empreendimentos
+            - link " Voltar" [ref=f30e51] [cursor=pointer]:
+              - /url: javascript:history.back()
+              - generic [ref=f30e52]: 
+              - text: Voltar
+    - contentinfo [ref=f30e53]:
+      - navigation [ref=f30e54]:
+        - generic [ref=f30e55]:
+          - generic [ref=f30e56]:
+            - link "Facebook" [ref=f30e57] [cursor=pointer]:
+              - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+              - generic [ref=f30e58]: 
+            - link "Instagram" [ref=f30e59] [cursor=pointer]:
+              - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+              - generic [ref=f30e60]: 
+          - paragraph [ref=f30e61]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

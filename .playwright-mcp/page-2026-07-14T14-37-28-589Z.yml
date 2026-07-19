@@ -1,0 +1,141 @@
+- generic [ref=f13e2]:
+  - text: 
+  - complementary "Menu principal" [ref=f13e3]:
+    - generic [ref=f13e4]:
+      - link [ref=f13e5] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - img "logo_carlos_e_celso" [ref=f13e7]
+        - generic [ref=f13e8]:
+          - strong [ref=f13e9]: GLOT
+          - text: Sistema de Gestão
+      - button "Recolher menu" [ref=f13e10] [cursor=pointer]:
+        - generic [ref=f13e11]: 
+      - text: 
+    - generic [ref=f13e12]:
+      - generic [ref=f13e13]: Usuario logado
+      - strong [ref=f13e14]: DAVID
+      - text: ADMINISTRADOR
+    - navigation [ref=f13e15]:
+      - link " Dashboard" [ref=f13e16] [cursor=pointer]:
+        - /url: /dashboard/
+        - generic [ref=f13e17]: 
+        - generic [ref=f13e18]: Dashboard
+      - link " Empreendimentos" [ref=f13e19] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - generic [ref=f13e20]: 
+        - generic [ref=f13e21]: Empreendimentos
+      - button "Listagem " [ref=f13e22] [cursor=pointer]:
+        - generic [ref=f13e23]: Listagem
+        - generic [ref=f13e24]: 
+      - text:  
+      - button "Movimentacao " [ref=f13e25] [cursor=pointer]:
+        - generic [ref=f13e26]: Movimentacao
+        - generic [ref=f13e27]: 
+      - text:    
+      - button "Cadastros " [ref=f13e28] [cursor=pointer]:
+        - generic [ref=f13e29]: Cadastros
+        - generic [ref=f13e30]: 
+      - text:    
+      - button "Documentos " [ref=f13e31] [cursor=pointer]:
+        - generic [ref=f13e32]: Documentos
+        - generic [ref=f13e33]: 
+      - text:  
+    - button " Sair" [ref=f13e36] [cursor=pointer]:
+      - generic [ref=f13e37]: 
+      - generic [ref=f13e38]: Sair
+  - generic [ref=f13e39]:
+    - main [ref=f13e40]:
+      - generic [ref=f13e44]:
+        - heading "Editar Empreendimento" [level=1] [ref=f13e45]
+        - navigation "breadcrumb" [ref=f13e46]:
+          - list [ref=f13e47]:
+            - listitem [ref=f13e48]:
+              - link "Início" [ref=f13e49] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f13e50]:
+              - text: /
+              - link "Empreendimentos" [ref=f13e51] [cursor=pointer]:
+                - /url: /empreendimentos/listar_empreendimento/
+            - listitem [ref=f13e52]: / Editar
+      - generic [ref=f13e54]:
+        - generic [ref=f13e56]:
+          - generic [ref=f13e57]:
+            - generic [ref=f13e58]: 
+            - generic [ref=f13e60]: Dados gerais
+          - generic [ref=f13e61]:
+            - generic [ref=f13e62]: 
+            - generic [ref=f13e64]: Empresa
+          - generic [ref=f13e65]:
+            - generic [ref=f13e66]: 
+            - generic [ref=f13e68]: Endereço
+          - generic [ref=f13e69]:
+            - generic [ref=f13e70]: 
+            - generic [ref=f13e72]: Representantes
+          - generic [ref=f13e73]:
+            - generic [ref=f13e74]: 
+            - generic [ref=f13e76]: Configurações
+          - generic [ref=f13e77]:
+            - generic [ref=f13e78]: "6"
+            - generic [ref=f13e79]: Documentos
+        - generic [ref=f13e81]:
+          - generic [ref=f13e82]:
+            - generic [ref=f13e83]: 
+            - generic [ref=f13e84]: Documentos do empreendimento
+          - paragraph [ref=f13e86]: Contrato social, matrícula, alvará e demais documentos do loteamento (PDF ou imagem, até 20MB).
+          - generic [ref=f13e88]:
+            - generic [ref=f13e89]: 
+            - generic [ref=f13e91]:
+              - generic [ref=f13e92]: Alvará
+              - generic [ref=f13e93]: Alvará
+            - link [ref=f13e94] [cursor=pointer]:
+              - /url: /media/empreendimentos/documentos/2026/07/smoke_doc.pdf
+              - generic [ref=f13e95]: 
+            - button [ref=f13e96] [cursor=pointer]:
+              - generic [ref=f13e97]: 
+          - generic [ref=f13e98]:
+            - generic [ref=f13e99]:
+              - generic [ref=f13e100]: Categoria
+              - combobox [ref=f13e101]:
+                - option "---------" [selected]
+                - option "Contrato Social"
+                - option "Matrícula do Imóvel"
+                - option "Alvará"
+                - option "Memorial Descritivo"
+                - option "Planta do Loteamento"
+                - option "Licença Ambiental"
+                - option "Registro do Loteamento"
+                - option "Procuração"
+                - option "Outro"
+            - generic [ref=f13e102]:
+              - generic [ref=f13e103]: Nome (opcional)
+              - textbox [ref=f13e104]
+            - generic [ref=f13e105]:
+              - generic [ref=f13e106]: Arquivo
+              - button "Choose File" [ref=f13e107] [cursor=pointer]
+            - button [ref=f13e108] [cursor=pointer]:
+              - generic [ref=f13e109]:
+                - generic [ref=f13e110]: 
+                - text: Anexar
+        - generic [ref=f13e112]:
+          - button "Cancelar" [ref=f13e113] [cursor=pointer]:
+            - generic [ref=f13e114]: 
+            - text: Cancelar
+          - generic [ref=f13e115]:
+            - link "Anterior" [ref=f13e116] [cursor=pointer]:
+              - /url: /empreendimentos/editar/44f6d49e-0460-49ad-862c-93ec66281d71/step5/
+              - generic [ref=f13e117]: 
+              - text: Anterior
+            - button "Salvar empreendimento" [ref=f13e118] [cursor=pointer]:
+              - generic [ref=f13e119]: 
+              - text: Salvar empreendimento
+    - contentinfo [ref=f13e120]:
+      - navigation [ref=f13e121]:
+        - generic [ref=f13e122]:
+          - generic [ref=f13e123]:
+            - link "Facebook" [ref=f13e124] [cursor=pointer]:
+              - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+              - generic [ref=f13e125]: 
+            - link "Instagram" [ref=f13e126] [cursor=pointer]:
+              - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+              - generic [ref=f13e127]: 
+          - paragraph [ref=f13e128]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

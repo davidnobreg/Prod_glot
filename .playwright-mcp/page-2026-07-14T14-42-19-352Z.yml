@@ -1,0 +1,116 @@
+- generic [ref=f18e2]:
+  - text: 
+  - complementary "Menu principal" [ref=f18e3]:
+    - generic [ref=f18e4]:
+      - link [ref=f18e5] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - img "logo_carlos_e_celso" [ref=f18e7]
+        - generic [ref=f18e8]:
+          - strong [ref=f18e9]: GLOT
+          - text: Sistema de Gestão
+      - button "Recolher menu" [ref=f18e10] [cursor=pointer]:
+        - generic [ref=f18e11]: 
+      - text: 
+    - generic [ref=f18e12]:
+      - generic [ref=f18e13]: Usuario logado
+      - strong [ref=f18e14]: DAVID
+      - text: ADMINISTRADOR
+    - navigation [ref=f18e15]:
+      - link " Dashboard" [ref=f18e16] [cursor=pointer]:
+        - /url: /dashboard/
+        - generic [ref=f18e17]: 
+        - generic [ref=f18e18]: Dashboard
+      - link " Empreendimentos" [ref=f18e19] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - generic [ref=f18e20]: 
+        - generic [ref=f18e21]: Empreendimentos
+      - button "Listagem " [ref=f18e22] [cursor=pointer]:
+        - generic [ref=f18e23]: Listagem
+        - generic [ref=f18e24]: 
+      - text:  
+      - button "Movimentacao " [ref=f18e25] [cursor=pointer]:
+        - generic [ref=f18e26]: Movimentacao
+        - generic [ref=f18e27]: 
+      - text:    
+      - button "Cadastros " [ref=f18e28] [cursor=pointer]:
+        - generic [ref=f18e29]: Cadastros
+        - generic [ref=f18e30]: 
+      - text:    
+      - button "Documentos " [ref=f18e31] [cursor=pointer]:
+        - generic [ref=f18e32]: Documentos
+        - generic [ref=f18e33]: 
+      - text:  
+    - button " Sair" [ref=f18e36] [cursor=pointer]:
+      - generic [ref=f18e37]: 
+      - generic [ref=f18e38]: Sair
+  - generic [ref=f18e39]:
+    - main [ref=f18e40]:
+      - generic [ref=f18e44]:
+        - heading "Editar Empreendimento" [level=1] [ref=f18e45]
+        - navigation "breadcrumb" [ref=f18e46]:
+          - list [ref=f18e47]:
+            - listitem [ref=f18e48]:
+              - link "Início" [ref=f18e49] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f18e50]:
+              - text: /
+              - link "Empreendimentos" [ref=f18e51] [cursor=pointer]:
+                - /url: /empreendimentos/listar_empreendimento/
+            - listitem [ref=f18e52]: / Editar
+      - generic [ref=f18e54]:
+        - generic [ref=f18e56]:
+          - generic [ref=f18e57]:
+            - generic [ref=f18e58]: "1"
+            - generic [ref=f18e59]: Dados gerais
+          - generic [ref=f18e60]:
+            - generic [ref=f18e61]: "2"
+            - generic [ref=f18e62]: Empresa
+          - generic [ref=f18e63]:
+            - generic [ref=f18e64]: "3"
+            - generic [ref=f18e65]: Endereço
+          - generic [ref=f18e66]:
+            - generic [ref=f18e67]: "4"
+            - generic [ref=f18e68]: Representantes
+          - generic [ref=f18e69]:
+            - generic [ref=f18e70]: "5"
+            - generic [ref=f18e71]: Configurações
+          - generic [ref=f18e72]:
+            - generic [ref=f18e73]: "6"
+            - generic [ref=f18e74]: Documentos
+        - generic [ref=f18e75]:
+          - generic [ref=f18e77]:
+            - generic [ref=f18e78]:
+              - generic [ref=f18e79]: 
+              - generic [ref=f18e80]: Dados do empreendimento
+            - generic [ref=f18e82]:
+              - generic [ref=f18e83]:
+                - generic [ref=f18e84]: Nome do empreendimento *
+                - textbox "Nome do empreendimento *" [ref=f18e85]: Smoke Test Loteamento EDITADO
+              - generic [ref=f18e86]:
+                - generic [ref=f18e87]: Telefone de contato *
+                - textbox "Telefone de contato *" [ref=f18e88]: (83) 99999-0000
+              - generic [ref=f18e89]:
+                - generic [ref=f18e90]: Observações opcional
+                - textbox "Observações opcional" [ref=f18e91]
+            - generic [ref=f18e93]:
+              - generic [ref=f18e94]: 
+              - generic [ref=f18e95]: Logo
+            - button "Choose File" [ref=f18e99] [cursor=pointer]
+          - generic [ref=f18e100]:
+            - button "Cancelar" [ref=f18e101] [cursor=pointer]:
+              - generic [ref=f18e102]: 
+              - text: Cancelar
+            - button "Próximo" [ref=f18e103] [cursor=pointer]:
+              - text: Próximo
+              - generic [ref=f18e104]: 
+    - contentinfo [ref=f18e105]:
+      - navigation [ref=f18e106]:
+        - generic [ref=f18e107]:
+          - generic [ref=f18e108]:
+            - link "Facebook" [ref=f18e109] [cursor=pointer]:
+              - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+              - generic [ref=f18e110]: 
+            - link "Instagram" [ref=f18e111] [cursor=pointer]:
+              - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+              - generic [ref=f18e112]: 
+          - paragraph [ref=f18e113]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

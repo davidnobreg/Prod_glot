@@ -1,0 +1,84 @@
+- generic [ref=f11e2]:
+  - text: 
+  - complementary "Menu principal" [ref=f11e3]:
+    - generic [ref=f11e4]:
+      - link "logo_carlos_e_celso GLOT Sistema de Gestão" [ref=f11e5] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - img "logo_carlos_e_celso" [ref=f11e7]
+        - generic [ref=f11e8]:
+          - strong [ref=f11e9]: GLOT
+          - text: Sistema de Gestão
+      - button "Recolher menu" [ref=f11e10] [cursor=pointer]:
+        - generic [ref=f11e11]: 
+      - text: 
+    - generic [ref=f11e12]:
+      - generic [ref=f11e13]: Usuario logado
+      - strong [ref=f11e14]: DAVID
+      - text: ADMINISTRADOR
+    - navigation [ref=f11e15]:
+      - link " Dashboard" [ref=f11e16] [cursor=pointer]:
+        - /url: /dashboard/
+        - generic [ref=f11e17]: 
+        - generic [ref=f11e18]: Dashboard
+      - link " Empreendimentos" [ref=f11e19] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - generic [ref=f11e20]: 
+        - generic [ref=f11e21]: Empreendimentos
+      - button "Listagem " [ref=f11e22] [cursor=pointer]:
+        - generic [ref=f11e23]: Listagem
+        - generic [ref=f11e24]: 
+      - text:  
+      - button "Movimentacao " [ref=f11e25] [cursor=pointer]:
+        - generic [ref=f11e26]: Movimentacao
+        - generic [ref=f11e27]: 
+      - text:    
+      - button "Cadastros " [ref=f11e28] [cursor=pointer]:
+        - generic [ref=f11e29]: Cadastros
+        - generic [ref=f11e30]: 
+      - text:    
+      - button "Documentos " [ref=f11e31] [cursor=pointer]:
+        - generic [ref=f11e32]: Documentos
+        - generic [ref=f11e33]: 
+      - text:  
+    - button " Sair" [ref=f11e36] [cursor=pointer]:
+      - generic [ref=f11e37]: 
+      - generic [ref=f11e38]: Sair
+  - generic [ref=f11e39]:
+    - main [ref=f11e40]:
+      - generic [ref=f11e41]:
+        - generic [ref=f11e42]:
+          - generic [ref=f11e43]:
+            - heading "Grupos de Acesso" [level=1] [ref=f11e44]
+            - paragraph [ref=f11e45]: CAMILO João Camilo da Silva
+          - link " Voltar" [ref=f11e47] [cursor=pointer]:
+            - /url: /alterar_usuarios/34eedf2a-d88d-4f75-881e-c378548f393e/
+            - generic [ref=f11e48]: 
+            - text: Voltar
+        - generic [ref=f11e51]:
+          - heading "Grupos disponíveis" [level=2] [ref=f11e52]
+          - generic [ref=f11e53] [cursor=pointer]:
+            - checkbox "administrador 4 usuários" [ref=f11e54]
+            - text: administrador 4 usuários
+          - generic [ref=f11e55] [cursor=pointer]:
+            - checkbox "corretor 27 usuários" [checked] [ref=f11e56]
+            - text: corretor 27 usuários
+          - generic [ref=f11e57] [cursor=pointer]:
+            - checkbox "GERÊNCIA 0 usuários" [ref=f11e58]
+            - text: GERÊNCIA 0 usuários
+          - generic [ref=f11e59]:
+            - link "Cancelar" [ref=f11e60] [cursor=pointer]:
+              - /url: /alterar_usuarios/34eedf2a-d88d-4f75-881e-c378548f393e/
+            - button " Salvar" [ref=f11e61] [cursor=pointer]:
+              - generic [ref=f11e62]: 
+              - text: Salvar
+    - contentinfo [ref=f11e63]:
+      - navigation [ref=f11e64]:
+        - generic [ref=f11e65]:
+          - generic [ref=f11e66]:
+            - link "Facebook" [ref=f11e67] [cursor=pointer]:
+              - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+              - generic [ref=f11e68]: 
+            - link "Instagram" [ref=f11e69] [cursor=pointer]:
+              - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+              - generic [ref=f11e70]: 
+          - paragraph [ref=f11e71]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

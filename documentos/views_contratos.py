@@ -13,7 +13,7 @@ from weasyprint import HTML, CSS
 
 from rolepermissions.decorators import has_permission_decorator
 
-from vendas.models import RegisterVenda
+from vendas.models import RegisterVenda, TypeVenda
 from .models import ModeloDocumento, DocumentoGerado, StatusDocumento, SequencialDocumento
 from .services import montar_contexto_venda, renderizar_variaveis
 
@@ -79,15 +79,16 @@ def _modelo_ou_404(empreendimento, tipo):
     return modelo
 
 
-def _aguardando_analise(request, empreendimento=None):
+def _aguardando_analise(request, empreendimento=None, reserva_em_analise=False):
     """
-    Fallback pra proposta_rascunho: venda inexistente, ou existente mas sem
-    modelo de proposta configurado ainda (situação comum com lote em ANALISE).
+    Fallback pra proposta_rascunho: venda inexistente, venda com reserva ainda
+    em análise, ou existente mas sem modelo de proposta configurado ainda.
     Renderiza 200 em vez de 404 puro — usuário corretor não pode tomar erro
     de servidor por um estado de negócio normal (venda ainda em análise).
     """
     return render(request, 'documentos/aguardando_analise.html', {
         'empreendimento': empreendimento,
+        'reserva_em_analise': reserva_em_analise,
     })
 
 
@@ -176,6 +177,10 @@ def proposta_rascunho(request, venda_uuid):
         return _aguardando_analise(request)
 
     empreendimento = venda.lote.quadra.empr
+
+    if venda.tipo_venda == TypeVenda.ANALISE:
+        return _aguardando_analise(request, empreendimento, reserva_em_analise=True)
+
     modelo = ModeloDocumento.objects.padrao_para(empreendimento, 'proposta')
     if not modelo:
         return _aguardando_analise(request, empreendimento)

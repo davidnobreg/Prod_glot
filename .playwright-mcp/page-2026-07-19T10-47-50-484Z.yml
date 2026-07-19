@@ -1,0 +1,239 @@
+- generic [ref=f39e2]:
+  - text: 
+  - complementary "Menu principal" [ref=f39e3]:
+    - generic [ref=f39e4]:
+      - link [ref=f39e5] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - img "logo_carlos_e_celso" [ref=f39e7]
+        - generic [ref=f39e8]:
+          - strong [ref=f39e9]: GLOT
+          - text: Sistema de Gestão
+      - button "Recolher menu" [ref=f39e10] [cursor=pointer]:
+        - generic [ref=f39e11]: 
+      - text: 
+    - generic [ref=f39e12]:
+      - generic [ref=f39e13]: Usuario logado
+      - strong [ref=f39e14]: DAVID
+      - text: ADMINISTRADOR
+    - navigation [ref=f39e15]:
+      - link " Dashboard" [ref=f39e16] [cursor=pointer]:
+        - /url: /dashboard/
+        - generic [ref=f39e17]: 
+        - generic [ref=f39e18]: Dashboard
+      - link " Empreendimentos" [ref=f39e19] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - generic [ref=f39e20]: 
+        - generic [ref=f39e21]: Empreendimentos
+      - button "Listagem " [ref=f39e22] [cursor=pointer]:
+        - generic [ref=f39e23]: Listagem
+        - generic [ref=f39e24]: 
+      - text:  
+      - button "Movimentacao " [ref=f39e25] [cursor=pointer]:
+        - generic [ref=f39e26]: Movimentacao
+        - generic [ref=f39e27]: 
+      - text:    
+      - button "Cadastros " [ref=f39e28] [cursor=pointer]:
+        - generic [ref=f39e29]: Cadastros
+        - generic [ref=f39e30]: 
+      - text:    
+      - button "Documentos " [ref=f39e31] [cursor=pointer]:
+        - generic [ref=f39e32]: Documentos
+        - generic [ref=f39e33]: 
+      - text:  
+    - button " Sair" [ref=f39e36] [cursor=pointer]:
+      - generic [ref=f39e37]: 
+      - generic [ref=f39e38]: Sair
+  - generic [ref=f39e39]:
+    - main [ref=f39e40]:
+      - generic [ref=f39e44]:
+        - heading "Cadastrar Empreendimento" [level=1] [ref=f39e45]
+        - navigation "breadcrumb" [ref=f39e46]:
+          - list [ref=f39e47]:
+            - listitem [ref=f39e48]:
+              - link "Início" [ref=f39e49] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f39e50]:
+              - text: /
+              - link "Empreendimentos" [ref=f39e51] [cursor=pointer]:
+                - /url: /empreendimentos/listar_empreendimento/
+            - listitem [ref=f39e52]: / Cadastrar
+      - generic [ref=f39e54]:
+        - generic [ref=f39e56]:
+          - generic [ref=f39e57]:
+            - generic [ref=f39e58]: 
+            - generic [ref=f39e60]: Dados gerais
+          - generic [ref=f39e61]:
+            - generic [ref=f39e62]: 
+            - generic [ref=f39e64]: Empresa
+          - generic [ref=f39e65]:
+            - generic [ref=f39e66]: "3"
+            - generic [ref=f39e67]: Representantes
+          - generic [ref=f39e68]:
+            - generic [ref=f39e69]: "4"
+            - generic [ref=f39e70]: Configurações
+          - generic [ref=f39e71]:
+            - generic [ref=f39e72]: "5"
+            - generic [ref=f39e73]: Revisão
+        - generic [ref=f39e74]:
+          - generic [ref=f39e76]:
+            - generic [ref=f39e77]:
+              - generic [ref=f39e78]: 
+              - generic [ref=f39e79]: Representantes legais
+            - paragraph [ref=f39e81]: Sócios ou administradores que assinam contratos por esta empresa. Pelo menos 1 obrigatório.
+            - generic [ref=f39e83]:
+              - generic [ref=f39e84]:
+                - generic [ref=f39e85]: Representante principal
+                - button "Remover" [ref=f39e86] [cursor=pointer]:
+                  - generic [ref=f39e87]: 
+                  - text: Remover
+              - generic [ref=f39e88]:
+                - generic [ref=f39e89]:
+                  - generic [ref=f39e90]:
+                    - generic [ref=f39e91]: Nome completo *
+                    - textbox "Nome do representante" [ref=f39e92]: FULANO DE TAL
+                  - generic [ref=f39e93]:
+                    - generic [ref=f39e94]: CPF *
+                    - textbox "CPF do representante" [ref=f39e95]: 123.456.789-09
+                  - generic [ref=f39e96]:
+                    - generic [ref=f39e97]: RG
+                    - textbox "RG do representante" [ref=f39e98]
+                  - generic [ref=f39e99]:
+                    - generic [ref=f39e100]: Órgão emissor
+                    - textbox [ref=f39e101]
+                  - generic [ref=f39e102]:
+                    - generic [ref=f39e103]: Cargo *
+                    - 'textbox "Cargo (ex: Sócio-administrador)" [ref=f39e104]': Sócio-administrador
+                  - generic [ref=f39e105]:
+                    - generic [ref=f39e106]: E-mail
+                    - textbox [ref=f39e107]
+                  - generic [ref=f39e108]:
+                    - generic [ref=f39e109]: Estado civil
+                    - combobox [ref=f39e110]:
+                      - option "---------"
+                      - option "Solteiro"
+                      - option "Casado" [selected]
+                      - option "Divorciado"
+                      - option "Viúvo"
+                      - option "Separado judicialmente"
+                      - option "União estável"
+                - generic [ref=f39e172]:
+                  - generic [ref=f39e173]:
+                    - generic [ref=f39e174]: 
+                    - generic [ref=f39e175]: Dados do cônjuge
+                  - generic [ref=f39e176]:
+                    - generic [ref=f39e177]:
+                      - generic [ref=f39e178]: Nome do cônjuge
+                      - textbox "Nome do cônjuge" [ref=f39e179]
+                    - generic [ref=f39e180]:
+                      - generic [ref=f39e181]: CPF do cônjuge
+                      - textbox "CPF do cônjuge" [ref=f39e182]
+                    - generic [ref=f39e183]:
+                      - generic [ref=f39e184]: RG do cônjuge
+                      - textbox "RG do cônjuge" [ref=f39e185]
+                    - generic [ref=f39e186]:
+                      - generic [ref=f39e187]: Órgão emissor
+                      - textbox "Órgão emissor" [ref=f39e188]
+                - generic [ref=f39e113]:
+                  - generic [ref=f39e114]: 
+                  - generic [ref=f39e115]: Endereço do representante
+                - generic [ref=f39e116]:
+                  - generic [ref=f39e117]:
+                    - generic [ref=f39e118]: CEP *
+                    - textbox "Digite o CEP" [ref=f39e119]: "58280000"
+                  - generic [ref=f39e120]:
+                    - generic [ref=f39e121]: Cidade *
+                    - textbox "Cidade" [ref=f39e122]: Mamanguape
+                  - generic [ref=f39e123]:
+                    - generic [ref=f39e124]: Estado *
+                    - combobox [ref=f39e125]:
+                      - option "---------"
+                      - option "Paraíba" [selected]
+                      - option "Acre"
+                      - option "Alagoas"
+                      - option "Amapá"
+                      - option "Amazonas"
+                      - option "Bahia"
+                      - option "Ceará"
+                      - option "Distrito Federal"
+                      - option "Espírito Santo"
+                      - option "Goiás"
+                      - option "Maranhão"
+                      - option "Mato Grosso"
+                      - option "Mato Grosso do Sul"
+                      - option "Minas Gerais"
+                      - option "Pará"
+                      - option "Pernambuco"
+                      - option "Piauí"
+                      - option "Paraná"
+                      - option "Rio de Janeiro"
+                      - option "Rio Grande do Norte"
+                      - option "Rio Grande do Sul"
+                      - option "Rondônia"
+                      - option "Roraima"
+                      - option "Santa Catarina"
+                      - option "São Paulo"
+                      - option "Sergipe"
+                      - option "Tocantins"
+                  - generic [ref=f39e126]:
+                    - generic [ref=f39e127]: Bairro *
+                    - textbox "Bairro" [ref=f39e128]: Centro
+                  - generic [ref=f39e129]:
+                    - generic [ref=f39e130]: Rua *
+                    - textbox "Rua ou Avenida" [ref=f39e131]: Rua Teste
+                  - generic [ref=f39e132]:
+                    - generic [ref=f39e133]: Número *
+                    - textbox "Número" [ref=f39e134]: "50"
+                  - generic [ref=f39e135]:
+                    - generic [ref=f39e136]: Complemento opcional
+                    - textbox "Complemento" [ref=f39e137]
+                - generic [ref=f39e139]: Documentos do representante
+                - paragraph [ref=f39e142]: Nenhum documento anexado ainda.
+                - generic [ref=f39e143]:
+                  - combobox [ref=f39e145]:
+                    - option "---------" [selected]
+                    - option "RG do Representante"
+                    - option "RG (novo modelo) do Representante"
+                    - option "CNH do Representante"
+                    - option "CPF do Representante"
+                    - option "Comprovante de Residência"
+                    - option "Procuração"
+                    - option "RG do Cônjuge"
+                    - option "RG (novo modelo) do Cônjuge"
+                    - option "CNH do Cônjuge"
+                    - option "CPF do Cônjuge"
+                    - option "Certidão de Casamento"
+                    - option "Pacto Antenupcial"
+                    - option "Outro"
+                  - textbox [ref=f39e147]
+                  - button "Choose File" [ref=f39e149] [cursor=pointer]
+                  - button [ref=f39e150] [cursor=pointer]:
+                    - generic [ref=f39e151]:
+                      - generic [ref=f39e152]: 
+                      - text: Anexar
+            - button "Adicionar outro representante" [ref=f39e153] [cursor=pointer]:
+              - generic [ref=f39e154]: 
+              - text: Adicionar outro representante
+          - generic [ref=f39e155]:
+            - link "Cancelar" [ref=f39e156] [cursor=pointer]:
+              - /url: /empreendimentos/listar_empreendimento/
+              - generic [ref=f39e157]: 
+              - text: Cancelar
+            - generic [ref=f39e158]:
+              - link "Anterior" [ref=f39e159] [cursor=pointer]:
+                - /url: /empreendimentos/cadastrar/step2/
+                - generic [ref=f39e160]: 
+                - text: Anterior
+              - button "Próximo" [ref=f39e161] [cursor=pointer]:
+                - text: Próximo
+                - generic [ref=f39e162]: 
+    - contentinfo [ref=f39e163]:
+      - navigation [ref=f39e164]:
+        - generic [ref=f39e165]:
+          - generic [ref=f39e166]:
+            - link "Facebook" [ref=f39e167] [cursor=pointer]:
+              - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+              - generic [ref=f39e168]: 
+            - link "Instagram" [ref=f39e169] [cursor=pointer]:
+              - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+              - generic [ref=f39e170]: 
+          - paragraph [ref=f39e171]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

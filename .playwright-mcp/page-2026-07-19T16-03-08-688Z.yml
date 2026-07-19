@@ -1,0 +1,150 @@
+- generic [ref=f5e2]:
+  - text: 
+  - complementary "Menu principal" [ref=f5e3]:
+    - generic [ref=f5e4]:
+      - link [ref=f5e5] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - img "logo_carlos_e_celso" [ref=f5e7]
+        - generic [ref=f5e8]:
+          - strong [ref=f5e9]: GLOT
+          - text: Sistema de Gestão
+      - button "Recolher menu" [ref=f5e10] [cursor=pointer]:
+        - generic [ref=f5e11]: 
+      - text: 
+    - generic [ref=f5e12]:
+      - generic [ref=f5e13]: Usuario logado
+      - strong [ref=f5e14]: DAVID
+      - text: ADMINISTRADOR
+    - navigation [ref=f5e15]:
+      - link " Dashboard" [ref=f5e16] [cursor=pointer]:
+        - /url: /dashboard/
+        - generic [ref=f5e17]: 
+        - generic [ref=f5e18]: Dashboard
+      - link " Empreendimentos" [ref=f5e19] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - generic [ref=f5e20]: 
+        - generic [ref=f5e21]: Empreendimentos
+      - button "Listagem " [ref=f5e22] [cursor=pointer]:
+        - generic [ref=f5e23]: Listagem
+        - generic [ref=f5e24]: 
+      - text:  
+      - button "Movimentacao " [ref=f5e25] [cursor=pointer]:
+        - generic [ref=f5e26]: Movimentacao
+        - generic [ref=f5e27]: 
+      - text:    
+      - button "Cadastros " [ref=f5e28] [cursor=pointer]:
+        - generic [ref=f5e29]: Cadastros
+        - generic [ref=f5e30]: 
+      - text:    
+      - button "Documentos " [ref=f5e31] [cursor=pointer]:
+        - generic [ref=f5e32]: Documentos
+        - generic [ref=f5e33]: 
+      - text:  
+    - button " Sair" [ref=f5e36] [cursor=pointer]:
+      - generic [ref=f5e37]: 
+      - generic [ref=f5e38]: Sair
+  - generic [ref=f5e39]:
+    - main [ref=f5e40]:
+      - generic [ref=f5e43]:
+        - generic [ref=f5e44]:
+          - heading "Editar Cliente" [level=1] [ref=f5e45]
+          - navigation "breadcrumb" [ref=f5e46]:
+            - list [ref=f5e47]:
+              - listitem [ref=f5e48]:
+                - link "Início" [ref=f5e49] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=f5e50]:
+                - text: /
+                - link "Clientes" [ref=f5e51] [cursor=pointer]:
+                  - /url: /clientes/listar_clientes/
+              - listitem [ref=f5e52]: / DJALMA DE SOUSA
+        - link "Voltar" [ref=f5e54] [cursor=pointer]:
+          - /url: /clientes/listar_clientes/
+          - generic [ref=f5e55]: 
+          - text: Voltar
+      - generic [ref=f5e58]:
+        - tablist [ref=f5e59]:
+          - button "Dados pessoais" [ref=f5e60] [cursor=pointer]:
+            - generic [ref=f5e61]: 
+            - text: Dados pessoais
+          - text: 
+          - button "Endereço" [ref=f5e62] [cursor=pointer]:
+            - generic [ref=f5e63]: 
+            - text: Endereço
+          - button "Contatos" [ref=f5e64] [cursor=pointer]:
+            - generic [ref=f5e65]: 
+            - text: Contatos
+          - button "Arquivos" [ref=f5e66] [cursor=pointer]:
+            - generic [ref=f5e67]: 
+            - text: Arquivos
+        - generic [ref=f5e68]:
+          - generic [ref=f5e69]:
+            - generic [ref=f5e70]:
+              - generic [ref=f5e71]:
+                - generic [ref=f5e72]: Razão social *
+                - textbox [ref=f5e73]: DJALMA DE SOUSA
+              - generic [ref=f5e74]:
+                - generic [ref=f5e75]: Nome fantasia
+                - textbox [ref=f5e76]
+              - generic [ref=f5e77]:
+                - generic [ref=f5e78]: Data de nascimento
+                - textbox [ref=f5e79]
+              - generic [ref=f5e80]:
+                - generic [ref=f5e81]: Estado civil
+                - combobox [ref=f5e82]:
+                  - option "Solteiro" [selected]
+                  - option "Casado"
+                  - option "Divorciado"
+                  - option "Viúvo"
+                  - option "Separado judicialmente"
+                  - option "União estável"
+              - generic [ref=f5e83]:
+                - generic [ref=f5e84]: Naturalidade
+                - textbox [ref=f5e85]
+              - generic [ref=f5e86]:
+                - generic [ref=f5e87]: Nacionalidade
+                - textbox [ref=f5e88]: Brasileiro
+              - generic [ref=f5e89]:
+                - generic [ref=f5e90]: Profissão
+                - textbox [ref=f5e91]
+              - generic [ref=f5e92]:
+                - generic [ref=f5e93]: Renda
+                - textbox "R$ 0,00" [ref=f5e94]: 1,00
+            - separator [ref=f5e95]
+            - generic [ref=f5e96]:
+              - generic [ref=f5e97]:
+                - generic [ref=f5e98]: CPF / CNPJ *
+                - textbox [ref=f5e99]: 036.612.924-47
+              - generic [ref=f5e100]:
+                - generic [ref=f5e101]: E-mail *
+                - textbox [ref=f5e102]: djalmafaustimo@gmail.com
+              - generic [ref=f5e103]:
+                - generic [ref=f5e104]: RG
+                - textbox [ref=f5e105]
+              - generic [ref=f5e106]:
+                - generic [ref=f5e107]: Órgão emissor
+                - textbox [ref=f5e108]
+              - generic [ref=f5e109]:
+                - generic [ref=f5e110]: Observações
+                - textbox [ref=f5e111]
+          - text: 
+        - text:  
+        - generic [ref=f5e112]:
+          - link "Cancelar" [ref=f5e113] [cursor=pointer]:
+            - /url: /clientes/listar_clientes/
+            - generic [ref=f5e114]: 
+            - text: Cancelar
+          - button "Salvar alterações" [ref=f5e115] [cursor=pointer]:
+            - generic [ref=f5e116]: 
+            - text: Salvar alterações
+    - contentinfo [ref=f5e117]:
+      - navigation [ref=f5e118]:
+        - generic [ref=f5e119]:
+          - generic [ref=f5e120]:
+            - link "Facebook" [ref=f5e121] [cursor=pointer]:
+              - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+              - generic [ref=f5e122]: 
+            - link "Instagram" [ref=f5e123] [cursor=pointer]:
+              - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+              - generic [ref=f5e124]: 
+          - paragraph [ref=f5e125]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

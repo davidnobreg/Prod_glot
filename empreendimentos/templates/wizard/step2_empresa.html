@@ -1,102 +1,202 @@
 {% extends 'wizard/_base_wizard.html' %}
+{% load static %}
 
 {% block step_content %}
-<form method="post" novalidate>
-	{% csrf_token %}
+    <form method="post" novalidate>
+        {% csrf_token %}
 
-	<div class="card wiz-card">
-		<div class="card-body">
-			<div class="wiz-sec-head"><i class="fas fa-briefcase"></i><span>Pessoa jurídica</span><div class="wiz-sec-divider"></div></div>
-			<div class="row g-3">
-				<div class="col-md-6">
-					<label class="form-label">CNPJ <span class="text-danger">*</span></label>
-					{{ form.cnpj }}
-					{% if form.cnpj.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.cnpj.errors|striptags }}</div>{% endif %}
-				</div>
-				<div class="col-md-6">
-					<label class="form-label">Razão social <span class="text-danger">*</span></label>
-					{{ form.razaoSocial }}
-					{% if form.razaoSocial.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.razaoSocial.errors|striptags }}</div>{% endif %}
-				</div>
-			</div>
+        <div class="card wiz-card">
+            <div class="card-body">
+                <div class="wiz-sec-head"><i class="fas fa-briefcase"></i><span>Pessoa jurídica</span>
+                    <div class="wiz-sec-divider"></div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">CNPJ <span class="text-danger">*</span></label>
+                        {{ form.cnpj }}
+                        {% if form.cnpj.errors %}
+                            <div class="text-danger"
+                                 style="font-size:.8rem;">{{ form.cnpj.errors|striptags }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Razão social <span class="text-danger">*</span></label>
+                        {{ form.razaoSocial }}
+                        {% if form.razaoSocial.errors %}
+                            <div class="text-danger"
+                                 style="font-size:.8rem;">{{ form.razaoSocial.errors|striptags }}</div>{% endif %}
+                    </div>
+                </div>
 
-			<div class="wiz-inner-div"></div>
-			<div class="wiz-sec-head"><i class="fas fa-university"></i><span>Dados bancários</span><div class="wiz-sec-divider"></div></div>
-			<div class="row g-3">
-				<div class="col-md-6">
-					<label class="form-label">Banco <span class="text-danger">*</span></label>
-					{{ form.banco }}
-					{% if form.banco.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.banco.errors|striptags }}</div>{% endif %}
-				</div>
-				<div class="col-md-6">
-					<label class="form-label">Código do banco</label>
-					{{ form.codBanco }}
-				</div>
-				<div class="col-md-6">
-					<label class="form-label">Agência <span class="text-danger">*</span></label>
-					{{ form.agencia }}
-					{% if form.agencia.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.agencia.errors|striptags }}</div>{% endif %}
-				</div>
-				<div class="col-md-6">
-					<label class="form-label">Conta <span class="text-danger">*</span></label>
-					{{ form.conta }}
-					{% if form.conta.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.conta.errors|striptags }}</div>{% endif %}
-				</div>
-			</div>
+                <div class="wiz-inner-div"></div>
+                <div class="wiz-sec-head"><i class="fas fa-university"></i><span>Dados bancários</span>
+                    <div class="wiz-sec-divider"></div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Banco <span class="text-danger">*</span></label>
+                        {{ form.banco }}
+                        {% if form.banco.errors %}
+                            <div class="text-danger"
+                                 style="font-size:.8rem;">{{ form.banco.errors|striptags }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Código do banco</label>
+                        {{ form.codBanco }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Agência <span class="text-danger">*</span></label>
+                        {{ form.agencia }}
+                        {% if form.agencia.errors %}
+                            <div class="text-danger"
+                                 style="font-size:.8rem;">{{ form.agencia.errors|striptags }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Conta <span class="text-danger">*</span></label>
+                        {{ form.conta }}
+                        {% if form.conta.errors %}
+                            <div class="text-danger"
+                                 style="font-size:.8rem;">{{ form.conta.errors|striptags }}</div>{% endif %}
+                    </div>
+                </div>
 
-			<div class="wiz-inner-div"></div>
-			<div class="wiz-sec-head"><i class="fas fa-map-marker-alt"></i><span>Endereço da empresa</span><div class="wiz-sec-divider"></div></div>
-			<div class="row g-3">
-				<div class="col-md-3">
-					<label class="form-label">CEP <span class="text-danger">*</span></label>
-					{{ form_endereco.cep }}
-					{% if form_endereco.cep.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.cep.errors|striptags }}</div>{% endif %}
-				</div>
-				<div class="col-md-7">
-					<label class="form-label">Cidade <span class="text-danger">*</span></label>
-					{{ form_endereco.cidade }}
-					{% if form_endereco.cidade.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.cidade.errors|striptags }}</div>{% endif %}
-				</div>
-				<div class="col-md-2">
-					<label class="form-label">Estado <span class="text-danger">*</span></label>
-					{{ form_endereco.estado }}
-					{% if form_endereco.estado.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.estado.errors|striptags }}</div>{% endif %}
-				</div>
-				<div class="col-md-6">
-					<label class="form-label">Bairro <span class="text-danger">*</span></label>
-					{{ form_endereco.bairro }}
-					{% if form_endereco.bairro.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.bairro.errors|striptags }}</div>{% endif %}
-				</div>
-				<div class="col-md-6">
-					<label class="form-label">Rua <span class="text-danger">*</span></label>
-					{{ form_endereco.rua }}
-					{% if form_endereco.rua.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.rua.errors|striptags }}</div>{% endif %}
-				</div>
-				<div class="col-md-6">
-					<label class="form-label">Número <span class="text-danger">*</span></label>
-					{{ form_endereco.numero }}
-					{% if form_endereco.numero.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.numero.errors|striptags }}</div>{% endif %}
-				</div>
-				<div class="col-md-6">
-					<label class="form-label">Complemento <span class="text-muted">opcional</span></label>
-					{{ form_endereco.complemento }}
-				</div>
-			</div>
-		</div>
-	</div>
+                <div class="wiz-inner-div"></div>
+                <div class="wiz-sec-head"><i class="fas fa-map-marker-alt"></i><span>Endereço da empresa</span>
+                    <div class="wiz-sec-divider"></div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">CEP <span class="text-danger">*</span></label>
+                        {{ form_endereco.cep }}
+                        {% if form_endereco.cep.errors %}
+                            <div class="text-danger"
+                                 style="font-size:.8rem;">{{ form_endereco.cep.errors|striptags }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-7">
+                        <label class="form-label">Cidade <span class="text-danger">*</span></label>
+                        {{ form_endereco.cidade }}
+                        {% if form_endereco.cidade.errors %}
+                            <div class="text-danger"
+                                 style="font-size:.8rem;">{{ form_endereco.cidade.errors|striptags }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Estado <span class="text-danger">*</span></label>
+                        {{ form_endereco.estado }}
+                        {% if form_endereco.estado.errors %}
+                            <div class="text-danger"
+                                 style="font-size:.8rem;">{{ form_endereco.estado.errors|striptags }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Bairro <span class="text-danger">*</span></label>
+                        {{ form_endereco.bairro }}
+                        {% if form_endereco.bairro.errors %}
+                            <div class="text-danger"
+                                 style="font-size:.8rem;">{{ form_endereco.bairro.errors|striptags }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Rua <span class="text-danger">*</span></label>
+                        {{ form_endereco.rua }}
+                        {% if form_endereco.rua.errors %}
+                            <div class="text-danger"
+                                 style="font-size:.8rem;">{{ form_endereco.rua.errors|striptags }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Número <span class="text-danger">*</span></label>
+                        {{ form_endereco.numero }}
+                        {% if form_endereco.numero.errors %}
+                            <div class="text-danger"
+                                 style="font-size:.8rem;">{{ form_endereco.numero.errors|striptags }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Complemento <span class="text-muted">opcional</span></label>
+                        {{ form_endereco.complemento }}
+                    </div>
+                </div>
+            </div>
 
-	<div class="wiz-action-bar">
-		<a href="{% url 'lista-empreendimento-tabela' %}" class="btn btn-outline-danger" style="border-radius:8px;">
-			<i class="fas fa-times me-1"></i>Cancelar
-		</a>
-		<div class="d-flex gap-2">
-			<a href="{% url 'empreendimento_wizard_step1' %}" class="btn btn-outline-secondary" style="border-radius:8px;">
-				<i class="fas fa-arrow-left me-1"></i>Anterior
-			</a>
-			<button type="submit" class="btn" style="background:#08789a;color:#fff;border-radius:8px;">
-				Próximo <i class="fas fa-arrow-right ms-1"></i>
-			</button>
-		</div>
-	</div>
-</form>
+                <div class="card-body">
+                    <div class="wiz-sec-head"><i class="fas fa-folder-open"></i><span>Documentos da empresa</span>
+                        <div class="wiz-sec-divider"></div>
+                    </div>
+                    <p class="text-muted" style="font-size:.85rem;">Contrato social, procuração, alvará e licença
+                        ambiental (PDF ou imagem, até 20MB).</p>
+
+                    <div id="empr-doc-list">
+                        {% for doc in documentos %}
+                            <div class="wiz-doc-row" data-doc-uuid="{{ doc.uuid }}">
+                                <div class="wiz-doc-ic"><i
+                                        class="far {% if doc.extensao == 'pdf' %}fa-file-pdf{% else %}fa-file-image{% endif %}"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div style="font-size:13px;font-weight:600;">{{ doc.nome_exibicao }}</div>
+                                    <div class="text-muted"
+                                         style="font-size:11px;">{{ doc.get_categoria_display }}</div>
+                                </div>
+                                <a href="{{ doc.arquivo.url }}" target="_blank"
+                                   class="btn btn-outline-secondary btn-sm"><i class="fas fa-eye"></i></a>
+                                <button type="button" class="btn btn-outline-danger btn-sm btn-empr-doc-remove"><i
+                                        class="fas fa-trash"></i></button>
+                            </div>
+                        {% empty %}
+                            <p class="text-muted" style="font-size:.85rem;" id="empr-doc-empty-msg">Nenhum documento
+                                anexado ainda.</p>
+                        {% endfor %}
+                    </div>
+
+                    <div id="form-empr-doc-upload" class="mt-3">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Categoria</label>
+                                    {{ doc_form.categoria }}
+                                </div>
+                                <div>
+                                    <label class="form-label">Arquivo</label>
+                                    {{ doc_form.arquivo }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nome (opcional)</label>
+                                    {{ doc_form.nome }}
+                                </div>
+                                <label class="form-label d-block">&nbsp;</label>
+                                <button type="button" class="btn btn-outline-secondary w-100" id="btn-empr-doc-upload">
+                                    <span class="btn-label"><i class="fas fa-paperclip me-1"></i>Anexar</span>
+                                    <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-danger mt-2 d-none" id="empr-doc-upload-error" style="font-size:.85rem;"></div>
+                </div>
+
+        </div>
+
+        <div class="wiz-action-bar">
+            <a href="{% url 'lista-empreendimento-tabela' %}" class="btn btn-outline-danger" style="border-radius:8px;">
+                <i class="fas fa-times me-1"></i>Cancelar
+            </a>
+            <div class="d-flex gap-2">
+                <a href="{% url 'empreendimento_wizard_step1' %}" class="btn btn-outline-secondary"
+                   style="border-radius:8px;">
+                    <i class="fas fa-arrow-left me-1"></i>Anterior
+                </a>
+                <button type="submit" class="btn" style="background:#08789a;color:#fff;border-radius:8px;">
+                    Próximo <i class="fas fa-arrow-right ms-1"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+
+
+
+    <script src="{% static 'js/empreendimento_wizard.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            EmpreendimentoWizard.initDocumentosEmpreendimento({
+                uploadUrl: '{% url "wizard_doc_empreendimento_upload" %}',
+                removeUrlTemplate: '{% url "wizard_doc_empreendimento_remover" doc_uuid="00000000-0000-0000-0000-000000000000" %}',
+            });
+        });
+    </script>
 {% endblock %}

@@ -1,0 +1,84 @@
+<h2>Régua horizontal + vertical no editor</h2>
+<p class="subtitle">Mockup estático — layout dos marcadores, não funcional ainda. Diz se a disposição faz sentido.</p>
+
+<div class="mockup">
+  <div class="mockup-header">Preview: editor de modelo com régua</div>
+  <div class="mockup-body" style="background:#e9ecef;padding:24px;overflow:auto;">
+    <div style="display:flex;">
+
+      <!-- canto vazio -->
+      <div style="width:28px;flex-shrink:0;"></div>
+
+      <div style="flex:1;">
+        <!-- RÉGUA HORIZONTAL -->
+        <div style="position:relative;height:28px;background:#f8f9fa;border:1px solid #adb5bd;margin-left:0;">
+          <!-- zona de margem esquerda (cinza escuro) -->
+          <div style="position:absolute;left:0;top:0;width:60px;height:100%;background:#ced4da;"></div>
+          <!-- zona de margem direita -->
+          <div style="position:absolute;right:0;top:0;width:40px;height:100%;background:#ced4da;"></div>
+          <!-- ticks de polegada -->
+          <div style="position:absolute;left:60px;right:40px;top:0;height:100%;display:flex;">
+            <div style="flex:1;border-right:1px solid #adb5bd;font-size:9px;color:#6c757d;padding-left:2px;">1"</div>
+            <div style="flex:1;border-right:1px solid #adb5bd;font-size:9px;color:#6c757d;padding-left:2px;">2"</div>
+            <div style="flex:1;border-right:1px solid #adb5bd;font-size:9px;color:#6c757d;padding-left:2px;">3"</div>
+            <div style="flex:1;font-size:9px;color:#6c757d;padding-left:2px;">4"</div>
+          </div>
+          <!-- marcador margem esquerda (retângulo escuro, arrastável) -->
+          <div title="Margem esquerda da página" style="position:absolute;left:56px;bottom:0;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:10px solid #495057;cursor:ew-resize;"></div>
+          <!-- marcador recuo primeira linha (triângulo topo) -->
+          <div title="Recuo primeira linha" style="position:absolute;left:76px;top:0;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #0d6efd;cursor:ew-resize;"></div>
+          <!-- marcador recuo esquerdo (triângulo baixo) -->
+          <div title="Recuo esquerdo do parágrafo" style="position:absolute;left:76px;bottom:0;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:8px solid #0d6efd;cursor:ew-resize;"></div>
+          <!-- marcador recuo direito -->
+          <div title="Recuo direito do parágrafo" style="position:absolute;right:60px;bottom:0;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:8px solid #dc3545;cursor:ew-resize;"></div>
+          <!-- marcador margem direita -->
+          <div title="Margem direita da página" style="position:absolute;right:36px;bottom:0;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:10px solid #495057;cursor:ew-resize;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;">
+      <!-- RÉGUA VERTICAL -->
+      <div style="position:relative;width:28px;flex-shrink:0;background:#f8f9fa;border:1px solid #adb5bd;border-top:none;height:360px;">
+        <div style="position:absolute;top:0;left:0;width:100%;height:50px;background:#ced4da;"></div>
+        <div style="position:absolute;bottom:0;left:0;width:100%;height:36px;background:#ced4da;"></div>
+        <div title="Margem superior" style="position:absolute;top:46px;left:0;width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:10px solid #495057;cursor:ns-resize;"></div>
+        <div title="Margem inferior" style="position:absolute;bottom:32px;left:0;width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:10px solid #495057;cursor:ns-resize;"></div>
+      </div>
+
+      <!-- PÁGINA A4 -->
+      <div style="flex:1;background:#fff;box-shadow:0 0 8px rgba(0,0,0,.15);height:360px;padding:20px 30px;font-family:'Times New Roman',serif;font-size:13px;">
+        <p style="text-indent:24px;text-align:justify;margin:0 0 8px;">
+          <strong>CONTRATO Nº 55Q.</strong> S A I B A M todos quantos este instrumento particular de promessa de compra e venda,
+          virem ou dele conhecimento tiverem, estando tudo de acordo com os ditames da legislação vigente...
+        </p>
+        <p style="margin-left:40px;margin-right:20px;text-align:justify;color:#555;font-style:italic;margin-top:0;">
+          "Cláusula recuada — bloco citado com recuo esquerdo e direito diferente do parágrafo normal."
+        </p>
+      </div>
+    </div>
+
+    <p style="margin-top:10px;font-size:12px;color:#6c757d;">
+      ⬛ cinza escuro = margem da página (arrasta empurra o texto todo) &nbsp;&nbsp;
+      🔵 azul = recuo 1ª linha / recuo esquerdo do parágrafo &nbsp;&nbsp;
+      🔴 vermelho = recuo direito do parágrafo
+    </p>
+  </div>
+</div>
+
+<div class="options" style="margin-top:20px;">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Disposição faz sentido</h3>
+      <p>Régua horizontal em cima, vertical do lado esquerdo, marcadores como no mockup.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="adjust" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Precisa ajustar</h3>
+      <p>Vou detalhar o que muda no campo de texto abaixo do mockup.</p>
+    </div>
+  </div>
+</div>

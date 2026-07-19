@@ -1,0 +1,14 @@
+- generic [ref=e3]:
+  - main [ref=e4]:
+    - heading "Página não encontrada." [level=1] [ref=e11]
+  - contentinfo [ref=e12]:
+    - navigation [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - link "Facebook" [ref=e16] [cursor=pointer]:
+            - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+            - generic [ref=e17]: 
+          - link "Instagram" [ref=e18] [cursor=pointer]:
+            - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+            - generic [ref=e19]: 
+        - paragraph [ref=e20]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

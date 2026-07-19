@@ -1,0 +1,23 @@
+- generic [ref=f40e3]:
+  - main [ref=f40e4]:
+    - region "Acesso negado" [ref=f40e5]:
+      - generic [ref=f40e6]:
+        - generic [ref=f40e8]: 
+        - generic [ref=f40e9]: Erro 403
+        - heading "Acesso não autorizado" [level=1] [ref=f40e10]
+        - paragraph [ref=f40e11]: Sua sessão pode ter expirado. Faça login novamente para continuar usando o sistema.
+        - link " Ir para login" [ref=f40e12] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f40e13]: 
+          - text: Ir para login
+  - contentinfo [ref=f40e14]:
+    - navigation [ref=f40e15]:
+      - generic [ref=f40e16]:
+        - generic [ref=f40e17]:
+          - link "Facebook" [ref=f40e18] [cursor=pointer]:
+            - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+            - generic [ref=f40e19]: 
+          - link "Instagram" [ref=f40e20] [cursor=pointer]:
+            - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+            - generic [ref=f40e21]: 
+        - paragraph [ref=f40e22]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

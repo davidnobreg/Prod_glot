@@ -5,8 +5,8 @@ from django.urls import reverse
 
 from base.models import Endereco
 from empreendimentos import services as empreendimento_services
-from empreendimentos import views_update
-from empreendimentos import forms_update
+from empreendimentos.views import update as views_update
+from empreendimentos.forms import wizard_update as forms_update
 from empreendimentos.models import Empreendimento, RepresentanteLegal, DocumentoEmpreendimento
 from empreendimentos.forms import DocumentoRepresentanteForm
 
@@ -187,8 +187,14 @@ class WizardUpdateStep1Test(TestCase):
 		self.assertContains(response, 'Nome Antigo')
 
 	def test_post_valido_atualiza_draft_nao_real(self):
+		# EnderecoForm usa prefix='empreendimento' — Step1 absorveu o antigo
+		# step de endereço/matrícula/foro (ver Parte 3 da reestruturação).
 		response = self.client.post(self.url, {
 			'nome': 'Nome Novo', 'telefone': '(83) 97777-7777', 'observacao': 'obs nova',
+			'matricula': 'MAT-999', 'cidade_foro': 'Mauriti - CE',
+			'empreendimento-cep': '63160000', 'empreendimento-rua': 'Rua Loteamento', 'empreendimento-numero': '1',
+			'empreendimento-complemento': '', 'empreendimento-bairro': 'Bairro X',
+			'empreendimento-cidade': 'Mauriti', 'empreendimento-estado': 'CE',
 		})
 		self.assertRedirects(response, reverse('empreendimento_update_step2', args=[self.real.uuid]))
 
@@ -198,6 +204,8 @@ class WizardUpdateStep1Test(TestCase):
 		draft = Empreendimento.objects.get(is_ativo=False)
 		self.assertEqual(draft.nome, 'Nome Novo')
 		self.assertEqual(draft.observacao, 'obs nova')
+		self.assertEqual(draft.matricula, 'MAT-999')
+		self.assertEqual(draft.endereco_empreendimento.cidade, 'Mauriti')
 
 	def test_anonimo_bloqueado(self):
 		self.client.logout()
@@ -268,32 +276,8 @@ class WizardUpdateStep2Test(TestCase):
 
 
 class WizardUpdateStep3Test(TestCase):
-
-	def setUp(self):
-		self.user = make_user()
-		self.client.force_login(self.user)
-		self.real = make_empreendimento()
-		self.url = reverse('empreendimento_update_step3', args=[self.real.uuid])
-
-	def test_post_valido_atualiza_draft(self):
-		# EnderecoForm usa prefix='empreendimento', então as chaves de endereço
-		# no POST precisam do prefixo 'empreendimento-'.
-		response = self.client.post(self.url, {
-			'matricula': 'MAT-999', 'cidade_foro': 'Mauriti - CE',
-			'empreendimento-cep': '63160000', 'empreendimento-rua': 'Rua Loteamento', 'empreendimento-numero': '1',
-			'empreendimento-complemento': '', 'empreendimento-bairro': 'Bairro X', 'empreendimento-cidade': 'Mauriti', 'empreendimento-estado': 'CE',
-		})
-		self.assertRedirects(response, reverse('empreendimento_update_step4', args=[self.real.uuid]))
-
-		draft = Empreendimento.objects.get(is_ativo=False)
-		self.assertEqual(draft.matricula, 'MAT-999')
-		self.assertEqual(draft.endereco_empreendimento.cidade, 'Mauriti')
-
-		self.real.refresh_from_db()
-		self.assertEqual(self.real.matricula, '')
-
-
-class WizardUpdateStep4Test(TestCase):
+	"""Step3 = representantes legais (absorveu a numeração do antigo step4;
+	o antigo step3 de endereço/matrícula/foro foi absorvido pelo step1)."""
 
 	def setUp(self):
 		self.user = make_user()
@@ -303,7 +287,7 @@ class WizardUpdateStep4Test(TestCase):
 			empreendimento=self.real, nome='Rep Antigo', documento='11122233344',
 			cargo='Sócio',
 		)
-		self.url = reverse('empreendimento_update_step4', args=[self.real.uuid])
+		self.url = reverse('empreendimento_update_step3', args=[self.real.uuid])
 
 	def _management_form(self, total=1):
 		return {
@@ -335,7 +319,7 @@ class WizardUpdateStep4Test(TestCase):
 			'representante-0-endereco-estado': 'PB',
 		})
 		response = self.client.post(self.url, data)
-		self.assertRedirects(response, reverse('empreendimento_update_step5', args=[self.real.uuid]))
+		self.assertRedirects(response, reverse('empreendimento_update_step4', args=[self.real.uuid]))
 
 		self.rep.refresh_from_db()
 		self.assertEqual(self.rep.nome, 'REP EDITADO')
@@ -368,7 +352,7 @@ class WizardUpdateStep4Test(TestCase):
 			'representante-1-endereco-estado': 'PB',
 		})
 		response = self.client.post(self.url, data)
-		self.assertRedirects(response, reverse('empreendimento_update_step5', args=[self.real.uuid]))
+		self.assertRedirects(response, reverse('empreendimento_update_step4', args=[self.real.uuid]))
 		self.assertTrue(
 			RepresentanteLegal.objects.filter(empreendimento=self.real, nome='REP NOVO').exists()
 		)
@@ -430,20 +414,21 @@ class WizardUpdateRepDocTest(TestCase):
 		self.assertEqual(self.rep.documentos.count(), 0)
 
 
-class WizardUpdateStep5Test(TestCase):
+class WizardUpdateStep4Test(TestCase):
+	"""Step4 = configurações (absorveu a numeração do antigo step5)."""
 
 	def setUp(self):
 		self.user = make_user()
 		self.client.force_login(self.user)
 		self.real = make_empreendimento(tempo_reserva=10, quantidade_parcela=12)
-		self.url = reverse('empreendimento_update_step5', args=[self.real.uuid])
+		self.url = reverse('empreendimento_update_step4', args=[self.real.uuid])
 
 	def test_post_valido_atualiza_draft_nao_real(self):
 		response = self.client.post(self.url, {
 			'tempo_reserva': '15', 'quantidade_parcela': '24',
 			'desconto': '5', 'tipo_correcao': 'IPCA',
 		})
-		self.assertRedirects(response, reverse('empreendimento_update_step6', args=[self.real.uuid]))
+		self.assertRedirects(response, reverse('empreendimento_update_step5', args=[self.real.uuid]))
 
 		draft = Empreendimento.objects.get(is_ativo=False)
 		self.assertEqual(draft.tempo_reserva, 15)
@@ -460,7 +445,10 @@ class WizardUpdateStep5Test(TestCase):
 		'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
 	},
 )
-class WizardUpdateStep6DocTest(TestCase):
+class WizardUpdateDocTest(TestCase):
+	"""Upload/remoção AJAX de documento do empreendimento — não mudou de
+	rota com a reestruturação, só a página que lista os documentos (agora
+	distribuídos entre step1/step2 por categoria, ver Parte 3)."""
 
 	def setUp(self):
 		self.user = make_user()
@@ -468,11 +456,12 @@ class WizardUpdateStep6DocTest(TestCase):
 		self.real = make_empreendimento()
 
 	def test_get_lista_documentos_do_real(self):
+		# 'contrato_social' é categoria do step2 (empresa).
 		documento = empreendimento_services.criar_documento_empreendimento(
 			self.real, 'contrato_social',
 			SimpleUploadedFile('cs.pdf', b'x', content_type='application/pdf'),
 		)
-		url = reverse('empreendimento_update_step6', args=[self.real.uuid])
+		url = reverse('empreendimento_update_step2', args=[self.real.uuid])
 		response = self.client.get(url)
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, documento.nome_exibicao())
@@ -495,7 +484,8 @@ class WizardUpdateStep6DocTest(TestCase):
 		self.assertEqual(self.real.documentos.count(), 0)
 
 
-class WizardUpdateStep6CommitTest(TestCase):
+class WizardUpdateStep5CommitTest(TestCase):
+	"""Revisão + commit final (absorveu a numeração e a lógica do antigo step6)."""
 
 	def setUp(self):
 		self.user = make_user()
@@ -510,10 +500,13 @@ class WizardUpdateStep6CommitTest(TestCase):
 		step1_url = reverse('empreendimento_update_step1', args=[self.real.uuid])
 		self.client.post(step1_url, {
 			'nome': 'Nome Editado', 'telefone': '(83) 96666-6666', 'observacao': 'nova obs',
+			'empreendimento-cep': '58000000', 'empreendimento-rua': 'Rua Empreendimento Original', 'empreendimento-numero': '1',
+			'empreendimento-complemento': '', 'empreendimento-bairro': 'Centro',
+			'empreendimento-cidade': 'João Pessoa', 'empreendimento-estado': 'PB',
 		})
 
-		step5_url = reverse('empreendimento_update_step5', args=[self.real.uuid])
-		self.client.post(step5_url, {
+		step4_url = reverse('empreendimento_update_step4', args=[self.real.uuid])
+		self.client.post(step4_url, {
 			'tempo_reserva': '45', 'quantidade_parcela': '48', 'desconto': '10', 'tipo_correcao': 'INCC',
 		})
 
@@ -521,8 +514,8 @@ class WizardUpdateStep6CommitTest(TestCase):
 		draft_pk = draft.pk
 		draft_endereco_empresa_pk = draft.endereco_empresa_id
 
-		step6_url = reverse('empreendimento_update_step6', args=[self.real.uuid])
-		response = self.client.post(step6_url, {'finalizar': '1'})
+		step5_url = reverse('empreendimento_update_step5', args=[self.real.uuid])
+		response = self.client.post(step5_url, {'finalizar': '1'})
 		self.assertRedirects(response, reverse('lista-empreendimento-tabela'))
 
 		self.real.refresh_from_db()
@@ -547,8 +540,8 @@ class WizardUpdateStep6CommitTest(TestCase):
 		draft = Empreendimento.objects.get(is_ativo=False)
 		self.assertIsNone(draft.cnpj)  # confirma que nunca foi gravado no draft
 
-		step6_url = reverse('empreendimento_update_step6', args=[self.real.uuid])
-		response = self.client.post(step6_url, {'finalizar': '1'})
+		step5_url = reverse('empreendimento_update_step5', args=[self.real.uuid])
+		response = self.client.post(step5_url, {'finalizar': '1'})
 		self.assertRedirects(response, reverse('lista-empreendimento-tabela'))
 
 		self.real.refresh_from_db()
@@ -565,8 +558,8 @@ class WizardUpdateStep6CommitTest(TestCase):
 			'empresa-complemento': '', 'empresa-bairro': 'Bairro Editado', 'empresa-cidade': 'Campina Grande', 'empresa-estado': 'PB',
 		})
 
-		step6_url = reverse('empreendimento_update_step6', args=[self.real.uuid])
-		self.client.post(step6_url, {'finalizar': '1'})
+		step5_url = reverse('empreendimento_update_step5', args=[self.real.uuid])
+		self.client.post(step5_url, {'finalizar': '1'})
 
 		self.real.refresh_from_db()
 		self.assertEqual(self.real.endereco_empresa_id, endereco_empresa_pk_original)

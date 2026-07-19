@@ -1,0 +1,178 @@
+- generic [ref=f10e2]:
+  - text: 
+  - complementary "Menu principal" [ref=f10e3]:
+    - generic [ref=f10e4]:
+      - link "logo_carlos_e_celso GLOT Sistema de Gestão" [ref=f10e5] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - img "logo_carlos_e_celso" [ref=f10e7]
+        - generic [ref=f10e8]:
+          - strong [ref=f10e9]: GLOT
+          - text: Sistema de Gestão
+      - button "Recolher menu" [ref=f10e10] [cursor=pointer]:
+        - generic [ref=f10e11]: 
+      - text: 
+    - generic [ref=f10e12]:
+      - generic [ref=f10e13]: Usuario logado
+      - strong [ref=f10e14]: DAVID
+      - text: ADMINISTRADOR
+    - navigation [ref=f10e15]:
+      - link " Dashboard" [ref=f10e16] [cursor=pointer]:
+        - /url: /dashboard/
+        - generic [ref=f10e17]: 
+        - generic [ref=f10e18]: Dashboard
+      - link " Empreendimentos" [ref=f10e19] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - generic [ref=f10e20]: 
+        - generic [ref=f10e21]: Empreendimentos
+      - button "Listagem " [ref=f10e22] [cursor=pointer]:
+        - generic [ref=f10e23]: Listagem
+        - generic [ref=f10e24]: 
+      - text:  
+      - button "Movimentacao " [ref=f10e25] [cursor=pointer]:
+        - generic [ref=f10e26]: Movimentacao
+        - generic [ref=f10e27]: 
+      - text:    
+      - button "Cadastros " [ref=f10e28] [cursor=pointer]:
+        - generic [ref=f10e29]: Cadastros
+        - generic [ref=f10e30]: 
+      - text:    
+      - button "Documentos " [ref=f10e31] [cursor=pointer]:
+        - generic [ref=f10e32]: Documentos
+        - generic [ref=f10e33]: 
+      - text:  
+    - button " Sair" [ref=f10e36] [cursor=pointer]:
+      - generic [ref=f10e37]: 
+      - generic [ref=f10e38]: Sair
+  - generic [ref=f10e39]:
+    - main [ref=f10e40]:
+      - generic [ref=f10e41]:
+        - generic [ref=f10e42]:
+          - generic [ref=f10e43]:
+            - heading "CAMILO João Camilo da Silva" [level=1] [ref=f10e44]
+            - paragraph [ref=f10e45]:
+              - text: joaocamilocorretor@gmail.com
+              - generic [ref=f10e46]: Ativo
+            - generic [ref=f10e48]: corretor
+          - generic [ref=f10e49]:
+            - link " Gerenciar Grupos" [ref=f10e50] [cursor=pointer]:
+              - /url: /usuario/34eedf2a-d88d-4f75-881e-c378548f393e/grupos/
+              - generic [ref=f10e51]: 
+              - text: Gerenciar Grupos
+            - link " Acessar como este usuário" [ref=f10e52] [cursor=pointer]:
+              - /url: /usuario/34eedf2a-d88d-4f75-881e-c378548f393e/impersonate/
+              - generic [ref=f10e53]: 
+              - text: Acessar como este usuário
+            - link " Voltar" [ref=f10e54] [cursor=pointer]:
+              - /url: /listar_usuarios/
+              - generic [ref=f10e55]: 
+              - text: Voltar
+        - generic [ref=f10e57]:
+          - heading "Dados do usuário" [level=2] [ref=f10e58]
+          - generic [ref=f10e59]:
+            - generic [ref=f10e60]:
+              - generic [ref=f10e61]: Primeiro nome
+              - textbox "Primeiro nome" [ref=f10e62]: CAMILO
+            - generic [ref=f10e63]:
+              - generic [ref=f10e64]: Último nome
+              - textbox "Último nome" [ref=f10e65]: João Camilo da Silva
+            - generic [ref=f10e66]:
+              - generic [ref=f10e67]: Usuário
+              - textbox "Usuário" [disabled] [ref=f10e68]: joaocamilo@gmail.com
+            - paragraph [ref=f10e69]: Obrigatório. 150 caracteres ou menos. Letras, números e @/./+/-/_ apenas.
+            - generic [ref=f10e70]:
+              - generic [ref=f10e71]: Endereço de email
+              - textbox "Endereço de email" [ref=f10e72]: joaocamilocorretor@gmail.com
+            - generic [ref=f10e73]:
+              - generic [ref=f10e74]: Creci
+              - textbox "Creci" [ref=f10e75]: 21749F
+            - generic [ref=f10e76]:
+              - generic [ref=f10e77]: Contato
+              - textbox "Contato" [ref=f10e78]:
+                - /placeholder: (99) 99999-9999
+                - text: (87) 99960-7447
+            - generic [ref=f10e79]:
+              - generic [ref=f10e80]: Tipo usuario
+              - combobox "Tipo usuario" [ref=f10e81]:
+                - option "---------"
+                - option "ADMINISTRADOR"
+                - option "CORRETOR" [selected]
+                - option "PROPRIETARIO"
+            - generic [ref=f10e82]:
+              - checkbox "Ativo" [checked] [ref=f10e83]
+              - generic [ref=f10e84]: Ativo
+            - paragraph [ref=f10e85]: Indica que o usuário será tratado como ativo. Ao invés de excluir contas de usuário, desmarque isso.
+            - generic [ref=f10e86]:
+              - generic [ref=f10e87]: Nova senha
+              - textbox "Nova senha" [ref=f10e88]
+            - paragraph [ref=f10e89]: Deixe em branco para manter a senha atual.
+            - generic [ref=f10e90]:
+              - generic [ref=f10e91]: Confirmar nova senha
+              - textbox "Confirmar nova senha" [ref=f10e92]
+            - generic [ref=f10e93]:
+              - link "Cancelar" [ref=f10e94] [cursor=pointer]:
+                - /url: /listar_usuarios/
+              - button " Salvar" [ref=f10e95] [cursor=pointer]:
+                - generic [ref=f10e96]: 
+                - text: Salvar
+        - generic [ref=f10e97]:
+          - heading " Vendas do Corretor" [level=2] [ref=f10e98]:
+            - generic [ref=f10e99]: 
+            - text: Vendas do Corretor
+          - generic [ref=f10e100]:
+            - generic [ref=f10e102]:
+              - generic [ref=f10e103]: Total de Vendas
+              - generic [ref=f10e104]: "0"
+            - generic [ref=f10e106]:
+              - generic [ref=f10e107]: Valor Financiado Total
+              - generic [ref=f10e108]: R$ 0,00
+          - generic [ref=f10e111]:
+            - generic [ref=f10e112]:
+              - generic [ref=f10e113]: Data início
+              - textbox [ref=f10e114]
+            - generic [ref=f10e115]:
+              - generic [ref=f10e116]: Data fim
+              - textbox [ref=f10e117]
+            - generic [ref=f10e118]:
+              - generic [ref=f10e119]: Empreendimento
+              - combobox [ref=f10e120]:
+                - option "Todos" [selected]
+                - option "CASAS A VENDA"
+                - option "LOT. ARNÓBIO LILIOSO"
+                - option "LOT. CIDADE NOVA - IMACULADA-PB"
+                - option "LOT. CONSTELAÇÃO SARMENTO"
+                - option "LOT. DONA MAROCA"
+                - option "LOT. JARDIM DA ESPANHA"
+                - option "LOT. JARDINS DO LAGO"
+                - option "LOT. NOVA JUAZEIRINHO"
+                - option "LOT. PARQUE DA JAQUEIRA"
+                - option "LOT. PORTAL MAURITI"
+                - option "LOT. SANTO AMARO II"
+            - generic [ref=f10e121]:
+              - button "Filtrar" [ref=f10e122] [cursor=pointer]
+              - link "Limpar" [ref=f10e123] [cursor=pointer]:
+                - /url: /alterar_usuarios/34eedf2a-d88d-4f75-881e-c378548f393e/
+          - table [ref=f10e125]:
+            - rowgroup [ref=f10e126]:
+              - row "Nº Cliente Empreendimento Lote Valor Data Status Ação" [ref=f10e127]:
+                - columnheader "Nº" [ref=f10e128]
+                - columnheader "Cliente" [ref=f10e129]
+                - columnheader "Empreendimento" [ref=f10e130]
+                - columnheader "Lote" [ref=f10e131]
+                - columnheader "Valor" [ref=f10e132]
+                - columnheader "Data" [ref=f10e133]
+                - columnheader "Status" [ref=f10e134]
+                - columnheader "Ação" [ref=f10e135]
+            - rowgroup [ref=f10e136]:
+              - row "Nenhuma venda encontrada para os filtros selecionados." [ref=f10e137]:
+                - cell "Nenhuma venda encontrada para os filtros selecionados." [ref=f10e138]
+    - contentinfo [ref=f10e139]:
+      - navigation [ref=f10e140]:
+        - generic [ref=f10e141]:
+          - generic [ref=f10e142]:
+            - link "Facebook" [ref=f10e143] [cursor=pointer]:
+              - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+              - generic [ref=f10e144]: 
+            - link "Instagram" [ref=f10e145] [cursor=pointer]:
+              - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+              - generic [ref=f10e146]: 
+          - paragraph [ref=f10e147]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

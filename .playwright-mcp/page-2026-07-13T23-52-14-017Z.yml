@@ -1,0 +1,52 @@
+- generic [ref=f25e3]:
+  - alert [ref=f25e5]: Usuario invalido! Tente novamente.
+  - main [ref=f25e6]:
+    - region "Login do sistema" [ref=f25e7]:
+      - generic [ref=f25e8]:
+        - generic [ref=f25e9]:
+          - generic [ref=f25e10]: G
+          - generic [ref=f25e11]:
+            - strong [ref=f25e12]: GLOT
+            - text: Gestão imobiliária
+        - generic [ref=f25e13]:
+          - generic [ref=f25e14]: Vendas imobiliárias
+          - heading "Controle lotes, reservas e vendas em um só lugar." [level=1] [ref=f25e15]
+          - paragraph [ref=f25e16]: Acesse o painel para acompanhar empreendimentos, disponibilidade de lotes e movimentações comerciais com mais agilidade.
+        - generic [ref=f25e17]:
+          - generic [ref=f25e18]:
+            - strong [ref=f25e19]: "01"
+            - text: Escolha o loteamento
+          - generic [ref=f25e20]:
+            - strong [ref=f25e21]: "02"
+            - text: Consulte quadras
+          - generic [ref=f25e22]:
+            - strong [ref=f25e23]: "03"
+            - text: Avance na venda
+      - generic [ref=f25e25]:
+        - generic [ref=f25e26]:
+          - text: Acesso restrito
+          - heading "Entrar na conta" [level=1] [ref=f25e27]
+          - paragraph [ref=f25e28]: Informe suas credenciais para acessar o sistema.
+        - generic [ref=f25e29]:
+          - generic [ref=f25e30]: Email
+          - textbox "Email" [ref=f25e31]:
+            - /placeholder: usuario@email.com
+        - generic [ref=f25e32]:
+          - generic [ref=f25e33]: Senha
+          - textbox "Senha" [ref=f25e34]:
+            - /placeholder: Digite sua senha
+        - button " Acessar sistema" [ref=f25e35] [cursor=pointer]:
+          - generic [ref=f25e36]: 
+          - text: Acessar sistema
+        - paragraph [ref=f25e37]: Ambiente seguro para equipe comercial e administrativa.
+  - contentinfo [ref=f25e38]:
+    - navigation [ref=f25e39]:
+      - generic [ref=f25e40]:
+        - generic [ref=f25e41]:
+          - link "Facebook" [ref=f25e42] [cursor=pointer]:
+            - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+            - generic [ref=f25e43]: 
+          - link "Instagram" [ref=f25e44] [cursor=pointer]:
+            - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+            - generic [ref=f25e45]: 
+        - paragraph [ref=f25e46]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

@@ -1,0 +1,166 @@
+{% extends 'wizard/update/_base_wizard_update.html' %}
+
+{% block step_content %}
+
+<div class="card wiz-card">
+	<div class="card-body">
+		<div class="wiz-sec-head">
+			<i class="fas fa-building"></i><span>Dados gerais</span><div class="wiz-sec-divider"></div>
+			<a href="{% url 'empreendimento_update_step1' empreendimento.uuid %}" class="btn btn-outline-secondary btn-sm">Editar</a>
+		</div>
+		<div class="row g-3">
+			<div class="col-md-6"><strong>Nome:</strong> {{ draft.nome }}</div>
+			<div class="col-md-6"><strong>Telefone:</strong> {{ draft.telefone }}</div>
+			{% if draft.observacao %}<div class="col-12"><strong>Observações:</strong> {{ draft.observacao }}</div>{% endif %}
+			{% if draft.endereco_empreendimento %}
+				<div class="col-12">
+					<strong>Endereço do loteamento:</strong>
+					{{ draft.endereco_empreendimento.rua }}, {{ draft.endereco_empreendimento.numero }}
+					{% if draft.endereco_empreendimento.complemento %} — {{ draft.endereco_empreendimento.complemento }}{% endif %}
+					— {{ draft.endereco_empreendimento.bairro }}, {{ draft.endereco_empreendimento.cidade }}/{{ draft.endereco_empreendimento.estado }}
+					— CEP {{ draft.endereco_empreendimento.cep }}
+				</div>
+			{% endif %}
+			{% if draft.matricula %}<div class="col-md-6"><strong>Matrícula:</strong> {{ draft.matricula }}</div>{% endif %}
+			{% if draft.cidade_foro %}<div class="col-md-6"><strong>Cidade do foro:</strong> {{ draft.cidade_foro }}</div>{% endif %}
+		</div>
+
+		{% if documentos_gerais %}
+			<div class="wiz-inner-div"></div>
+			<div class="wiz-sec-head" style="margin-bottom:.6rem;"><i class="fas fa-file-alt" style="font-size:12px;"></i><span style="font-size:11px;">Documentos do loteamento</span></div>
+			{% for doc in documentos_gerais %}
+				<div class="wiz-doc-row">
+					<div class="wiz-doc-ic"><i class="far {% if doc.extensao == 'pdf' %}fa-file-pdf{% else %}fa-file-image{% endif %}"></i></div>
+					<div class="flex-grow-1">
+						<div style="font-size:13px;font-weight:600;">{{ doc.nome_exibicao }}</div>
+						<div class="text-muted" style="font-size:11px;">{{ doc.get_categoria_display }}</div>
+					</div>
+					<a href="{{ doc.arquivo.url }}" target="_blank" class="btn btn-outline-secondary btn-sm"><i class="fas fa-eye"></i> Ver</a>
+				</div>
+			{% endfor %}
+		{% endif %}
+	</div>
+</div>
+
+<div class="card wiz-card">
+	<div class="card-body">
+		<div class="wiz-sec-head">
+			<i class="fas fa-briefcase"></i><span>Empresa</span><div class="wiz-sec-divider"></div>
+			<a href="{% url 'empreendimento_update_step2' empreendimento.uuid %}" class="btn btn-outline-secondary btn-sm">Editar</a>
+		</div>
+		<div class="row g-3">
+			<div class="col-md-6"><strong>CNPJ:</strong> {{ cnpj_pendente }}</div>
+			<div class="col-md-6"><strong>Razão social:</strong> {{ draft.razaoSocial }}</div>
+			<div class="col-md-6"><strong>Banco:</strong> {{ draft.get_banco_display }}</div>
+			<div class="col-md-3"><strong>Agência:</strong> {{ draft.agencia }}</div>
+			<div class="col-md-3"><strong>Conta:</strong> {{ draft.conta }}</div>
+			{% if draft.endereco_empresa %}
+				<div class="col-12">
+					<strong>Endereço da empresa:</strong>
+					{{ draft.endereco_empresa.rua }}, {{ draft.endereco_empresa.numero }}
+					{% if draft.endereco_empresa.complemento %} — {{ draft.endereco_empresa.complemento }}{% endif %}
+					— {{ draft.endereco_empresa.bairro }}, {{ draft.endereco_empresa.cidade }}/{{ draft.endereco_empresa.estado }}
+					— CEP {{ draft.endereco_empresa.cep }}
+				</div>
+			{% endif %}
+		</div>
+
+		{% if documentos_empresa %}
+			<div class="wiz-inner-div"></div>
+			<div class="wiz-sec-head" style="margin-bottom:.6rem;"><i class="fas fa-file-alt" style="font-size:12px;"></i><span style="font-size:11px;">Documentos da empresa</span></div>
+			{% for doc in documentos_empresa %}
+				<div class="wiz-doc-row">
+					<div class="wiz-doc-ic"><i class="far {% if doc.extensao == 'pdf' %}fa-file-pdf{% else %}fa-file-image{% endif %}"></i></div>
+					<div class="flex-grow-1">
+						<div style="font-size:13px;font-weight:600;">{{ doc.nome_exibicao }}</div>
+						<div class="text-muted" style="font-size:11px;">{{ doc.get_categoria_display }}</div>
+					</div>
+					<a href="{{ doc.arquivo.url }}" target="_blank" class="btn btn-outline-secondary btn-sm"><i class="fas fa-eye"></i> Ver</a>
+				</div>
+			{% endfor %}
+		{% endif %}
+	</div>
+</div>
+
+<div class="card wiz-card">
+	<div class="card-body">
+		<div class="wiz-sec-head">
+			<i class="fas fa-users"></i><span>Representantes</span><div class="wiz-sec-divider"></div>
+			<a href="{% url 'empreendimento_update_step3' empreendimento.uuid %}" class="btn btn-outline-secondary btn-sm">Editar</a>
+		</div>
+		{% for rep in representantes %}
+			<div class="wiz-rep-card">
+				<div class="wiz-rep-head">
+					<span class="wiz-rep-badge">{% if forloop.first %}Representante principal{% else %}Representante {{ forloop.counter }}{% endif %}</span>
+				</div>
+				<div class="wiz-rep-body">
+					<div class="row g-3">
+						<div class="col-md-6"><strong>Nome:</strong> {{ rep.nome }}</div>
+						<div class="col-md-6"><strong>CPF:</strong> {{ rep.documento }}</div>
+						<div class="col-md-6"><strong>Cargo:</strong> {{ rep.cargo }}</div>
+						<div class="col-md-6"><strong>Estado civil:</strong> {{ rep.get_estado_civil_display|default:'—' }}</div>
+						{% if rep.endereco %}
+							<div class="col-12">
+								<strong>Endereço:</strong>
+								{{ rep.endereco.rua }}, {{ rep.endereco.numero }} — {{ rep.endereco.bairro }},
+								{{ rep.endereco.cidade }}/{{ rep.endereco.estado }} — CEP {{ rep.endereco.cep }}
+							</div>
+						{% endif %}
+						{% if rep.estado_civil == 'casado' %}
+							<div class="col-md-6"><strong>Cônjuge:</strong> {{ rep.conj_nome }}</div>
+							<div class="col-md-6"><strong>CPF do cônjuge:</strong> {{ rep.conj_documento }}</div>
+						{% endif %}
+					</div>
+					{% if rep.documentos.all %}
+						<div class="wiz-inner-div"></div>
+						{% for doc in rep.documentos.all %}
+							<div class="wiz-doc-row">
+								<div class="wiz-doc-ic"><i class="far {% if doc.extensao == 'pdf' %}fa-file-pdf{% else %}fa-file-image{% endif %}"></i></div>
+								<div class="flex-grow-1">
+									<div style="font-size:13px;font-weight:600;">{{ doc.nome_exibicao }}</div>
+									<div class="text-muted" style="font-size:11px;">{{ doc.get_categoria_display }}</div>
+								</div>
+								<a href="{{ doc.arquivo.url }}" target="_blank" class="btn btn-outline-secondary btn-sm"><i class="fas fa-eye"></i> Ver</a>
+							</div>
+						{% endfor %}
+					{% endif %}
+				</div>
+			</div>
+		{% empty %}
+			<p class="text-muted" style="font-size:.85rem;">Nenhum representante informado.</p>
+		{% endfor %}
+	</div>
+</div>
+
+<div class="card wiz-card">
+	<div class="card-body">
+		<div class="wiz-sec-head">
+			<i class="fas fa-sliders-h"></i><span>Configurações</span><div class="wiz-sec-divider"></div>
+			<a href="{% url 'empreendimento_update_step4' empreendimento.uuid %}" class="btn btn-outline-secondary btn-sm">Editar</a>
+		</div>
+		<div class="row g-3">
+			<div class="col-md-3"><strong>Tempo de reserva:</strong> {{ draft.tempo_reserva }} dia(s)</div>
+			<div class="col-md-3"><strong>Parcelas:</strong> {{ draft.quantidade_parcela }}</div>
+			<div class="col-md-3"><strong>Desconto:</strong> {{ draft.desconto }}%</div>
+			<div class="col-md-3"><strong>Correção:</strong> {{ draft.tipo_correcao }}</div>
+		</div>
+	</div>
+</div>
+
+<form method="post">
+	{% csrf_token %}
+	<div class="wiz-action-bar">
+		<button type="submit" name="cancelar" formaction="{% url 'wizard_update_cancelar' empreendimento.uuid %}" formnovalidate class="btn btn-outline-danger" style="border-radius:8px;">
+			<i class="fas fa-times me-1"></i>Cancelar
+		</button>
+		<div class="d-flex gap-2">
+			<a href="{% url 'empreendimento_update_step4' empreendimento.uuid %}" class="btn btn-outline-secondary" style="border-radius:8px;">
+				<i class="fas fa-arrow-left me-1"></i>Anterior
+			</a>
+			<button type="submit" name="finalizar" value="1" class="btn" style="background:#08789a;color:#fff;border-radius:8px;">
+				<i class="far fa-save me-1"></i>Salvar empreendimento
+			</button>
+		</div>
+	</div>
+</form>
+{% endblock %}

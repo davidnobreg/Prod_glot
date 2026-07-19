@@ -89,6 +89,10 @@
 				<button class="upd-tab-btn" data-tab="arquivos" type="button">
 					<i class="fas fa-folder-open me-1"></i>Arquivos
 				</button>
+				<button class="upd-tab-btn" data-tab="representantes" type="button"
+				        id="tab-btn-representantes" style="display:none;">
+					<i class="fas fa-users me-1"></i>Representantes
+				</button>
 			</div>
 
 			<!-- ====================================================
@@ -394,6 +398,141 @@
 				</div>
 
 				<!-- ================================================
+				     ABA 7 — Representantes legais (só PJ)
+				     ================================================ -->
+				<div id="tab-representantes" class="upd-tab-pane" style="display:none;">
+					<p class="text-muted" style="font-size:.85rem;">
+						Sócios ou administradores que assinam contratos por esta empresa.
+					</p>
+					<div id="wz-rep-lista" class="mb-3"></div>
+					<div id="wz-rep-form">
+						<div class="row g-2">
+							<div class="col-md-4">
+								<label class="form-label">Nome <span class="text-danger">*</span></label>
+								<input type="text" id="wz-rep-nome" class="glot-input">
+							</div>
+							<div class="col-md-3">
+								<label class="form-label">CPF <span class="text-danger">*</span></label>
+								<input type="text" id="wz-rep-documento" class="glot-input mask-doc" maxlength="14">
+							</div>
+							<div class="col-md-3">
+								<label class="form-label">Cargo</label>
+								<input type="text" id="wz-rep-cargo" class="glot-input">
+							</div>
+							<div class="col-md-2">
+								<label class="form-label">Estado civil</label>
+								<select id="wz-rep-estado-civil" class="glot-select">
+									<option value="">—</option>
+									<option value="solteiro">Solteiro</option>
+									<option value="casado">Casado</option>
+									<option value="divorciado">Divorciado</option>
+									<option value="viuvo">Viúvo</option>
+									<option value="separado_judicialmente">Separado judicialmente</option>
+									<option value="uniao_estavel">União estável</option>
+								</select>
+							</div>
+							<div class="col-md-4">
+								<label class="form-label">RG</label>
+								<input type="text" id="wz-rep-numero-rg" class="glot-input">
+							</div>
+							<div class="col-md-4">
+								<label class="form-label">Órgão emissor</label>
+								<input type="text" id="wz-rep-orgao-emissor-rg" class="glot-input">
+							</div>
+							<div class="col-md-4">
+								<label class="form-label">E-mail</label>
+								<input type="email" id="wz-rep-email" class="glot-input">
+							</div>
+						</div>
+						<div class="row g-2 mt-1">
+							<div class="col-12"><div class="step-sublabel">Endereço do representante</div></div>
+							<div class="col-md-2">
+								<label class="form-label">CEP</label>
+								<input type="text" id="wz-rep-endereco-cep" class="glot-input" maxlength="9">
+							</div>
+							<div class="col-md-4">
+								<label class="form-label">Rua ou Avenida</label>
+								<input type="text" id="wz-rep-endereco-rua" class="glot-input">
+							</div>
+							<div class="col-md-2">
+								<label class="form-label">Número</label>
+								<input type="text" id="wz-rep-endereco-numero" class="glot-input">
+							</div>
+							<div class="col-md-4">
+								<label class="form-label">Complemento</label>
+								<input type="text" id="wz-rep-endereco-complemento" class="glot-input">
+							</div>
+							<div class="col-md-4">
+								<label class="form-label">Bairro</label>
+								<input type="text" id="wz-rep-endereco-bairro" class="glot-input">
+							</div>
+							<div class="col-md-5">
+								<label class="form-label">Cidade</label>
+								<input type="text" id="wz-rep-endereco-cidade" class="glot-input">
+							</div>
+							<div class="col-md-3">
+								<label class="form-label">Estado</label>
+								<select id="wz-rep-endereco-estado" class="glot-select">
+									<option value="">—</option>
+									<option value="PB">Paraíba</option>
+									<option value="AC">Acre</option>
+									<option value="AL">Alagoas</option>
+									<option value="AP">Amapá</option>
+									<option value="AM">Amazonas</option>
+									<option value="BA">Bahia</option>
+									<option value="CE">Ceará</option>
+									<option value="DF">Distrito Federal</option>
+									<option value="ES">Espírito Santo</option>
+									<option value="GO">Goiás</option>
+									<option value="MA">Maranhão</option>
+									<option value="MT">Mato Grosso</option>
+									<option value="MS">Mato Grosso do Sul</option>
+									<option value="MG">Minas Gerais</option>
+									<option value="PA">Pará</option>
+									<option value="PE">Pernambuco</option>
+									<option value="PI">Piauí</option>
+									<option value="PR">Paraná</option>
+									<option value="RJ">Rio de Janeiro</option>
+									<option value="RN">Rio Grande do Norte</option>
+									<option value="RS">Rio Grande do Sul</option>
+									<option value="RO">Rondônia</option>
+									<option value="RR">Roraima</option>
+									<option value="SC">Santa Catarina</option>
+									<option value="SP">São Paulo</option>
+									<option value="SE">Sergipe</option>
+									<option value="TO">Tocantins</option>
+								</select>
+							</div>
+						</div>
+						<div id="wz-rep-conjuge-group" style="display:none;" class="row g-2 mt-1">
+							<div class="col-12"><div class="step-sublabel">Cônjuge do representante</div></div>
+							<div class="col-md-4">
+								<label class="form-label">Nome do cônjuge <span class="text-danger">*</span></label>
+								<input type="text" id="wz-rep-conj-nome" class="glot-input">
+							</div>
+							<div class="col-md-3">
+								<label class="form-label">CPF do cônjuge</label>
+								<input type="text" id="wz-rep-conj-documento" class="glot-input mask-doc" maxlength="14">
+							</div>
+							<div class="col-md-3">
+								<label class="form-label">RG do cônjuge</label>
+								<input type="text" id="wz-rep-conj-numero-rg" class="glot-input">
+							</div>
+							<div class="col-md-2">
+								<label class="form-label">Órgão emissor</label>
+								<input type="text" id="wz-rep-conj-orgao-emissor-rg" class="glot-input">
+							</div>
+						</div>
+						<div class="mt-2">
+							<button type="button" class="btn btn-success" style="border-radius:8px;" onclick="wizardAddRepresentante()">
+								<i class="fas fa-plus me-1"></i>Adicionar representante
+							</button>
+						</div>
+						<div id="wz-rep-erro" class="alert alert-danger mt-2" style="display:none;font-size:.85rem;"></div>
+					</div>
+				</div>
+
+				<!-- ================================================
 				     BARRA DE AÇÕES (sempre visível, rodapé do card)
 				     ================================================ -->
 				<div class="action-bar">
@@ -419,6 +558,7 @@
 	</div><!-- container-fluid -->
 </section>
 
+<script src="{% static 'js/cliente_wizard.js' %}"></script>
 <script>
 	window.telefonesTemp = {{ telefones_json|default:"[]"|safe }};
 
@@ -474,6 +614,26 @@
 		if (tab) {
 			var btn = document.querySelector('[data-tab="' + tab + '"]');
 			if (btn) btn.click();
+		}
+	})();
+
+	// Aba Representantes: visível só pra PJ, inicializa lista com dados do servidor
+	window.WIZARD_URLS = {
+		representanteAddBase: '{% url "wizard-representante-add" cliente_uuid="00000000-0000-0000-0000-000000000000" %}',
+		representanteDelBase: '{% url "wizard-representante-del" cliente_uuid="00000000-0000-0000-0000-000000000000" representante_uuid="11111111-1111-1111-1111-111111111111" %}',
+		representanteArquivoAddBase: '{% url "wizard-representante-arquivo-add" representante_uuid="11111111-1111-1111-1111-111111111111" %}',
+		representanteArquivoDelBase: '{% url "wizard-representante-arquivo-del" documento_uuid="22222222-2222-2222-2222-222222222222" %}',
+	};
+	(function () {
+		var tipoPessoa = '{{ tipo_pessoa }}';
+		if (tipoPessoa !== 'PJ') return;
+
+		var repTabBtn = document.getElementById('tab-btn-representantes');
+		if (repTabBtn) repTabBtn.style.display = '';
+
+		var representantesIniciais = {{ representantes_json|default:"[]"|safe }};
+		if (window.wizardRepresentantesInit) {
+			window.wizardRepresentantesInit('{{ cliente.uuid }}', representantesIniciais);
 		}
 	})();
 

@@ -18,6 +18,7 @@ from .forms import (
     ClienteRepresentanteForm,
     ClienteTelefoneForm,
     ClienteUpdateForm,
+    EnderecoRepresentanteForm,
     RepresentanteDocumentoForm,
 )
 from .models import Cliente, ClienteDocumento, ClienteRepresentante, ClienteTelefone, RepresentanteDocumento
@@ -103,6 +104,38 @@ def _get_tipo_pessoa(cliente):
     if cliente and cliente.documento:
         return 'PJ' if len(cliente.documento) == 14 else 'PF'
     return 'PF'
+
+
+def _serializar_representante(rep):
+    endereco = None
+    if rep.endereco:
+        endereco = {
+            'cep': rep.endereco.cep,
+            'rua': rep.endereco.rua,
+            'numero': rep.endereco.numero,
+            'complemento': rep.endereco.complemento,
+            'bairro': rep.endereco.bairro,
+            'cidade': rep.endereco.cidade,
+            'estado': rep.endereco.estado,
+        }
+    return {
+        'uuid': str(rep.uuid),
+        'nome': rep.nome,
+        'documento': rep.documento,
+        'cargo': rep.cargo,
+        'estado_civil': rep.get_estado_civil_display(),
+        'estado_civil_raw': rep.estado_civil,
+        'endereco': endereco,
+        'documentos': [
+            {
+                'uuid': str(d.uuid),
+                'tipo_display': d.get_tipo_display(),
+                'descricao': d.descricao or '',
+                'arquivo_url': d.arquivo.url if d.arquivo else '',
+            }
+            for d in rep.documentos.all()
+        ],
+    }
 
 
 def _render_cliente_form(request, template, form, cliente=None,
@@ -248,6 +281,14 @@ def atualizarCliente(request, cliente_uuid):
         )
         tipo_pessoa = _get_tipo_pessoa(cliente)
         documentos = cliente.arquivos_cliente.all().order_by('-criado_em')
+        representantes = []
+        if tipo_pessoa == 'PJ':
+            representantes = list(
+                cliente.representantes.filter(is_ativo=True)
+                .select_related('endereco')
+                .prefetch_related('documentos')
+                .order_by('criado_em')
+            )
         return render(request, 'cliente_update.html', {
             'form': ClienteUpdateForm(instance=cliente),
             'cliente': cliente,
@@ -260,6 +301,9 @@ def atualizarCliente(request, cliente_uuid):
             'tem_processando': documentos.filter(status='processando').exists(),
             'form_doc': ClienteDocumentoForm(tipo_pessoa=tipo_pessoa),
             'tipo_pessoa': tipo_pessoa,
+            'representantes_json': json.dumps(
+                [_serializar_representante(r) for r in representantes]
+            ),
         })
 
     origem = request.POST.get('origem', 'lista')
@@ -469,19 +513,31 @@ def wizard_arquivo_del(request, cliente_uuid, documento_uuid):
 
 @has_permission_decorator('criarCliente')
 def wizard_representante_add(request, cliente_uuid):
-	"""Adiciona ClienteRepresentante a um cliente PJ rascunho. Retorna JSON."""
+	"""Adiciona ClienteRepresentante a um cliente PJ (rascunho ou já ativo). Retorna JSON."""
 	if request.method != 'POST':
 		return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
 
-	draft = get_object_or_404(Cliente, uuid=cliente_uuid, is_ativo=False)
+	cliente = get_object_or_404(Cliente, uuid=cliente_uuid)
 	form = ClienteRepresentanteForm(request.POST)
+	form_endereco = EnderecoRepresentanteForm(request.POST, prefix='endereco')
 
-	if form.is_valid():
+	if form.is_valid() and form_endereco.is_valid():
 		from clientes.services import criar_representante
 		try:
-			representante = criar_representante(draft, form.cleaned_data)
+			representante = criar_representante(cliente, form.cleaned_data, form_endereco.cleaned_data)
 		except ValidationError as e:
 			return JsonResponse({'ok': False, 'error': '; '.join(e.messages)})
+		endereco_data = None
+		if representante.endereco:
+			endereco_data = {
+				'cep': representante.endereco.cep,
+				'rua': representante.endereco.rua,
+				'numero': representante.endereco.numero,
+				'complemento': representante.endereco.complemento,
+				'bairro': representante.endereco.bairro,
+				'cidade': representante.endereco.cidade,
+				'estado': representante.endereco.estado,
+			}
 		return JsonResponse({
 			'ok': True,
 			'representante': {
@@ -490,11 +546,16 @@ def wizard_representante_add(request, cliente_uuid):
 				'documento': representante.documento,
 				'cargo': representante.cargo,
 				'estado_civil': representante.get_estado_civil_display(),
+				'estado_civil_raw': representante.estado_civil,
+				'endereco': endereco_data,
 			}
 		})
 
 	first_error = next(
 		(v[0] for v in form.errors.values() if v),
+		None
+	) or next(
+		(v[0] for v in form_endereco.errors.values() if v),
 		'Erro ao salvar representante.'
 	)
 	return JsonResponse({'ok': False, 'error': first_error})
@@ -506,13 +567,13 @@ def wizard_representante_add(request, cliente_uuid):
 
 @has_permission_decorator('criarCliente')
 def wizard_representante_del(request, cliente_uuid, representante_uuid):
-	"""Remove ClienteRepresentante de um rascunho específico. Retorna JSON."""
+	"""Remove ClienteRepresentante de um cliente (rascunho ou já ativo). Retorna JSON."""
 	if request.method != 'POST':
 		return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
 
-	draft = get_object_or_404(Cliente, uuid=cliente_uuid, is_ativo=False)
+	cliente = get_object_or_404(Cliente, uuid=cliente_uuid)
 	from clientes.services import remover_representante
-	remover_representante(representante_uuid, draft)
+	remover_representante(representante_uuid, cliente)
 	return JsonResponse({'ok': True})
 
 
@@ -522,13 +583,11 @@ def wizard_representante_del(request, cliente_uuid, representante_uuid):
 
 @has_permission_decorator('criarCliente')
 def wizard_representante_arquivo_add(request, representante_uuid):
-	"""Adiciona RepresentanteDocumento a um representante de rascunho. Retorna JSON."""
+	"""Adiciona RepresentanteDocumento a um representante (cliente rascunho ou já ativo). Retorna JSON."""
 	if request.method != 'POST':
 		return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
 
-	representante = get_object_or_404(
-		ClienteRepresentante, uuid=representante_uuid, cliente__is_ativo=False
-	)
+	representante = get_object_or_404(ClienteRepresentante, uuid=representante_uuid)
 	form = RepresentanteDocumentoForm(request.POST, request.FILES)
 
 	if form.is_valid():
@@ -559,15 +618,11 @@ def wizard_representante_arquivo_add(request, representante_uuid):
 
 @has_permission_decorator('criarCliente')
 def wizard_representante_arquivo_del(request, documento_uuid):
-	"""Remove RepresentanteDocumento de um rascunho específico. Retorna JSON."""
+	"""Remove RepresentanteDocumento de um representante (cliente rascunho ou já ativo). Retorna JSON."""
 	if request.method != 'POST':
 		return JsonResponse({'ok': False, 'error': 'Method not allowed'}, status=405)
 
-	doc = get_object_or_404(
-		RepresentanteDocumento,
-		uuid=documento_uuid,
-		representante__cliente__is_ativo=False,
-	)
+	doc = get_object_or_404(RepresentanteDocumento, uuid=documento_uuid)
 	doc.delete()
 	return JsonResponse({'ok': True})
 

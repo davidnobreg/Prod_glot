@@ -1,0 +1,153 @@
+- generic [ref=f7e2]:
+  - text: 
+  - complementary "Menu principal" [ref=f7e3]:
+    - generic [ref=f7e4]:
+      - link [ref=f7e5] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - img "logo_carlos_e_celso" [ref=f7e7]
+        - generic [ref=f7e8]:
+          - strong [ref=f7e9]: GLOT
+          - text: Sistema de Gestão
+      - button "Recolher menu" [ref=f7e10] [cursor=pointer]:
+        - generic [ref=f7e11]: 
+      - text: 
+    - generic [ref=f7e12]:
+      - generic [ref=f7e13]: Usuario logado
+      - strong [ref=f7e14]: DAVID
+      - text: ADMINISTRADOR
+    - navigation [ref=f7e15]:
+      - link " Dashboard" [ref=f7e16] [cursor=pointer]:
+        - /url: /dashboard/
+        - generic [ref=f7e17]: 
+        - generic [ref=f7e18]: Dashboard
+      - link " Empreendimentos" [ref=f7e19] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - generic [ref=f7e20]: 
+        - generic [ref=f7e21]: Empreendimentos
+      - button "Listagem " [ref=f7e22] [cursor=pointer]:
+        - generic [ref=f7e23]: Listagem
+        - generic [ref=f7e24]: 
+      - text:  
+      - button "Movimentacao " [ref=f7e25] [cursor=pointer]:
+        - generic [ref=f7e26]: Movimentacao
+        - generic [ref=f7e27]: 
+      - text:    
+      - button "Cadastros " [ref=f7e28] [cursor=pointer]:
+        - generic [ref=f7e29]: Cadastros
+        - generic [ref=f7e30]: 
+      - text:    
+      - button "Documentos " [ref=f7e31] [cursor=pointer]:
+        - generic [ref=f7e32]: Documentos
+        - generic [ref=f7e33]: 
+      - text:  
+    - button " Sair" [ref=f7e36] [cursor=pointer]:
+      - generic [ref=f7e37]: 
+      - generic [ref=f7e38]: Sair
+  - generic [ref=f7e39]:
+    - main [ref=f7e40]:
+      - generic [ref=f7e43]:
+        - generic [ref=f7e44]:
+          - heading "Editar Cliente" [level=1] [ref=f7e45]
+          - navigation "breadcrumb" [ref=f7e46]:
+            - list [ref=f7e47]:
+              - listitem [ref=f7e48]:
+                - link "Início" [ref=f7e49] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=f7e50]:
+                - text: /
+                - link "Clientes" [ref=f7e51] [cursor=pointer]:
+                  - /url: /clientes/listar_clientes/
+              - listitem [ref=f7e52]: / EMPRESA UPDATE TESTE LTDA
+        - link "Voltar" [ref=f7e54] [cursor=pointer]:
+          - /url: /clientes/listar_clientes/
+          - generic [ref=f7e55]: 
+          - text: Voltar
+      - generic [ref=f7e58]:
+        - tablist [ref=f7e59]:
+          - button "Dados pessoais" [ref=f7e60] [cursor=pointer]:
+            - generic [ref=f7e61]: 
+            - text: Dados pessoais
+          - text: 
+          - button "Endereço" [ref=f7e62] [cursor=pointer]:
+            - generic [ref=f7e63]: 
+            - text: Endereço
+          - button "Contatos" [ref=f7e64] [cursor=pointer]:
+            - generic [ref=f7e65]: 
+            - text: Contatos
+          - button "Arquivos" [ref=f7e66] [cursor=pointer]:
+            - generic [ref=f7e67]: 
+            - text: Arquivos
+          - button "Representantes" [ref=f7e68] [cursor=pointer]:
+            - generic [ref=f7e69]: 
+            - text: Representantes
+        - generic [ref=f7e70]:
+          - generic [ref=f7e71]:
+            - generic [ref=f7e72]:
+              - generic [ref=f7e73]:
+                - generic [ref=f7e74]: Razão social *
+                - textbox [ref=f7e75]: EMPRESA UPDATE TESTE LTDA
+              - generic [ref=f7e76]:
+                - generic [ref=f7e77]: Nome fantasia
+                - textbox [ref=f7e78]
+              - generic [ref=f7e79]:
+                - generic [ref=f7e80]: Data de nascimento
+                - textbox [ref=f7e81]
+              - generic [ref=f7e82]:
+                - generic [ref=f7e83]: Estado civil
+                - combobox [ref=f7e84]:
+                  - option "Solteiro" [selected]
+                  - option "Casado"
+                  - option "Divorciado"
+                  - option "Viúvo"
+                  - option "Separado judicialmente"
+                  - option "União estável"
+              - generic [ref=f7e85]:
+                - generic [ref=f7e86]: Naturalidade
+                - textbox [ref=f7e87]
+              - generic [ref=f7e88]:
+                - generic [ref=f7e89]: Nacionalidade
+                - textbox [ref=f7e90]: Brasileiro
+              - generic [ref=f7e91]:
+                - generic [ref=f7e92]: Profissão
+                - textbox [ref=f7e93]
+              - generic [ref=f7e94]:
+                - generic [ref=f7e95]: Renda
+                - textbox "R$ 0,00" [ref=f7e96]: 0,00
+            - separator [ref=f7e97]
+            - generic [ref=f7e98]:
+              - generic [ref=f7e99]:
+                - generic [ref=f7e100]: CPF / CNPJ *
+                - textbox [ref=f7e101]: 98.765.432/0001-99
+              - generic [ref=f7e102]:
+                - generic [ref=f7e103]: E-mail *
+                - textbox [ref=f7e104]: empresa.update.teste2@example.com
+              - generic [ref=f7e105]:
+                - generic [ref=f7e106]: RG
+                - textbox [ref=f7e107]
+              - generic [ref=f7e108]:
+                - generic [ref=f7e109]: Órgão emissor
+                - textbox [ref=f7e110]
+              - generic [ref=f7e111]:
+                - generic [ref=f7e112]: Observações
+                - textbox [ref=f7e113]
+          - text: 
+        - text:     
+        - generic [ref=f7e114]:
+          - link "Cancelar" [ref=f7e115] [cursor=pointer]:
+            - /url: /clientes/listar_clientes/
+            - generic [ref=f7e116]: 
+            - text: Cancelar
+          - button "Salvar alterações" [ref=f7e117] [cursor=pointer]:
+            - generic [ref=f7e118]: 
+            - text: Salvar alterações
+    - contentinfo [ref=f7e119]:
+      - navigation [ref=f7e120]:
+        - generic [ref=f7e121]:
+          - generic [ref=f7e122]:
+            - link "Facebook" [ref=f7e123] [cursor=pointer]:
+              - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+              - generic [ref=f7e124]: 
+            - link "Instagram" [ref=f7e125] [cursor=pointer]:
+              - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+              - generic [ref=f7e126]: 
+          - paragraph [ref=f7e127]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

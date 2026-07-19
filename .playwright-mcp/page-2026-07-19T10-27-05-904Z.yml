@@ -1,0 +1,187 @@
+- generic [ref=f26e2]:
+  - text: 
+  - complementary "Menu principal" [ref=f26e3]:
+    - generic [ref=f26e4]:
+      - link [ref=f26e5] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - img "logo_carlos_e_celso" [ref=f26e7]
+        - generic [ref=f26e8]:
+          - strong [ref=f26e9]: GLOT
+          - text: Sistema de Gestão
+      - button "Recolher menu" [ref=f26e10] [cursor=pointer]:
+        - generic [ref=f26e11]: 
+      - text: 
+    - generic [ref=f26e12]:
+      - generic [ref=f26e13]: Usuario logado
+      - strong [ref=f26e14]: DAVID
+      - text: ADMINISTRADOR
+    - navigation [ref=f26e15]:
+      - link " Dashboard" [ref=f26e16] [cursor=pointer]:
+        - /url: /dashboard/
+        - generic [ref=f26e17]: 
+        - generic [ref=f26e18]: Dashboard
+      - link " Empreendimentos" [ref=f26e19] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - generic [ref=f26e20]: 
+        - generic [ref=f26e21]: Empreendimentos
+      - button "Listagem " [ref=f26e22] [cursor=pointer]:
+        - generic [ref=f26e23]: Listagem
+        - generic [ref=f26e24]: 
+      - text:  
+      - button "Movimentacao " [ref=f26e25] [cursor=pointer]:
+        - generic [ref=f26e26]: Movimentacao
+        - generic [ref=f26e27]: 
+      - text:    
+      - button "Cadastros " [ref=f26e28] [cursor=pointer]:
+        - generic [ref=f26e29]: Cadastros
+        - generic [ref=f26e30]: 
+      - text:    
+      - button "Documentos " [ref=f26e31] [cursor=pointer]:
+        - generic [ref=f26e32]: Documentos
+        - generic [ref=f26e33]: 
+      - text:  
+    - button " Sair" [ref=f26e36] [cursor=pointer]:
+      - generic [ref=f26e37]: 
+      - generic [ref=f26e38]: Sair
+  - generic [ref=f26e39]:
+    - main [ref=f26e40]:
+      - generic [ref=f26e44]:
+        - heading "Cadastrar Empreendimento" [level=1] [ref=f26e45]
+        - navigation "breadcrumb" [ref=f26e46]:
+          - list [ref=f26e47]:
+            - listitem [ref=f26e48]:
+              - link "Início" [ref=f26e49] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f26e50]:
+              - text: /
+              - link "Empreendimentos" [ref=f26e51] [cursor=pointer]:
+                - /url: /empreendimentos/listar_empreendimento/
+            - listitem [ref=f26e52]: / Cadastrar
+      - generic [ref=f26e54]:
+        - generic [ref=f26e56]:
+          - generic [ref=f26e57]:
+            - generic [ref=f26e58]: "1"
+            - generic [ref=f26e59]: Dados gerais
+          - generic [ref=f26e60]:
+            - generic [ref=f26e61]: "2"
+            - generic [ref=f26e62]: Empresa
+          - generic [ref=f26e63]:
+            - generic [ref=f26e64]: "3"
+            - generic [ref=f26e65]: Representantes
+          - generic [ref=f26e66]:
+            - generic [ref=f26e67]: "4"
+            - generic [ref=f26e68]: Configurações
+          - generic [ref=f26e69]:
+            - generic [ref=f26e70]: "5"
+            - generic [ref=f26e71]: Revisão
+        - generic [ref=f26e72]:
+          - generic [ref=f26e73]:
+            - generic [ref=f26e74]:
+              - generic [ref=f26e75]:
+                - generic [ref=f26e76]: 
+                - generic [ref=f26e77]: Dados do empreendimento
+              - generic [ref=f26e79]:
+                - generic [ref=f26e80]:
+                  - generic [ref=f26e81]: Nome do empreendimento *
+                  - textbox "Nome do empreendimento *" [ref=f26e82]
+                - generic [ref=f26e83]:
+                  - generic [ref=f26e84]: Telefone de contato *
+                  - textbox "Telefone de contato *" [ref=f26e85]
+              - generic [ref=f26e87]:
+                - generic [ref=f26e88]: 
+                - generic [ref=f26e89]: Registro e foro
+              - generic [ref=f26e91]:
+                - generic [ref=f26e92]:
+                  - generic [ref=f26e93]: Matrícula do imóvel
+                  - textbox "Matrícula do imóvel" [ref=f26e94]
+                  - generic [ref=f26e95]: Número de matrícula registrado em cartório
+                - generic [ref=f26e96]:
+                  - generic [ref=f26e97]: Cidade do foro
+                  - 'textbox "Cidade do foro (ex: Mauriti - CE)" [ref=f26e98]'
+                  - generic [ref=f26e99]: Comarca para resolução de disputas contratuais
+                - generic [ref=f26e100]:
+                  - generic [ref=f26e101]: Observações opcional
+                  - textbox "Observações opcional" [ref=f26e102]
+            - generic [ref=f26e103]:
+              - generic [ref=f26e104]:
+                - generic [ref=f26e105]: 
+                - generic [ref=f26e106]: Endereço do empreendimento
+              - generic [ref=f26e108]:
+                - generic [ref=f26e109]:
+                  - generic [ref=f26e110]: CEP *
+                  - textbox "Digite o CEP" [ref=f26e111]
+                - generic [ref=f26e112]:
+                  - generic [ref=f26e113]: Cidade *
+                  - textbox "Cidade" [ref=f26e114]
+                - generic [ref=f26e115]:
+                  - generic [ref=f26e116]: Estado *
+                  - combobox [ref=f26e117]:
+                    - option "---------" [selected]
+                    - option "Paraíba"
+                    - option "Acre"
+                    - option "Alagoas"
+                    - option "Amapá"
+                    - option "Amazonas"
+                    - option "Bahia"
+                    - option "Ceará"
+                    - option "Distrito Federal"
+                    - option "Espírito Santo"
+                    - option "Goiás"
+                    - option "Maranhão"
+                    - option "Mato Grosso"
+                    - option "Mato Grosso do Sul"
+                    - option "Minas Gerais"
+                    - option "Pará"
+                    - option "Pernambuco"
+                    - option "Piauí"
+                    - option "Paraná"
+                    - option "Rio de Janeiro"
+                    - option "Rio Grande do Norte"
+                    - option "Rio Grande do Sul"
+                    - option "Rondônia"
+                    - option "Roraima"
+                    - option "Santa Catarina"
+                    - option "São Paulo"
+                    - option "Sergipe"
+                    - option "Tocantins"
+                - generic [ref=f26e118]:
+                  - generic [ref=f26e119]: Bairro *
+                  - textbox "Bairro" [ref=f26e120]
+                - generic [ref=f26e121]:
+                  - generic [ref=f26e122]: Rua / Estrada *
+                  - textbox "Rua ou Avenida" [ref=f26e123]
+                - generic [ref=f26e124]:
+                  - generic [ref=f26e125]: Número *
+                  - textbox "Número" [ref=f26e126]
+                - generic [ref=f26e127]:
+                  - generic [ref=f26e128]: Complemento / Referência opcional
+                  - textbox "Complemento" [ref=f26e129]
+              - generic [ref=f26e131]:
+                - generic [ref=f26e132]: 
+                - generic [ref=f26e133]: Logo
+              - button "Choose File" [ref=f26e137] [cursor=pointer]
+            - generic [ref=f26e138]:
+              - generic [ref=f26e139]:
+                - generic [ref=f26e140]: 
+                - generic [ref=f26e141]: Documentos do loteamento
+              - paragraph [ref=f26e143]: Matrícula, planta, memorial descritivo e demais documentos do loteamento (PDF ou imagem, até 20MB).
+              - paragraph [ref=f26e144]: Salve os dados gerais (clique em Próximo) para anexar documentos.
+          - generic [ref=f26e145]:
+            - link "Cancelar" [ref=f26e146] [cursor=pointer]:
+              - /url: /empreendimentos/listar_empreendimento/
+              - generic [ref=f26e147]: 
+              - text: Cancelar
+            - button "Próximo" [ref=f26e148] [cursor=pointer]:
+              - text: Próximo
+              - generic [ref=f26e149]: 
+    - contentinfo [ref=f26e150]:
+      - navigation [ref=f26e151]:
+        - generic [ref=f26e152]:
+          - generic [ref=f26e153]:
+            - link "Facebook" [ref=f26e154] [cursor=pointer]:
+              - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+              - generic [ref=f26e155]: 
+            - link "Instagram" [ref=f26e156] [cursor=pointer]:
+              - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+              - generic [ref=f26e157]: 
+          - paragraph [ref=f26e158]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

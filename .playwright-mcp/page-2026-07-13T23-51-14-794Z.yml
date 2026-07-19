@@ -1,0 +1,117 @@
+- generic [ref=f21e2]:
+  - text: 
+  - complementary "Menu principal" [ref=f21e3]:
+    - generic [ref=f21e4]:
+      - link [ref=f21e5] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - img "logo_carlos_e_celso" [ref=f21e7]
+        - generic [ref=f21e8]:
+          - strong [ref=f21e9]: GLOT
+          - text: Sistema de Gestão
+      - button "Recolher menu" [ref=f21e10] [cursor=pointer]:
+        - generic [ref=f21e11]: 
+      - text: 
+    - generic [ref=f21e12]:
+      - generic [ref=f21e13]: Usuario logado
+      - strong [ref=f21e14]: DAVID
+      - text: ADMINISTRADOR
+    - navigation [ref=f21e15]:
+      - link " Dashboard" [ref=f21e16] [cursor=pointer]:
+        - /url: /dashboard/
+        - generic [ref=f21e17]: 
+        - generic [ref=f21e18]: Dashboard
+      - link " Empreendimentos" [ref=f21e19] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - generic [ref=f21e20]: 
+        - generic [ref=f21e21]: Empreendimentos
+      - button "Listagem " [ref=f21e22] [cursor=pointer]:
+        - generic [ref=f21e23]: Listagem
+        - generic [ref=f21e24]: 
+      - text:  
+      - button "Movimentacao " [ref=f21e25] [cursor=pointer]:
+        - generic [ref=f21e26]: Movimentacao
+        - generic [ref=f21e27]: 
+      - text:    
+      - button "Cadastros " [ref=f21e28] [cursor=pointer]:
+        - generic [ref=f21e29]: Cadastros
+        - generic [ref=f21e30]: 
+      - text:    
+      - button "Documentos " [ref=f21e31] [cursor=pointer]:
+        - generic [ref=f21e32]: Documentos
+        - generic [ref=f21e33]: 
+      - text:  
+    - button " Sair" [ref=f21e36] [cursor=pointer]:
+      - generic [ref=f21e37]: 
+      - generic [ref=f21e38]: Sair
+  - generic [ref=f21e39]:
+    - main [ref=f21e40]:
+      - generic [ref=f21e44]:
+        - heading "Cadastrar Empreendimento" [level=1] [ref=f21e45]
+        - navigation "breadcrumb" [ref=f21e46]:
+          - list [ref=f21e47]:
+            - listitem [ref=f21e48]:
+              - link "Início" [ref=f21e49] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f21e50]:
+              - text: /
+              - link "Empreendimentos" [ref=f21e51] [cursor=pointer]:
+                - /url: /empreendimentos/listar_empreendimento/
+            - listitem [ref=f21e52]: / Cadastrar
+      - generic [ref=f21e54]:
+        - generic [ref=f21e56]:
+          - generic [ref=f21e57]:
+            - generic [ref=f21e58]: "1"
+            - generic [ref=f21e59]: Dados gerais
+          - generic [ref=f21e60]:
+            - generic [ref=f21e61]: "2"
+            - generic [ref=f21e62]: Empresa
+          - generic [ref=f21e63]:
+            - generic [ref=f21e64]: "3"
+            - generic [ref=f21e65]: Endereço
+          - generic [ref=f21e66]:
+            - generic [ref=f21e67]: "4"
+            - generic [ref=f21e68]: Representantes
+          - generic [ref=f21e69]:
+            - generic [ref=f21e70]: "5"
+            - generic [ref=f21e71]: Configurações
+          - generic [ref=f21e72]:
+            - generic [ref=f21e73]: "6"
+            - generic [ref=f21e74]: Documentos
+        - generic [ref=f21e75]:
+          - generic [ref=f21e77]:
+            - generic [ref=f21e78]:
+              - generic [ref=f21e79]: 
+              - generic [ref=f21e80]: Dados do empreendimento
+            - generic [ref=f21e82]:
+              - generic [ref=f21e83]:
+                - generic [ref=f21e84]: Nome do empreendimento *
+                - textbox "Nome do empreendimento *" [ref=f21e85]
+              - generic [ref=f21e86]:
+                - generic [ref=f21e87]: Telefone de contato *
+                - textbox "Telefone de contato *" [ref=f21e88]
+              - generic [ref=f21e89]:
+                - generic [ref=f21e90]: Observações opcional
+                - textbox "Observações opcional" [ref=f21e91]
+            - generic [ref=f21e93]:
+              - generic [ref=f21e94]: 
+              - generic [ref=f21e95]: Logo
+            - button "Choose File" [ref=f21e99] [cursor=pointer]
+          - generic [ref=f21e100]:
+            - link "Cancelar" [ref=f21e101] [cursor=pointer]:
+              - /url: /empreendimentos/listar_empreendimento/
+              - generic [ref=f21e102]: 
+              - text: Cancelar
+            - button "Próximo" [ref=f21e103] [cursor=pointer]:
+              - text: Próximo
+              - generic [ref=f21e104]: 
+    - contentinfo [ref=f21e105]:
+      - navigation [ref=f21e106]:
+        - generic [ref=f21e107]:
+          - generic [ref=f21e108]:
+            - link "Facebook" [ref=f21e109] [cursor=pointer]:
+              - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+              - generic [ref=f21e110]: 
+            - link "Instagram" [ref=f21e111] [cursor=pointer]:
+              - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+              - generic [ref=f21e112]: 
+          - paragraph [ref=f21e113]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

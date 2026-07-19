@@ -94,6 +94,19 @@ class DocumentoEmpreendimentoAdmin(admin.ModelAdmin):
     search_fields = ['nome', 'empreendimento__nome']
     list_filter = ['categoria']
 
+    def delete_model(self, request, obj):
+        """Deleção de objeto único via Admin — chama o service pra garantir
+        que o arquivo seja removido do B2 antes do registro sair do banco."""
+        from . import services as empreendimento_services
+        empreendimento_services.remover_documento_empreendimento(obj)
+
+    def delete_queryset(self, request, queryset):
+        """Deleção em massa via Admin (action 'Excluir selecionados') —
+        itera um a um para garantir remoção do arquivo no B2 a cada registro."""
+        from . import services as empreendimento_services
+        for documento in queryset:
+            empreendimento_services.remover_documento_empreendimento(documento)
+
 admin.site.register(models.DocumentoEmpreendimento, DocumentoEmpreendimentoAdmin)
 
 # Admin para o modelo DocumentoRepresentante
@@ -101,6 +114,15 @@ class DocumentoRepresentanteAdmin(admin.ModelAdmin):
     list_display = ['id', 'nome_exibicao', 'categoria', 'representante', 'criado_em']
     search_fields = ['nome', 'representante__nome']
     list_filter = ['categoria']
+
+    def delete_model(self, request, obj):
+        from . import services as empreendimento_services
+        empreendimento_services.remover_documento_representante(obj)
+
+    def delete_queryset(self, request, queryset):
+        from . import services as empreendimento_services
+        for documento in queryset:
+            empreendimento_services.remover_documento_representante(documento)
 
 admin.site.register(models.DocumentoRepresentante, DocumentoRepresentanteAdmin)
 

@@ -1,0 +1,124 @@
+- generic [ref=f6e2]:
+  - text: 
+  - complementary "Menu principal" [ref=f6e3]:
+    - generic [ref=f6e4]:
+      - link "logo_carlos_e_celso GLOT Sistema de Gestão" [ref=f6e5] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - img "logo_carlos_e_celso" [ref=f6e7]
+        - generic [ref=f6e8]:
+          - strong [ref=f6e9]: GLOT
+          - text: Sistema de Gestão
+      - button "Recolher menu" [ref=f6e10] [cursor=pointer]:
+        - generic [ref=f6e11]: 
+      - text: 
+    - generic [ref=f6e12]:
+      - generic [ref=f6e13]: Usuario logado
+      - strong [ref=f6e14]: DAVID
+      - text: ADMINISTRADOR
+    - navigation [ref=f6e15]:
+      - link " Dashboard" [ref=f6e16] [cursor=pointer]:
+        - /url: /dashboard/
+        - generic [ref=f6e17]: 
+        - generic [ref=f6e18]: Dashboard
+      - link " Empreendimentos" [ref=f6e19] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - generic [ref=f6e20]: 
+        - generic [ref=f6e21]: Empreendimentos
+      - button "Listagem " [ref=f6e22] [cursor=pointer]:
+        - generic [ref=f6e23]: Listagem
+        - generic [ref=f6e24]: 
+      - text:  
+      - button "Movimentacao " [ref=f6e25] [cursor=pointer]:
+        - generic [ref=f6e26]: Movimentacao
+        - generic [ref=f6e27]: 
+      - text:    
+      - button "Cadastros " [ref=f6e28] [cursor=pointer]:
+        - generic [ref=f6e29]: Cadastros
+        - generic [ref=f6e30]: 
+      - text:    
+      - button "Documentos " [ref=f6e31] [cursor=pointer]:
+        - generic [ref=f6e32]: Documentos
+        - generic [ref=f6e33]: 
+      - text:  
+    - button " Sair" [ref=f6e36] [cursor=pointer]:
+      - generic [ref=f6e37]: 
+      - generic [ref=f6e38]: Sair
+  - generic [ref=f6e39]:
+    - main [ref=f6e40]:
+      - generic [ref=f6e41]:
+        - generic [ref=f6e42]:
+          - heading "Empreendimentos" [level=1] [ref=f6e43]
+          - paragraph [ref=f6e44]: Escolha um loteamento para acessar quadras, lotes e informações de venda.
+        - region "Lista de empreendimentos" [ref=f6e45]:
+          - generic [ref=f6e46]:
+            - article [ref=f6e47]:
+              - img "LOT. PORTAL MAURITI" [ref=f6e49]
+              - heading "LOT. PORTAL MAURITI" [level=2] [ref=f6e50]
+              - link "Acessar empreendimento LOT. PORTAL MAURITI" [ref=f6e51] [cursor=pointer]:
+                - /url: /empreendimentos/listar_quadras/b7367e91-0177-4742-b391-64fb73e13820/
+                - text: Acessar
+            - article [ref=f6e52]:
+              - img "LOT. JARDIM DA ESPANHA" [ref=f6e54]
+              - heading "LOT. JARDIM DA ESPANHA" [level=2] [ref=f6e55]
+              - link "Acessar empreendimento LOT. JARDIM DA ESPANHA" [ref=f6e56] [cursor=pointer]:
+                - /url: /empreendimentos/listar_quadras/0eb6d85a-955d-4fbf-94ef-eb854e8659b6/
+                - text: Acessar
+            - article [ref=f6e57]:
+              - img "LOT. JARDINS DO LAGO" [ref=f6e59]
+              - heading "LOT. JARDINS DO LAGO" [level=2] [ref=f6e60]
+              - link "Acessar empreendimento LOT. JARDINS DO LAGO" [ref=f6e61] [cursor=pointer]:
+                - /url: /empreendimentos/listar_quadras/9d0ccf5e-7ed6-4935-9581-7da3baac3643/
+                - text: Acessar
+            - article [ref=f6e62]:
+              - img "LOT. NOVA JUAZEIRINHO" [ref=f6e64]
+              - heading "LOT. NOVA JUAZEIRINHO" [level=2] [ref=f6e65]
+              - link "Acessar empreendimento LOT. NOVA JUAZEIRINHO" [ref=f6e66] [cursor=pointer]:
+                - /url: /empreendimentos/listar_quadras/3133ba93-7a85-4bf8-897a-3bffacb092db/
+                - text: Acessar
+            - article [ref=f6e67]:
+              - img "LOT. CIDADE NOVA - IMACULADA-PB" [ref=f6e69]
+              - heading "LOT. CIDADE NOVA - IMACULADA-PB" [level=2] [ref=f6e70]
+              - link "Acessar empreendimento LOT. CIDADE NOVA - IMACULADA-PB" [ref=f6e71] [cursor=pointer]:
+                - /url: /empreendimentos/listar_quadras/241ceb99-197a-4fea-aec7-cc72401914b4/
+                - text: Acessar
+            - article [ref=f6e72]:
+              - img "LOT. SANTO AMARO II" [ref=f6e74]
+              - heading "LOT. SANTO AMARO II" [level=2] [ref=f6e75]
+              - link "Acessar empreendimento LOT. SANTO AMARO II" [ref=f6e76] [cursor=pointer]:
+                - /url: /empreendimentos/listar_quadras/2fc92b23-6cee-4553-bb47-fabe2a4e6d39/
+                - text: Acessar
+            - article [ref=f6e77]:
+              - img "LOT. DONA MAROCA" [ref=f6e79]
+              - heading "LOT. DONA MAROCA" [level=2] [ref=f6e80]
+              - link "Acessar empreendimento LOT. DONA MAROCA" [ref=f6e81] [cursor=pointer]:
+                - /url: /empreendimentos/listar_quadras/8351916a-3452-4611-a30c-a7eb3486c011/
+                - text: Acessar
+            - article [ref=f6e82]:
+              - img "LOT. PARQUE DA JAQUEIRA" [ref=f6e84]
+              - heading "LOT. PARQUE DA JAQUEIRA" [level=2] [ref=f6e85]
+              - link "Acessar empreendimento LOT. PARQUE DA JAQUEIRA" [ref=f6e86] [cursor=pointer]:
+                - /url: /empreendimentos/listar_quadras/ec363e75-2836-437f-823c-35d87f2d74fc/
+                - text: Acessar
+            - article [ref=f6e87]:
+              - img "CASAS A VENDA" [ref=f6e89]
+              - heading "CASAS A VENDA" [level=2] [ref=f6e90]
+              - link "Acessar empreendimento CASAS A VENDA" [ref=f6e91] [cursor=pointer]:
+                - /url: /empreendimentos/listar_quadras/c21ecd52-41cf-450f-ae87-5214e11c626f/
+                - text: Acessar
+            - article [ref=f6e92]:
+              - img "LOT. CONSTELAÇÃO SARMENTO" [ref=f6e94]
+              - heading "LOT. CONSTELAÇÃO SARMENTO" [level=2] [ref=f6e95]
+              - link "Acessar empreendimento LOT. CONSTELAÇÃO SARMENTO" [ref=f6e96] [cursor=pointer]:
+                - /url: /empreendimentos/listar_quadras/7001ce3c-9c17-4ac2-ba2e-b3e8726e78a3/
+                - text: Acessar
+    - contentinfo [ref=f6e97]:
+      - navigation [ref=f6e98]:
+        - generic [ref=f6e99]:
+          - generic [ref=f6e100]:
+            - link "Facebook" [ref=f6e101] [cursor=pointer]:
+              - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+              - generic [ref=f6e102]: 
+            - link "Instagram" [ref=f6e103] [cursor=pointer]:
+              - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+              - generic [ref=f6e104]: 
+          - paragraph [ref=f6e105]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

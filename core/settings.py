@@ -118,9 +118,6 @@ THIRD_APPS = [
 
     'django_filters',
 
-    'ckeditor',
-
-
 
 ]
 

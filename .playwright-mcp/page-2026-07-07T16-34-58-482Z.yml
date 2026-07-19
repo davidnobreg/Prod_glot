@@ -1,0 +1,286 @@
+- generic [ref=f9e2]:
+  - text: 
+  - complementary "Menu principal" [ref=f9e3]:
+    - generic [ref=f9e4]:
+      - link "logo_carlos_e_celso GLOT Sistema de Gestão" [ref=f9e5] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - img "logo_carlos_e_celso" [ref=f9e7]
+        - generic [ref=f9e8]:
+          - strong [ref=f9e9]: GLOT
+          - text: Sistema de Gestão
+      - button "Recolher menu" [ref=f9e10] [cursor=pointer]:
+        - generic [ref=f9e11]: 
+      - text: 
+    - generic [ref=f9e12]:
+      - generic [ref=f9e13]: Usuario logado
+      - strong [ref=f9e14]: DAVID
+      - text: ADMINISTRADOR
+    - navigation [ref=f9e15]:
+      - link " Dashboard" [ref=f9e16] [cursor=pointer]:
+        - /url: /dashboard/
+        - generic [ref=f9e17]: 
+        - generic [ref=f9e18]: Dashboard
+      - link " Empreendimentos" [ref=f9e19] [cursor=pointer]:
+        - /url: /empreendimentos/
+        - generic [ref=f9e20]: 
+        - generic [ref=f9e21]: Empreendimentos
+      - button "Listagem " [ref=f9e22] [cursor=pointer]:
+        - generic [ref=f9e23]: Listagem
+        - generic [ref=f9e24]: 
+      - text:  
+      - button "Movimentacao " [ref=f9e25] [cursor=pointer]:
+        - generic [ref=f9e26]: Movimentacao
+        - generic [ref=f9e27]: 
+      - text:    
+      - button "Cadastros " [ref=f9e28] [cursor=pointer]:
+        - generic [ref=f9e29]: Cadastros
+        - generic [ref=f9e30]: 
+      - text:    
+      - button "Documentos " [ref=f9e31] [cursor=pointer]:
+        - generic [ref=f9e32]: Documentos
+        - generic [ref=f9e33]: 
+      - text:  
+    - button " Sair" [ref=f9e36] [cursor=pointer]:
+      - generic [ref=f9e37]: 
+      - generic [ref=f9e38]: Sair
+  - generic [ref=f9e39]:
+    - main [ref=f9e40]:
+      - generic [ref=f9e41]:
+        - generic [ref=f9e42]:
+          - generic [ref=f9e43]:
+            - heading "Usuários" [level=1] [ref=f9e44]
+            - paragraph [ref=f9e45]: Gerencie os usuários do sistema
+          - link " Novo Usuário" [ref=f9e47] [cursor=pointer]:
+            - /url: /cadastrar/
+            - generic [ref=f9e48]: 
+            - text: Novo Usuário
+        - generic [ref=f9e50]:
+          - generic [ref=f9e52]: 
+          - generic [ref=f9e53]:
+            - generic [ref=f9e54]: "32"
+            - generic [ref=f9e55]: Total de usuários
+        - generic [ref=f9e58]:
+          - generic [ref=f9e59]:
+            - generic [ref=f9e61]: 
+            - searchbox "Buscar por nome, e-mail, creci ou contato..." [ref=f9e62]
+          - generic [ref=f9e63]:
+            - combobox [ref=f9e64]:
+              - option "Todos os tipos" [selected]
+              - option "Administrador"
+              - option "Corretor"
+              - option "Proprietário"
+            - combobox [ref=f9e65]:
+              - option "Ativos e inativos" [selected]
+              - option "Ativos"
+              - option "Inativos"
+            - button " Filtrar" [ref=f9e66] [cursor=pointer]:
+              - generic [ref=f9e67]: 
+              - text: Filtrar
+            - link " Limpar" [ref=f9e68] [cursor=pointer]:
+              - /url: /listar_usuarios/
+              - generic [ref=f9e69]: 
+              - text: Limpar
+        - generic [ref=f9e70]:
+          - generic [ref=f9e71]:
+            - generic [ref=f9e72]:
+              - generic [ref=f9e73]: C
+              - generic [ref=f9e74]:
+                - generic [ref=f9e75]: CAMILO João Camilo da Silva
+                - generic [ref=f9e76]: joaocamilo@gmail.com
+            - generic [ref=f9e77]:
+              - generic [ref=f9e78]: E-mail
+              - generic [ref=f9e79]: joaocamilocorretor@gmail.com
+            - generic [ref=f9e80]:
+              - generic [ref=f9e81]: Grupos
+              - generic [ref=f9e83]: corretor
+            - generic [ref=f9e84]:
+              - generic [ref=f9e85]:
+                - generic [ref=f9e86]: Último acesso
+                - generic [ref=f9e87]: 06/10/2025 09:15
+              - generic [ref=f9e89]: Ativo
+            - generic [ref=f9e90]:
+              - link "Detalhes " [ref=f9e91] [cursor=pointer]:
+                - /url: /alterar_usuarios/34eedf2a-d88d-4f75-881e-c378548f393e/
+                - text: Detalhes
+                - generic [ref=f9e92]: 
+              - generic [ref=f9e93]:
+                - link "" [ref=f9e94] [cursor=pointer]:
+                  - /url: /alterar_usuarios/34eedf2a-d88d-4f75-881e-c378548f393e/
+                  - generic [ref=f9e95]: 
+                - link "" [ref=f9e96] [cursor=pointer]:
+                  - /url: /usuario/34eedf2a-d88d-4f75-881e-c378548f393e/grupos/
+                  - generic [ref=f9e97]: 
+                - button "" [ref=f9e98] [cursor=pointer]:
+                  - generic [ref=f9e99]: 
+          - generic [ref=f9e100]:
+            - generic [ref=f9e101]:
+              - generic [ref=f9e102]: C
+              - generic [ref=f9e103]:
+                - generic [ref=f9e104]: CÍCERO CARLOS CÍCERO CARLOS DE SOUSA
+                - generic [ref=f9e105]: cicerocarlosdesousa@gmail.com
+            - generic [ref=f9e106]:
+              - generic [ref=f9e107]: E-mail
+              - generic [ref=f9e108]: cicerocarlosdesousa@gmail.com
+            - generic [ref=f9e109]:
+              - generic [ref=f9e110]: Grupos
+              - generic [ref=f9e112]: corretor
+            - generic [ref=f9e113]:
+              - generic [ref=f9e114]:
+                - generic [ref=f9e115]: Último acesso
+                - generic [ref=f9e116]: 06/07/2026 08:29
+              - generic [ref=f9e118]: Ativo
+            - generic [ref=f9e119]:
+              - link "Detalhes " [ref=f9e120] [cursor=pointer]:
+                - /url: /alterar_usuarios/0f11a0c3-4a8d-4fa0-af25-fade9de3b66d/
+                - text: Detalhes
+                - generic [ref=f9e121]: 
+              - generic [ref=f9e122]:
+                - link "" [ref=f9e123] [cursor=pointer]:
+                  - /url: /alterar_usuarios/0f11a0c3-4a8d-4fa0-af25-fade9de3b66d/
+                  - generic [ref=f9e124]: 
+                - link "" [ref=f9e125] [cursor=pointer]:
+                  - /url: /usuario/0f11a0c3-4a8d-4fa0-af25-fade9de3b66d/grupos/
+                  - generic [ref=f9e126]: 
+                - button "" [ref=f9e127] [cursor=pointer]:
+                  - generic [ref=f9e128]: 
+          - generic [ref=f9e129]:
+            - generic [ref=f9e130]:
+              - generic [ref=f9e131]: C
+              - generic [ref=f9e132]:
+                - generic [ref=f9e133]: CICINHO Joseam Cícero de Araújo Silva
+                - generic [ref=f9e134]: joseamcicero@hotmail.com
+            - generic [ref=f9e135]:
+              - generic [ref=f9e136]: E-mail
+              - generic [ref=f9e137]: joseamcicero@hotmail.com
+            - generic [ref=f9e138]:
+              - generic [ref=f9e139]: Grupos
+              - generic [ref=f9e141]: corretor
+            - generic [ref=f9e142]:
+              - generic [ref=f9e143]:
+                - generic [ref=f9e144]: Último acesso
+                - generic [ref=f9e145]: 02/07/2026 06:17
+              - generic [ref=f9e147]: Ativo
+            - generic [ref=f9e148]:
+              - link "Detalhes " [ref=f9e149] [cursor=pointer]:
+                - /url: /alterar_usuarios/9bd4066d-1b82-4360-b60c-dd9dde64509e/
+                - text: Detalhes
+                - generic [ref=f9e150]: 
+              - generic [ref=f9e151]:
+                - link "" [ref=f9e152] [cursor=pointer]:
+                  - /url: /alterar_usuarios/9bd4066d-1b82-4360-b60c-dd9dde64509e/
+                  - generic [ref=f9e153]: 
+                - link "" [ref=f9e154] [cursor=pointer]:
+                  - /url: /usuario/9bd4066d-1b82-4360-b60c-dd9dde64509e/grupos/
+                  - generic [ref=f9e155]: 
+                - button "" [ref=f9e156] [cursor=pointer]:
+                  - generic [ref=f9e157]: 
+          - generic [ref=f9e158]:
+            - generic [ref=f9e159]:
+              - generic [ref=f9e160]: C
+              - generic [ref=f9e161]:
+                - generic [ref=f9e162]: CLAUDIM Cícero Claudio Brito de Azevedo
+                - generic [ref=f9e163]: claudim@gmail.com
+            - generic [ref=f9e164]:
+              - generic [ref=f9e165]: E-mail
+              - generic [ref=f9e166]: claudim@gmail.com
+            - generic [ref=f9e167]:
+              - generic [ref=f9e168]: Grupos
+              - generic [ref=f9e170]: corretor
+            - generic [ref=f9e171]:
+              - generic [ref=f9e172]:
+                - generic [ref=f9e173]: Último acesso
+                - generic [ref=f9e174]: 06/07/2026 19:12
+              - generic [ref=f9e176]: Ativo
+            - generic [ref=f9e177]:
+              - link "Detalhes " [ref=f9e178] [cursor=pointer]:
+                - /url: /alterar_usuarios/1b4de435-5791-4175-852f-55b63fd6cdb6/
+                - text: Detalhes
+                - generic [ref=f9e179]: 
+              - generic [ref=f9e180]:
+                - link "" [ref=f9e181] [cursor=pointer]:
+                  - /url: /alterar_usuarios/1b4de435-5791-4175-852f-55b63fd6cdb6/
+                  - generic [ref=f9e182]: 
+                - link "" [ref=f9e183] [cursor=pointer]:
+                  - /url: /usuario/1b4de435-5791-4175-852f-55b63fd6cdb6/grupos/
+                  - generic [ref=f9e184]: 
+                - button "" [ref=f9e185] [cursor=pointer]:
+                  - generic [ref=f9e186]: 
+          - generic [ref=f9e187]:
+            - generic [ref=f9e188]:
+              - generic [ref=f9e189]: D
+              - generic [ref=f9e190]:
+                - generic [ref=f9e191]: DAVID David Nóbrega dos Santos
+                - generic [ref=f9e192]: davidsantos@ads.fiponline.edu.br
+            - generic [ref=f9e193]:
+              - generic [ref=f9e194]: E-mail
+              - generic [ref=f9e195]: davidsantos@ads.fiponline.edu.br
+            - generic [ref=f9e196]:
+              - generic [ref=f9e197]: Grupos
+              - generic [ref=f9e199]: administrador
+            - generic [ref=f9e200]:
+              - generic [ref=f9e201]:
+                - generic [ref=f9e202]: Último acesso
+                - generic [ref=f9e203]: 07/07/2026 13:21
+              - generic [ref=f9e205]: Ativo
+            - generic [ref=f9e206]:
+              - link "Detalhes " [ref=f9e207] [cursor=pointer]:
+                - /url: /alterar_usuarios/cde0d269-1c0e-4d50-a87c-8f70b3f7079c/
+                - text: Detalhes
+                - generic [ref=f9e208]: 
+              - generic [ref=f9e209]:
+                - link "" [ref=f9e210] [cursor=pointer]:
+                  - /url: /alterar_usuarios/cde0d269-1c0e-4d50-a87c-8f70b3f7079c/
+                  - generic [ref=f9e211]: 
+                - link "" [ref=f9e212] [cursor=pointer]:
+                  - /url: /usuario/cde0d269-1c0e-4d50-a87c-8f70b3f7079c/grupos/
+                  - generic [ref=f9e213]: 
+                - button "" [ref=f9e214] [cursor=pointer]:
+                  - generic [ref=f9e215]: 
+          - generic [ref=f9e216]:
+            - generic [ref=f9e217]:
+              - generic [ref=f9e218]: D
+              - generic [ref=f9e219]:
+                - generic [ref=f9e220]: Djalma Djalma de Sousa Faustino
+                - generic [ref=f9e221]: djalmafd44@gmail.com
+            - generic [ref=f9e222]:
+              - generic [ref=f9e223]: E-mail
+              - generic [ref=f9e224]: djalmafd44@gmail.com
+            - generic [ref=f9e225]:
+              - generic [ref=f9e226]: Grupos
+              - generic [ref=f9e228]: corretor
+            - generic [ref=f9e229]:
+              - generic [ref=f9e230]:
+                - generic [ref=f9e231]: Último acesso
+                - generic [ref=f9e232]: 02/07/2026 14:56
+              - generic [ref=f9e234]: Ativo
+            - generic [ref=f9e235]:
+              - link "Detalhes " [ref=f9e236] [cursor=pointer]:
+                - /url: /alterar_usuarios/68427773-000f-402f-8e3c-14d6a9fdfecd/
+                - text: Detalhes
+                - generic [ref=f9e237]: 
+              - generic [ref=f9e238]:
+                - link "" [ref=f9e239] [cursor=pointer]:
+                  - /url: /alterar_usuarios/68427773-000f-402f-8e3c-14d6a9fdfecd/
+                  - generic [ref=f9e240]: 
+                - link "" [ref=f9e241] [cursor=pointer]:
+                  - /url: /usuario/68427773-000f-402f-8e3c-14d6a9fdfecd/grupos/
+                  - generic [ref=f9e242]: 
+                - button "" [ref=f9e243] [cursor=pointer]:
+                  - generic [ref=f9e244]: 
+        - generic [ref=f9e245]:
+          - generic [ref=f9e246]: Página 1 de 6
+          - link "Avançar " [ref=f9e248] [cursor=pointer]:
+            - /url: "?page=2"
+            - text: Avançar
+            - generic [ref=f9e249]: 
+    - contentinfo [ref=f9e250]:
+      - navigation [ref=f9e251]:
+        - generic [ref=f9e252]:
+          - generic [ref=f9e253]:
+            - link "Facebook" [ref=f9e254] [cursor=pointer]:
+              - /url: https://www.facebook.com/carlosecelsoimoveisfanpage
+              - generic [ref=f9e255]: 
+            - link "Instagram" [ref=f9e256] [cursor=pointer]:
+              - /url: https://instagram.com/carlosecelsoimoveis?igsh=MThxZKp1ejN3bmMyNA==
+              - generic [ref=f9e257]: 
+          - paragraph [ref=f9e258]: "© 2025 David Nóbrega. Todos os direitos reservados. Contato: (83) 99928-4151"

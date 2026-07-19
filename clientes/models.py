@@ -260,6 +260,13 @@ class ClienteRepresentante(models.Model):
     conj_documento = models.CharField(max_length=14, blank=True)
 
     is_ativo = models.BooleanField(default=True)
+    endereco = models.ForeignKey(
+        'base.Endereco',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='representantes_cliente',
+    )
     criado_em = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -291,13 +298,25 @@ class ClienteRepresentante(models.Model):
 class RepresentanteDocumento(models.Model):
 
     TIPO_CHOICES = [
+        # Titular
         ('RG', 'RG'),
         ('CPF', 'CPF'),
         ('CNH', 'CNH'),
         ('PROCURACAO', 'Procuração'),
         ('COMPROVANTE_ESTADO_CIVIL', 'Comprovante de Estado Civil'),
         ('OUTROS', 'Outros'),
+        # Cônjuge
+        ('RG_CONJUGE', 'RG do Cônjuge'),
+        ('CPF_CONJUGE', 'CPF do Cônjuge'),
+        ('CNH_CONJUGE', 'CNH do Cônjuge'),
+        ('CERTIDAO_CASAMENTO', 'Certidão de Casamento'),
+        ('PACTO_ANTENUPCIAL', 'Pacto Antenupcial'),
     ]
+
+    CATEGORIAS_CONJUGE = (
+        'RG_CONJUGE', 'CPF_CONJUGE', 'CNH_CONJUGE',
+        'CERTIDAO_CASAMENTO', 'PACTO_ANTENUPCIAL',
+    )
 
     PERTENCE_A_CHOICES = [
         ('TITULAR', 'Titular'),

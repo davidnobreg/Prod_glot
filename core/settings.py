@@ -141,6 +141,8 @@ PROJECT_APPS = [
 
     'vendas',
 
+    'cobranca',
+
 
 
 ]

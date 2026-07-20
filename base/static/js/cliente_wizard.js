@@ -798,8 +798,12 @@
 		data.append('csrfmiddlewaretoken', getCsrf());
 		var origemEl = document.getElementById('wizard-origem');
 		var loteEl = document.getElementById('wizard-lote-uuid');
+		var nextEl = document.getElementById('wizard-next');
+		var transferenciaUuidEl = document.getElementById('wizard-transferencia-uuid');
 		data.append('origem', origemEl ? origemEl.value : 'lista');
 		data.append('lote_uuid', loteEl ? loteEl.value : '');
+		data.append('next', nextEl ? nextEl.value : '');
+		data.append('transferencia_uuid', transferenciaUuidEl ? transferenciaUuidEl.value : '');
 
 		wizardFetch(_wzUrlFinalizar(), { method: 'POST', body: data })
 			.then(function (d) {

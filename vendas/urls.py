@@ -24,6 +24,13 @@ from .views.detail_views import (
     VendaDocumentoAprovarView,
     VendaDocumentoRejeitarView,
 )
+from .views.transferencia_views import (
+    IniciarTransferenciaView,
+    DetalheTransferenciaView,
+    EfetivarTransferenciaView,
+    CancelarTransferenciaView,
+    UploadTermoAssinadoView,
+)
 from .views.list_views import (
     ListasAnalisesView,
     ListarendaRelatorioView,
@@ -62,4 +69,10 @@ urlpatterns = [
     path('venda/<uuid:venda_uuid>/documento/upload/', VendaDocumentoUploadView.as_view(), name='venda-documento-upload'),
     path('venda/documento/<uuid:doc_uuid>/aprovar/', VendaDocumentoAprovarView.as_view(), name='venda-documento-aprovar'),
     path('venda/documento/<uuid:doc_uuid>/rejeitar/', VendaDocumentoRejeitarView.as_view(), name='venda-documento-rejeitar'),
+
+    path('transferencia/iniciar/<uuid:venda_uuid>/', IniciarTransferenciaView.as_view(), name='transferencia-iniciar'),
+    path('transferencia/<uuid:transferencia_uuid>/', DetalheTransferenciaView.as_view(), name='transferencia-detalhe'),
+    path('transferencia/<uuid:transferencia_uuid>/efetivar/', EfetivarTransferenciaView.as_view(), name='transferencia-efetivar'),
+    path('transferencia/<uuid:transferencia_uuid>/cancelar/', CancelarTransferenciaView.as_view(), name='transferencia-cancelar'),
+    path('transferencia/<uuid:transferencia_uuid>/upload-termo/', UploadTermoAssinadoView.as_view(), name='transferencia-upload-termo'),
 ]

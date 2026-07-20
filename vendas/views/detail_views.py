@@ -69,6 +69,10 @@ class ReservadoView(TemplateView):
             ),
             'proposta_aprovada': docs_venda.filter(tipo='proposta_assinada', status='aprovado').first(),
             'contrato_aprovado': docs_venda.filter(tipo='contrato_assinado', status='aprovado').first(),
+            'transferencia_ativa': (
+                venda.transferencias.filter(status='PRE_TRANSFERENCIA').first()
+                if venda else None
+            ),
         })
 
         return context

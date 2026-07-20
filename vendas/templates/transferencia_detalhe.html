@@ -1,0 +1,327 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Transferência de Titularidade{% endblock %}
+
+{% block content %}
+    <style>
+        .transf-page {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+            overflow: hidden;
+        }
+
+        .transf-hero {
+            background: linear-gradient(180deg, #0b7a95 0%, #e8f6f9 100%);
+            padding: 24px;
+            text-align: center;
+        }
+
+        .transf-title {
+            color: #031523;
+            font-size: clamp(1.5rem, 3vw, 2.2rem);
+            font-weight: 900;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .transf-status {
+            display: inline-block;
+            border-radius: 999px;
+            padding: 4px 14px;
+            font-size: 0.78rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        .transf-status-pre { background: rgba(234, 179, 8, 0.2); color: #a16207; border: 1px solid rgba(234,179,8,.4); }
+        .transf-status-concluida { background: rgba(5, 150, 105, 0.15); color: #047857; border: 1px solid rgba(5,150,105,.4); }
+        .transf-status-cancelada { background: rgba(239, 68, 68, 0.15); color: #b91c1c; border: 1px solid rgba(239,68,68,.4); }
+
+        .transf-panel {
+            margin: 16px;
+            padding: 24px;
+        }
+
+        .transf-grid {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        @media (max-width: 900px) {
+            .transf-grid { grid-template-columns: 1fr; }
+        }
+
+        .transf-card {
+            background: #f8fafc;
+            border: 1px solid #dbe8ec;
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .transf-card-title {
+            color: #08789a;
+            font-size: 0.78rem;
+            font-weight: 900;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .transf-section {
+            margin-top: 24px;
+        }
+
+        .transf-check-item {
+            align-items: center;
+            background: #fff;
+            border: 1px solid #dbe8ec;
+            border-radius: 12px;
+            display: flex;
+            gap: 12px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+        }
+
+        .transf-check-item.indisponivel { border-color: rgba(239, 68, 68, 0.35); }
+
+        .transf-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .transf-button {
+            border-radius: 999px;
+            font-weight: 800;
+            padding: 12px 24px;
+        }
+
+        table.transf-historico {
+            width: 100%;
+            font-size: 0.86rem;
+        }
+
+        table.transf-historico th {
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            color: #64748b;
+            padding: 6px 8px;
+        }
+
+        table.transf-historico td {
+            padding: 8px;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+
+    <div class="transf-page">
+        <header class="transf-hero">
+            <h1 class="transf-title">Transferência de Titularidade</h1>
+            <p style="margin:6px 0 0;color:rgba(3,21,35,.7);">
+                Lote {{ venda.lote.lote }} — Quadra {{ venda.lote.quadra.namequadra }} — {{ venda.lote.quadra.empr.nome }}
+            </p>
+            <span class="transf-status
+                {% if transferencia.status == 'PRE_TRANSFERENCIA' %}transf-status-pre
+                {% elif transferencia.status == 'CONCLUIDA' %}transf-status-concluida
+                {% else %}transf-status-cancelada{% endif %}">
+                {{ transferencia.get_status_display }}
+            </span>
+        </header>
+
+        <section class="transf-panel">
+
+            {# Seção 1 e 2 — titulares #}
+            <div class="transf-grid">
+                <div class="transf-card">
+                    <p class="transf-card-title">Titular atual</p>
+                    <p><strong>{{ cliente_anterior.name }}</strong></p>
+                    <p>Documento: {{ cliente_anterior.documento }}</p>
+                    <p>Contato: {{ contato_cliente_anterior.numero|default:"Sem contato" }}</p>
+                </div>
+
+                <div class="transf-card">
+                    <p class="transf-card-title">Novo titular</p>
+                    {% if cliente_novo %}
+                        <p><strong>{{ cliente_novo.name }}</strong></p>
+                        <p>Documento: {{ cliente_novo.documento }}</p>
+                        <p>Contato: {{ contato_cliente_novo.numero|default:"Sem contato" }}</p>
+                        {% if transferencia.status == 'PRE_TRANSFERENCIA' %}
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-2"
+                                    data-bs-toggle="modal" data-bs-target="#trocarClienteModal">
+                                Trocar
+                            </button>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-muted">Novo titular ainda não selecionado.</p>
+                        {% if transferencia.status == 'PRE_TRANSFERENCIA' %}
+                            <form method="GET" class="d-flex gap-2 mb-2">
+                                <select name="novo_cliente_id" class="form-select form-select-sm">
+                                    <option value="">Selecionar cliente existente</option>
+                                    {% for cliente in clientes_disponiveis %}
+                                        <option value="{{ cliente.uuid }}">{{ cliente.name }} — {{ cliente.documento }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-primary">Definir</button>
+                            </form>
+                            <a href="{% url 'criar-cliente' %}?next=transferencia&transferencia_uuid={{ transferencia.uuid }}"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-person-plus"></i> Cadastrar novo cliente
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            {# Seção 3 — checklist do novo titular #}
+            {% if cliente_novo %}
+                <div class="transf-section">
+                    <p class="transf-card-title">Checklist de documentos — novo titular</p>
+                    {% for item in checklist_titular_novo %}
+                        <div class="transf-check-item {% if not item.disponivel %}indisponivel{% endif %}">
+                            {% if item.disponivel %}
+                                <i class="bi bi-check-circle-fill" style="color:#059669;"></i>
+                            {% else %}
+                                <i class="bi bi-x-circle-fill" style="color:#dc2626;"></i>
+                            {% endif %}
+                            <span>{{ item.label }}</span>
+                        </div>
+                    {% empty %}
+                        <p class="text-muted">Nenhum documento obrigatório mapeado.</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {# Seção 4 — termo de transferência #}
+            <div class="transf-section transf-card">
+                <p class="transf-card-title">Termo de transferência</p>
+
+                {% if not transferencia.documento_gerado %}
+                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalGerarDocumento">
+                        <i class="bi bi-file-earmark-plus"></i> Gerar Termo
+                    </button>
+                {% else %}
+                    {% if transferencia.documento_gerado.arquivo_pdf %}
+                        <a href="{{ transferencia.documento_gerado.arquivo_pdf.url }}" target="_blank" class="btn btn-outline-primary">
+                            <i class="bi bi-download"></i> Download PDF
+                        </a>
+                    {% endif %}
+                {% endif %}
+
+                {% if transferencia.status == 'PRE_TRANSFERENCIA' %}
+                    <hr>
+                    {% if transferencia.arquivo_termo_assinado %}
+                        <p class="mb-2">
+                            <i class="bi bi-file-earmark-check text-success"></i>
+                            Termo assinado enviado —
+                            <a href="{{ transferencia.arquivo_termo_assinado.url }}" target="_blank">ver arquivo</a>
+                        </p>
+                    {% endif %}
+                    <form method="POST" action="{% url 'transferencia-upload-termo' transferencia.uuid %}"
+                          enctype="multipart/form-data" class="d-flex gap-2 align-items-end flex-wrap">
+                        {% csrf_token %}
+                        <div>
+                            <label class="form-label fw-semibold" style="font-size:.82rem;">
+                                {% if transferencia.arquivo_termo_assinado %}Reenviar termo assinado{% else %}Enviar termo assinado{% endif %}
+                            </label>
+                            <input type="file" name="arquivo_termo_assinado" class="form-control form-control-sm"
+                                   accept=".pdf,.jpg,.jpeg,.png" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-upload"></i> Enviar
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+
+            {# Seção 5 — histórico de titularidade #}
+            <div class="transf-section transf-card">
+                <p class="transf-card-title">Histórico de titularidade</p>
+                <table class="transf-historico">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Início</th>
+                            <th>Fim</th>
+                            <th>Origem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for h in historico_titularidade %}
+                            <tr>
+                                <td>{{ h.cliente.name }}</td>
+                                <td>{{ h.dt_inicio|date:"d/m/Y" }}</td>
+                                <td>{{ h.dt_fim|date:"d/m/Y"|default:"Atual" }}</td>
+                                <td>{{ h.transferencia_origem.uuid|default:"Titular original" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="4" class="text-muted">Sem histórico registrado.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {# Seção 6 — ações #}
+            {% if transferencia.status == 'PRE_TRANSFERENCIA' %}
+                <div class="transf-actions">
+                    <form method="POST" action="{% url 'transferencia-efetivar' transferencia.uuid %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success transf-button" {% if not pode_efetivar %}disabled{% endif %}
+                                title="{% if not pode_efetivar %}Selecione o novo titular, complete o checklist de documentos e envie o termo assinado{% endif %}">
+                            <i class="bi bi-check-circle"></i> Efetivar Transferência
+                        </button>
+                    </form>
+                    <form method="POST" action="{% url 'transferencia-cancelar' transferencia.uuid %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger transf-button">
+                            <i class="bi bi-x-circle"></i> Cancelar Transferência
+                        </button>
+                    </form>
+                    <a href="{% url 'reservado' venda.lote.uuid %}" class="btn btn-outline-secondary transf-button">
+                        Voltar
+                    </a>
+                </div>
+            {% else %}
+                <div class="transf-actions">
+                    <a href="{% url 'reservado' venda.lote.uuid %}" class="btn btn-outline-secondary transf-button">
+                        Voltar para a venda
+                    </a>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+
+    {# Modal — trocar cliente novo (reaproveita o select da seção 2) #}
+    <div class="modal fade" id="trocarClienteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Trocar novo titular</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="GET">
+                    <div class="modal-body">
+                        <select name="novo_cliente_id" class="form-select">
+                            <option value="">Selecionar cliente</option>
+                            {% for cliente in clientes_disponiveis %}
+                                <option value="{{ cliente.uuid }}">{{ cliente.name }} — {{ cliente.documento }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Confirmar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% with venda=venda %}
+        {% include 'documentos/gerar_documento_modal.html' %}
+    {% endwith %}
+{% endblock %}

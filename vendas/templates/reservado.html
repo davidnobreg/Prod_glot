@@ -623,6 +623,22 @@
                         </a>
                     {% endif %}
 
+                    {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" and reservas.cliente %}
+                        {% if reservas.status_transferencia == 'PRE_TRANSFERENCIA' %}
+                            <a href="{% url 'transferencia-detalhe' transferencia_ativa.uuid %}"
+                               class="venda-btn venda-btn--secondary">
+                                <i class="bi bi-arrow-left-right"></i>
+                                Ver Transferência em Andamento
+                            </a>
+                        {% else %}
+                            <a href="{% url 'transferencia-iniciar' reservas.uuid %}"
+                               class="venda-btn venda-btn--secondary">
+                                <i class="bi bi-arrow-left-right"></i>
+                                Iniciar Transferência
+                            </a>
+                        {% endif %}
+                    {% endif %}
+
                     {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
                        <!-- <a
                             href="#"

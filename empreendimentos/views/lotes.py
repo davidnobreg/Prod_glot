@@ -396,7 +396,7 @@ def listaReservasTemporaria(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    empreendimentos = Empreendimento.objects.filter(is_ativo=False).order_by('id')
+    empreendimentos = Empreendimento.objects.filter(is_ativo=True).order_by('id')
 
     context = {
         'page_obj': page_obj,

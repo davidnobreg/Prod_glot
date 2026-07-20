@@ -65,19 +65,27 @@
                 <p class="transf-card-title">Titular atual</p>
                 <p><strong>{{ cliente_anterior.name }}</strong></p>
                 <p>Documento: {{ cliente_anterior.documento }}</p>
-                <p>Lote: {{ venda.lote.lote }} — Quadra {{ venda.lote.quadra.namequadra }} — {{ venda.lote.quadra.empr.nome }}</p>
+                <p>Lote: {{ venda.lote.lote }} — Quadra {{ venda.lote.quadra.namequadra }}
+                    — {{ venda.lote.quadra.empr.nome }}</p>
             </div>
 
             <form method="POST" action="{% url 'transferencia-iniciar' venda.uuid %}">
                 {% csrf_token %}
                 <div class="transf-card">
                     <p class="transf-card-title">Novo titular (opcional agora)</p>
-                    <select name="cliente_novo_id" class="form-select">
+                    <select name="cliente_novo_id" id="cliente-novo-select" class="form-select"
+                            onchange="document.getElementById('btn-iniciar-transferencia').disabled = !this.value;">
                         <option value="">Selecionar depois</option>
                         {% for cliente in clientes_disponiveis %}
-                            <option value="{{ cliente.uuid }}">{{ cliente.name }} — {{ cliente.documento }}</option>
+                            <option value="{{ cliente.uuid }}"
+                                    {% if cliente.uuid|stringformat:"s" == novo_cliente_id %}selected{% endif %}>{{ cliente.name }}
+                                — {{ cliente.documento }}</option>
                         {% endfor %}
                     </select>
+                    <a href="{% url 'criar-cliente' %}?next=transferencia-iniciar&venda_uuid={{ venda.uuid }}"
+                       class="btn btn-sm btn-outline-success mt-2">
+                        <i class="bi bi-person-plus"></i> Cadastrar novo cliente
+                    </a>
                     <small class="text-muted d-block mt-2">
                         Se o novo titular ainda não está cadastrado, é possível cadastrar depois, na tela de
                         detalhe da transferência.
@@ -85,12 +93,14 @@
                 </div>
 
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary transf-button">
-                        <i class="bi bi-arrow-left-right"></i> Iniciar Transferência
-                    </button>
                     <button type="button" class="btn btn-secondary transf-button" onclick="history.back()">
                         Voltar
                     </button>
+                    <button type="submit" id="btn-iniciar-transferencia" class="btn btn-primary transf-button"
+                            {% if not novo_cliente_id %}disabled{% endif %}>
+                        <i class="bi bi-arrow-left-right"></i> Iniciar Transferência
+                    </button>
+
                 </div>
             </form>
         </section>

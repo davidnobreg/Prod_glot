@@ -800,10 +800,12 @@
 		var loteEl = document.getElementById('wizard-lote-uuid');
 		var nextEl = document.getElementById('wizard-next');
 		var transferenciaUuidEl = document.getElementById('wizard-transferencia-uuid');
+		var vendaUuidEl = document.getElementById('wizard-venda-uuid');
 		data.append('origem', origemEl ? origemEl.value : 'lista');
 		data.append('lote_uuid', loteEl ? loteEl.value : '');
 		data.append('next', nextEl ? nextEl.value : '');
 		data.append('transferencia_uuid', transferenciaUuidEl ? transferenciaUuidEl.value : '');
+		data.append('venda_uuid', vendaUuidEl ? vendaUuidEl.value : '');
 
 		wizardFetch(_wzUrlFinalizar(), { method: 'POST', body: data })
 			.then(function (d) {

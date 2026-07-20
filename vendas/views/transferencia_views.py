@@ -45,6 +45,7 @@ class IniciarTransferenciaView(LoginRequiredMixin, View):
 			'venda': venda,
 			'cliente_anterior': venda.cliente,
 			'clientes_disponiveis': Cliente.objects.filter(is_ativo=True).exclude(pk=venda.cliente_id).order_by('name'),
+			'novo_cliente_id': request.GET.get('novo_cliente_id', ''),
 		}
 		return render(request, 'transferencia_iniciar.html', context)
 

@@ -187,6 +187,7 @@ def criarCliente(request):
     origem = request.GET.get('origem', 'lista')
     next_param = request.GET.get('next', '')
     transferencia_uuid = request.GET.get('transferencia_uuid', '')
+    venda_uuid = request.GET.get('venda_uuid', '')
 
     if request.method == 'POST':
         origem = request.POST.get('origem', origem)
@@ -263,6 +264,7 @@ def criarCliente(request):
         'lote_uuid': lote_uuid,
         'next': next_param,
         'transferencia_uuid': transferencia_uuid,
+        'venda_uuid': venda_uuid,
     }
     return render(request, 'cliente.html', context)
 
@@ -773,11 +775,17 @@ def wizard_finalizar(request, cliente_uuid):
 	lote_uuid = request.POST.get('lote_uuid', '')
 	next_param = request.POST.get('next', '')
 	transferencia_uuid = request.POST.get('transferencia_uuid', '')
+	venda_uuid = request.POST.get('venda_uuid', '')
 
 	from django.urls import reverse as _reverse
 	if next_param == 'transferencia' and transferencia_uuid:
 		redirect_url = (
 			_reverse('transferencia-detalhe', kwargs={'transferencia_uuid': transferencia_uuid})
+			+ f'?novo_cliente_id={draft.uuid}'
+		)
+	elif next_param == 'transferencia-iniciar' and venda_uuid:
+		redirect_url = (
+			_reverse('transferencia-iniciar', kwargs={'venda_uuid': venda_uuid})
 			+ f'?novo_cliente_id={draft.uuid}'
 		)
 	elif origem == 'reserva' and lote_uuid:

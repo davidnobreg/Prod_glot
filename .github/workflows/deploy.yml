@@ -100,3 +100,12 @@ jobs:
           fi
 
           echo "Deploy concluído. Commit: $GIT_COMMIT"
+
+      - name: Limpar imagens Docker antigas
+        uses: appleboy/ssh-action@v1
+        continue-on-error: true
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: docker image prune -a --force

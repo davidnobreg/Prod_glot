@@ -7,7 +7,6 @@ from .models import (
 	EmpreendimentoDocumento,
 	ConfiguracaoDocumento,
 	SequencialDocumento,
-	Distrato,
 	DocumentoGerado,
 )
 
@@ -51,13 +50,6 @@ class ConfiguracaoDocumentoAdmin(admin.ModelAdmin):
 class SequencialDocumentoAdmin(admin.ModelAdmin):
 	list_display = ('tipo', 'ano', 'ultimo')
 	list_filter = ('tipo', 'ano')
-
-
-@admin.register(Distrato)
-class DistratoAdmin(admin.ModelAdmin):
-	list_display = ('id', 'venda', 'cliente', 'data_distrato', 'status', 'criado_em')
-	list_filter = ('status', 'data_distrato')
-	search_fields = ('venda__id', 'cliente__name')
 
 
 @admin.register(DocumentoGerado)

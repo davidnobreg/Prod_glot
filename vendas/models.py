@@ -27,6 +27,7 @@ class TypeVenda(models.TextChoices):
 	ANALISE = 'ANALISE', 'ANALISE'
 	NAO_ACEITE = 'NAO_ACEITE', 'NAO-ACEITE'
 	PRE_VENDA = 'PRE-VENDA', 'PRE-VENDA'
+	DISTRATADA = 'DISTRATADA', 'DISTRATADA'
 
 ## Registrar Venda
 
@@ -71,6 +72,18 @@ class RegisterVenda(models.Model):
 	    choices=[
 	        ('PRE_TRANSFERENCIA', 'Pré-Transferência'),
 	        ('TRANSFERENCIA_CONCLUIDA', 'Transferência Concluída'),
+	    ],
+	    null=True,
+	    blank=True,
+	    default=None,
+	)
+	status_distrato = models.CharField(
+	    max_length=30,
+	    choices=[
+	        ('INICIADO', 'Iniciado'),
+	        ('AGUARDANDO_ASSINATURA', 'Aguardando Assinatura'),
+	        ('CONCLUIDO', 'Concluído'),
+	        ('CANCELADO', 'Cancelado'),
 	    ],
 	    null=True,
 	    blank=True,
@@ -226,6 +239,67 @@ class TransferenciaTitularidade(models.Model):
 
 	def __str__(self):
 		return f'Transferência {self.venda_id} — {self.status}'
+
+
+class DistratoVenda(models.Model):
+
+	STATUS_CHOICES = [
+		('INICIADO', 'Iniciado'),
+		('AGUARDANDO_ASSINATURA', 'Aguardando Assinatura'),
+		('CONCLUIDO', 'Concluído'),
+		('CANCELADO', 'Cancelado'),
+	]
+
+	id = models.BigAutoField(primary_key=True)
+	uuid = models.UUIDField(
+	    default=uuid.uuid4,
+	    editable=False,
+	    unique=True,
+	    db_index=True
+	)
+	venda = models.ForeignKey(RegisterVenda, on_delete=models.PROTECT, related_name='distratos')
+	status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='INICIADO')
+
+	# Distrato administrativo: correção de erro humano, sem termo assinado
+	is_administrativo = models.BooleanField(default=False)
+	motivo_administrativo = models.TextField(blank=True)
+
+	documento_gerado = models.ForeignKey(
+	    'documentos.DocumentoGerado',
+	    on_delete=models.SET_NULL,
+	    null=True,
+	    blank=True,
+	    related_name='distratos',
+	)
+	termo_assinado = models.FileField(
+	    upload_to='vendas/distratos/termos/',
+	    null=True,
+	    blank=True,
+	    validators=[validate_documento_assinado],
+	)
+
+	motivo = models.TextField(blank=True)
+	iniciado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='distratos_iniciados')
+	concluido_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='distratos_concluidos')
+
+	criado_em = models.DateTimeField(auto_now_add=True)
+	atualizado_em = models.DateTimeField(auto_now=True)
+	concluido_em = models.DateTimeField(null=True, blank=True)
+
+	class Meta:
+		verbose_name = 'Distrato de Venda'
+		verbose_name_plural = 'Distratos de Venda'
+		ordering = ['-criado_em']
+		constraints = [
+			models.UniqueConstraint(
+				fields=['venda'],
+				condition=Q(status__in=['INICIADO', 'AGUARDANDO_ASSINATURA']),
+				name='unico_distrato_ativo_por_venda',
+			),
+		]
+
+	def __str__(self):
+		return f'Distrato {self.venda_id} — {self.status}'
 
 
 class HistoricoTitularidade(models.Model):

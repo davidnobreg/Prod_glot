@@ -391,41 +391,6 @@ def finalizar_documento(doc, usuario):
 
 
 # ----------------------------------------------------------
-# Concluir distrato (regra crítica) — ATÔMICO
-# ----------------------------------------------------------
-def concluir_distrato(distrato, usuario):
-	"""Conclui o distrato de forma atômica.
-
-	GLOT real: RegisterVenda não tem campo status/DISTRATADA — a venda é
-	desativada (is_ativo=False) e o lote volta a DISPONIVEL (decisão #5).
-	"""
-	from .models import Distrato, StatusDocumento
-	from vendas.models import RegisterVenda
-	from empreendimentos.models import Lote
-
-	with transaction.atomic():
-		venda = RegisterVenda.objects.select_for_update().get(pk=distrato.venda_id)
-		lote = Lote.objects.select_for_update().get(pk=venda.lote_id)
-
-		tem_doc = distrato.documentos.filter(status=StatusDocumento.FINALIZADO).exists()
-		if not tem_doc:
-			raise ValidationError(
-				'É necessário finalizar o documento de distrato antes de concluir.'
-			)
-
-		venda.is_ativo = False
-		venda.save(update_fields=['is_ativo'])
-
-		lote.situacao = 'DISPONIVEL'
-		lote.save(update_fields=['situacao'])
-
-		distrato.status = Distrato.Status.CONCLUIDO
-		distrato.concluido_em = timezone.now()
-		distrato.save(update_fields=['status', 'concluido_em'])
-	return distrato
-
-
-# ----------------------------------------------------------
 # Duplicar modelo
 # ----------------------------------------------------------
 def duplicar_modelo(modelo, usuario):

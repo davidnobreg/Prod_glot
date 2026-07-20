@@ -611,16 +611,20 @@
                         </a>-->
                     {% endif %}
 
-                    {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" %}
-                        <a
-                            href="#"
-                            class="venda-btn venda-btn--danger"
-                            data-bs-toggle="modal"
-                            data-bs-target="#vendaModalDelete"
-                        >
-                            <i class="bi bi-trash"></i>
-                            Deletar
-                        </a>
+                    {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" and reservas.tipo_venda != "DISTRATADA" %}
+                        {% if distrato_ativo %}
+                            <a href="{% url 'distrato-detalhe' distrato_ativo.uuid %}"
+                               class="venda-btn venda-btn--danger">
+                                <i class="bi bi-file-earmark-x"></i>
+                                Ver Distrato em Andamento
+                            </a>
+                        {% else %}
+                            <a href="{% url 'iniciar-distrato' reservas.uuid %}"
+                               class="venda-btn venda-btn--danger">
+                                <i class="bi bi-file-earmark-x"></i>
+                                Iniciar Distrato
+                            </a>
+                        {% endif %}
                     {% endif %}
 
                     {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" and reservas.cliente %}
@@ -652,6 +656,15 @@
                         </a>-->
                     {% endif %}
                 </div>
+
+                {% if user.is_authenticated and user.tipo_usuario == "ADMINISTRADOR" and reservas.tipo_venda != "DISTRATADA" and not distrato_ativo %}
+                    <div class="text-end mt-1">
+                        <a href="{% url 'iniciar-distrato-administrativo' reservas.uuid %}"
+                           class="text-muted small">
+                            Distrato administrativo (erro de cadastro)
+                        </a>
+                    </div>
+                {% endif %}
             {% endwith %}
         {% else %}
             {% with empreendimento_lote=lote.quadra.empr %}

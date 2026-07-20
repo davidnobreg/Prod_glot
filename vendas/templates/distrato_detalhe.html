@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Distrato{% endblock %}
+
+{% block content %}
+    <style>
+        .distrato-page {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+            overflow: hidden;
+        }
+
+        .distrato-hero {
+            background: linear-gradient(180deg, #b91c1c 0%, #fdecea 100%);
+            padding: 24px;
+            text-align: center;
+        }
+
+        .distrato-title {
+            color: #031523;
+            font-size: clamp(1.5rem, 3vw, 2.2rem);
+            font-weight: 900;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .distrato-status {
+            display: inline-block;
+            border-radius: 999px;
+            padding: 4px 14px;
+            font-size: 0.78rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        .distrato-status-iniciado { background: rgba(234, 179, 8, 0.2); color: #a16207; border: 1px solid rgba(234,179,8,.4); }
+        .distrato-status-aguardando { background: rgba(59, 130, 246, 0.15); color: #1d4ed8; border: 1px solid rgba(59,130,246,.4); }
+        .distrato-status-concluido { background: rgba(5, 150, 105, 0.15); color: #047857; border: 1px solid rgba(5,150,105,.4); }
+        .distrato-status-cancelado { background: rgba(239, 68, 68, 0.15); color: #b91c1c; border: 1px solid rgba(239,68,68,.4); }
+
+        .distrato-panel {
+            margin: 16px;
+            padding: 24px;
+        }
+
+        .distrato-card {
+            background: #f8fafc;
+            border: 1px solid #dbe8ec;
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .distrato-card-title {
+            color: #b91c1c;
+            font-size: 0.78rem;
+            font-weight: 900;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .distrato-section {
+            margin-top: 24px;
+        }
+
+        .distrato-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .distrato-button {
+            border-radius: 999px;
+            font-weight: 800;
+            padding: 12px 24px;
+        }
+    </style>
+
+    <div class="distrato-page">
+        <header class="distrato-hero">
+            <h1 class="distrato-title">
+                Distrato {% if distrato.is_administrativo %}Administrativo{% endif %}
+            </h1>
+            <p style="margin:6px 0 0;color:rgba(3,21,35,.7);">
+                Lote {{ venda.lote.lote }} — Quadra {{ venda.lote.quadra.namequadra }} — {{ venda.lote.quadra.empr.nome }}
+            </p>
+            <span class="distrato-status
+                {% if distrato.status == 'INICIADO' %}distrato-status-iniciado
+                {% elif distrato.status == 'AGUARDANDO_ASSINATURA' %}distrato-status-aguardando
+                {% elif distrato.status == 'CONCLUIDO' %}distrato-status-concluido
+                {% else %}distrato-status-cancelado{% endif %}">
+                {{ distrato.get_status_display }}
+            </span>
+        </header>
+
+        <section class="distrato-panel">
+            <div class="distrato-card">
+                <p class="distrato-card-title">Venda</p>
+                <p><strong>{{ venda.cliente.name }}</strong></p>
+                <p>Documento: {{ venda.cliente.documento }}</p>
+            </div>
+
+            {% if distrato.motivo %}
+                <div class="distrato-section distrato-card">
+                    <p class="distrato-card-title">Motivo</p>
+                    <p>{{ distrato.motivo }}</p>
+                </div>
+            {% endif %}
+
+            {% if distrato.is_administrativo %}
+                <div class="distrato-section distrato-card">
+                    <p class="distrato-card-title">Motivo administrativo</p>
+                    <p>{{ distrato.motivo_administrativo }}</p>
+                </div>
+            {% endif %}
+
+            {# Termo de distrato — não se aplica ao fluxo administrativo #}
+            {% if not distrato.is_administrativo %}
+                <div class="distrato-section distrato-card">
+                    <p class="distrato-card-title">Termo de distrato</p>
+
+                    {% if distrato.documento_gerado and distrato.documento_gerado.arquivo_pdf %}
+                        <a href="{{ distrato.documento_gerado.arquivo_pdf.url }}" target="_blank" class="btn btn-outline-primary">
+                            <i class="bi bi-download"></i> Download PDF
+                        </a>
+                    {% endif %}
+
+                    {% if distrato.status == 'AGUARDANDO_ASSINATURA' %}
+                        <hr>
+                        {% if distrato.termo_assinado %}
+                            <p class="mb-2">
+                                <i class="bi bi-file-earmark-check text-success"></i>
+                                Termo assinado enviado —
+                                <a href="{{ distrato.termo_assinado.url }}" target="_blank">ver arquivo</a>
+                            </p>
+                        {% endif %}
+                        <form method="POST" action="{% url 'distrato-upload-termo' distrato.uuid %}"
+                              enctype="multipart/form-data" class="d-flex gap-2 align-items-end flex-wrap">
+                            {% csrf_token %}
+                            <div>
+                                <label class="form-label fw-semibold" style="font-size:.82rem;">
+                                    {% if distrato.termo_assinado %}Reenviar termo assinado{% else %}Enviar termo assinado{% endif %}
+                                </label>
+                                <input type="file" name="termo_assinado" class="form-control form-control-sm"
+                                       accept=".pdf,.jpg,.jpeg,.png" required>
+                            </div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-upload"></i> Enviar
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {# Ações #}
+            {% if distrato.status == 'INICIADO' %}
+                <div class="distrato-actions">
+                    <form method="POST" action="{% url 'distrato-aguardar-assinatura' distrato.uuid %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary distrato-button">
+                            <i class="bi bi-arrow-right-circle"></i> Avançar para Assinatura
+                        </button>
+                    </form>
+                    <form method="POST" action="{% url 'cancelar-distrato' distrato.uuid %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger distrato-button">
+                            <i class="bi bi-x-circle"></i> Cancelar Distrato
+                        </button>
+                    </form>
+                    <a href="{% url 'reservado' venda.lote.uuid %}" class="btn btn-outline-secondary distrato-button">
+                        Voltar
+                    </a>
+                </div>
+            {% elif distrato.status == 'AGUARDANDO_ASSINATURA' %}
+                <div class="distrato-actions">
+                    <form method="POST" action="{% url 'concluir-distrato' distrato.uuid %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success distrato-button" {% if not pode_concluir %}disabled{% endif %}
+                                title="{% if not pode_concluir %}Envie o termo assinado antes de concluir{% endif %}">
+                            <i class="bi bi-check-circle"></i> Concluir Distrato
+                        </button>
+                    </form>
+                    <form method="POST" action="{% url 'cancelar-distrato' distrato.uuid %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger distrato-button">
+                            <i class="bi bi-x-circle"></i> Cancelar Distrato
+                        </button>
+                    </form>
+                    <a href="{% url 'reservado' venda.lote.uuid %}" class="btn btn-outline-secondary distrato-button">
+                        Voltar
+                    </a>
+                </div>
+            {% else %}
+                <div class="distrato-actions">
+                    <a href="{% url 'reservado' venda.lote.uuid %}" class="btn btn-outline-secondary distrato-button">
+                        Voltar para a venda
+                    </a>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+{% endblock %}

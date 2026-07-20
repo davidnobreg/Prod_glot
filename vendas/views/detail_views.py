@@ -73,6 +73,10 @@ class ReservadoView(TemplateView):
                 venda.transferencias.filter(status='PRE_TRANSFERENCIA').first()
                 if venda else None
             ),
+            'distrato_ativo': (
+                venda.distratos.filter(status__in=['INICIADO', 'AGUARDANDO_ASSINATURA']).first()
+                if venda else None
+            ),
         })
 
         return context

@@ -31,6 +31,15 @@ from .views.transferencia_views import (
     CancelarTransferenciaView,
     UploadTermoAssinadoView,
 )
+from .views.distrato_views import (
+    IniciarDistratoView,
+    IniciarDistratoAdministrativoView,
+    DetalheDistratoView,
+    AvancarParaAssinaturaView,
+    UploadTermoDistratoView,
+    ConcluirDistratoView,
+    CancelarDistratoView,
+)
 from .views.list_views import (
     ListasAnalisesView,
     ListarendaRelatorioView,
@@ -75,4 +84,12 @@ urlpatterns = [
     path('transferencia/<uuid:transferencia_uuid>/efetivar/', EfetivarTransferenciaView.as_view(), name='transferencia-efetivar'),
     path('transferencia/<uuid:transferencia_uuid>/cancelar/', CancelarTransferenciaView.as_view(), name='transferencia-cancelar'),
     path('transferencia/<uuid:transferencia_uuid>/upload-termo/', UploadTermoAssinadoView.as_view(), name='transferencia-upload-termo'),
+
+    path('distrato/iniciar/<uuid:venda_uuid>/', IniciarDistratoView.as_view(), name='iniciar-distrato'),
+    path('distrato/administrativo/iniciar/<uuid:venda_uuid>/', IniciarDistratoAdministrativoView.as_view(), name='iniciar-distrato-administrativo'),
+    path('distrato/<uuid:distrato_uuid>/', DetalheDistratoView.as_view(), name='distrato-detalhe'),
+    path('distrato/<uuid:distrato_uuid>/aguardar-assinatura/', AvancarParaAssinaturaView.as_view(), name='distrato-aguardar-assinatura'),
+    path('distrato/<uuid:distrato_uuid>/upload-termo/', UploadTermoDistratoView.as_view(), name='distrato-upload-termo'),
+    path('distrato/<uuid:distrato_uuid>/concluir/', ConcluirDistratoView.as_view(), name='concluir-distrato'),
+    path('distrato/<uuid:distrato_uuid>/cancelar/', CancelarDistratoView.as_view(), name='cancelar-distrato'),
 ]

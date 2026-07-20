@@ -15,11 +15,9 @@ from rolepermissions.checkers import has_permission
 from rolepermissions.decorators import has_permission_decorator
 
 from empreendimentos.models import Empreendimento
-from vendas.models import RegisterVenda
 
 from . import services
 from .models import (
-	Distrato,
 	EmpreendimentoDocumento,
 	ModeloDocumento,
 	TipoDocumento,
@@ -215,47 +213,6 @@ def modelo_historico(request, modelo_uuid):
 		'modelo': modelo,
 		'historico': modelo.historico.all(),
 	})
-
-
-# ----------------------------------------------------------
-# Distratos
-# ----------------------------------------------------------
-@has_permission_decorator('distratoGerenciar')
-def distrato_novo(request, venda_pk):
-	venda = get_object_or_404(RegisterVenda, pk=venda_pk)
-	if request.method == 'POST':
-		distrato = Distrato.objects.create(
-			venda=venda,
-			cliente=venda.cliente,
-			motivo=request.POST.get('motivo', ''),
-			data_distrato=request.POST.get('data_distrato'),
-			valor_devolucao=request.POST.get('valor_devolucao') or 0,
-			percentual_retencao=request.POST.get('percentual_retencao') or 0,
-			observacao=request.POST.get('observacao', ''),
-			criado_por=request.user,
-		)
-		messages.success(request, 'Distrato criado.')
-		return redirect('documentos:distrato-detalhe', pk=distrato.pk)
-	return render(request, 'documentos/distrato_form.html', {'venda': venda})
-
-
-@has_permission_decorator('distratoGerenciar')
-def distrato_detalhe(request, pk):
-	distrato = get_object_or_404(Distrato, pk=pk)
-	return render(request, 'documentos/distrato_detalhe.html', {'distrato': distrato})
-
-
-@has_permission_decorator('distratoConcluir')
-def distrato_concluir(request, pk):
-	if request.method != 'POST':
-		return redirect('documentos:distrato-detalhe', pk=pk)
-	distrato = get_object_or_404(Distrato, pk=pk)
-	try:
-		services.concluir_distrato(distrato, request.user)
-		messages.success(request, 'Distrato concluído. Venda desativada e lote disponível.')
-	except ValidationError as e:
-		messages.error(request, str(e))
-	return redirect('documentos:distrato-detalhe', pk=pk)
 
 
 # ----------------------------------------------------------

@@ -33,8 +33,6 @@ class Administrador(AbstractUserRole):
         'documentoGerar': True,
         'documentoFinalizar': True,
         'documentoVisualizar': True,
-        'distratoGerenciar': True,
-        'distratoConcluir': True,
 
         # MODULO EMPREENDIMENTO
 

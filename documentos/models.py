@@ -288,35 +288,6 @@ class SequencialDocumento(models.Model):
 # ----------------------------------------------------------
 # Distrato
 # ----------------------------------------------------------
-class Distrato(models.Model):
-	class Status(models.TextChoices):
-		RASCUNHO = 'rascunho', 'Rascunho'
-		CONCLUIDO = 'concluido', 'Concluído'
-
-	venda = models.ForeignKey('vendas.RegisterVenda', on_delete=models.PROTECT, related_name='distratos')
-	cliente = models.ForeignKey('clientes.Cliente', on_delete=models.PROTECT, related_name='+')
-	motivo = models.TextField()
-	data_distrato = models.DateField()
-	valor_devolucao = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-	percentual_retencao = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-	observacao = models.TextField(blank=True)
-	status = models.CharField(max_length=20, choices=Status.choices, default=Status.RASCUNHO)
-	criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='+')
-	criado_em = models.DateTimeField(auto_now_add=True)
-	concluido_em = models.DateTimeField(null=True, blank=True)
-
-	class Meta:
-		ordering = ['-criado_em']
-		verbose_name = 'Distrato'
-		verbose_name_plural = 'Distratos'
-		permissions = [
-			('concluir_distrato', 'Pode concluir distrato'),
-		]
-
-	def __str__(self):
-		return f'Distrato venda {self.venda_id}'
-
-
 # ----------------------------------------------------------
 # Documento gerado (instância final, imutável quando finalizada)
 # ----------------------------------------------------------
@@ -332,7 +303,6 @@ class DocumentoGerado(models.Model):
 	modelo_versao_snapshot = models.PositiveIntegerField()
 	venda = models.ForeignKey('vendas.RegisterVenda', on_delete=models.PROTECT, null=True, blank=True, related_name='documentos')
 	cliente = models.ForeignKey('clientes.Cliente', on_delete=models.PROTECT, null=True, blank=True, related_name='documentos')
-	distrato = models.ForeignKey('documentos.Distrato', on_delete=models.PROTECT, null=True, blank=True, related_name='documentos')
 	titulo = models.CharField(max_length=255)
 	conteudo_final_html = models.TextField()
 	status = models.CharField(max_length=20, choices=StatusDocumento.choices, default=StatusDocumento.RASCUNHO)

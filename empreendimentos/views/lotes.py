@@ -384,9 +384,9 @@ def listaReservasTemporaria(request):
     if query:
         lotes = lotes.filter(
             Q(quadra__empr__nome__icontains=query) |
-            Q(quadra__nome__icontains=query) |
-            Q(numero__icontains=query) |
-            Q(user__username__icontains=query)
+            Q(quadra__namequadra__icontains=query) |
+            Q(lote__icontains=query) |
+            Q(user__icontains=query)
         )
 
     if tipo_empreendimento:

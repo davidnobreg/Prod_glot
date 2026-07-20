@@ -57,6 +57,16 @@ def checklist_documentos_cliente(cliente):
 	return checklist
 
 
+def validar_documentos_titular_novo(cliente):
+	"""Reaplica checklist_documentos_cliente pro cliente_novo de uma
+	TransferenciaTitularidade — mesma regra de negócio usada como gate
+	de CriarVendaView/EfetivarVendaView, não duplicar.
+	"""
+	checklist = checklist_documentos_cliente(cliente)
+	completo = all(item['disponivel'] for item in checklist)
+	return checklist, completo
+
+
 def documento_gerado_mais_recente(venda, tipo_assinado):
 	"""DocumentoGerado FINALIZADO mais recente pro tipo assinado correspondente
 	(proposta_assinada -> proposta, contrato_assinado -> contrato).

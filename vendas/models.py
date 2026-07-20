@@ -1,5 +1,6 @@
 ﻿import uuid
 from decimal import Decimal
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
@@ -65,6 +66,16 @@ class RegisterVenda(models.Model):
 	)
 	observacao = models.TextField(blank=True)
 	corretor_nome = models.CharField(max_length=255, blank=True, default='')
+	status_transferencia = models.CharField(
+	    max_length=30,
+	    choices=[
+	        ('PRE_TRANSFERENCIA', 'Pré-Transferência'),
+	        ('TRANSFERENCIA_CONCLUIDA', 'Transferência Concluída'),
+	    ],
+	    null=True,
+	    blank=True,
+	    default=None,
+	)
 
 
 	def __str__(self):
@@ -102,6 +113,7 @@ class VendaDocumento(models.Model):
 	TIPO_CHOICES = [
 		('proposta_assinada', 'Proposta Assinada'),
 		('contrato_assinado', 'Contrato Assinado'),
+		('termo_transferencia', 'Termo de Transferência'),
 		('outros', 'Outros'),
 	]
 	STATUS_CHOICES = [
@@ -161,3 +173,79 @@ TIPO_ASSINADO_PARA_GERADO = {
 	'proposta_assinada': 'proposta',
 	'contrato_assinado': 'contrato',
 }
+
+
+class TransferenciaTitularidade(models.Model):
+
+	STATUS_CHOICES = [
+		('PRE_TRANSFERENCIA', 'Pré-Transferência'),
+		('CONCLUIDA', 'Concluída'),
+		('CANCELADA', 'Cancelada'),
+	]
+
+	id = models.BigAutoField(primary_key=True)
+	uuid = models.UUIDField(
+	    default=uuid.uuid4,
+	    editable=False,
+	    unique=True,
+	    db_index=True
+	)
+	venda = models.ForeignKey(RegisterVenda, on_delete=models.PROTECT, related_name='transferencias')
+	cliente_anterior = models.ForeignKey(Cliente, on_delete=models.PROTECT, related_name='transferencias_como_anterior')
+	cliente_novo = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True, blank=True, related_name='transferencias_como_novo')
+	status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PRE_TRANSFERENCIA')
+	iniciado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='transferencias_iniciadas')
+	iniciado_em = models.DateTimeField(auto_now_add=True)
+	efetivado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='transferencias_efetivadas')
+	efetivado_em = models.DateTimeField(null=True, blank=True)
+	documento_gerado = models.ForeignKey(
+	    'documentos.DocumentoGerado',
+	    on_delete=models.SET_NULL,
+	    null=True,
+	    blank=True,
+	)
+	arquivo_termo_assinado = models.FileField(
+	    upload_to='vendas/termos_transferencia/',
+	    null=True,
+	    blank=True,
+	    validators=[validate_documento_assinado],
+	)
+	observacao = models.TextField(blank=True)
+
+	class Meta:
+		verbose_name = 'Transferência de Titularidade'
+		verbose_name_plural = 'Transferências de Titularidade'
+		ordering = ['-iniciado_em']
+		constraints = [
+			models.UniqueConstraint(
+				fields=['venda'],
+				condition=Q(status='PRE_TRANSFERENCIA'),
+				name='unica_transferencia_ativa_por_venda',
+			),
+		]
+
+	def __str__(self):
+		return f'Transferência {self.venda_id} — {self.status}'
+
+
+class HistoricoTitularidade(models.Model):
+
+	id = models.BigAutoField(primary_key=True)
+	venda = models.ForeignKey(RegisterVenda, on_delete=models.PROTECT, related_name='historico_titularidade')
+	cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT, related_name='historico_titularidade')
+	dt_inicio = models.DateField()
+	dt_fim = models.DateField(null=True, blank=True)
+	transferencia_origem = models.ForeignKey(
+	    TransferenciaTitularidade,
+	    on_delete=models.SET_NULL,
+	    null=True,
+	    blank=True,
+	)
+
+	class Meta:
+		verbose_name = 'Histórico de Titularidade'
+		verbose_name_plural = 'Históricos de Titularidade'
+		ordering = ['venda', 'dt_inicio']
+
+	def __str__(self):
+		return f'{self.cliente} — venda {self.venda_id}'

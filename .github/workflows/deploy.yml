@@ -109,3 +109,52 @@ jobs:
           username: ${{ secrets.PROD_SSH_USER }}
           key: ${{ secrets.PROD_SSH_KEY }}
           script: docker image prune -a --force
+
+      - name: Limpar tags antigas no Docker Hub
+        continue-on-error: true
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          set -e
+
+          KEEP=5
+
+          echo "Autenticando na API do Docker Hub..."
+          DH_JWT=$(curl -s -X POST "https://hub.docker.com/v2/users/login/" \
+            -H "Content-Type: application/json" \
+            -d "{\"username\": \"${DOCKERHUB_USERNAME}\", \"password\": \"${DOCKERHUB_TOKEN}\"}" \
+            | grep -oP '"token"\s*:\s*"\K[^"]+')
+
+          if [ -z "$DH_JWT" ]; then
+            echo "Falha ao autenticar na API do Docker Hub."
+            exit 1
+          fi
+
+          for REPO in glot glot-backup; do
+            echo "Processando repositório: ${DOCKERHUB_USERNAME}/${REPO}"
+
+            TAGS=$(curl -s -H "Authorization: Bearer ${DH_JWT}" \
+              "https://hub.docker.com/v2/repositories/${DOCKERHUB_USERNAME}/${REPO}/tags/?page_size=100&ordering=last_updated" \
+              | grep -oP '"name"\s*:\s*"\K[^"]+' \
+              | grep -v '^latest$')
+
+            TOTAL=$(printf '%s\n' "$TAGS" | grep -c . || true)
+            echo "  ${TOTAL} tags encontradas (mais antigas primeiro, 'latest' sempre preservada)"
+
+            DELETE_COUNT=$((TOTAL - KEEP))
+            if [ "$DELETE_COUNT" -le 0 ]; then
+              echo "  Nada a deletar (<= ${KEEP} tags)."
+              continue
+            fi
+
+            TAGS_TO_DELETE=$(printf '%s\n' "$TAGS" | head -n "$DELETE_COUNT")
+
+            for TAG in $TAGS_TO_DELETE; do
+              echo "  Deletando tag: ${TAG}"
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE \
+                -H "Authorization: Bearer ${DH_JWT}" \
+                "https://hub.docker.com/v2/repositories/${DOCKERHUB_USERNAME}/${REPO}/tags/${TAG}/")
+              echo "    status: ${HTTP_CODE}"
+            done
+          done

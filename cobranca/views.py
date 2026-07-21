@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
@@ -54,6 +54,11 @@ class GerarCarneView(LoginRequiredMixin, View):
 		context = {
 			'venda': venda,
 			'modalidade_choices': Parcela.MODALIDADE_CHOICES,
+			'initial': {
+				'valor_parcela': venda.valor_parcela,
+				'data_primeira_parcela': venda.dt_primeira_parcela,
+				'ano_referencia': date.today().year,
+			},
 		}
 		return render(request, 'cobranca/gerar_carne.html', context)
 

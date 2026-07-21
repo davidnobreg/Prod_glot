@@ -584,12 +584,23 @@
 		var tabBtn = document.querySelector('[data-tab="conjuge"]');
 		var pertenceGroup = document.getElementById('doc-pertence-a-group');
 		var pertenceSelect = document.getElementById('id_pertence_a');
+		var conjugeFieldIds = [
+			'id_conj_nome', 'id_conj_documento', 'id_conj_numero_rg',
+			'id_conj_orgao_emissor_rg', 'id_conj_profissao', 'id_conj_nacionalidade',
+		];
 
 		function update() {
 			var casado = sel && sel.value === 'casado';
 
 			if (pertenceGroup) pertenceGroup.style.display = casado ? '' : 'none';
 			if (!casado && pertenceSelect) pertenceSelect.value = 'TITULAR';
+
+			if (!casado) {
+				conjugeFieldIds.forEach(function (id) {
+					var el = document.getElementById(id);
+					if (el) el.value = '';
+				});
+			}
 
 			if (!tabBtn) return;
 			tabBtn.style.display = casado ? '' : 'none';

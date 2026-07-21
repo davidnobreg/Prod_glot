@@ -371,6 +371,8 @@ def atualizarCliente(request, cliente_uuid):
             cliente_obj.conj_numero_rg = None
             cliente_obj.conj_orgao_emissor_rg = None
             cliente_obj.conj_documento = None
+            cliente_obj.conj_profissao = None
+            cliente_obj.conj_nacionalidade = None
         cliente_obj.save()
 
         telefones_existentes = list(ClienteTelefone.objects.filter(cliente=cliente_obj))

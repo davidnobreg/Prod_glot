@@ -267,6 +267,9 @@ desktop.ini
 CLAUDE.local.md
 .claude/settings.local.json
 
+# Playwright MCP snapshots
+.playwright-mcp/
+
 
 # ==============================================================================
 # Temporários do projeto

@@ -10,9 +10,11 @@ from django.db import transaction
 
 from ..forms import (EmpreendimentoForm, EnderecoForm, EmpreendimentoStep1Form,
                     EmpresaStep2Form, RepresentanteFormSet,
-                    DocumentoEmpreendimentoForm, DocumentoRepresentanteForm)
+                    DocumentoEmpreendimentoForm, DocumentoRepresentanteForm,
+                    ConfiguracaoGatewayForm)
 from ..models import Empreendimento, RepresentanteLegal, DocumentoRepresentante
 from .. import services as empreendimento_services
+from cobranca.models import ConfiguracaoGateway
 
 
 @has_permission_decorator('criarEmpreendimento')
@@ -307,15 +309,31 @@ def wizard_step4(request):
         for campo in campos:
             if campo in request.POST:
                 setattr(draft, campo, request.POST.get(campo))
+
+        gateway_instance = getattr(draft, 'configuracao_gateway', None)
+        gateway_form = ConfiguracaoGatewayForm(request.POST, prefix='gateway', instance=gateway_instance)
+
         try:
             draft.full_clean(validate_unique=False)
             draft.save(update_fields=campos)
         except ValidationError as e:
             messages.error(request, '; '.join(e.messages) if hasattr(e, 'messages') else str(e))
-            return _wizard_render(request, 'wizard/step4_configuracoes.html', 4, {'empreendimento': draft})
+            return _wizard_render(request, 'wizard/step4_configuracoes.html', 4, {
+                'empreendimento': draft, 'gateway_form': gateway_form,
+            })
+
+        if gateway_form.is_valid():
+            dados = gateway_form.dados_preenchidos()
+            if dados:
+                ConfiguracaoGateway.objects.update_or_create(empreendimento=draft, defaults=dados)
+
         return redirect('empreendimento_wizard_step5')
 
-    return _wizard_render(request, 'wizard/step4_configuracoes.html', 4, {'empreendimento': draft})
+    gateway_instance = getattr(draft, 'configuracao_gateway', None)
+    return _wizard_render(request, 'wizard/step4_configuracoes.html', 4, {
+        'empreendimento': draft,
+        'gateway_form': ConfiguracaoGatewayForm(prefix='gateway', instance=gateway_instance),
+    })
 
 
 @has_permission_decorator('criarEmpreendimento')

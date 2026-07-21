@@ -38,6 +38,72 @@
 		</div>
 	</div>
 
+	<div class="card wiz-card mt-4">
+		<div class="card-header">
+			<h6 class="mb-0">
+				<i class="fas fa-university me-2"></i>CONFIGURAÇÃO DE COBRANÇA BANCÁRIA
+			</h6>
+			<small class="text-muted">Opcional — preencher apenas se este empreendimento utilizar cobrança bancária</small>
+		</div>
+		<div class="card-body">
+			<div class="row mb-3">
+				<div class="col-md-6">
+					{{ gateway_form.gateway.label_tag }}
+					{{ gateway_form.gateway }}
+				</div>
+				<div class="col-md-6 d-flex align-items-end">
+					<div class="form-check">
+						{{ gateway_form.sandbox }}
+						<label class="form-check-label" for="{{ gateway_form.sandbox.id_for_label }}">
+							Ambiente sandbox (testes)
+						</label>
+					</div>
+				</div>
+			</div>
+
+			<div class="row mb-3">
+				<div class="col-md-6">
+					{{ gateway_form.client_id.label_tag }}
+					{{ gateway_form.client_id }}
+				</div>
+				<div class="col-md-6">
+					{{ gateway_form.client_secret.label_tag }}
+					{{ gateway_form.client_secret }}
+					{% if empreendimento.configuracao_gateway.client_secret %}
+						<small class="text-muted">Credencial já configurada — deixe em branco para manter</small>
+					{% endif %}
+				</div>
+			</div>
+
+			<div class="row mb-3">
+				<div class="col-md-6">
+					{{ gateway_form.convenio.label_tag }}
+					{{ gateway_form.convenio }}
+				</div>
+			</div>
+
+			<div class="row mb-3">
+				<div class="col-12">
+					{{ gateway_form.certificado.label_tag }}
+					{{ gateway_form.certificado }}
+					{% if empreendimento.configuracao_gateway.certificado %}
+						<small class="text-muted">Certificado já configurado — deixe em branco para manter</small>
+					{% endif %}
+				</div>
+			</div>
+
+			<div class="row mb-3">
+				<div class="col-12">
+					{{ gateway_form.chave_certificado.label_tag }}
+					{{ gateway_form.chave_certificado }}
+					{% if empreendimento.configuracao_gateway.chave_certificado %}
+						<small class="text-muted">Chave já configurada — deixe em branco para manter</small>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<div class="wiz-action-bar">
 		<a href="{% url 'lista-empreendimento-tabela' %}" class="btn btn-outline-danger" style="border-radius:8px;">
 			<i class="fas fa-times me-1"></i>Cancelar

@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.forms import modelformset_factory
 
 from base.models import Endereco
+from cobranca.models import ConfiguracaoGateway
 from ..models import Empreendimento, Lote, RepresentanteLegal
 
 
@@ -549,3 +550,42 @@ RepresentanteFormSet = modelformset_factory(
     validate_min=True,
     can_delete=False,
 )
+
+
+class ConfiguracaoGatewayForm(forms.ModelForm):
+    class Meta:
+        model = ConfiguracaoGateway
+        fields = ['gateway', 'client_id', 'client_secret', 'convenio', 'certificado', 'chave_certificado', 'sandbox']
+        widgets = {
+            'client_secret': forms.PasswordInput(render_value=False),
+            'certificado': forms.Textarea(attrs={'rows': 4}),
+            'chave_certificado': forms.Textarea(attrs={'rows': 4}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.required = False
+            if field_name != 'sandbox':
+                field.widget.attrs.update({'class': 'form-control'})
+        self.fields['gateway'].widget.attrs.update({'class': 'form-select'})
+        self.fields['sandbox'].widget.attrs.update({'class': 'form-check-input'})
+        # nunca reexibe segredo já gravado — só o admin decide sobrescrever
+        for campo in ('client_id', 'client_secret', 'convenio', 'certificado', 'chave_certificado'):
+            self.initial[campo] = ''
+
+    def dados_preenchidos(self):
+        """Retorna os dados prontos pra `update_or_create`, ou None se o
+        admin não preencheu nada da seção de gateway (evita criar
+        `ConfiguracaoGateway` vazio a cada POST do step4). `sandbox` é
+        BooleanField — sempre presente no `cleaned_data` (True/False, nunca
+        vazio) — então não conta sozinho como "preenchido", senão todo POST
+        do step4 criaria um registro só por causa da checkbox desmarcada."""
+        outros = {
+            campo: valor for campo, valor in self.cleaned_data.items()
+            if campo != 'sandbox' and valor not in (None, '')
+        }
+        if not outros:
+            return None
+        outros['sandbox'] = self.cleaned_data.get('sandbox', True)
+        return outros

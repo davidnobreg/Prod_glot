@@ -13,10 +13,12 @@ from base.models import Endereco
 from ..forms import (
 	EnderecoForm, RepresentanteFormSet,
 	DocumentoRepresentanteForm, DocumentoEmpreendimentoForm,
+	ConfiguracaoGatewayForm,
 )
 from ..models import Empreendimento, RepresentanteLegal, DocumentoRepresentante, DocumentoEmpreendimento
 from .. import services as empreendimento_services
 from ..forms import wizard_update as forms_update
+from cobranca.models import ConfiguracaoGateway
 
 _WIZARD_UPDATE_SESSION_KEY = 'wizard_update'
 
@@ -284,22 +286,38 @@ _CAMPOS_STEP4 = ('tempo_reserva', 'quantidade_parcela', 'desconto', 'tipo_correc
 def wizard_update_step4(request, empreendimento_uuid):
 	real, draft = _get_or_create_draft(request, empreendimento_uuid)
 
+	# draft nasce sem configuracao_gateway própria (não é copiada em
+	# `_get_or_create_draft`, ver Global Constraints do OneToOne) — se o
+	# admin ainda não mexeu nela nesta sessão do wizard, cai pro real pra
+	# exibir o que já está configurado.
+	gateway_instance = getattr(draft, 'configuracao_gateway', None) or getattr(real, 'configuracao_gateway', None)
+
 	if request.method == 'POST':
 		for campo in _CAMPOS_STEP4:
 			if campo in request.POST:
 				setattr(draft, campo, request.POST.get(campo))
+
+		gateway_form = ConfiguracaoGatewayForm(request.POST, prefix='gateway', instance=gateway_instance)
+
 		try:
 			draft.full_clean(validate_unique=False)
 			draft.save(update_fields=_CAMPOS_STEP4)
 		except ValidationError as e:
 			messages.error(request, '; '.join(e.messages) if hasattr(e, 'messages') else str(e))
 			return _wizard_update_render(request, 'wizard/update/step4_configuracoes.html', 4, real, {
-				'draft': draft,
+				'draft': draft, 'gateway_form': gateway_form,
 			})
+
+		if gateway_form.is_valid():
+			dados = gateway_form.dados_preenchidos()
+			if dados:
+				ConfiguracaoGateway.objects.update_or_create(empreendimento=draft, defaults=dados)
+
 		return redirect('empreendimento_update_step5', empreendimento_uuid=empreendimento_uuid)
 
 	return _wizard_update_render(request, 'wizard/update/step4_configuracoes.html', 4, real, {
 		'draft': draft,
+		'gateway_form': ConfiguracaoGatewayForm(prefix='gateway', instance=gateway_instance),
 	})
 
 
@@ -402,6 +420,21 @@ def wizard_update_step5(request, empreendimento_uuid):
 
 			real.full_clean(validate_unique=False)
 			real.save()
+
+			draft_gateway = getattr(draft, 'configuracao_gateway', None)
+			if draft_gateway is not None:
+				ConfiguracaoGateway.objects.update_or_create(
+					empreendimento=real,
+					defaults={
+						'gateway': draft_gateway.gateway,
+						'client_id': draft_gateway.client_id,
+						'client_secret': draft_gateway.client_secret,
+						'convenio': draft_gateway.convenio,
+						'certificado': draft_gateway.certificado,
+						'chave_certificado': draft_gateway.chave_certificado,
+						'sandbox': draft_gateway.sandbox,
+					},
+				)
 
 		if draft.logo:
 			_copiar_logo(draft.logo, real)

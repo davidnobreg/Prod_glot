@@ -31,6 +31,25 @@
 		['OUTROS', 'Outros'],
 	];
 
+	var TIPOS_DOC_REP_TITULAR = [
+		{ value: 'RG', label: 'RG' },
+		{ value: 'CPF', label: 'CPF' },
+		{ value: 'CNH', label: 'CNH' },
+		{ value: 'PROCURACAO', label: 'Procuração' },
+		{ value: 'COMPROVANTE_ESTADO_CIVIL', label: 'Comprovante de Estado Civil' },
+		{ value: 'OUTROS', label: 'Outros' },
+	];
+
+	var TIPOS_DOC_REP_CONJUGE = [
+		{ value: 'RG_CONJUGE', label: 'RG do Cônjuge' },
+		{ value: 'CPF_CONJUGE', label: 'CPF do Cônjuge' },
+		{ value: 'CNH_CONJUGE', label: 'CNH do Cônjuge' },
+		{ value: 'CERTIDAO_CASAMENTO', label: 'Certidão de Casamento' },
+		{ value: 'PACTO_ANTENUPCIAL', label: 'Pacto Antenupcial' },
+	];
+
+	var TIPOS_DOC_REP_CONJUGE_VALUES = TIPOS_DOC_REP_CONJUGE.map(function (t) { return t.value; });
+
 	var AJAX_SAVE_STEPS = ['step-1', 'step-2', 'step-4', 'step-5'];
 
 	var steps = [];
@@ -440,11 +459,40 @@
 		}
 
 		container.innerHTML = wizardRepresentantes.map(function (r, idx) {
-			var docsHtml = (r.documentos || []).map(function (d) {
+			var isCasadoRep = r.estado_civil === 'casado';
+
+			function docBadge(d) {
 				return '<span class="badge bg-secondary me-1 mb-1">' + d.tipo_display
 					+ ' <i class="fas fa-times ms-1" style="cursor:pointer;" '
 					+ 'onclick="wizardDelRepresentanteArquivo(\'' + r.uuid + '\',\'' + d.uuid + '\')"></i></span>';
+			}
+
+			var docsTitular = (r.documentos || []).filter(function (d) { return d.pertence_a !== 'CONJUGE'; });
+			var docsConjuge = (r.documentos || []).filter(function (d) { return d.pertence_a === 'CONJUGE'; });
+
+			var docsHtml = '<div class="mb-1"><span class="text-muted small me-1">Titular:</span>'
+				+ (docsTitular.map(docBadge).join('') || '<span class="text-muted small">Sem documentos anexados.</span>')
+				+ '</div>';
+			if (isCasadoRep) {
+				docsHtml += '<div class="mb-1"><span class="text-muted small me-1">Cônjuge:</span>'
+					+ (docsConjuge.map(docBadge).join('') || '<span class="text-muted small">Sem documentos anexados.</span>')
+					+ '</div>';
+			}
+
+			var optsTitular = TIPOS_DOC_REP_TITULAR.map(function (t) {
+				return '<option value="' + t.value + '">' + t.label + '</option>';
 			}).join('');
+			var selectHtml = '<select id="wz-rep-doc-tipo-' + idx + '" class="glot-select" style="max-width:160px;">'
+				+ '<option value="">Tipo doc.</option>'
+				+ '<optgroup label="Titular">' + optsTitular + '</optgroup>';
+			if (isCasadoRep) {
+				var optsConjuge = TIPOS_DOC_REP_CONJUGE.map(function (t) {
+					return '<option value="' + t.value + '">' + t.label + '</option>';
+				}).join('');
+				selectHtml += '<optgroup label="Cônjuge">' + optsConjuge + '</optgroup>';
+			}
+			selectHtml += '</select>';
+
 			return '<div class="card mb-2" style="border-radius:8px;">'
 				+ '<div class="card-body py-2 px-3">'
 				+ '<div class="d-flex justify-content-between align-items-start">'
@@ -454,14 +502,9 @@
 				+ 'onclick="wizardDelRepresentante(\'' + r.uuid + '\')"><i class="fas fa-trash"></i></button>'
 				+ '</div>'
 				+ '<div class="mt-2">'
-				+ '<div class="mb-1">' + (docsHtml || '<span class="text-muted small">Sem documentos anexados.</span>') + '</div>'
+				+ docsHtml
 				+ '<div class="d-flex gap-1 align-items-end flex-wrap">'
-				+ '<select id="wz-rep-doc-tipo-' + idx + '" class="glot-select" style="max-width:160px;">'
-				+ '<option value="">Tipo doc.</option><option value="RG">RG</option><option value="CPF">CPF</option>'
-				+ '<option value="CNH">CNH</option><option value="PROCURACAO">Procuração</option>'
-				+ '<option value="COMPROVANTE_ESTADO_CIVIL">Comprovante de Estado Civil</option>'
-				+ '<option value="OUTROS">Outros</option>'
-				+ '</select>'
+				+ selectHtml
 				+ '<input type="file" id="wz-rep-doc-arquivo-' + idx + '" class="glot-input" '
 				+ 'accept=".jpg,.jpeg,.png,.pdf" style="max-width:200px;">'
 				+ '<button type="button" class="btn btn-outline-primary btn-sm" '
@@ -552,10 +595,12 @@
 		if (!tipoEl || !tipoEl.value) { alert('Selecione o tipo do documento.'); return; }
 		if (!arquivoEl || !arquivoEl.files || !arquivoEl.files[0]) { alert('Selecione um arquivo.'); return; }
 
+		var pertenceA = TIPOS_DOC_REP_CONJUGE_VALUES.indexOf(tipoEl.value) !== -1 ? 'CONJUGE' : 'TITULAR';
+
 		var data = new FormData();
 		data.append('csrfmiddlewaretoken', getCsrf());
 		data.append('tipo', tipoEl.value);
-		data.append('pertence_a', 'TITULAR');
+		data.append('pertence_a', pertenceA);
 		data.append('arquivo', arquivoEl.files[0]);
 
 		wizardFetch(_wzUrlRepresentanteArquivoAdd(repUuid), { method: 'POST', body: data })
@@ -650,7 +695,19 @@
 		if (getTipoPessoa() === 'PJ') {
 			var repRows = wizardRepresentantes.length
 				? wizardRepresentantes.map(function (r) {
-					return [r.nome, r.documento + (r.cargo ? ' · ' + r.cargo : '')];
+					var val = r.documento + (r.cargo ? ' · ' + r.cargo : '');
+					if (r.estado_civil === 'casado') {
+						var docsConjuge = (r.documentos || []).filter(function (d) { return d.pertence_a === 'CONJUGE'; });
+						var checklist = TIPOS_DOC_REP_CONJUGE.map(function (t) {
+							var enviado = docsConjuge.some(function (d) { return d.tipo === t.value; });
+							return '<span class="badge me-1 mb-1" style="background:' + (enviado ? '#2e7d32' : '#9e9e9e') + ';">'
+								+ '<i class="fas ' + (enviado ? 'fa-check' : 'fa-clock') + ' me-1"></i>' + t.label + '</span>';
+						}).join('');
+						val += '<div class="mt-1">'
+							+ '<div class="text-muted" style="font-size:.75rem;">Documentos do cônjuge:</div>'
+							+ checklist + '</div>';
+					}
+					return [r.nome, val];
 				})
 				: [['Representantes', 'Nenhum representante adicionado']];
 			html += rvSection('Representantes legais', 'fas fa-user-tie', '#c62828', repRows);

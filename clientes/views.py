@@ -605,7 +605,9 @@ def wizard_representante_arquivo_add(request, representante_uuid):
 			'ok': True,
 			'doc': {
 				'uuid': str(doc.uuid),
+				'tipo': doc.tipo,
 				'tipo_display': doc.get_tipo_display(),
+				'pertence_a': doc.pertence_a,
 				'descricao': doc.descricao or '',
 				'arquivo_url': doc.arquivo.url,
 			}

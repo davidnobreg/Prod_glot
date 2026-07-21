@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Carnê {{ carne.numero_carne }}/{{ carne.ano_referencia }}{% endblock %}
+
+{% block content %}
+    <div class="card m-3">
+        <div class="card-header">
+            <h5 class="mb-0">Carnê {{ carne.numero_carne }}/{{ carne.ano_referencia }} — {{ carne.venda.cliente.name }}</h5>
+            <small class="text-muted">Status: {{ carne.get_status_display }}</small>
+        </div>
+        <div class="card-body">
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <tr>
+                        <th>Parcela</th>
+                        <th>Valor</th>
+                        <th>Vencimento</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for parcela in parcelas %}
+                        <tr>
+                            <td>{{ parcela.numero_parcela }}</td>
+                            <td>R$ {{ parcela.valor }}</td>
+                            <td>{{ parcela.data_vencimento|date:"d/m/Y" }}</td>
+                            <td>{{ parcela.get_status_display }}</td>
+                            <td>
+                                <a href="{% url 'detalhe_parcela' parcela.uuid %}" class="btn btn-sm btn-outline-secondary">Detalhe</a>
+                                {% if parcela.status == 'PENDENTE' or parcela.status == 'INADIMPLENTE' %}
+                                    <a href="{% url 'baixa_manual_parcela' parcela.uuid %}" class="btn btn-sm btn-success">Baixa Manual</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <a href="{% url 'lista_carnes_venda' carne.venda.uuid %}" class="btn btn-outline-secondary mt-2">Voltar às Cobranças</a>
+        </div>
+    </div>
+{% endblock %}

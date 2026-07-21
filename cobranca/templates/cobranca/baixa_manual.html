@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Baixa Manual{% endblock %}
+
+{% block content %}
+    <div class="card m-3" style="max-width: 520px;">
+        <div class="card-header">
+            <h5 class="mb-0">Baixa Manual — Parcela {{ parcela.numero_parcela }}</h5>
+        </div>
+        <div class="card-body">
+            <p>Valor: R$ {{ parcela.valor }}</p>
+            <p>Vencimento: {{ parcela.data_vencimento|date:"d/m/Y" }}</p>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label">Valor pago</label>
+                    <input type="text" name="valor_pago" class="form-control" value="{{ parcela.valor }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Data de pagamento</label>
+                    <input type="date" name="data_pagamento" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Observações</label>
+                    <textarea name="observacoes" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="d-flex gap-2">
+                    {% if parcela.carne %}
+                        <a href="{% url 'detalhe_carne' parcela.carne.uuid %}" class="btn btn-outline-secondary">Cancelar</a>
+                    {% else %}
+                        <a href="{% url 'lista_carnes_venda' parcela.venda.uuid %}" class="btn btn-outline-secondary">Cancelar</a>
+                    {% endif %}
+                    <button type="submit" class="btn btn-success">Registrar Baixa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

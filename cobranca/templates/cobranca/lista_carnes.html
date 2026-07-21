@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Cobranças — {{ venda.cliente.name }}{% endblock %}
+
+{% block content %}
+    <div class="card m-3">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h5 class="mb-0">Cobranças — {{ venda.cliente.name }}</h5>
+                <small class="text-muted">
+                    Lote {{ venda.lote.lote }} — Quadra {{ venda.lote.quadra.namequadra }} — {{ venda.lote.quadra.empr.nome }}
+                </small>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'gerar_entrada' venda.uuid %}" class="btn btn-outline-primary">Gerar Entrada</a>
+                <a href="{% url 'gerar_carne' venda.uuid %}" class="btn btn-primary">Gerar Carnê</a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <h6>Entrada</h6>
+            {% if entradas %}
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Valor</th>
+                            <th>Vencimento</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entrada in entradas %}
+                            <tr>
+                                <td>R$ {{ entrada.valor }}</td>
+                                <td>{{ entrada.data_vencimento|date:"d/m/Y" }}</td>
+                                <td>{{ entrada.get_status_display }}</td>
+                                <td>
+                                    <a href="{% url 'detalhe_parcela' entrada.uuid %}" class="btn btn-sm btn-outline-secondary">Detalhe</a>
+                                    {% if entrada.status == 'PENDENTE' or entrada.status == 'INADIMPLENTE' %}
+                                        <a href="{% url 'baixa_manual_parcela' entrada.uuid %}" class="btn btn-sm btn-success">Baixa Manual</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">Nenhuma entrada gerada.</p>
+            {% endif %}
+
+            <h6 class="mt-4">Carnês</h6>
+            {% if carnes %}
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Ano</th>
+                            <th>Status</th>
+                            <th>Parcelas</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for carne in carnes %}
+                            <tr>
+                                <td>{{ carne.numero_carne }}</td>
+                                <td>{{ carne.ano_referencia }}</td>
+                                <td>{{ carne.get_status_display }}</td>
+                                <td>{{ carne.parcelas.count }}</td>
+                                <td>
+                                    <a href="{% url 'detalhe_carne' carne.uuid %}" class="btn btn-sm btn-outline-secondary">Ver Carnê</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">Nenhum carnê gerado.</p>
+            {% endif %}
+
+            <a href="{% url 'reservado' venda.lote.uuid %}" class="btn btn-outline-secondary mt-2">Voltar à Venda</a>
+        </div>
+    </div>
+{% endblock %}

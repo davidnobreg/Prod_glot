@@ -142,6 +142,14 @@ class ClienteDocumento(models.Model):
         ('OUTROS', 'Outros'),
     ]
 
+    TIPO_CHOICES_CONJUGE = [
+        ('RG_CONJUGE', 'RG do Cônjuge'),
+        ('CPF_CONJUGE', 'CPF do Cônjuge'),
+        ('CNH_CONJUGE', 'CNH do Cônjuge'),
+        ('CERTIDAO_CASAMENTO', 'Certidão de Casamento'),
+        ('PACTO_ANTENUPCIAL', 'Pacto Antenupcial'),
+    ]
+
     TIPO_CHOICES = [
         ('RG', 'RG'),
         ('RG_NOVO', 'RG Novo (com CPF)'),
@@ -153,6 +161,11 @@ class ClienteDocumento(models.Model):
         ('CNPJ', 'CNPJ'),
         ('CONTRATO_SOCIAL', 'Contrato Social'),
         ('RG_CPF_ADMINISTRADOR', 'RG / CPF do Administrador'),
+        ('RG_CONJUGE', 'RG do Cônjuge'),
+        ('CPF_CONJUGE', 'CPF do Cônjuge'),
+        ('CNH_CONJUGE', 'CNH do Cônjuge'),
+        ('CERTIDAO_CASAMENTO', 'Certidão de Casamento'),
+        ('PACTO_ANTENUPCIAL', 'Pacto Antenupcial'),
     ]
 
     PERTENCE_A_CHOICES = [

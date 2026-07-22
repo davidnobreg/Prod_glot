@@ -50,11 +50,20 @@
 
 	var TIPOS_DOC_REP_CONJUGE_VALUES = TIPOS_DOC_REP_CONJUGE.map(function (t) { return t.value; });
 
+	var TIPO_CHOICES_CONJUGE = [
+		['RG_CONJUGE', 'RG do Cônjuge'],
+		['CPF_CONJUGE', 'CPF do Cônjuge'],
+		['CNH_CONJUGE', 'CNH do Cônjuge'],
+		['CERTIDAO_CASAMENTO', 'Certidão de Casamento'],
+		['PACTO_ANTENUPCIAL', 'Pacto Antenupcial'],
+	];
+
 	var AJAX_SAVE_STEPS = ['step-1', 'step-2', 'step-4', 'step-5'];
 
 	var steps = [];
 	var cur = 0;
 	var wizardArquivos = [];
+	var wizardArquivosConjuge = [];
 	var wizardRepresentantes = [];
 	var clienteUuid = '';
 
@@ -300,6 +309,19 @@
 		if (pertenceGroup) pertenceGroup.style.display = isCasado() ? '' : 'none';
 
 		renderArquivosList();
+
+		var conjugeSection = document.getElementById('wz-conjuge-docs-section');
+		if (conjugeSection) conjugeSection.style.display = isCasado() ? '' : 'none';
+
+		var tipoConjugeEl = document.getElementById('wz-doc-tipo-conjuge');
+		if (tipoConjugeEl) {
+			tipoConjugeEl.innerHTML = '<option value="">— selecione —</option>'
+				+ TIPO_CHOICES_CONJUGE.map(function (c) {
+					return '<option value="' + c[0] + '">' + c[1] + '</option>';
+				}).join('');
+		}
+
+		renderArquivosListConjuge();
 	}
 
 	function renderArquivosList() {
@@ -323,6 +345,33 @@
 					+ '<td><button type="button" class="btn btn-danger btn-sm" '
 					+ 'style="border-radius:6px;padding:.2rem .5rem;" '
 					+ 'onclick="wizardDelArquivo(' + d.id + ')">'
+					+ '<i class="fas fa-trash"></i></button></td>'
+					+ '</tr>';
+			}).join('')
+			+ '</tbody></table>';
+	}
+
+	function renderArquivosListConjuge() {
+		var container = document.getElementById('wz-arquivos-lista-conjuge');
+		if (!container) return;
+
+		if (!wizardArquivosConjuge.length) {
+			container.innerHTML = '<p class="text-muted small mb-0">Nenhum arquivo adicionado ainda.</p>';
+			return;
+		}
+
+		container.innerHTML = '<table class="table table-sm table-bordered mb-0">'
+			+ '<thead><tr><th>Tipo</th><th>Descrição</th><th>Arquivo</th><th></th></tr></thead>'
+			+ '<tbody>'
+			+ wizardArquivosConjuge.map(function (d) {
+				return '<tr>'
+					+ '<td>' + d.tipo_display + '</td>'
+					+ '<td>' + (d.descricao || '—') + '</td>'
+					+ '<td><a href="' + d.arquivo_url + '" target="_blank" rel="noopener">'
+					+ '<i class="fas fa-file me-1"></i>Ver</a></td>'
+					+ '<td><button type="button" class="btn btn-danger btn-sm" '
+					+ 'style="border-radius:6px;padding:.2rem .5rem;" '
+					+ 'onclick="wizardDelArquivoConjuge(' + d.id + ')">'
 					+ '<i class="fas fa-trash"></i></button></td>'
 					+ '</tr>';
 			}).join('')
@@ -408,6 +457,68 @@
 				if (d.ok) {
 					wizardArquivos = wizardArquivos.filter(function (a) { return a.id !== id; });
 					renderArquivosList();
+				}
+			})
+			.catch(function () {});
+	};
+
+	window.wizardAddArquivoConjuge = function () {
+		var errEl = document.getElementById('wz-arquivos-erro-conjuge');
+
+		if (!clienteUuid) {
+			if (errEl) { errEl.textContent = 'Aguarde: o cadastro ainda está sendo salvo.'; errEl.style.display = ''; }
+			return;
+		}
+
+		var tipo = document.getElementById('wz-doc-tipo-conjuge') ? document.getElementById('wz-doc-tipo-conjuge').value : '';
+		var descricao = document.getElementById('wz-doc-descricao-conjuge') ? document.getElementById('wz-doc-descricao-conjuge').value : '';
+		var arquivoInput = document.getElementById('wz-doc-arquivo-conjuge');
+
+		if (!tipo) {
+			if (errEl) { errEl.textContent = 'Selecione o tipo do documento.'; errEl.style.display = ''; }
+			return;
+		}
+		if (!arquivoInput || !arquivoInput.files || !arquivoInput.files[0]) {
+			if (errEl) { errEl.textContent = 'Selecione um arquivo.'; errEl.style.display = ''; }
+			return;
+		}
+		if (errEl) errEl.style.display = 'none';
+
+		var data = new FormData();
+		data.append('csrfmiddlewaretoken', getCsrf());
+		data.append('tipo', tipo);
+		data.append('pertence_a', 'CONJUGE');
+		data.append('descricao', descricao);
+		data.append('arquivo', arquivoInput.files[0]);
+
+		wizardFetch(_wzUrlAdd(), { method: 'POST', body: data })
+			.then(function (d) {
+				if (d.ok) {
+					wizardArquivosConjuge.push(d.doc);
+					renderArquivosListConjuge();
+					if (document.getElementById('wz-doc-tipo-conjuge')) document.getElementById('wz-doc-tipo-conjuge').value = '';
+					if (document.getElementById('wz-doc-descricao-conjuge')) document.getElementById('wz-doc-descricao-conjuge').value = '';
+					if (arquivoInput) arquivoInput.value = '';
+				} else {
+					if (errEl) { errEl.textContent = d.error || 'Erro ao adicionar documento.'; errEl.style.display = ''; }
+				}
+			})
+			.catch(function (err) {
+				if (errEl) { errEl.textContent = err.message || 'Erro de conexão.'; errEl.style.display = ''; }
+			});
+	};
+
+	window.wizardDelArquivoConjuge = function (id) {
+		if (!confirm('Excluir este arquivo?')) return;
+
+		var data = new FormData();
+		data.append('csrfmiddlewaretoken', getCsrf());
+
+		wizardFetch(_wzUrlDel(id), { method: 'POST', body: data })
+			.then(function (d) {
+				if (d.ok) {
+					wizardArquivosConjuge = wizardArquivosConjuge.filter(function (a) { return a.id !== id; });
+					renderArquivosListConjuge();
 				}
 			})
 			.catch(function () {});

@@ -402,6 +402,40 @@
 						<div id="wz-arquivos-erro" class="alert alert-danger mt-2"
 						     style="display:none;font-size:.85rem;"></div>
 					</div>
+
+					<div id="wz-conjuge-docs-section" style="display:none;">
+						<p class="wz-step-head" style="color:#7b1fa2;margin-top:1.5rem;">
+							<i class="fas fa-paperclip me-2"></i>Documentos do Cônjuge
+							<small style="font-weight:normal;font-size:.75rem;color:#aaa;text-transform:none;letter-spacing:0;">
+								· todos opcionais
+							</small>
+						</p>
+						<div id="wz-arquivos-lista-conjuge" class="mb-3"></div>
+						<div id="wz-arquivos-form-conjuge">
+							<div class="row g-2 align-items-end">
+								<div class="col-md-4">
+									<label class="form-label">Tipo <span class="text-danger">*</span></label>
+									<select id="wz-doc-tipo-conjuge" class="glot-select"></select>
+								</div>
+								<div class="col-md-4">
+									<label class="form-label">Descrição</label>
+									<input type="text" id="wz-doc-descricao-conjuge" class="glot-input" placeholder="Opcional">
+								</div>
+								<div class="col-md-3">
+									<label class="form-label">Arquivo <span class="text-danger">*</span></label>
+									<input type="file" id="wz-doc-arquivo-conjuge" class="glot-input" accept=".jpg,.jpeg,.png,.pdf">
+								</div>
+								<div class="col-md-1">
+									<button type="button" class="btn btn-success w-100"
+									        style="border-radius:8px;" onclick="wizardAddArquivoConjuge()">
+										<i class="fas fa-plus"></i>
+									</button>
+								</div>
+							</div>
+							<div id="wz-arquivos-erro-conjuge" class="alert alert-danger mt-2"
+							     style="display:none;font-size:.85rem;"></div>
+						</div>
+					</div>
 				</div>
 
 				<!-- ================================================

@@ -419,7 +419,9 @@ class ClienteDocumentoForm(forms.ModelForm):
 			if tipo_pessoa == 'PJ'
 			else ClienteDocumento.TIPO_CHOICES_PF
 		)
-		self.fields['tipo'].choices = [('', '---------')] + choices
+		self.fields['tipo'].choices = (
+			[('', '---------')] + choices + ClienteDocumento.TIPO_CHOICES_CONJUGE
+		)
 		for field in self.fields.values():
 			field.required = False
 			_apply_widget_style(field)

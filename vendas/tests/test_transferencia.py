@@ -147,12 +147,25 @@ class TestDetalheTransferenciaView:
 		assert response.context['checklist_completo'] is True
 		assert response.context['pode_efetivar'] is False
 
-	def test_pode_efetivar_true_todas_condicoes(
+	def test_pode_efetivar_false_sem_certidao_iptu(
 		self, client, admin_user, transferencia, checklist_completo_para, local_storage,
 	):
 		checklist_completo_para(transferencia.cliente_novo)
 		transferencia.arquivo_termo_assinado = _fake_file()
 		transferencia.save(update_fields=['arquivo_termo_assinado'])
+
+		client.force_login(admin_user)
+		url = reverse('transferencia-detalhe', kwargs={'transferencia_uuid': transferencia.uuid})
+		response = client.get(url)
+		assert response.context['pode_efetivar'] is False
+
+	def test_pode_efetivar_true_todas_condicoes(
+		self, client, admin_user, transferencia, checklist_completo_para, local_storage,
+	):
+		checklist_completo_para(transferencia.cliente_novo)
+		transferencia.arquivo_termo_assinado = _fake_file()
+		transferencia.certidao_negativa_iptu = _fake_file(name='certidao.pdf')
+		transferencia.save(update_fields=['arquivo_termo_assinado', 'certidao_negativa_iptu'])
 
 		client.force_login(admin_user)
 		url = reverse('transferencia-detalhe', kwargs={'transferencia_uuid': transferencia.uuid})
@@ -168,7 +181,8 @@ class TestEfetivarTransferenciaView:
 	def transferencia_pronta(self, transferencia, checklist_completo_para, local_storage):
 		checklist_completo_para(transferencia.cliente_novo)
 		transferencia.arquivo_termo_assinado = _fake_file()
-		transferencia.save(update_fields=['arquivo_termo_assinado'])
+		transferencia.certidao_negativa_iptu = _fake_file(name='certidao.pdf')
+		transferencia.save(update_fields=['arquivo_termo_assinado', 'certidao_negativa_iptu'])
 		HistoricoTitularidade.objects.create(
 			venda=transferencia.venda, cliente=transferencia.cliente_anterior,
 			dt_inicio=date(2020, 1, 1), dt_fim=None,
@@ -243,6 +257,23 @@ class TestEfetivarTransferenciaView:
 
 	def test_bloqueado_sem_arquivo_termo(self, client, admin_user, transferencia, checklist_completo_para):
 		checklist_completo_para(transferencia.cliente_novo)
+
+		client.force_login(admin_user)
+		url = reverse('transferencia-efetivar', kwargs={'transferencia_uuid': transferencia.uuid})
+		client.post(url)
+
+		venda = transferencia.venda
+		venda.refresh_from_db()
+		transferencia.refresh_from_db()
+		assert transferencia.status == 'PRE_TRANSFERENCIA'
+		assert venda.status_transferencia != 'TRANSFERENCIA_CONCLUIDA'
+
+	def test_bloqueado_sem_certidao_iptu(
+		self, client, admin_user, transferencia, checklist_completo_para, local_storage,
+	):
+		checklist_completo_para(transferencia.cliente_novo)
+		transferencia.arquivo_termo_assinado = _fake_file()
+		transferencia.save(update_fields=['arquivo_termo_assinado'])
 
 		client.force_login(admin_user)
 		url = reverse('transferencia-efetivar', kwargs={'transferencia_uuid': transferencia.uuid})
@@ -352,6 +383,63 @@ class TestUploadTermoAssinadoView:
 
 		transferencia.refresh_from_db()
 		assert bool(transferencia.arquivo_termo_assinado) is False
+
+
+# ─── UploadCertidaoIptuView ─────────────────────────────────────────────────
+
+class TestUploadCertidaoIptuView:
+
+	def test_upload_valido_salva_arquivo(self, client, admin_user, transferencia, local_storage):
+		client.force_login(admin_user)
+		url = reverse('transferencia-upload-certidao-iptu', kwargs={'transferencia_uuid': transferencia.uuid})
+		client.post(url, {'certidao_negativa_iptu': _fake_file(name='certidao.pdf')})
+
+		transferencia.refresh_from_db()
+		assert bool(transferencia.certidao_negativa_iptu) is True
+
+	def test_upload_substitui_e_remove_arquivo_antigo_do_storage(self, client, admin_user, transferencia, local_storage):
+		client.force_login(admin_user)
+		url = reverse('transferencia-upload-certidao-iptu', kwargs={'transferencia_uuid': transferencia.uuid})
+		client.post(url, {'certidao_negativa_iptu': _fake_file(name='certidao1.pdf')})
+
+		transferencia.refresh_from_db()
+		storage = transferencia.certidao_negativa_iptu.storage
+		nome_antigo = transferencia.certidao_negativa_iptu.name
+
+		client.post(url, {'certidao_negativa_iptu': _fake_file(name='certidao2.pdf')})
+
+		transferencia.refresh_from_db()
+		assert transferencia.certidao_negativa_iptu.name != nome_antigo
+		assert storage.exists(nome_antigo) is False
+
+	def test_bloqueado_extensao_invalida(self, client, admin_user, transferencia, local_storage):
+		client.force_login(admin_user)
+		url = reverse('transferencia-upload-certidao-iptu', kwargs={'transferencia_uuid': transferencia.uuid})
+		arquivo = _fake_file(name='certidao.txt', content=b'texto puro', content_type='text/plain')
+		client.post(url, {'certidao_negativa_iptu': arquivo})
+
+		transferencia.refresh_from_db()
+		assert bool(transferencia.certidao_negativa_iptu) is False
+
+	def test_bloqueado_arquivo_maior_que_10mb(self, client, admin_user, transferencia, local_storage):
+		client.force_login(admin_user)
+		url = reverse('transferencia-upload-certidao-iptu', kwargs={'transferencia_uuid': transferencia.uuid})
+		arquivo_grande = _fake_file(name='certidao.pdf', content=b'x' * (10 * 1024 * 1024 + 1))
+		client.post(url, {'certidao_negativa_iptu': arquivo_grande})
+
+		transferencia.refresh_from_db()
+		assert bool(transferencia.certidao_negativa_iptu) is False
+
+	def test_bloqueado_transferencia_nao_pendente(self, client, admin_user, transferencia, local_storage):
+		transferencia.status = 'CONCLUIDA'
+		transferencia.save(update_fields=['status'])
+
+		client.force_login(admin_user)
+		url = reverse('transferencia-upload-certidao-iptu', kwargs={'transferencia_uuid': transferencia.uuid})
+		client.post(url, {'certidao_negativa_iptu': _fake_file(name='certidao.pdf')})
+
+		transferencia.refresh_from_db()
+		assert bool(transferencia.certidao_negativa_iptu) is False
 
 
 # ─── Constraint de banco ────────────────────────────────────────────────────

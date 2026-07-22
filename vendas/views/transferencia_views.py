@@ -155,6 +155,7 @@ class DetalheTransferenciaView(LoginRequiredMixin, View):
 				transferencia.status == 'PRE_TRANSFERENCIA'
 				and checklist_completo
 				and bool(transferencia.arquivo_termo_assinado)
+				and bool(transferencia.certidao_negativa_iptu)
 			),
 			'clientes_disponiveis': (
 				Cliente.objects.filter(is_ativo=True)
@@ -198,6 +199,10 @@ class EfetivarTransferenciaView(LoginRequiredMixin, View):
 
 		if not transferencia.arquivo_termo_assinado:
 			messages.error(request, "Envie o termo de transferência assinado antes de efetivar.")
+			return redirect('transferencia-detalhe', transferencia_uuid=transferencia.uuid)
+
+		if not transferencia.certidao_negativa_iptu:
+			messages.error(request, "Certidão Negativa de IPTU é obrigatória para efetivar a transferência.")
 			return redirect('transferencia-detalhe', transferencia_uuid=transferencia.uuid)
 
 		venda = transferencia.venda
@@ -283,4 +288,37 @@ class UploadTermoAssinadoView(LoginRequiredMixin, View):
 		transferencia.save(update_fields=['arquivo_termo_assinado'])
 
 		messages.success(request, 'Termo de transferência enviado com sucesso.')
+		return redirect('transferencia-detalhe', transferencia_uuid=transferencia.uuid)
+
+
+class UploadCertidaoIptuView(LoginRequiredMixin, View):
+
+	def post(self, request, transferencia_uuid):
+		if not _somente_administrador(request):
+			raise Http404
+
+		transferencia = get_object_or_404(TransferenciaTitularidade, uuid=transferencia_uuid)
+
+		if transferencia.status != 'PRE_TRANSFERENCIA':
+			messages.error(request, "Transferência não está mais pendente.")
+			return redirect('transferencia-detalhe', transferencia_uuid=transferencia.uuid)
+
+		arquivo = request.FILES.get('certidao_negativa_iptu')
+		if not arquivo:
+			messages.error(request, 'Arquivo obrigatório.')
+			return redirect('transferencia-detalhe', transferencia_uuid=transferencia.uuid)
+
+		try:
+			validate_documento_assinado(arquivo)
+		except ValidationError as exc:
+			messages.error(request, ' '.join(exc.messages))
+			return redirect('transferencia-detalhe', transferencia_uuid=transferencia.uuid)
+
+		if transferencia.certidao_negativa_iptu:
+			transferencia.certidao_negativa_iptu.delete(save=False)
+
+		transferencia.certidao_negativa_iptu = arquivo
+		transferencia.save(update_fields=['certidao_negativa_iptu'])
+
+		messages.success(request, 'Certidão Negativa de IPTU enviada com sucesso.')
 		return redirect('transferencia-detalhe', transferencia_uuid=transferencia.uuid)

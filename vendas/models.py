@@ -223,6 +223,12 @@ class TransferenciaTitularidade(models.Model):
 	    blank=True,
 	    validators=[validate_documento_assinado],
 	)
+	certidao_negativa_iptu = models.FileField(
+	    upload_to='vendas/certidoes_iptu/',
+	    null=True,
+	    blank=True,
+	    validators=[validate_documento_assinado],
+	)
 	observacao = models.TextField(blank=True)
 
 	class Meta:

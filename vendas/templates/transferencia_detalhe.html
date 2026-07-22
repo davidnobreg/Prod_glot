@@ -196,7 +196,36 @@
                 </div>
             {% endif %}
 
-            {# Seção 4 — termo de transferência #}
+            {# Seção 4 — certidão negativa de IPTU #}
+            <div class="transf-section transf-card">
+                <p class="transf-card-title">Certidão Negativa de IPTU</p>
+
+                {% if transferencia.status == 'PRE_TRANSFERENCIA' %}
+                    {% if transferencia.certidao_negativa_iptu %}
+                        <p class="mb-2">
+                            <i class="bi bi-file-earmark-check text-success"></i>
+                            Certidão enviada —
+                            <a href="{{ transferencia.certidao_negativa_iptu.url }}" target="_blank">ver arquivo</a>
+                        </p>
+                    {% endif %}
+                    <form method="POST" action="{% url 'transferencia-upload-certidao-iptu' transferencia.uuid %}"
+                          enctype="multipart/form-data" class="d-flex gap-2 align-items-end flex-wrap">
+                        {% csrf_token %}
+                        <div>
+                            <label class="form-label fw-semibold" style="font-size:.82rem;">
+                                {% if transferencia.certidao_negativa_iptu %}Reenviar certidão{% else %}Enviar certidão{% endif %}
+                            </label>
+                            <input type="file" name="certidao_negativa_iptu" class="form-control form-control-sm"
+                                   accept=".pdf,.jpg,.jpeg,.png" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-upload"></i> Enviar
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+
+            {# Seção 5 — termo de transferência #}
             <div class="transf-section transf-card">
                 <p class="transf-card-title">Termo de transferência</p>
 
@@ -238,7 +267,7 @@
                 {% endif %}
             </div>
 
-            {# Seção 5 — histórico de titularidade #}
+            {# Seção 6 — histórico de titularidade #}
             <div class="transf-section transf-card">
                 <p class="transf-card-title">Histórico de titularidade</p>
                 <table class="transf-historico">
@@ -265,13 +294,13 @@
                 </table>
             </div>
 
-            {# Seção 6 — ações #}
+            {# Seção 7 — ações #}
             {% if transferencia.status == 'PRE_TRANSFERENCIA' %}
                 <div class="transf-actions">
                     <form method="POST" action="{% url 'transferencia-efetivar' transferencia.uuid %}">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-success transf-button" {% if not pode_efetivar %}disabled{% endif %}
-                                title="{% if not pode_efetivar %}Selecione o novo titular, complete o checklist de documentos e envie o termo assinado{% endif %}">
+                                title="{% if not pode_efetivar %}Selecione o novo titular, complete o checklist de documentos e envie o termo assinado e a certidão negativa de IPTU{% endif %}">
                             <i class="bi bi-check-circle"></i> Efetivar Transferência
                         </button>
                     </form>

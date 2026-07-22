@@ -13,12 +13,17 @@
                 {% csrf_token %}
 
                 <div class="mb-3">
-                    <label class="form-label">Valor</label>
-                    <input type="text" name="valor" class="form-control" placeholder="0,00" required>
+                    <label class="form-label">Valor Total da Entrada</label>
+                    <input type="text" id="id_valor" name="valor" class="form-control" placeholder="0,00" value="{{ initial.valor|default:'' }}" required>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Data de vencimento</label>
+                    <label class="form-label">Quantidade de parcelas (1-12)</label>
+                    <input type="number" id="id_quantidade_parcelas" name="quantidade_parcelas" min="1" max="12" class="form-control" value="{{ initial.quantidade_parcelas|default:1 }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Data da 1ª parcela</label>
                     <input type="date" name="data_vencimento" class="form-control" required>
                 </div>
 
@@ -31,6 +36,8 @@
                     </select>
                 </div>
 
+                <div class="mb-3 text-muted" id="preview_parcela"></div>
+
                 <div class="d-flex gap-2">
                     <a href="{% url 'lista_carnes_venda' venda.uuid %}" class="btn btn-outline-secondary">Cancelar</a>
                     <button type="submit" class="btn btn-primary">Gerar Entrada</button>
@@ -38,4 +45,27 @@
             </form>
         </div>
     </div>
+
+    <script>
+        (function () {
+            var valorInput = document.getElementById('id_valor');
+            var qtdInput = document.getElementById('id_quantidade_parcelas');
+            var preview = document.getElementById('preview_parcela');
+
+            function atualizarPreview() {
+                var valor = parseFloat((valorInput.value || '0').replace(',', '.'));
+                var qtd = parseInt(qtdInput.value, 10);
+                if (!valor || !qtd || qtd < 1) {
+                    preview.textContent = '';
+                    return;
+                }
+                var valorParcela = valor / qtd;
+                preview.textContent = 'Valor de cada parcela: R$ ' + valorParcela.toFixed(2).replace('.', ',');
+            }
+
+            valorInput.addEventListener('input', atualizarPreview);
+            qtdInput.addEventListener('input', atualizarPreview);
+            atualizarPreview();
+        })();
+    </script>
 {% endblock %}

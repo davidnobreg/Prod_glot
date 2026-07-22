@@ -1,86 +1,157 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Cobranças — {{ venda.cliente.name }}{% endblock %}
+{% block title %}Extrato — {{ venda.cliente.name }}{% endblock %}
 
 {% block content %}
-    <div class="card m-3">
-        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div>
-                <h5 class="mb-0">Cobranças — {{ venda.cliente.name }}</h5>
-                <small class="text-muted">
-                    Lote {{ venda.lote.lote }} — Quadra {{ venda.lote.quadra.namequadra }} — {{ venda.lote.quadra.empr.nome }}
-                </small>
-            </div>
-            <div class="d-flex gap-2">
-                <a href="{% url 'gerar_entrada' venda.uuid %}" class="btn btn-outline-primary">Gerar Entrada</a>
-                <a href="{% url 'gerar_carne' venda.uuid %}" class="btn btn-primary">Gerar Carnê</a>
-            </div>
-        </div>
+	<div class="card m-3">
+		<div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+			<div>
+				<h5 class="mb-0">Extrato de Pagamentos — {{ venda.cliente.name }}</h5>
+				<small class="text-muted">
+					Lote {{ venda.lote.lote }} — Quadra {{ venda.lote.quadra.namequadra }} — {{ empreendimento.nome }}
+				</small>
+			</div>
+			<div class="d-flex gap-2">
+				<a href="{% url 'gerar_entrada' venda.uuid %}" class="btn btn-outline-primary">Gerar Entrada</a>
+				<a href="{% url 'gerar_carne' venda.uuid %}" class="btn btn-primary">Gerar Carnê</a>
+			</div>
+		</div>
 
-        <div class="card-body">
-            <h6>Entrada</h6>
-            {% if entradas %}
-                <table class="table table-sm table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Valor</th>
-                            <th>Vencimento</th>
-                            <th>Status</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for entrada in entradas %}
-                            <tr>
-                                <td>R$ {{ entrada.valor }}</td>
-                                <td>{{ entrada.data_vencimento|date:"d/m/Y" }}</td>
-                                <td>{{ entrada.get_status_display }}</td>
-                                <td>
-                                    <a href="{% url 'detalhe_parcela' entrada.uuid %}" class="btn btn-sm btn-outline-secondary">Detalhe</a>
-                                    {% if entrada.status == 'PENDENTE' or entrada.status == 'INADIMPLENTE' %}
-                                        <a href="{% url 'baixa_manual_parcela' entrada.uuid %}" class="btn btn-sm btn-success">Baixa Manual</a>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p class="text-muted">Nenhuma entrada gerada.</p>
-            {% endif %}
+		<div class="card-body">
 
-            <h6 class="mt-4">Carnês</h6>
-            {% if carnes %}
-                <table class="table table-sm table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Número</th>
-                            <th>Ano</th>
-                            <th>Status</th>
-                            <th>Parcelas</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for carne in carnes %}
-                            <tr>
-                                <td>{{ carne.numero_carne }}</td>
-                                <td>{{ carne.ano_referencia }}</td>
-                                <td>{{ carne.get_status_display }}</td>
-                                <td>{{ carne.parcelas.count }}</td>
-                                <td>
-                                    <a href="{% url 'detalhe_carne' carne.uuid %}" class="btn btn-sm btn-outline-secondary">Ver Carnê</a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p class="text-muted">Nenhum carnê gerado.</p>
-            {% endif %}
+			<!-- Cabeçalho da venda -->
+			<div class="row">
+				<div class="col-md-6">
+					<table class="table table-sm table-borderless mb-0">
+						<tbody>
+							<tr><th style="width:45%;">Loteamento</th><td>{{ empreendimento.nome }}</td></tr>
+							<tr><th>Período</th><td>{{ venda.dt_primeira_parcela|date:"d/m/Y" }} — {{ periodo_fim|date:"d/m/Y" }}</td></tr>
+							<tr><th>Data da Venda</th><td>{{ venda.dt_venda|date:"d/m/Y" }}</td></tr>
+							<tr><th>Corretor</th><td>{{ venda.corretor.first_name }}</td></tr>
+							<tr><th>Nº Contrato</th><td>{{ numero_contrato }}</td></tr>
+							<tr><th>Forma de PGTO</th><td>{{ forma_pgto }}</td></tr>
+							<tr><th>Contrato de Status</th><td>{{ venda.get_tipo_venda_display }}</td></tr>
+                        </tbody>
+					</table>
+				</div>
+				<div class="col-md-6">
+					<table class="table table-sm table-borderless mb-0">
+						<tbody>
+							{# <tr><th style="width:45%;">Cliente</th><td>{{ venda.cliente.name }}</td></tr> #}
+							{#   <tr><th>Quadra</th><td>{{ venda.lote.quadra.namequadra }}</td></tr> #}
+							{#  <tr><th>Lote</th><td>{{ venda.lote.lote }}</td></tr> #}
+                            <tr><th>Valor Financiado</th><td>R$ {{ valor_financiado_calc }}</td></tr>
+                            <tr><th>Entrada</th><td>R$ {{ venda.valor_entrada }}</td></tr>
+                            <tr><th>Parc. da Entrada / Pagas</th><td>{{ venda.quantidade_parcelas|default:0 }} / {{ venda.quantidade_parcelas_pagas|default:0 }}</td></tr>
+                            <tr><th>Valor Total do Lote</th><td>R$ {{ venda.valor_financiado }}</td></tr>
 
-            <a href="{% url 'reservado' venda.lote.uuid %}" class="btn btn-outline-secondary mt-2">Voltar à Venda</a>
-        </div>
-    </div>
+
+                            {#  <tr><th>Valor Geral Intercaladas</th><td>R$ {{ valor_geral_intercaladas }}</td></tr> #}
+							{# <tr><th>Quant. Intercaladas / Pagas</th><td>{{ quantidade_intercaladas }} / {{ quantidade_intercaladas_pagas }}</td></tr> #}
+							<tr><th>Quant. de Parcelas / Pagas</th><td>{{ venda.quantidade_parcelas|default:0 }} / {{ venda.quantidade_parcelas_pagas|default:0 }}</td></tr>
+                        </tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- Extrato -->
+			<h6 class="mt-4">Extrato de Parcelas</h6>
+			{% if linhas %}
+				<div class="table-responsive">
+					<table class="table table-sm table-bordered align-middle">
+						<thead>
+							<tr>
+								<th>Nº Documento</th>
+								<th>Data Vencimento</th>
+								<th>Valor Documento</th>
+								<th>Desconto</th>
+								<th>Oscilação</th>
+								<th>Saldo Liquidado</th>
+								<th>Saldo Devedor</th>
+								<th>Status</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for linha in linhas %}
+								{% with parcela=linha.parcela %}
+									<tr>
+										<td>{{ linha.numero_documento }}</td>
+										<td>{{ parcela.data_vencimento|date:"d/m/Y" }}</td>
+										<td>R$ {{ parcela.valor }}</td>
+										<td>R$ 0,00</td>
+										<td>—</td>
+										<td>R$ {{ linha.saldo_liquidado }}</td>
+										<td>R$ {{ linha.saldo_devedor }}</td>
+										<td>
+											{% if parcela.status == 'PAGA' %}
+												<span class="badge bg-success">{{ parcela.get_status_display }}</span>
+											{% elif parcela.status == 'PENDENTE' %}
+												<span class="badge bg-warning text-dark">{{ parcela.get_status_display }}</span>
+											{% elif parcela.status == 'CANCELADA' %}
+												<span class="badge bg-danger">{{ parcela.get_status_display }}</span>
+											{% elif parcela.status == 'INADIMPLENTE' %}
+												<span class="badge" style="background-color:#fd7e14;color:#fff;">{{ parcela.get_status_display }}</span>
+											{% elif parcela.status == 'ENVIADA_BANCO' %}
+												<span class="badge bg-info text-dark">{{ parcela.get_status_display }}</span>
+											{% endif %}
+										</td>
+										<td>
+											<a href="{% url 'detalhe_parcela' parcela.uuid %}" class="btn btn-sm btn-outline-secondary">Detalhe</a>
+											{% if parcela.status == 'PENDENTE' or parcela.status == 'INADIMPLENTE' %}
+												<a href="{% url 'baixa_manual_parcela' parcela.uuid %}" class="btn btn-sm btn-success">Baixa Manual</a>
+											{% endif %}
+										</td>
+									</tr>
+								{% endwith %}
+							{% endfor %}
+						</tbody>
+						<tfoot>
+							<tr class="fw-bold">
+								<td colspan="5" class="text-end">Total Pago / Saldo Devedor Final</td>
+								<td>R$ {{ total_pago }}</td>
+								<td>R$ {{ saldo_devedor_final }}</td>
+								<td colspan="2"></td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			{% else %}
+				<p class="text-muted">Nenhuma parcela gerada ainda.</p>
+			{% endif %}
+
+			<h6 class="mt-4">Carnês</h6>
+			{% if carnes %}
+				<table class="table table-sm table-bordered">
+					<thead>
+						<tr>
+							<th>Número</th>
+							<th>Ano</th>
+							<th>Status</th>
+							<th>Parcelas</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for carne in carnes %}
+							<tr>
+								<td>{{ carne.numero_carne }}</td>
+								<td>{{ carne.ano_referencia }}</td>
+								<td>{{ carne.get_status_display }}</td>
+								<td>{{ carne.parcelas.count }}</td>
+								<td>
+									<a href="{% url 'detalhe_carne' carne.uuid %}" class="btn btn-sm btn-outline-secondary">Ver Carnê</a>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			{% else %}
+				<p class="text-muted">Nenhum carnê gerado.</p>
+			{% endif %}
+
+			<a href="{% url 'reservado' venda.lote.uuid %}" class="btn btn-outline-secondary mt-2">Voltar à Venda</a>
+		</div>
+	</div>
 {% endblock %}

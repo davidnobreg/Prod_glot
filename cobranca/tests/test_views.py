@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 
 from django.test import TestCase
 from django.urls import reverse
@@ -119,6 +120,58 @@ class CobrancaViewsTestCase(TestCase):
 		})
 		self.assertEqual(Parcela.objects.filter(tipo='ENTRADA').count(), 1)
 		self.assertEqual(response.status_code, 302)
+
+	def test_gerar_entrada_get_prefill_valor_entrada_da_venda(self):
+		self.venda.valor_entrada = Decimal('2500.00')
+		self.venda.save(update_fields=['valor_entrada'])
+		self.client.force_login(self.admin)
+		url = reverse('gerar_entrada', kwargs={'venda_uuid': self.venda.uuid})
+		response = self.client.get(url)
+		self.assertEqual(response.context['initial']['valor'], Decimal('2500.00'))
+		self.assertEqual(response.context['initial']['quantidade_parcelas'], 1)
+
+	def test_gerar_entrada_post_quantidade_3_divide_valor_e_gera_datas_mensais(self):
+		self.client.force_login(self.admin)
+		url = reverse('gerar_entrada', kwargs={'venda_uuid': self.venda.uuid})
+		response = self.client.post(url, {
+			'valor': '3000',
+			'data_vencimento': '2026-01-05',
+			'modalidade': 'BOLETO',
+			'quantidade_parcelas': '3',
+		})
+		self.assertEqual(response.status_code, 302)
+		entradas = Parcela.objects.filter(tipo='ENTRADA').order_by('numero_parcela')
+		self.assertEqual(entradas.count(), 3)
+		self.assertTrue(all(p.carne is None for p in entradas))
+		self.assertEqual(list(entradas.values_list('valor', flat=True)), [Decimal('1000.00')] * 3)
+		self.assertEqual(
+			list(entradas.values_list('data_vencimento', flat=True)),
+			[date(2026, 1, 5), date(2026, 2, 5), date(2026, 3, 5)],
+		)
+
+	def test_gerar_entrada_post_quantidade_12_nao_gera_erro_unique_together(self):
+		self.client.force_login(self.admin)
+		url = reverse('gerar_entrada', kwargs={'venda_uuid': self.venda.uuid})
+		response = self.client.post(url, {
+			'valor': '1200',
+			'data_vencimento': '2026-01-05',
+			'modalidade': 'BOLETO',
+			'quantidade_parcelas': '12',
+		})
+		self.assertEqual(response.status_code, 302)
+		self.assertEqual(Parcela.objects.filter(tipo='ENTRADA').count(), 12)
+
+	def test_gerar_entrada_post_quantidade_13_nao_cria_e_retorna_erro(self):
+		self.client.force_login(self.admin)
+		url = reverse('gerar_entrada', kwargs={'venda_uuid': self.venda.uuid})
+		response = self.client.post(url, {
+			'valor': '1300',
+			'data_vencimento': '2026-01-05',
+			'modalidade': 'BOLETO',
+			'quantidade_parcelas': '13',
+		})
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(Parcela.objects.filter(tipo='ENTRADA').count(), 0)
 
 	# ─── BaixaManualParcelaView ─────────────────────────────────────
 

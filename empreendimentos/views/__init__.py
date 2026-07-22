@@ -1,6 +1,7 @@
 from .cadastro import (
     criarEmpreendimento,
     wizard_step1, wizard_step2, wizard_step3, wizard_step4, wizard_step5,
+    wizard_cancelar,
 )
 from .update import (
     wizard_update_step1, wizard_update_step2, wizard_update_step3,
@@ -33,6 +34,7 @@ from .ajax import (
 __all__ = [
     'criarEmpreendimento',
     'wizard_step1', 'wizard_step2', 'wizard_step3', 'wizard_step4', 'wizard_step5',
+    'wizard_cancelar',
     'wizard_update_step1', 'wizard_update_step2', 'wizard_update_step3',
     'wizard_update_step4', 'wizard_update_step5',
     'wizard_update_cancelar', 'wizard_update_rep_del',

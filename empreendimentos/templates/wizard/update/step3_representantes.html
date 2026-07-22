@@ -28,12 +28,12 @@
 							{{ rep_form.id }}
 							<div class="row g-3">
 								<div class="col-md-6">
-									<label class="form-label">Nome completo <span class="text-danger">*</span></label>
+									<label class="form-label">Nome completo</label>
 									{{ rep_form.nome }}
 									{% if rep_form.nome.errors %}<div class="text-danger" style="font-size:.8rem;">{{ rep_form.nome.errors|striptags }}</div>{% endif %}
 								</div>
 								<div class="col-md-6">
-									<label class="form-label">CPF <span class="text-danger">*</span></label>
+									<label class="form-label">CPF</label>
 									{{ rep_form.documento }}
 									{% if rep_form.documento.errors %}<div class="text-danger" style="font-size:.8rem;">{{ rep_form.documento.errors|striptags }}</div>{% endif %}
 								</div>
@@ -46,7 +46,7 @@
 									{{ rep_form.orgao_emissor_rg }}
 								</div>
 								<div class="col-md-4">
-									<label class="form-label">Cargo <span class="text-danger">*</span></label>
+									<label class="form-label">Cargo</label>
 									{{ rep_form.cargo }}
 									{% if rep_form.cargo.errors %}<div class="text-danger" style="font-size:.8rem;">{{ rep_form.cargo.errors|striptags }}</div>{% endif %}
 								</div>
@@ -89,32 +89,32 @@
 							<div class="wiz-sec-head" style="margin-bottom:.6rem;"><i class="fas fa-map-marker-alt" style="font-size:12px;"></i><span style="font-size:11px;">Endereço do representante</span></div>
 							<div class="row g-3">
 								<div class="col-md-3">
-									<label class="form-label">CEP <span class="text-danger">*</span></label>
+									<label class="form-label">CEP</label>
 									{{ endereco_form.cep }}
 									{% if endereco_form.cep.errors %}<div class="text-danger" style="font-size:.8rem;">{{ endereco_form.cep.errors|striptags }}</div>{% endif %}
 								</div>
 								<div class="col-md-7">
-									<label class="form-label">Cidade <span class="text-danger">*</span></label>
+									<label class="form-label">Cidade</label>
 									{{ endereco_form.cidade }}
 									{% if endereco_form.cidade.errors %}<div class="text-danger" style="font-size:.8rem;">{{ endereco_form.cidade.errors|striptags }}</div>{% endif %}
 								</div>
 								<div class="col-md-2">
-									<label class="form-label">Estado <span class="text-danger">*</span></label>
+									<label class="form-label">Estado</label>
 									{{ endereco_form.estado }}
 									{% if endereco_form.estado.errors %}<div class="text-danger" style="font-size:.8rem;">{{ endereco_form.estado.errors|striptags }}</div>{% endif %}
 								</div>
 								<div class="col-md-6">
-									<label class="form-label">Bairro <span class="text-danger">*</span></label>
+									<label class="form-label">Bairro</label>
 									{{ endereco_form.bairro }}
 									{% if endereco_form.bairro.errors %}<div class="text-danger" style="font-size:.8rem;">{{ endereco_form.bairro.errors|striptags }}</div>{% endif %}
 								</div>
 								<div class="col-md-6">
-									<label class="form-label">Rua <span class="text-danger">*</span></label>
+									<label class="form-label">Rua</label>
 									{{ endereco_form.rua }}
 									{% if endereco_form.rua.errors %}<div class="text-danger" style="font-size:.8rem;">{{ endereco_form.rua.errors|striptags }}</div>{% endif %}
 								</div>
 								<div class="col-md-6">
-									<label class="form-label">Número <span class="text-danger">*</span></label>
+									<label class="form-label">Número</label>
 									{{ endereco_form.numero }}
 									{% if endereco_form.numero.errors %}<div class="text-danger" style="font-size:.8rem;">{{ endereco_form.numero.errors|striptags }}</div>{% endif %}
 								</div>
@@ -198,11 +198,11 @@
 			{{ formset.empty_form.id }}
 			<div class="row g-3">
 				<div class="col-md-6">
-					<label class="form-label">Nome completo <span class="text-danger">*</span></label>
+					<label class="form-label">Nome completo</label>
 					{{ formset.empty_form.nome }}
 				</div>
 				<div class="col-md-6">
-					<label class="form-label">CPF <span class="text-danger">*</span></label>
+					<label class="form-label">CPF</label>
 					{{ formset.empty_form.documento }}
 				</div>
 				<div class="col-md-4">
@@ -214,7 +214,7 @@
 					{{ formset.empty_form.orgao_emissor_rg }}
 				</div>
 				<div class="col-md-4">
-					<label class="form-label">Cargo <span class="text-danger">*</span></label>
+					<label class="form-label">Cargo</label>
 					{{ formset.empty_form.cargo }}
 				</div>
 				<div class="col-md-6">
@@ -230,12 +230,12 @@
 			<div class="wiz-inner-div"></div>
 			<div class="wiz-sec-head" style="margin-bottom:.6rem;"><i class="fas fa-map-marker-alt" style="font-size:12px;"></i><span style="font-size:11px;">Endereço do representante</span></div>
 			<div class="row g-3">
-				<div class="col-md-3"><label class="form-label">CEP <span class="text-danger">*</span></label>{{ empty_endereco_form.cep }}</div>
-				<div class="col-md-7"><label class="form-label">Cidade <span class="text-danger">*</span></label>{{ empty_endereco_form.cidade }}</div>
-				<div class="col-md-2"><label class="form-label">Estado <span class="text-danger">*</span></label>{{ empty_endereco_form.estado }}</div>
-				<div class="col-md-6"><label class="form-label">Bairro <span class="text-danger">*</span></label>{{ empty_endereco_form.bairro }}</div>
-				<div class="col-md-6"><label class="form-label">Rua <span class="text-danger">*</span></label>{{ empty_endereco_form.rua }}</div>
-				<div class="col-md-6"><label class="form-label">Número <span class="text-danger">*</span></label>{{ empty_endereco_form.numero }}</div>
+				<div class="col-md-3"><label class="form-label">CEP</label>{{ empty_endereco_form.cep }}</div>
+				<div class="col-md-7"><label class="form-label">Cidade</label>{{ empty_endereco_form.cidade }}</div>
+				<div class="col-md-2"><label class="form-label">Estado</label>{{ empty_endereco_form.estado }}</div>
+				<div class="col-md-6"><label class="form-label">Bairro</label>{{ empty_endereco_form.bairro }}</div>
+				<div class="col-md-6"><label class="form-label">Rua</label>{{ empty_endereco_form.rua }}</div>
+				<div class="col-md-6"><label class="form-label">Número</label>{{ empty_endereco_form.numero }}</div>
 				<div class="col-md-6"><label class="form-label">Complemento <span class="text-muted">opcional</span></label>{{ empty_endereco_form.complemento }}</div>
 			</div>
 

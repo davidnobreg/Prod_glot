@@ -10,12 +10,12 @@
 			<div class="wiz-sec-head"><i class="fas fa-briefcase"></i><span>Pessoa jurídica</span><div class="wiz-sec-divider"></div></div>
 			<div class="row g-3">
 				<div class="col-md-6">
-					<label class="form-label">CNPJ <span class="text-danger">*</span></label>
+					<label class="form-label">CNPJ</label>
 					{{ form.cnpj }}
 					{% if form.cnpj.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.cnpj.errors|striptags }}</div>{% endif %}
 				</div>
 				<div class="col-md-6">
-					<label class="form-label">Razão social <span class="text-danger">*</span></label>
+					<label class="form-label">Razão social</label>
 					{{ form.razaoSocial }}
 					{% if form.razaoSocial.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.razaoSocial.errors|striptags }}</div>{% endif %}
 				</div>
@@ -25,7 +25,7 @@
 			<div class="wiz-sec-head"><i class="fas fa-university"></i><span>Dados bancários</span><div class="wiz-sec-divider"></div></div>
 			<div class="row g-3">
 				<div class="col-md-6">
-					<label class="form-label">Banco <span class="text-danger">*</span></label>
+					<label class="form-label">Banco</label>
 					{{ form.banco }}
 					{% if form.banco.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.banco.errors|striptags }}</div>{% endif %}
 				</div>
@@ -34,12 +34,12 @@
 					{{ form.codBanco }}
 				</div>
 				<div class="col-md-6">
-					<label class="form-label">Agência <span class="text-danger">*</span></label>
+					<label class="form-label">Agência</label>
 					{{ form.agencia }}
 					{% if form.agencia.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.agencia.errors|striptags }}</div>{% endif %}
 				</div>
 				<div class="col-md-6">
-					<label class="form-label">Conta <span class="text-danger">*</span></label>
+					<label class="form-label">Conta</label>
 					{{ form.conta }}
 					{% if form.conta.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.conta.errors|striptags }}</div>{% endif %}
 				</div>
@@ -49,32 +49,32 @@
 			<div class="wiz-sec-head"><i class="fas fa-map-marker-alt"></i><span>Endereço da empresa</span><div class="wiz-sec-divider"></div></div>
 			<div class="row g-3">
 				<div class="col-md-3">
-					<label class="form-label">CEP <span class="text-danger">*</span></label>
+					<label class="form-label">CEP</label>
 					{{ form_endereco.cep }}
 					{% if form_endereco.cep.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.cep.errors|striptags }}</div>{% endif %}
 				</div>
 				<div class="col-md-7">
-					<label class="form-label">Cidade <span class="text-danger">*</span></label>
+					<label class="form-label">Cidade</label>
 					{{ form_endereco.cidade }}
 					{% if form_endereco.cidade.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.cidade.errors|striptags }}</div>{% endif %}
 				</div>
 				<div class="col-md-2">
-					<label class="form-label">Estado <span class="text-danger">*</span></label>
+					<label class="form-label">Estado</label>
 					{{ form_endereco.estado }}
 					{% if form_endereco.estado.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.estado.errors|striptags }}</div>{% endif %}
 				</div>
 				<div class="col-md-6">
-					<label class="form-label">Bairro <span class="text-danger">*</span></label>
+					<label class="form-label">Bairro</label>
 					{{ form_endereco.bairro }}
 					{% if form_endereco.bairro.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.bairro.errors|striptags }}</div>{% endif %}
 				</div>
 				<div class="col-md-6">
-					<label class="form-label">Rua <span class="text-danger">*</span></label>
+					<label class="form-label">Rua</label>
 					{{ form_endereco.rua }}
 					{% if form_endereco.rua.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.rua.errors|striptags }}</div>{% endif %}
 				</div>
 				<div class="col-md-6">
-					<label class="form-label">Número <span class="text-danger">*</span></label>
+					<label class="form-label">Número</label>
 					{{ form_endereco.numero }}
 					{% if form_endereco.numero.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.numero.errors|striptags }}</div>{% endif %}
 				</div>

@@ -357,6 +357,52 @@ class WizardUpdateStep3Test(TestCase):
 			RepresentanteLegal.objects.filter(empreendimento=self.real, nome='REP NOVO').exists()
 		)
 
+	def test_post_novo_representante_em_branco_nao_cria_registro_vazio(self):
+		"""Formset tem min_num=1 com todos os campos opcionais — um segundo
+		form deixado em branco não deve criar RepresentanteLegal vazio
+		(mesmo guard do wizard de cadastro, ver cadastro.py::wizard_step3)."""
+		data = self._management_form(total=2)
+		data.update({
+			'representante-0-id': str(self.rep.pk),
+			'representante-0-nome': self.rep.nome,
+			'representante-0-documento': self.rep.documento,
+			'representante-0-cargo': self.rep.cargo,
+			'representante-0-estado_civil': '',
+			'representante-1-id': '',
+			'representante-1-nome': '',
+			'representante-1-documento': '',
+			'representante-1-cargo': '',
+			'representante-1-estado_civil': '',
+		})
+		response = self.client.post(self.url, data)
+		self.assertRedirects(response, reverse('empreendimento_update_step4', args=[self.real.uuid]))
+		self.assertEqual(RepresentanteLegal.objects.filter(empreendimento=self.real).count(), 1)
+
+	def test_post_novo_representante_mesmo_cpf_do_existente_retorna_erro_sem_500_e_preserva_dados(self):
+		"""Antes desta correção, CPF duplicado aqui derrubava a request com
+		500 (full_clean() do RepresentanteLegal levantando ValidationError
+		sem catch, e sem transaction.atomic() nenhum ao redor do loop —
+		pior que o cadastro, que ao menos tinha atomic sem o catch)."""
+		data = self._management_form(total=2)
+		data.update({
+			'representante-0-id': str(self.rep.pk),
+			'representante-0-nome': self.rep.nome,
+			'representante-0-documento': self.rep.documento,
+			'representante-0-cargo': self.rep.cargo,
+			'representante-0-estado_civil': '',
+			'representante-1-id': '',
+			'representante-1-nome': 'Rep Duplicado',
+			'representante-1-documento': self.rep.documento,
+			'representante-1-cargo': 'Sócio',
+			'representante-1-estado_civil': '',
+		})
+		response = self.client.post(self.url, data)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(RepresentanteLegal.objects.filter(empreendimento=self.real).count(), 1)
+		content = response.content.decode('utf-8')
+		self.assertIn('Rep Duplicado', content)
+
 
 class WizardUpdateRepDelTest(TestCase):
 

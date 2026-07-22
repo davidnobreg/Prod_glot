@@ -11,13 +11,13 @@
 
 			<div class="wiz-cfg-grid">
 				<div class="wiz-cfg-card">
-					<label class="form-label">Tempo de reserva (dias) <span class="text-danger">*</span></label>
-					<input type="number" name="tempo_reserva" class="form-control" min="1" value="{{ draft.tempo_reserva|default:'' }}" required>
+					<label class="form-label">Tempo de reserva (dias)</label>
+					<input type="number" name="tempo_reserva" class="form-control" min="1" value="{{ draft.tempo_reserva|default:'' }}">
 					<div class="hint">Prazo máximo que um lote fica em reserva antes de ser liberado automaticamente</div>
 				</div>
 				<div class="wiz-cfg-card">
-					<label class="form-label">Quantidade de parcelas <span class="text-danger">*</span></label>
-					<input type="number" name="quantidade_parcela" class="form-control" min="1" value="{{ draft.quantidade_parcela|default:'' }}" required>
+					<label class="form-label">Quantidade de parcelas</label>
+					<input type="number" name="quantidade_parcela" class="form-control" min="1" value="{{ draft.quantidade_parcela|default:'' }}">
 					<div class="hint">Número padrão de parcelas para financiamento</div>
 				</div>
 				<div class="wiz-cfg-card">
@@ -26,7 +26,7 @@
 					<div class="hint">Percentual aplicado por padrão nas propostas de venda</div>
 				</div>
 				<div class="wiz-cfg-card">
-					<label class="form-label">Índice de correção <span class="text-danger">*</span></label>
+					<label class="form-label">Índice de correção</label>
 					<select name="tipo_correcao" class="form-select">
 						<option value="IGPM" {% if draft.tipo_correcao == 'IGPM' %}selected{% endif %}>IGPM</option>
 						<option value="IPCA" {% if draft.tipo_correcao == 'IPCA' %}selected{% endif %}>IPCA</option>

@@ -8,6 +8,8 @@ from rolepermissions.decorators import has_permission_decorator
 
 from django.db import transaction
 
+from base.models import Endereco
+
 from ..forms import (EmpreendimentoForm, EnderecoForm, EmpreendimentoStep1Form,
                     EmpresaStep2Form, RepresentanteFormSet,
                     DocumentoEmpreendimentoForm, DocumentoRepresentanteForm,
@@ -79,6 +81,53 @@ def _wizard_render(request, template, current_step, context):
     context['wizard_steps'] = _WIZARD_STEPS
     context['current_step'] = current_step
     return render(request, template, context)
+
+
+def _deletar_wizard_draft(draft):
+    """Apaga o draft de cadastro inteiro: documentos do empreendimento,
+    representantes (com seus próprios endereços e documentos), os 2
+    endereços do empreendimento, o logo e o registro em si. Arquivo
+    sempre apagado do storage antes do registro (mesmo cuidado de
+    `services.remover_documento_*`), senão o arquivo fica órfão no B2
+    mesmo depois do CASCADE apagar a linha do banco."""
+    for documento in draft.documentos.all():
+        documento.arquivo.delete(save=False)
+        documento.delete()
+
+    for representante in draft.representantes.all():
+        for documento in representante.documentos.all():
+            documento.arquivo.delete(save=False)
+            documento.delete()
+        endereco_id = representante.endereco_id
+        representante.delete()
+        if endereco_id:
+            Endereco.objects.filter(pk=endereco_id).delete()
+
+    if draft.logo:
+        draft.logo.delete(save=False)
+
+    if draft.endereco_empresa_id:
+        Endereco.objects.filter(pk=draft.endereco_empresa_id).delete()
+    if draft.endereco_empreendimento_id:
+        Endereco.objects.filter(pk=draft.endereco_empreendimento_id).delete()
+
+    draft.delete()
+
+
+@has_permission_decorator('criarEmpreendimento')
+@require_POST
+def wizard_cancelar(request):
+    """Cancela o cadastro em andamento — apaga o draft (+ endereços,
+    representantes, documentos e arquivos do storage) e limpa a
+    sessão. Antes disso, o botão Cancelar só redirecionava pra listagem
+    sem limpar nada, abandonando o draft is_ativo=False (e tudo vinculado
+    a ele) permanentemente no banco."""
+    draft = _wizard_get_draft(request)
+    if draft is not None:
+        with transaction.atomic():
+            _deletar_wizard_draft(draft)
+    request.session.pop(_WIZARD_SESSION_KEY, None)
+    return redirect('lista-empreendimento-tabela')
 
 
 def _doc_form_filtrado(categorias, prefix=None):
@@ -221,21 +270,54 @@ def wizard_step3(request):
 
         if formset.is_valid() and all(f.is_valid() for f in enderecos_forms):
             algum_novo = False
-            with transaction.atomic():
-                for form, form_endereco in zip(formset.forms, enderecos_forms):
-                    if not form.cleaned_data or form.cleaned_data.get('DELETE'):
-                        continue
-                    representante = form.instance
-                    dados = {k: v for k, v in form.cleaned_data.items() if k != 'id'}
-                    if representante.pk:
-                        empreendimento_services.atualizar_representante(
-                            representante, dados, endereco_dados=form_endereco.cleaned_data
-                        )
-                    else:
-                        algum_novo = True
-                        empreendimento_services.criar_representante(
-                            draft, dados, endereco_dados=form_endereco.cleaned_data
-                        )
+            try:
+                with transaction.atomic():
+                    for form, form_endereco in zip(formset.forms, enderecos_forms):
+                        if not form.cleaned_data or form.cleaned_data.get('DELETE'):
+                            continue
+                        representante = form.instance
+                        dados = {k: v for k, v in form.cleaned_data.items() if k != 'id'}
+                        if representante.pk:
+                            empreendimento_services.atualizar_representante(
+                                representante, dados, endereco_dados=form_endereco.cleaned_data
+                            )
+                        else:
+                            # Formset tem min_num=1 e todos os campos opcionais —
+                            # se o usuário clicar em Próximo sem preencher nada
+                            # (nem representante nem endereço), não cria registro
+                            # vazio só pra existir. Cadastro parcial continua
+                            # permitido: basta 1 campo preenchido em qualquer um
+                            # dos dois formulários.
+                            representante_vazio = not any(v not in (None, '') for v in dados.values())
+                            endereco_vazio = not any(v not in (None, '') for v in form_endereco.cleaned_data.values())
+                            if representante_vazio and endereco_vazio:
+                                continue
+                            algum_novo = True
+                            empreendimento_services.criar_representante(
+                                draft, dados, endereco_dados=form_endereco.cleaned_data
+                            )
+            except ValidationError as exc:
+                # full_clean() do RepresentanteLegal (services.criar_representante/
+                # atualizar_representante) pode rejeitar dados válidos pro form mas
+                # inválidos pro model (ex: CPF duplicado no mesmo empreendimento).
+                # Sem isso, a ValidationError subia crua e virava 500 — o
+                # transaction.atomic() já desfez qualquer save parcial deste POST
+                # antes de re-lançar, então nada fica inconsistente no banco.
+                messages.error(
+                    request,
+                    '; '.join(exc.messages) if hasattr(exc, 'messages') else str(exc),
+                )
+                docs_forms = [DocumentoRepresentanteForm() for _ in formset.forms]
+                reps_docs = [
+                    form.instance.documentos.all() if form.instance.pk else DocumentoRepresentante.objects.none()
+                    for form in formset.forms
+                ]
+                return _wizard_render(request, 'wizard/step3_representantes.html', 3, {
+                    'formset': formset, 'enderecos_forms': enderecos_forms,
+                    'reps_com_endereco': zip(formset.forms, enderecos_forms, reps_docs, docs_forms),
+                    'empty_endereco_form': EnderecoForm(prefix='representante-__prefix__-endereco'),
+                    'empty_doc_form': DocumentoRepresentanteForm(),
+                })
 
             if algum_novo:
                 # Representante recém-criado só ganha o widget de
@@ -304,11 +386,15 @@ def wizard_step4(request):
         return redirect('empreendimento_wizard_step1')
 
     campos = ('tempo_reserva', 'quantidade_parcela', 'desconto', 'tipo_correcao')
+    campos_inteiros = ('tempo_reserva', 'quantidade_parcela')
 
     if request.method == 'POST':
         for campo in campos:
             if campo in request.POST:
-                setattr(draft, campo, request.POST.get(campo))
+                valor = request.POST.get(campo)
+                if campo in campos_inteiros and valor == '':
+                    valor = None
+                setattr(draft, campo, valor)
 
         gateway_instance = getattr(draft, 'configuracao_gateway', None)
         gateway_form = ConfiguracaoGatewayForm(request.POST, prefix='gateway', instance=gateway_instance)
@@ -345,21 +431,6 @@ def wizard_step5(request):
         return redirect('empreendimento_wizard_step1')
 
     if request.method == 'POST':
-        erros = []
-        if not draft.nome or not draft.telefone:
-            erros.append('Dados gerais incompletos.')
-        if not draft.endereco_empresa:
-            erros.append('Endereço da empresa é obrigatório.')
-        if not draft.endereco_empreendimento:
-            erros.append('Endereço do empreendimento é obrigatório.')
-        if not draft.representantes.filter(is_ativo=True).exists():
-            erros.append('Informe ao menos um representante legal.')
-
-        if erros:
-            for erro in erros:
-                messages.error(request, erro)
-            return redirect('empreendimento_wizard_step5')
-
         with transaction.atomic():
             draft.is_ativo = True
             draft.save(update_fields=['is_ativo'])

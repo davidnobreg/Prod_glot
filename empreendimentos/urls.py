@@ -17,6 +17,7 @@ from .views import (
     wizard_step3,
     wizard_step4,
     wizard_step5,
+    wizard_cancelar,
     wizard_representante_del,
     wizard_rep_doc_upload,
     wizard_rep_doc_remover,
@@ -140,6 +141,11 @@ urlpatterns = [
         'cadastrar/step6/documento/<uuid:doc_uuid>/remover/',
         wizard_doc_empreendimento_remover,
         name='wizard_doc_empreendimento_remover'
+    ),
+    path(
+        'cadastrar/cancelar/',
+        wizard_cancelar,
+        name='empreendimento_wizard_cancelar'
     ),
 
     # =========================

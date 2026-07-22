@@ -8,6 +8,13 @@ from base.models import Endereco
 
 from .models import RepresentanteLegal, DocumentoEmpreendimento, DocumentoRepresentante
 
+# Endereco (base.models) é compartilhado com outros apps (clientes) e continua
+# exigindo esses campos por padrão — o wizard de empreendimento não torna
+# nenhum campo obrigatório, então exclui-os do full_clean() aqui, sem alterar
+# o model compartilhado. Formato (max_length etc.) já foi validado pelo
+# EnderecoForm antes de chegar aqui.
+CAMPOS_ENDERECO_LIVRES = ('cep', 'rua', 'numero', 'bairro', 'cidade', 'estado')
+
 
 def criar_ou_atualizar_endereco(dados, endereco=None):
 	"""Cria um Endereco novo a partir de `dados` (cleaned_data de EnderecoForm).
@@ -21,12 +28,12 @@ def criar_ou_atualizar_endereco(dados, endereco=None):
 	if endereco is not None:
 		for campo, valor in dados.items():
 			setattr(endereco, campo, valor)
-		endereco.full_clean()
+		endereco.full_clean(exclude=CAMPOS_ENDERECO_LIVRES)
 		endereco.save()
 		return endereco
 
 	novo = Endereco(**dados)
-	novo.full_clean()
+	novo.full_clean(exclude=CAMPOS_ENDERECO_LIVRES)
 	novo.save()
 	return novo
 

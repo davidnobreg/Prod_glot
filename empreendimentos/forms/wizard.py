@@ -419,6 +419,7 @@ class EnderecoForm(forms.ModelForm):
             'cidade': {'placeholder': 'Cidade'},
         }
         for field_name, field in self.fields.items():
+            field.required = False
             field.widget.attrs.update({'class': 'form-control mb-3'})
             if field_name in config:
                 field.widget.attrs.update(config[field_name])
@@ -427,12 +428,14 @@ class EnderecoForm(forms.ModelForm):
 class EmpreendimentoStep1Form(forms.ModelForm):
     class Meta:
         model = Empreendimento
-        fields = ('nome', 'telefone', 'observacao', 'logo', 'matricula', 'cidade_foro')
+        fields = ('nome', 'sigla', 'telefone', 'observacao', 'logo', 'matricula', 'cidade_foro')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs.update({'class': 'form-control mb-3'})
+        self.fields['sigla'].required = False
+        self.fields['sigla'].widget.attrs.update({'placeholder': 'Ex: CQDA — gerado automaticamente se vazio'})
         self.fields['telefone'].widget.attrs.update({'class': 'form-control mb-3 mask-phone'})
         self.fields['observacao'].widget = forms.Textarea(attrs={'class': 'form-control mb-3', 'rows': 4})
         self.fields['matricula'].widget.attrs.update({'placeholder': 'Matrícula do imóvel'})
@@ -497,9 +500,6 @@ class RepresentanteForm(forms.ModelForm):
         for field_name, field in self.fields.items():
             field.widget.attrs.update({'class': 'form-control mb-3'})
             field.required = False
-        self.fields['nome'].required = True
-        self.fields['documento'].required = True
-        self.fields['cargo'].required = True
 
         self.fields['documento'].widget.attrs.update({'class': 'form-control mb-3 mask-doc', 'placeholder': 'CPF do representante'})
         self.fields['nome'].widget.attrs.update({'placeholder': 'Nome do representante'})
@@ -532,22 +532,13 @@ class RepresentanteForm(forms.ModelForm):
 
         return documento
 
-    def clean(self):
-        cleaned = super().clean()
-        if cleaned.get('estado_civil') == 'casado':
-            if not cleaned.get('conj_nome'):
-                self.add_error('conj_nome', 'Obrigatório quando casado(a)')
-            if not cleaned.get('conj_documento'):
-                self.add_error('conj_documento', 'Obrigatório quando casado(a)')
-        return cleaned
-
 
 RepresentanteFormSet = modelformset_factory(
     RepresentanteLegal,
     form=RepresentanteForm,
     extra=0,
     min_num=1,
-    validate_min=True,
+    validate_min=False,
     can_delete=False,
 )
 

@@ -233,19 +233,51 @@ def wizard_update_step3(request, empreendimento_uuid):
 		]
 
 		if formset.is_valid() and all(f.is_valid() for f in enderecos_forms):
-			for form, form_endereco in zip(formset.forms, enderecos_forms):
-				if not form.cleaned_data or form.cleaned_data.get('DELETE'):
-					continue
-				representante = form.instance
-				dados = {k: v for k, v in form.cleaned_data.items() if k != 'id'}
-				if representante.pk:
-					empreendimento_services.atualizar_representante(
-						representante, dados, endereco_dados=form_endereco.cleaned_data
-					)
-				else:
-					empreendimento_services.criar_representante(
-						real, dados, endereco_dados=form_endereco.cleaned_data
-					)
+			try:
+				with transaction.atomic():
+					for form, form_endereco in zip(formset.forms, enderecos_forms):
+						if not form.cleaned_data or form.cleaned_data.get('DELETE'):
+							continue
+						representante = form.instance
+						dados = {k: v for k, v in form.cleaned_data.items() if k != 'id'}
+						if representante.pk:
+							empreendimento_services.atualizar_representante(
+								representante, dados, endereco_dados=form_endereco.cleaned_data
+							)
+						else:
+							# mesmo guard do wizard de cadastro (ver cadastro.py::wizard_step3):
+							# formset tem min_num=1 com todos os campos opcionais, não cria
+							# representante vazio só pra existir.
+							representante_vazio = not any(v not in (None, '') for v in dados.values())
+							endereco_vazio = not any(v not in (None, '') for v in form_endereco.cleaned_data.values())
+							if representante_vazio and endereco_vazio:
+								continue
+							empreendimento_services.criar_representante(
+								real, dados, endereco_dados=form_endereco.cleaned_data
+							)
+			except ValidationError as exc:
+				# full_clean() do RepresentanteLegal (services.criar_representante/
+				# atualizar_representante) pode rejeitar dados válidos pro form mas
+				# inválidos pro model (ex: CPF duplicado no mesmo empreendimento).
+				# Sem isso, a ValidationError subia crua e virava 500 — o
+				# transaction.atomic() já desfez qualquer save parcial deste POST
+				# antes de re-lançar, então nada fica inconsistente no banco.
+				messages.error(
+					request,
+					'; '.join(exc.messages) if hasattr(exc, 'messages') else str(exc),
+				)
+				docs_forms = [DocumentoRepresentanteForm() for _ in formset.forms]
+				reps_docs = [
+					form.instance.documentos.all() if form.instance.pk else DocumentoRepresentante.objects.none()
+					for form in formset.forms
+				]
+				return _wizard_update_render(request, 'wizard/update/step3_representantes.html', 3, real, {
+					'formset': formset, 'enderecos_forms': enderecos_forms,
+					'reps_com_endereco': zip(formset.forms, enderecos_forms, reps_docs, docs_forms),
+					'empty_endereco_form': EnderecoForm(prefix='representante-__prefix__-endereco'),
+					'empty_doc_form': DocumentoRepresentanteForm(),
+				})
+
 			return redirect('empreendimento_update_step4', empreendimento_uuid=empreendimento_uuid)
 
 		messages.error(request, 'Verifique os campos obrigatórios dos representantes.')
@@ -280,6 +312,7 @@ def wizard_update_step3(request, empreendimento_uuid):
 
 
 _CAMPOS_STEP4 = ('tempo_reserva', 'quantidade_parcela', 'desconto', 'tipo_correcao')
+_CAMPOS_STEP4_INTEIROS = ('tempo_reserva', 'quantidade_parcela')
 
 
 @has_permission_decorator('alterarEmpreendimento')
@@ -295,7 +328,10 @@ def wizard_update_step4(request, empreendimento_uuid):
 	if request.method == 'POST':
 		for campo in _CAMPOS_STEP4:
 			if campo in request.POST:
-				setattr(draft, campo, request.POST.get(campo))
+				valor = request.POST.get(campo)
+				if campo in _CAMPOS_STEP4_INTEIROS and valor == '':
+					valor = None
+				setattr(draft, campo, valor)
 
 		gateway_form = ConfiguracaoGatewayForm(request.POST, prefix='gateway', instance=gateway_instance)
 

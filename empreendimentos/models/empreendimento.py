@@ -15,9 +15,18 @@ class Empreendimento(models.Model):
         db_index=True
     )
     id = models.BigAutoField(primary_key=True)
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=100, blank=True)
+    sigla = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        verbose_name='Sigla',
+        help_text='Prefixo usado no número do contrato e documentos de cobrança. '
+                  'Se vazio, será gerado automaticamente com as iniciais do nome.'
+    )
     telefone = models.CharField(
         max_length=15,
+        blank=True,
         validators=[
             RegexValidator(
                 regex=r'^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$',
@@ -25,8 +34,8 @@ class Empreendimento(models.Model):
             )
         ]
     )
-    tempo_reserva = models.IntegerField()
-    quantidade_parcela = models.IntegerField()
+    tempo_reserva = models.IntegerField(null=True, blank=True)
+    quantidade_parcela = models.IntegerField(null=True, blank=True)
     logo = models.ImageField(
         upload_to=_upload_logo_empreendimento,
         null=True, blank=True,
@@ -65,6 +74,15 @@ class Empreendimento(models.Model):
     )
 
 
+
+    def save(self, *args, **kwargs):
+        if not self.sigla and self.nome:
+            self.sigla = ''.join(
+                word[0].upper()
+                for word in self.nome.split()
+                if word
+            )
+        super().save(*args, **kwargs)
 
     def __str__(self):
         # return self.nome

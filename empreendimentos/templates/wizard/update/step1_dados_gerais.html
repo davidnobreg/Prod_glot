@@ -10,14 +10,19 @@
 			<div class="wiz-sec-head"><i class="fas fa-building"></i><span>Dados do empreendimento</span><div class="wiz-sec-divider"></div></div>
 			<div class="row g-3">
 				<div class="col-md-6">
-					<label class="form-label" for="{{ form.nome.id_for_label }}">Nome do empreendimento <span class="text-danger">*</span></label>
+					<label class="form-label" for="{{ form.nome.id_for_label }}">Nome do empreendimento</label>
 					{{ form.nome }}
 					{% if form.nome.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.nome.errors|striptags }}</div>{% endif %}
 				</div>
 				<div class="col-md-6">
-					<label class="form-label" for="{{ form.telefone.id_for_label }}">Telefone de contato <span class="text-danger">*</span></label>
+					<label class="form-label" for="{{ form.telefone.id_for_label }}">Telefone de contato</label>
 					{{ form.telefone }}
 					{% if form.telefone.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.telefone.errors|striptags }}</div>{% endif %}
+				</div>
+				<div class="col-md-6">
+					<label class="form-label" for="{{ form.sigla.id_for_label }}">Sigla <span class="text-muted">opcional</span></label>
+					{{ form.sigla }}
+					{% if form.sigla.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form.sigla.errors|striptags }}</div>{% endif %}
 				</div>
 			</div>
 			<div class="wiz-inner-div"></div>
@@ -44,32 +49,32 @@
 			<div class="wiz-sec-head"><i class="fas fa-map-marker-alt"></i><span>Endereço do empreendimento</span><div class="wiz-sec-divider"></div></div>
 			<div class="row g-3">
 				<div class="col-md-3">
-					<label class="form-label">CEP <span class="text-danger">*</span></label>
+					<label class="form-label">CEP</label>
 					{{ form_endereco.cep }}
 					{% if form_endereco.cep.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.cep.errors|striptags }}</div>{% endif %}
 				</div>
 				<div class="col-md-7">
-					<label class="form-label">Cidade <span class="text-danger">*</span></label>
+					<label class="form-label">Cidade</label>
 					{{ form_endereco.cidade }}
 					{% if form_endereco.cidade.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.cidade.errors|striptags }}</div>{% endif %}
 				</div>
 				<div class="col-md-2">
-					<label class="form-label">Estado <span class="text-danger">*</span></label>
+					<label class="form-label">Estado</label>
 					{{ form_endereco.estado }}
 					{% if form_endereco.estado.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.estado.errors|striptags }}</div>{% endif %}
 				</div>
 				<div class="col-md-6">
-					<label class="form-label">Bairro <span class="text-danger">*</span></label>
+					<label class="form-label">Bairro</label>
 					{{ form_endereco.bairro }}
 					{% if form_endereco.bairro.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.bairro.errors|striptags }}</div>{% endif %}
 				</div>
 				<div class="col-md-6">
-					<label class="form-label">Rua / Estrada <span class="text-danger">*</span></label>
+					<label class="form-label">Rua / Estrada</label>
 					{{ form_endereco.rua }}
 					{% if form_endereco.rua.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.rua.errors|striptags }}</div>{% endif %}
 				</div>
 				<div class="col-md-6">
-					<label class="form-label">Número <span class="text-danger">*</span></label>
+					<label class="form-label">Número</label>
 					{{ form_endereco.numero }}
 					{% if form_endereco.numero.errors %}<div class="text-danger" style="font-size:.8rem;">{{ form_endereco.numero.errors|striptags }}</div>{% endif %}
 				</div>
